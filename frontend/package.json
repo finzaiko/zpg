@@ -1,0 +1,50 @@
+{
+  "name": "webix-jet-app",
+  "version": "1.1.0",
+  "description": "Webix Jet App",
+  "main": "sources/myapp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint sources/",
+    "build": "webpack --env.production true --env.server_url http://10.109.129.137:9000",
+    "module": "webpack --env.production true --env.module true",
+    "standalone": "webpack --env.production true --env.module true --env.standalone true",
+    "start": "webpack-dev-server --open --port 8000 --env.server_url http://localhost:9000"
+  },
+  "keywords": [
+    "webix",
+    "jet"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "chokidar": "^3.5.2",
+    "copy-webpack-plugin": "^4.6.0",
+    "css-loader": "^0.28.7",
+    "eslint": "^4.7.2",
+    "file-loader": "^0.11.2",
+    "less": "^2.7.2",
+    "less-loader": "^4.0.5",
+    "mini-css-extract-plugin": "^0.4.0",
+    "url-loader": "^0.5.9",
+    "webpack": "^4.12.1",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4"
+  },
+  "dependencies": {
+    "@mdi/font": "^5.9.55",
+    "animate.css": "^4.1.1",
+    "codemirror": "^5.59.2",
+    "copy-text-to-clipboard": "^3.0.1",
+    "diff": "^5.0.0",
+    "javascript-time-ago": "^2.3.4",
+    "monaco-editor": "^0.30.1",
+    "sql-formatter": "^4.0.0-beta.8",
+    "webix": "^8.2.0",
+    "webix-jet": "^2.1.3"
+  }
+}

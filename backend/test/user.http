@@ -1,0 +1,51 @@
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjExMSwidXNlcm5hbWUiOiJhYWEiLCJ0ZXN0IjoieHh4eCIsImlhdCI6MTYxNzc3MzIwMCwiZXhwIjoxNjE3ODU5NjAwfQ.YoM4NGI5hI69lgv0XS_RnQEz7z1Mtu1nGgRHrTRxHQI
+
+GET http://localhost:3000/api/v1/users HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+GET http://localhost:3000/api/v1/users/1 HTTP/1.1
+
+###
+
+# POST http://localhost:9000/api/v1/register HTTP/1.1
+POST http://10.109.129.137:9000/api/v1/register HTTP/1.1
+content-type: application/json
+
+{
+    "username": "arifin.rmd",
+    "password": "arifin.rmd123",
+    "fullname": "Arifin Rahmad",
+    "email": "arifin.rmd@citratubindo.com"
+
+}
+
+###
+
+PUT  http://localhost:3000/api/v1/users/1 HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+   "username": "aaax",
+    "fullname": "aaax",
+    "email": "aaa@test.com"
+}
+
+###
+
+PUT  http://localhost:3000/api/v1/users/1/changepass HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "old_password": "bbbx",
+    "new_password": "bbbxhh"
+}
+
+###
+
+DELETE  http://localhost:3000/api/v1/users/1 HTTP/1.1
+Authorization: Bearer {{authToken}}

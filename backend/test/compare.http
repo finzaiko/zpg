@@ -1,0 +1,7 @@
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjgsInVzZXJuYW1lIjoiYXJpZmluIiwiZnVsbG5hbWUiOiJBcmlmaW4iLCJ1bHYiOjMsImlhdCI6MTYzMjU3ODEyNSwiZXhwIjoxNjMyNjY0NTI1fQ.jduS3d3k_91kR3JsMRt-IyO31hWQl59vjE-BsUy2KNM
+
+GET http://localhost:9000/api/v1/compare/schema?id=47 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###

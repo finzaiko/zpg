@@ -1,0 +1,50 @@
+
+[
+    {
+      "value": "Database",
+      "id": "database",
+      "icon": "mdi mdi-database"
+    },
+    {
+      "value": "Query",
+      "id": "query",
+      "icon": "mdi mdi-play",
+      "access": {
+        "manage_conn": false,  
+        "edit_selection": false,
+        "show_dblist": false
+      }
+    },
+    {
+      "value": "Task",
+      "id": "task",
+      "icon": "mdi mdi-chart-gantt"
+     
+    },
+    {
+      "value": "Migration",
+      "id": "migration",
+      "icon": "mdi mdi-transfer"
+    },
+    {
+      "value": "Compare",
+      "id": "compare",
+      "icon": "mdi mdi-swap-horizontal-bold"
+    },
+    {
+      "value": "Copy Data",
+      "id": "copydata",
+      "icon": "mdi mdi-layers"
+    },
+    {
+      "value": "Generator",
+      "id": "generator",
+      "icon": "mdi mdi-atom-variant"
+    },
+    {
+      "value": "Setting",
+      "id": "setting",
+      "icon": "mdi mdi-cog"
+    }
+  ]
+  

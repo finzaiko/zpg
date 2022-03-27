@@ -1,0 +1,45 @@
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhoaCIsImlhdCI6MTYxNTI4MjAxNCwiZXhwIjoxNjE1MzY4NDE0fQ.42W8CRtIsnIBnqjyo3_tP21bsDtMRUFyQVODki3YkwA
+
+GET http://localhost:3000/api/v1/profile HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+GET http://localhost:3000/api/v1/profile/1 HTTP/1.1
+
+###
+
+POST http://localhost:3000/api/v1/profile HTTP/1.1
+content-type: application/json
+
+{
+    "conn_name": "aa",
+    "host": "aa",
+    "port": "aa",
+    "database": "aa",
+    "user": "aa",
+    "password": "aa",
+    "type": 1,
+    "user_id": 1
+}
+
+###
+
+PUT  http://localhost:3000/api/v1/users/2 HTTP/1.1
+content-type: application/json
+
+{
+    "conn_name": "aa1",
+    "host": "aa",
+    "port": "aa",
+    "database": "aa",
+    "user": "aa",
+    "password": "aa",
+    "type": 1,
+    "user_id": 1
+}
+
+###
+
+DELETE  http://localhost:3000/api/v1/users/14 HTTP/1.1

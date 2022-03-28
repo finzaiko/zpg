@@ -3,7 +3,7 @@ export default {
   template: `
   <div class='z_about_content'>
 		<h3>About:</h3>
-		<p><strong>ZPGTOOL</strong> an experimental side project written with <a href='https://nodejs.org' target='_blank'>NodeJS</a> and <a href='https://webix.com' target='_blank'>Webix</a> (<a href='https://www.npmjs.com/package/webix' target='_blank'>GPL license</a>), inspired by Jenkins and PgAdmin to improve unavailable features to make it simple and easy.<br>
+		<p><strong>ZPGTOOL</strong> an experimental side project written with <a href='https://nodejs.org' target='_blank'>NodeJS</a> and <a href='https://webix.com' target='_blank'>Webix</a> (<a href='https://www.npmjs.com/package/webix' target='_blank'>GPL license</a>), inspired by Jenkins and PgAdmin add some features to make it simple and easy.<br>
 		For more other functionality of Postgres please use PgAdmin</p>
 		<p>Features idea:
 			<ul>
@@ -11,7 +11,9 @@ export default {
 				<li>Task SQL continues integration</li>
 				<li>Comparing between SQL function direct correction</li>
 				<li>Simple query editor</li>
-				<li>Easy copy data between database</li>
+				<li>Easy copy data between database (under development)</li>
+				<li>Easy view table content</li>
+				<li>Generator</li>
 				<li>and more..</li>
 			</ul>
 		</p>

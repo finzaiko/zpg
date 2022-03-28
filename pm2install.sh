@@ -1,6 +1,6 @@
 #!/bin/sh
 
-git clone https://finzaiko@bitbucket.org/finzaiko/zpg.git
+git clone https://github.com/finzaiko/zpg.git
 cd zpg/backend
 cp .env.example .env
 npm i

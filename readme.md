@@ -11,6 +11,9 @@ Features idea:
 - Task SQL continues integration
 - Comparing between SQL function direct correction
 - Simple query editor
+- Copy content between database (under development)
+- Easy view table content
+- Generator
 - and more..
 
 ### WARNING !
@@ -51,10 +54,6 @@ password: user123#
 
 #### Screenshot
 
-Intro
-
-![intro](assets-demo/zpg_intro.png)
-
 Database
 
 ![database](assets-demo/zpg_db.png)
@@ -72,7 +71,7 @@ Task runner
 View Data
 ![viewdata](assets-demo/zpg_view_data.png)
 
-and more..
+
 
 
 Developed by: Finzaiko

@@ -52,26 +52,10 @@ username: user1
 password: user123#
 ```
 
-#### Screenshot
-
-Database
-
-![database](assets-demo/zpg_db.png)
+#### Some Screenshot
 
 Query
 
 ![query](assets-demo/zpg_query.png)
-
-Task runner
-
-![task](assets-demo/zpg_task.png)
-
-![taskitem](assets-demo/zpg_task_item.png)
-
-View Data
-![viewdata](assets-demo/zpg_view_data.png)
-
-
-
 
 Developed by: Finzaiko

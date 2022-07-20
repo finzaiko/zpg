@@ -58,4 +58,3 @@ Query
 
 ![query](assets-demo/zpg_query.png)
 
-Developed by: Finzaiko

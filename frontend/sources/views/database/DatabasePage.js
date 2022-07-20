@@ -25,6 +25,7 @@ const toolbar = {
         fitMaster: false,
         width: 200,
       },
+      // options: [],
       on: {
         onChange: function (id, val) {
           loadDb(id);
@@ -47,6 +48,56 @@ const toolbar = {
       icon: "mdi mdi-sync",
       click: function () {},
     },
+    // {
+    //   view: "combo",
+    //   id: "database_search_cmb",
+    //   css: "database_search_cmb",
+    //   hidden: true,
+    //   icon: "",
+    //   placeholder: "search",
+    //   width: 300,
+    //   options: {
+    //     fitMaster: false,
+    //     width: 300,
+    //     // suggest
+    //     keyPressTimeout: 500,
+    //     body: {
+    //       // list
+    //       template: '<span class="#css#">#value#</span>',
+    //       dataFeed: function (text) {
+    //         const cmbId = $$("database_search_cmb");
+    //         webix.extend(cmbId, webix.OverlayBox);
+    //         cmbId.showOverlay(
+    //           `<span style='display:block;text-align:right;padding-right:10px;height:100%;line-height:2.5; color:orange' class='mdi mdi-circle-slice-8 mdi_pulsate'></span>`
+    //         );
+
+    //         if (!text) {
+    //           cmbId.hideOverlay();
+    //         }
+
+    //         const filterCombo = cmbId.getPopup().getList();
+    //         filterCombo.clearAll();
+    //         const profileId = $$(prefix + "_server").getValue();
+
+    //         this.load(
+    //           `${urlDb}/content_search?id=${profileId}&root=${baseRootId}&filter[value]=` +
+    //             text
+    //         ).then((_) => {
+    //           setTimeout(() => {
+    //             cmbId.hideOverlay();
+    //             filterCombo.show(cmbId.getInputNode());
+    //             cmbId.focus();
+    //           }, 1000);
+    //         });
+    //       },
+    //     },
+    //   },
+    //   on: {
+    //     onChange: function (newv) {
+    //       loadSchemaContent(baseRootId, newv);
+    //     },
+    //   },
+    // },
     {
       view: "text",
       css: "search_suggest",
@@ -57,6 +108,7 @@ const toolbar = {
       suggest: {
         keyPressTimeout: 500,
         body: {
+          // template: '<span class="#css#">#value#</span>',
           dataFeed: function (filtervalue, filter) {
             if (filtervalue.length < 3) {
               const viewId = $$(prefix + "_database_search");
@@ -96,6 +148,7 @@ const toolbar = {
         },
         on: {
           onValueSuggest: function (node) {
+            // loadSchemaContent(0, node.id);
             loadSchemaContent(baseRootId, node.id);
           },
         },
@@ -184,9 +237,9 @@ function openQueryTab(baseDbName) {
 }
 
 function copyToQuery(val) {
-  $$("query_sql_editor").setValue(val);
-  $$(prefix + "_history_preview").hide();
-  $$("query_sql_editor").show();
+  // $$("query_sql_editor").setValue(val);
+  // $$(prefix + "_history_preview").hide();
+  // $$("query_sql_editor").show();
 }
 
 function copyToClipboard2(textToCopy) {
@@ -206,6 +259,7 @@ function copyToClipboard2(textToCopy) {
     textArea.focus();
     textArea.select();
     return new Promise((res, rej) => {
+      // here the magic happens
       document.execCommand("copy") ? res() : rej();
       textArea.remove();
     });
@@ -245,9 +299,12 @@ function loadBranch(viewId, id, isContext) {
   viewId.parse(
     webix
       .ajax()
+      // .headers(defaultHeader())
       .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}&t=0`)
       .then(function (data) {
+        // console.log("tree", tree);
         var item = tree.getItem(id);
+        // console.log("item///////////////////", item);
         setTimeout(() => {
           if (item.$count <= 0) {
             item.open = false;
@@ -281,6 +338,7 @@ function loadSchemaContent(itemRootId, oid) {
     viewId.showOverlay(`Loading...`);
     webix
       .ajax()
+      // .headers(defaultHeader())
       .get(
         `${urlDb}/schema_content?id=${profileId}&root=${itemRootId}&oid=${oid}`
       )
@@ -326,6 +384,7 @@ export default class DatabasePage extends JetView {
               width: 250,
               id: prefix + "_db_tree",
               css: "z_db_tree",
+              // type:"lineTree",
               select: true,
               type: {
                 icon: function (obj, common) {
@@ -338,6 +397,7 @@ export default class DatabasePage extends JetView {
                   );
                 },
                 my_folder: function (obj) {
+                  // console.log('obj', obj)
                   const suffix = obj.id.split("_")[1];
                   if (suffix == "d") {
                     return `<span class='webix_icon mdi mdi-database-outline ${
@@ -363,15 +423,20 @@ export default class DatabasePage extends JetView {
                   return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
                 },
               },
+              // template:"{common.icon()}&nbsp;#value#",
               template:
                 "{common.icon()} {common.my_folder()} <span>#value#</span>",
               on: {
                 onAfterSelect: function (id) {
+                  // console.log(`id`, id);
+                  const a = this.getItem(id);
+                  // console.log(`a`, a);
                   baseRootId = id;
                   while (this.getParentId(baseRootId)) {
                     baseRootId = this.getParentId(baseRootId);
                   }
                   baseDbName = this.getItem(baseRootId).value;
+                  // console.log(`baseDbName`, baseDbName)
                   $$(prefix + "_database_search").show();
                   loadSchemaContent(baseRootId, id);
                 },
@@ -379,10 +444,12 @@ export default class DatabasePage extends JetView {
                   let itemRootId = id;
                   let itemx = this.getItem(id);
                   stateBase.currentDBSelected = itemx.value;
+                  // console.log("itemx", itemx);
                   while (this.getParentId(itemRootId)) {
                     itemRootId = this.getParentId(itemRootId);
                   }
                   baseDbName = this.getItem(itemRootId).value;
+                  // loadSchemaContent(itemRootId, id);
                 },
                 onItemDblClick: function (id) {
                   if (this.isBranchOpen(id)) {

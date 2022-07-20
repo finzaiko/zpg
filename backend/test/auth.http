@@ -3,10 +3,9 @@ POST http://localhost:9000/api/v1/auth/register HTTP/1.1
 content-type: application/json
 
 {
-    "fullname": "User1",
-    "username": "user1",
-    "password": "user123#",
-    "email": "user@test.com"
+    "username": "arifin33",
+    "password": "arifin123#",
+    "email": "arifin@test.com"
 }
 
 ###

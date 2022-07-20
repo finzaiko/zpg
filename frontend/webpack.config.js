@@ -13,6 +13,11 @@ module.exports = function (env) {
   var babelSettings = {
     extends: path.join(__dirname, "/.babelrc"),
   };
+
+  //var sourcePath = path.join(__dirname, "codebase");
+  //var prodPath = path.join(__dirname, "../backend/public/assets/");
+  //console.log(`sourcepath>>`, sourcePath)
+  //console.log(`prodPath>>`, prodPath)
   
   var config = {
     mode: production ? "production" : "development",

@@ -10,6 +10,7 @@ class SettingController {
 
   async getByMultiKey(request, reply) {
     const data = await SettingService.getByMultiKey("allow_register");
+    // responseHttp(reply, 200, "Ok", { data: data });
     return reply
       .code(200)
       .header(`Content-Type`, `application/json; charset=utf-8`)

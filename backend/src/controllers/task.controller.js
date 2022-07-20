@@ -21,6 +21,7 @@ class TaskController {
   async create(request, reply) {
     const userId = request.user.uid;
     const data = await TaskService.create(request.body, userId);
+    // responseHttp(reply, 201, "Created");
     responseHttp(reply, 201, "Ok", { data: data });
   }
 
@@ -51,6 +52,17 @@ class TaskController {
   async downloadBundle(request, reply) {
     const userId = request.user.uid;
     const task = await TaskService.downloadBundle(request.params.id, userId);
+    // console.log(`taskkkkkkkkkkkkkkkkkkkkkkkk`, task)
+    // reply.dowload
+    // https://github.com/fastify/fastify/issues/1258
+    // https://github.com/fastify/fastify-static#usage
+    // https://stackoverflow.com/questions/55884342/how-to-send-file-with-fastify-nestjs
+    // responseHttp(reply, 200, "Downloaded success");
+    // const stream = fs.createReadStream(resolvePath(task))
+    // const stream = fs.createReadStream(task)
+    // reply.header("Content-Type", "attachment");
+    // reply.type('text/plain').send(stream)
+    // reply.sendFile(task) 
     const bundle = fs.readFileSync(task.bundle_path, { encoding: "utf-8" });
     reply.send({status: true, bundle: bundle, name: task.name}) 
   }

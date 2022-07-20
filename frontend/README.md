@@ -1,31 +1,13 @@
 Webix Jet Demo App
 ===================
 
-### How to run
+### COPY SPLIT
 
-- run ```npm install```
-- run ```npm start```
-- open ```http://localhost:8080```
-
-For more details, check https://www.gitbook.com/book/webix/webix-jet/details
-
-### Other commands
-
-#### Run lint
-
-```
-npm run lint
-```
-
-#### Build production files
-
-```
-npm run build
-```
-
-After that you can copy the "codebase" folder to the production server
-
-
-### License
-
-MIT
+function getStringBetween(str, start, end) {
+    const result = str.match(new RegExp(start + "(.*)" + end));
+    return result[1];   
+}
+const testString = '#@#@#@#@#@#@ arifin #@#@#@#@#@#END';
+console.log(getStringBetween(testString, '#@#@#@#@#@#@ ', ' #@#@#@#@#@#END')); 
+ 
+ https://stackoverflow.com/questions/14867835/get-substring-between-two-characters-using-javascript

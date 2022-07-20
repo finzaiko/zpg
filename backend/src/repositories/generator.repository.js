@@ -15,7 +15,7 @@ class GeneratorRepository {
         _val text;
         BEGIN
           _sql:='
-            DROP VIEW IF EXISTS ztmp;
+            DROP VIEW IF EXISTS ztmp CASCADE;
             CREATE OR REPLACE TEMP VIEW ztmp AS (
                 ' || in_sql || '
               );

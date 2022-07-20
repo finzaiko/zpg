@@ -20,7 +20,8 @@ class QueryController {
     return newArray;
   }
 
-  async runSQL(request, reply) {
+  // async runSQL(request, reply) {
+ runSQL(request, reply) {
     let errors = [];
     if (!request.body.sql) {
       errors.push("No Conn Name specified");
@@ -29,14 +30,18 @@ class QueryController {
       source_id: request.body.source_id,
       sql: request.body.sql,
       dtype: request.body.dtype,
+      sqltype: request.body.sqltype,
+      dropreplace: request.body.dropreplace,
     };
 
     let rcb = [];
     let start_time = new Date().getTime();
 
     const userId = request.user.uid;
-    QueryService.runSQL(data.source_id, data.sql, userId, data.dtype, function (cb) {
+    QueryService.runSQL(data.source_id, data.sql, userId, data.dtype, data.sqltype, data.dropreplace, function (cb) {
+      // console.log(`rcb###########`, cb);
       rcb.push(`\n${cb.severity}: ${cb.message}\n`);
+      // rcb = cb;
     })
       .then((r) => {
         let tableConfig;
@@ -62,7 +67,11 @@ class QueryController {
               };
             });
           }else{
+            // console.log('r.fields>>>>>> ',r.fields);
+            
             tableConfig = r.fields.map((a) => {
+              // a.name = a.name +"_1";
+              // console.log('a.name',a.name);
               return {
                 id: a.name,
                 header: [{ text: `${a.name}` }, { content: "textFilter" },],
@@ -71,13 +80,19 @@ class QueryController {
             });
           }
 
+          // tableData = r.rows;
           tableData = r.rows.map((item) => {
+            // handle webix not accept 0 value
             if (item.id == 0) item.id = "0";
+            // console.log('item',item);
+            
             return item;
           });
         } else {
           const rr = r[r.length - 1];
+          // console.log(`mmmm`, rr);
           tableConfig = rr.fields.map((a) => {
+            // return { id:a.name, header: [{text: `${a.name}<br><span style='font-weight:normal;font-size:12px'>${a.format}</span>`, height: 50, css: "z_multiline_header" }, { content:"textFilter" }]};
             return {
               id: a.name,
               header: [{ text: `${a.name}` }, { content: "textFilter" }],
@@ -97,7 +112,9 @@ class QueryController {
           textMsg.push(`\n${r.rowCount} rows found.`);
         }
 
+        // console.log(`rcb###########`, rcb);
         if (typeof rcb != "undefined" && rcb.length>0) {
+          // textMsg.push(`\n--notice:--\n${rcb.severity} ${rcb.message}\n`);
           textMsg.push(`\n--notice:-- ${rcb.join("\n")}`);
         }
 
@@ -121,12 +138,15 @@ class QueryController {
       .catch((e) => {
         let textMsg = [];
         if (typeof rcb != "undefined" && rcb.length>0) {
+          // textMsg.push(`\n--notice:--\n${rcb.severity} ${rcb.message}\n`);
           textMsg.push(`\n--notice:-- ${rcb.join("\n")}`);
         }
         let aa = textMsg.join("\n");
 
+        // console.log(`eeeeeeeeeeeeee`, e);
         const _sql = data.sql;
         const errLine = ((_sql.substring(0, e.position).match(/\n/g) || []).length + 1);
+        // console.log('>>>>>>>>>>line: %s', errLine);
         let errDetail = "",
           errHint = "";
         if (typeof e.detail != "undefined" && typeof e.hint != "undefined") {
@@ -135,6 +155,7 @@ class QueryController {
         }
         const errStack = e.stack.split("\n")
         reply.send({
+          // error: `${errStack[0]}\n${errStack[1]}\n${errStack[2]} \n${errDetail} \n${errHint} \nerrline:${errLine}`,
           error: `${aa}\n\n${errStack[0]}\n${errStack[1]}\n${errStack[2]} \n${errDetail} \n${errHint} \nerrline:${errLine}`,
         });
       });

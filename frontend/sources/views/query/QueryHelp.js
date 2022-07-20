@@ -4,6 +4,7 @@ import { state } from "../../models/Query";
 const prefix = state.prefix + "_help";
 
 const data = [
+  // { id:1, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>P</span>", shortcut: "Go to quick search when current focus on Query Editor"},
   { id:1, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>;&nbsp;</span>", shortcut: "Focus to quick search"},
   { id:2, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>F</span>", shortcut: "Find"},
   { id:3, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>H</span>", shortcut: "Find and Replace"},

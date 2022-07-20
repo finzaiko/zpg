@@ -1,3 +1,4 @@
+// import { BACKEND_URL, COOKIE_APP } from "../config/setting";
 
 import { routeName } from "../views/routes";
 
@@ -7,8 +8,33 @@ export let state = {
   currentTabViewData: 0,
   currentDBSelected: "",
   meta: {},
-  appProfile: {},
+  appProfile: {}
 };
+
+// export function getAppConfig() {
+//   let appName = webix.storage.cookie.get(COOKIE_APP);
+//   if (appName !== "null" || appName) {
+//     webix
+//       .ajax()
+//       .get(`${BACKEND_URL}/app/config`)
+//       .then(r => {
+//         const app = r.json().app_name;
+//         // console.log('app', app)
+//         document.title = app;
+//         webix.storage.cookie.put(COOKIE_APP, app);
+//         return r.json();
+//       });
+//   }
+// }
+
+// export function getAppName() {
+//   let appName = webix.storage.cookie.get(COOKIE_APP);
+//   if (appName === "null" || !appName) {
+//     appName = APP_NAME;
+//   }
+//   document.title = appName;
+//   return appName;
+// }
 
 export const menuData = [
   { value: "Database", id: routeName.database, icon: "mdi mdi-database" },
@@ -19,8 +45,11 @@ export const menuData = [
     id: routeName.compare,
     icon: "mdi mdi-swap-horizontal-bold",
   },
+  // { value: "View Data", id: routeName.viewdata, icon: "mdi mdi-view-module" },
   { value: "View Data", id: routeName.viewdata, icon: "mdi mdi-view-grid" },
   { value: "Copy Data", id: routeName.copydata, icon: "mdi mdi-layers" },
   { value: "Generator", id: routeName.generator, icon: "mdi mdi-atom-variant" },
+  // { value: "DB Config", id: routeName.dbconfig, icon: "mdi mdi-connection" },
   { value: "Setting", id: routeName.setting, icon: "mdi mdi-cog" },
+  // { value: "User", id: routeName.user, icon: "mdi mdi-account" },
 ];

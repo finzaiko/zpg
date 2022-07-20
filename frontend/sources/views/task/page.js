@@ -7,6 +7,7 @@ export default class TaskPageIndex extends JetView {
       type: "clean",
       borderless: true,
       rows: [TaskPage],
+      // template: "task page"
     };
   }
 }

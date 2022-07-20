@@ -16,17 +16,12 @@ const {
 
 class DbRepository {
   async getAll(profileId, userId, typeLevel) {
-    const serverCfg = await ProfileRepository.getById(
-      profileId,
-      1,
-      userId,
-      typeLevel
-    );
-    if (serverCfg.length > 0) {
+    const serverCfg = await ProfileRepository.getById(profileId, 1, userId, typeLevel);
+    if(serverCfg.length>0){
       const pgPool = new Pool(serverCfg[0]);
-      if (typeof typeLevel != "undefined" && typeLevel == 1) {
+      if(typeof typeLevel !="undefined" && typeLevel==1 ){
         return pgPool.query(dbSchemaAll);
-      } else {
+      }else{
         return pgPool.query(dbAll);
       }
     }
@@ -35,18 +30,14 @@ class DbRepository {
 
   async getAllSchema(profileId, userId) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
-    if (serverCfg.length > 0) {
+    if(serverCfg.length>0){
       const pgPool = new Pool(serverCfg[0]);
       return pgPool.query(dbSchemaAll);
     }
     return [];
   }
 
-  async getSchemaContent(
-    profileId,
-    oidArr,
-    userId
-  ) {
+  async getSchemaContent(profileId, schema, isShowTable, isTarget, oidArr, userId) {
     const serverCfg = await ProfileRepository.getById(profileId, 2, userId);
     const pgPool = new Pool(serverCfg[0]);
     const r = await pgPool.query(dbAllFunc(null, oidArr));
@@ -62,7 +53,7 @@ class DbRepository {
     const pgPool = new Pool(cfg);
     const pg1 = await pgPool.query(dbAllByOid(rootId.split("_")[0]));
 
-    if (typeof typeLevel != "undefined" && typeLevel == 0) {
+    if(typeof typeLevel !="undefined" && typeLevel==0 ){
       cfg.database = pg1.rows[0].datname;
     }
 
@@ -89,11 +80,11 @@ class DbRepository {
   async getSchemaContentTree(profileId, baseRootIdOid, oid, userId, typeLevel) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     let cfg = serverCfg[0];
-
-    if (baseRootIdOid != 0) {
+    
+    if(baseRootIdOid!=0){
       const pgPool = new Pool(cfg);
       const pg1 = await pgPool.query(dbAllByOid(baseRootIdOid.split("_")[0]));
-      if (pg1.rows.length > 0) {
+      if(pg1.rows.length>0){
         cfg.database = pg1.rows[0].datname;
       }
     }
@@ -114,21 +105,32 @@ class DbRepository {
   async getContentSearch(profileId, baseRootIdOid, search, userId, type, view) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     let cfg = serverCfg[0];
-    if (baseRootIdOid != 0) {
+    if(baseRootIdOid!=0){
       const pgPool = new Pool(cfg);
+      // console.log(`aaaaaaa`, dbAllByOid(baseRootIdOid.split("_")[0]));
       const pg1 = await pgPool.query(dbAllByOid(baseRootIdOid.split("_")[0]));
       cfg.database = pg1.rows[0].datname;
     }
 
     const pgPool2 = new Pool(cfg);
+    // console.log(`bbbbbbb`, dbFuncTableSearch(search, type, view));
     return pgPool2.query(dbFuncTableSearch(search, type, view));
   }
 
-  async getSqlFunc(profileId, oid, userId) {
+  // async getSqlFunc (userConfigId, oid) {
+  async getSqlFunc (profileId, oid, userId) {
+    // const pg = await pgConfig(profileId);
+    // const pgPool = new Pool(pg);
+
+    // console.log(`oidddddddddddddddddd`, oid);
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     let cfg = serverCfg[0];
 
+    // console.log(`cfggggggggggggggggggggg`, cfg);
     const pgPool = new Pool(cfg);
+    // const r = await pgPool.query(dbAllFunc(null, oidArr));
+
+    // let sql = `SELECT pg_get_functiondef((SELECT oid FROM pg_proc WHERE oid = '${oid}')) AS sqlfunc`;
 
     let commentDefinition = `
     (select func_def from
@@ -156,6 +158,7 @@ class DbRepository {
         ) t order by s_no limit 1)
   `;
 
+
     let sqlPretty = `
       SELECT CONCAT_WS('',
         ${commentDefinition},
@@ -179,9 +182,11 @@ class DbRepository {
     return pgPool.query(sqlPretty);
   }
 
+
   async runSql(profileId, userId, sql) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
-    if (serverCfg.length > 0) {
+    if(serverCfg.length>0){
+      // console.log(`serverCfggggggggggggggggggg>>`, serverCfg);
       const pgPool = new Pool(serverCfg[0]);
       return pgPool.query(sql);
     }

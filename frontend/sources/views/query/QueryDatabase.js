@@ -7,7 +7,7 @@ import { testConnection } from "../../models/Database";
 import { defaultHeader} from '../../helpers/api';
 
 const prefix = state.prefix + "_server";
-let isEdit = false;
+let isEdit = false, oldConnName= '';
 
 const WindowForm = () => {
   const winId = prefix + "_win",
@@ -85,7 +85,11 @@ const WindowForm = () => {
       },
     ],
     rules: {
-      lable_size_inc: webix.rules.isNotEmpty,
+      conn_name: webix.rules.isNotEmpty,
+      database: webix.rules.isNotEmpty,
+      host: webix.rules.isNotEmpty,
+      port: webix.rules.isNotEmpty,
+      password: webix.rules.isNotEmpty,
     },
     on: {
       onAfterValidation: function (result, value) {
@@ -93,6 +97,10 @@ const WindowForm = () => {
           let text = [];
           for (var key in value) {
             if (key == "conn_name") text.push("Name can't be empty");
+            if (key == "database") text.push("Database can't be empty");
+            if (key == "host") text.push("Host can't be empty");
+            if (key == "port") text.push("Port can't be empty");
+            if (key == "password") text.push("Password can't be empty");
           }
           webix.message({ type: "error", text: text.join("<br>") });
         }
@@ -127,8 +135,10 @@ const WindowForm = () => {
               $$(prefix + "_test_btn").show();
               $$(prefix + "_port").setValue("5432");
               isEdit = false;
+              oldConnName = "";
             },
           },
+          //   { width: labelW + 10 },
           {
             view: "button",
             value: "Save",
@@ -151,6 +161,17 @@ const WindowForm = () => {
           },
           {
             view: "button",
+            value: "Duplicate",
+            tooltip: "Duplicate selected",
+            autowidth: true,
+            hidden: true,
+            id: prefix + "_duplicate_btn",
+            click: function () {
+              save(true);
+            },
+          },
+          {
+            view: "button",
             value: "Cancel",
             id: prefix + "_form_cancel_btn",
             autowidth: true,
@@ -162,8 +183,10 @@ const WindowForm = () => {
               $$(prefix + "_save_btn").hide();
               $$(prefix + "_save_btn").setValue("Save");
               $$(prefix + "_delete_btn").hide();
+              $$(prefix + "_dupicate_btn").hide();
               $$(prefix + "_table").clearSelection();
               isEdit = false;
+              oldConnName = "";
             },
           },
           {},
@@ -242,9 +265,14 @@ const WindowForm = () => {
         $$(prefix + "_save_btn").setValue("Update");
         $$(prefix + "_test_btn").show();
         $$(prefix + "_delete_btn").show();
+        $$(prefix + "_duplicate_btn").show();
         $$(prefix + "_add_btn").hide();
         $$(prefix + "_password").setValue();
         isEdit = true;
+        const item = this.getItem(sel);
+        console.log('item',item);
+        oldConnName = item.conn_name;
+        
       },
       onItemDblClick: function () {},
     },
@@ -301,35 +329,49 @@ const WindowForm = () => {
   };
 };
 
-function save() {
-  var data = $$(prefix + "_form").getValues(),
-    msgName = data.conn_name;
-  data.type = 2;
-  data.user_id = userProfile.userId;
-  if (!isEdit) {
-    webix
-      .ajax()
-      .headers(defaultHeader())
-      .post(url + "/conn", data, function (res) {
-        webix.message({ text: "<strong>" + msgName + "</strong> saved." });
-        reload();
-      })
-      .fail(function (err) {
-        showError(err);
-      });
-  } else {
-    webix
-      .ajax()
-      .headers(defaultHeader())
-      .put(url + "/conn/" + data.id, data, function (res) {
-        webix.message({
-          text: "<strong>" + msgName + "</strong> updated.",
+function save(isDuplicate) {
+  if ($$(prefix + "_form").validate()) {
+
+    if(typeof isDuplicate=="undefined"){
+      isDuplicate=false;
+    }
+    var data = $$(prefix + "_form").getValues(),
+      msgName = data.conn_name;
+    data.type = 2;
+    data.user_id = userProfile.userId;
+    if (!isEdit || isDuplicate) {
+
+      if(isDuplicate){
+        if(oldConnName==data.conn_name){
+          webix.message({text: "Please Change to different Name", type: "error"});
+          return;
+        }
+        // data.conn_name = data.conn_name + "_copy" + Math.floor(Math.random()*(999-100+1)+100);
+      }
+      webix
+        .ajax()
+        .headers(defaultHeader())
+        .post(url + "/conn", data, function (res) {
+          webix.message({ text: "<strong>" + msgName + "</strong> saved.", type: "success" });
+          reload();
+        })
+        .fail(function (err) {
+          showError(err);
         });
-        reload();
-      })
-      .fail(function (err) {
-        showError(err);
-      });
+    } else {
+      webix
+        .ajax()
+        .headers(defaultHeader())
+        .put(url + "/conn/" + data.id, data, function (res) {
+          webix.message({
+            text: "<strong>" + msgName + "</strong> updated.",type: "success"
+          });
+          reload();
+        })
+        .fail(function (err) {
+          showError(err);
+        });
+    }
   }
 }
 
@@ -371,9 +413,11 @@ const defaultBtn = () => {
   $$(prefix + "_save_btn").hide();
   $$(prefix + "_save_btn").setValue("Save");
   $$(prefix + "_delete_btn").hide();
+  $$(prefix + "_duplicate_btn").hide();
   $$(prefix + "_test_btn").hide();
   $$(prefix + "_table").clearSelection();
   isEdit = false;
+  oldConnName = "";
 };
 
 export class QueryDatabase extends JetView {

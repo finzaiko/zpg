@@ -16,7 +16,8 @@ export const testConnection = (isPromise, data) => {
     .ajax()
     .headers(defaultHeader())
     .post(urlProfile + "/conn/test", data, function (res) {
-      webix.message({ text: "Connection Ok" });
+      console.log(`res`, res);
+      webix.message({ text: "Connection Ok", type: "success" });
       return res;
     })
     .fail(function (err) {

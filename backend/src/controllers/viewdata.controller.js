@@ -1,8 +1,11 @@
 const ViewdataService = require(`../services/viewdata.service`);
+const { responseOk, responseValidate } = require("../utils/http.utils");
 
 class ViewdataController {
+
   async getTableData(request, reply) {
     const { id, oid, start, count, filter, sort } = request.query; // t = is type level, 1 show db only;
+    // console.log(`request.query /////////`, request.query);
     const userId = request.user.uid;
     const r = await ViewdataService.getTableData(
       id,
@@ -33,6 +36,7 @@ class ViewdataController {
     });
     let tableData = r.tblData.rows;
     let rd = {
+      // title: "",
       tbl_oid: oid,
       config: tableConfig,
       data: tableData,
@@ -41,12 +45,20 @@ class ViewdataController {
     };
 
     reply.send(rd);
+    // responseOk(reply, { data: data.rows, pos: 0, total_count: data.rowCount });
   }
 
+
+
   async updateTableData(request, reply) {
+    // const { id, oid, start, count, filter, sort } = request.query; // t = is type level, 1 show db only;
+    // console.log(`request.params.oid`, request.params.oid);
+    // console.log(`updateTableData==request.body /////////`, request.body);
+
     const userId = request.user.uid;
-    const r = await ViewdataService.updateTableData(userId, request.body);
-    reply.send({ status: "ok" });
+    // profileId, userId, oid, bodyData
+    const r = await ViewdataService.updateTableData(userId, request.body)
+    reply.send({status: "ok"});
   }
 }
 

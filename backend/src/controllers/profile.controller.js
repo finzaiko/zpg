@@ -53,6 +53,7 @@ class ProfileController {
 
   async testConn(request, reply) {
     const data = await ProfileService.testConn(request.body);
+    // console.log(`data>>>>>>>>>>>>`, data);
     reply
       .code(200)
       .header(`Content-Type`, `application/json; charset=utf-8`)

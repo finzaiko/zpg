@@ -8,6 +8,29 @@ import { setAppHeader } from "./helpers/api";
 import { initSession, userProfile } from "./models/UserProfile";
 import { showExpiredMsg } from "./helpers/ui";
 
+// getAppMeta() {
+//   webix.ajax(`${API_URL}/meta`).then((ra) => {
+//     console.log(`ra`, ra);
+//     state.allowRegister = ra;
+//   });
+// }
+
+webix.protoUI({
+  name:"fadeInWindow", 
+  $init:function(){
+    this.$ready.push(function(){
+      this.attachEvent("onShow", function(){
+        // this.$view.className = this.$view.className.split("animated")[0] + " animated fadeInDown";  
+        this.$view.className = this.$view.className.split("animated")[0] + " animated bounceInDown";  
+      })
+      this.attachEvent("onHide", function(){
+        this.$view.style.display = "block";
+        this.$view.className += " animated fadeOut";  
+      })
+    });
+  }
+}, webix.ui.window);
+
 export default class MyApp extends JetApp {
   constructor(config) {
     const defaults = {
@@ -29,6 +52,7 @@ export default class MyApp extends JetApp {
     });
 
     webix.ajax(`${API_URL}/meta`).then((ra) => {
+      console.log(`ra`, ra.json());
       state.meta = ra.json();
     });
   }
@@ -36,6 +60,7 @@ export default class MyApp extends JetApp {
 
 if (!BUILD_AS_MODULE) {
   // webix.debug({events: true});
+  // webix.ready(() => new MyApp().render() );
   webix.ready(() => {
     const app = new MyApp();
     let appUrl;
@@ -74,6 +99,41 @@ if (!BUILD_AS_MODULE) {
       }
     };
 
+  //   if (window.history && window.history.pushState) {
+  //     console.log("asdfasdf");
+  //     window.addEventListener("popstate", (event) => {
+  //       console.log(
+  //         "location: " +
+  //           document.location +
+  //           ", state: " +
+  //           JSON.stringify(event.state)
+  //       );
+  //       // webix.confirm("Are you sure?").then((result) => {
+  //       //   if (result) {
+  //       //     history.back();
+  //       //   }
+  //       // });
+  //       // history.go(1);
+  //       history.pushState(null, null, window.location.href);
+  //     });
+  //   }
+    
+  //   // window.onbeforeunload = function() { return "You will  leave this page"; };
+    
+  //   if (window.history && history.pushState) {
+  //     addEventListener('load', function() {
+  //        history.pushState(null, null, null); // creates new history entry with same URL
+  //        addEventListener('popstate', function() {
+  //           var stayOnPage = confirm("Would you like to save this draft?");
+  //           if (!stayOnPage) {
+  //              history.back()
+  //           } else {
+  //              history.pushState(null, null, null);
+  //           }
+  //        });
+  //     });
+  //  }
+
     webix.attachEvent(
       "onBeforeAjax",
       function (mode, reqUrl, data, request, headers, files, promise) {
@@ -108,11 +168,20 @@ if (!BUILD_AS_MODULE) {
 
         // });
         if (!webix.storage.cookie.get(COOKIE_NAME)) {
+          // window.location.reload();
         } else {
           setAppHeader(headers);
         }
       }
     );
+
+    // webix.ajax(`${API_URL}/app`).then((ra) => {
+    //   const data = ra.json();
+    //   console.log(`profile-ra`, data);
+    //   // state.meta = ra.json();
+    //   state.appProfile = JSON.parse(data.data.find((m)=>m.type==5).content);
+    //   console.log(`d`, state.appProfile);
+    // });
 
     initSession();
     app.render();

@@ -6,19 +6,23 @@ const {
   taskTable,
   settingTable,
   userTable,
-  initSettingData,
-  initUserData,
+  dbConnTable,
+  compareTable,
+  defaultSetting,
+  defaultUser,
 } = require("./sql/init.sql");
 
 const path = require("path");
 
 const DBSOURCE = "db.sqlite";
+const DBCOMPARE = "compare.sqlite";
 
 let db = new sqlite3.Database(DBSOURCE, (err) => {
   if (err) {
     console.error(err.message);
     throw err;
   } else {
+    // configDb(db);
     createTable(db);
   }
 });
@@ -28,13 +32,14 @@ function configDb(db) {
 }
 
 function createTable(db) {
-  runQuery(db, settingTable, true).then(() => {
-    runQuery(db, initSettingData);
+  runQuery(db, settingTable, function () {
+    runQuery(db, defaultSetting);
   });
-  runQuery(db,  userTable, true).then(() => {
-    runQuery(db, initUserData);
+  runQuery(db, userTable, function () {
+      runQuery(db, defaultUser);
   });
   runQuery(db, profileTable);
+  runQuery(db, dbConnTable);
   runQuery(db, taskTable);
   runQuery(db, taskItemTable);
 }
@@ -56,30 +61,36 @@ const pgConfig = async (userConfigId) => {
   return config;
 };
 
-// function runQuery(db, sql) {
-//   db.run(sql, (err) => {
-//     if (err) {
-//       console.log("Run query: ", err);
-//     }
-//   });
-// }
-
-async function runQuery(db, sql, isWait) {
-  if (typeof isWait != "undefined") {
-    const res = await new Promise((resolve, reject) => {
-      db.run(sql, (err, row) => {
-        if (err) reject(err);
-        resolve(row);
-      });
-    });
-    return res;
-  } else {
-    db.run(sql, (err) => {
-      if (err) {
-        console.log("Run query: ", err);
-      }
-    });
-  }
+function runQuery(db, sql, callback) {
+  db.run(sql, (err) => {
+    if(callback){
+      callback();
+    }
+    if (err) {
+      // console.log("Run query: ", err);
+    }
+  });
 }
 
-module.exports = { db, pgConfig };
+// Compare ------------------
+
+let dbCompare = new sqlite3.Database(DBCOMPARE, (err) => {
+  if (err) {
+    console.error(err.message);
+    throw err;
+  } else {
+    runQueryCompare(dbCompare, 'PRAGMA auto_vacuum = FULL;');
+    runQueryCompare(dbCompare, compareTable('tbl_a'));
+    runQueryCompare(dbCompare, compareTable('tbl_b'));
+  }
+});
+
+function runQueryCompare(dbCompare, sql) {
+  dbCompare.run(sql, (err) => {
+    if (err) {
+      // console.log("Run query: ", err);
+    }
+  });
+}
+
+module.exports = { db, pgConfig, dbCompare };

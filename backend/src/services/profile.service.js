@@ -4,6 +4,9 @@ const ProfileRepository = require(`../repositories/profile.repository`);
 
 class ProfileService {
   async findAll(type, userId, isList, limit, offset) {
+    if(typeof limit=="undefined"){
+      limit = 100;
+    }
     return await ProfileRepository.findAll(type, userId, isList, limit, offset);
   }
 
@@ -14,6 +17,7 @@ class ProfileService {
 
   async check(id, type, db, userId) {
     const profile = await ProfileRepository.getById(id, type, userId);
+    // console.log(`profile`, profile);
     const newData = {
       conn_name: db,
       user_id: userId,

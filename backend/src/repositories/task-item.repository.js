@@ -13,6 +13,7 @@ class TaskItemRepository {
     }
 
     sql += `ORDER BY ti.id DESC`;
+    // console.log(`sqllllllllllllllllll`, sql);
     let params = [userId];
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
@@ -37,6 +38,7 @@ class TaskItemRepository {
 
   async getAllByField(fieldName, fieldValue) {
     const sql = `SELECT * FROM task_item WHERE ${fieldName}=?`;
+    // console.log(`sqllllllllllllllll`, sql);
     const params = [fieldValue];
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
@@ -67,6 +69,8 @@ class TaskItemRepository {
   }
 
   async createSelected(data, userId) {
+    console.log('data>>>>>>>>>>>>>>>inserteditemtask>>>',data);
+    
     const res = await new Promise((resolve, reject) => {
       DbDbRepository.getSchemaContent(
         data.source_db_id,

@@ -40,8 +40,15 @@ class DbController {
     let m = oid.split("_")[1];
     let _data = [];
     if (m == "g" || m == "u") {
-      if(r.rows.length>0){
-        _data = r.rows[0].data;
+      if(Array.isArray(r)){
+        const r2 = r[r.length - 1];
+        if(r2.rows.length>0){
+          _data = r2.rows[0].data;
+        }
+      }else{
+        if(r.rows.length>0){
+          _data = r.rows[0].data;
+        }
       }
     }
     responseOk(reply, { data: _data });

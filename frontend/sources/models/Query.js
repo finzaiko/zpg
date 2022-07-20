@@ -1,4 +1,5 @@
 import { API_URL, CODE_PREFIX } from "../config/setting";
+// import { runQuery } from "../views/query/QueryPage";
 
 const path = "query";
 
@@ -20,6 +21,11 @@ function changeCommandKeybinding(editor, id, keybinding) {
 export let initQueryEditor = () => {
   let editorId = $$(state.prefix + "_sql_editor");
   editorId.getEditor(true).then((editor) => {
+    // changeCommandKeybinding(
+    //   editor,
+    //   "editor.action.deleteLines",
+    //   monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_E
+    //   )
 
     editor.focus();
     editor.updateOptions({
@@ -77,11 +83,14 @@ export let initQueryEditor = () => {
         // Method that will be executed when the action is triggered.
         // @param editor The editor instance is passed in as a convinience
         run: function (ed) {
+          // console.log("ed", ed);
+          // alert("test2 => " + ed.getPosition());
           autoFormat();
           return null;
         },
       });
 
+    // console.log("editor", editor);
   });
 };
 

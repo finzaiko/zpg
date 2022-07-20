@@ -54,6 +54,7 @@ class TaskService {
     const dirWp = path.join(__dirname, `../../workspace`);
     const dir = `${dirWp}/task/${(task[0].task_name).replace(/ /g,"_")}`;
     const userCfg = await TaskItemService.getAllByField("task_id", id, userId);
+    // console.log(`userCfg`, userCfg)
     let emptyFile = [], status = true;
 
     async.eachSeries(
@@ -71,6 +72,7 @@ class TaskService {
             status = false;
           }
         } catch (error) {
+          console.log(`error`, error);
           status = true;
         }
         next();
@@ -82,23 +84,44 @@ class TaskService {
   }
 
   async transferToTarget(id, userId) {
+    // console.log(`idddddddddddddddddddd`, id);
     const task = await TaskRepository.getById(id, userId);
+    // console.log(`taskkkkkkkkkkkkkkkkkkkkkkk`, task);
     const dirWp = path.join(__dirname, `../../workspace`);
+    // console.log(`dirWp`, dirWp);
     const dir = `${dirWp}/task/${task[0].task_name.replace(/ /g, "_")}`;
 
+    // console.log(`dirrrrrrrrrrrrrrrrrr`, dir);
     const glob = require("glob"),
       globPattern = path.join(dir, "**/*.sql"),
       files = glob.sync(globPattern, { nosort: true });
+      // console.log(`filessssssssssssssssssssss`, files);
 
     let result = [];
     async.eachSeries(files, (file, next) => {
       const sql = fsExtra.readFileSync(file, { encoding: "utf-8" });
+      // console.log(`sqlllllllllllllllllx`, sql);
       result.push(sql);
       next();
     });
 
     const sqlStr = result.join(";\r\n");
+    // console.log(`taskkkkkkkkkkkkkkkkkkk`, task);
+    // console.log(`sqlStrrrrrrrrrrrrrrrrr`, sqlStr);
     return await DbRepository.runSql(task[0].target_db_id, userId, sqlStr);
+    // dbModel
+    // .setSqlFunc(task[0].target_db_id,sqlStr)
+    // .then((r) => {
+    //   // console.log('r********************', r);
+    // console.log('sukses')
+    // resMsg = "Transfer success";
+    // })
+    // .catch((e) => {
+    //   console.error(e);
+    // });
+    // console.log(`resssssssssssss`, res);
+
+    // return {msg: "Transfered"};
   }
 
   async downloadBundle(id, userId) {

@@ -175,6 +175,9 @@ function WindowForm() {
 							$$(prefix + "_delete_btn").show();
 							$$(prefix + "_password").setValue();
 							isEdit = true;
+							// const item = this.getItem(sel);
+							// state.dataSelected = item;
+							// state.isEdit = true;
 						  },
 					}
 				},
@@ -225,6 +228,7 @@ function WindowForm() {
 		},
 		on: {
 			onShow: function() {
+				// $$(prefix + "_lable_size_inc").focus();
 			}
 		}
 	};
@@ -287,6 +291,7 @@ function reload() {
 function cancel() {
 	$$(prefix + "_form").clear();
 	$$(prefix + "_win").destructor();
+	// defaultBtn();
 }
 
 function defaultBtn() {

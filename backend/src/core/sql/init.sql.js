@@ -40,7 +40,7 @@ CREATE TABLE db_conn (
     user_id integer,
     created_at timestamp DATE DEFAULT (datetime('now','localtime')),
     modified_at TIMESTAMP,
-    UNIQUE(conn_name)
+    UNIQUE(conn_name, user_id)
 );
 `;
 
@@ -60,8 +60,7 @@ CREATE TABLE profile (
     user_id integer,
     seq integer,
     created_at timestamp DATE DEFAULT (datetime('now','localtime')),
-    modified_at TIMESTAMP,
-    UNIQUE(conn_name)
+    modified_at TIMESTAMP
 );
 `;
 
@@ -99,16 +98,33 @@ CREATE TABLE task_item (
 );
 `;
 
-const initSettingData = `
-INSERT INTO setting (m_key, m_val, d_type, note, u_type) VALUES
-('menu','{}', 'text','Menu config',0),
-('allow_register','true', 'boolean','Enable self registration',1),
-('theme','default', 'text','Theme',3),
-('editor_font_size','12', 'int','Editor font size (in px)',3);
+const compareTable = (tableName) => {
+  return `
+    CREATE TABLE ${tableName} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        oid text,
+        z_schema text,
+        z_name text, 
+        z_return text, 
+        z_type text,
+        z_params_in integer,
+        z_params_out integer,
+        z_content integer
+    );
+    `;
+};
+
+const defaultSetting = `
+    INSERT INTO setting(m_key, m_val, d_type, note, u_type) VALUES 
+    ('menu', '{}', 'text', 'Menu config', '0'),
+    ('allow_register', 'true', 'boolean', 'Enable self registration', '1'),
+    ('theme', 'default', 'text', 'Theme', '3'),
+    ('editor_font_size', '12', 'int', 'Editor font size (in px)', '3');
 `;
 
-const initUserData = `
-INSERT INTO user (fullname, email, username, password) VALUES ('User1','user1@test.com','user1','$2b$10$qv6XhFzjQl/O3nvT7lTKqujQHAhDV7E9qtjagnuRz0ayDj1iPvyuK')
+const defaultUser = `
+    INSERT INTO user (fullname, email, username, password, salt, user_level) VALUES 
+    ('Admin', 'admin@zpg.com', 'admin', '$2b$10$AOWgReYaPvcDqaOw1h6Gfe6IHeS0rCmSQ7ctGAfzlaWnazf35AiXC', '$2b$10$AOWgReYaPvcDqaOw1h6Gfe', 1);
 `;
 
 module.exports = {
@@ -118,6 +134,7 @@ module.exports = {
   taskItemTable,
   userTable,
   settingTable,
-  initSettingData,
-  initUserData,
+  compareTable,
+  defaultSetting,
+  defaultUser,
 };

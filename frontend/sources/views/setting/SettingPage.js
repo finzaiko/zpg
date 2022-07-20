@@ -58,6 +58,7 @@ export default class SettingPage extends JetView {
           id:"z_userlist_btn",
           tooltip: "Users",
           click: function () {
+            console.log("test")
             this.$scope.ui(UserForm).show();
           }
         },
@@ -93,6 +94,49 @@ export default class SettingPage extends JetView {
         { id: "note", header: "Note", fillspace: true },
       ],
       url: `${url}`
+      // data: [
+      //   {
+      //     map_key: "theme",
+      //     map_val: "default",
+      //     note: "Theme",
+      //   },
+      //   {
+      //     map_key: "editor_font",
+      //     map_val: "12px",
+      //     note: "Editor Font Size",
+      //   },
+      //   {
+      //     map_key: "query_conn",
+      //     map_val: "false",
+      //     note: "Query DB Connection last state",
+      //   },
+      //   {
+      //     map_key: "viewdata_conn",
+      //     map_val: "false",
+      //     note: "View Data DB Connection last state",
+      //   },
+      //   {
+      //     map_key: "viewdata_table",
+      //     map_val: "false",
+      //     note: "View Data table content"
+      //   },
+      //   {
+      //     map_key: "query_timeout",
+      //     map_val: "120 sec",
+      //     note: "Query timeout"
+      //   },
+      //   {
+      //     map_key: "view_style",
+      //     map_val: "Tabbar",
+      //     note: "View style page: tabbar or single page"
+      //   },
+      //   {
+      //     map_key: "allow_register",
+      //     map_val: "false",
+      //     note: "Enable self register (admin only)",
+      //     type: "1" // for admin only
+      //   },
+      // ],
     };
     return {
       rows: [toolbar, table],

@@ -1,3 +1,4 @@
+// const fs = require("fs");
 const fsExtra = require("fs-extra");
 const path = require("path");
 const async = require("async");
@@ -24,6 +25,7 @@ class TaskItemService {
       fieldValue
       // userId
     );
+    // return data[0];
     return data;
   }
 
@@ -91,6 +93,7 @@ class TaskItemService {
       source_db_id: sourceId,
       task_id: id,
     };
+    // console.log(input);
     return this.createSelected(input, userId);
   }
 

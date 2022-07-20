@@ -1,5 +1,6 @@
 import { JetView } from "webix-jet";
 import { state, url } from "../../models/User";
+// import { pageSize } from '../../helpers/ui';
 import { showError } from "../../helpers/ui";
 import { defaultHeader } from "../../helpers/api";
 import { userProfile } from '../../models/UserProfile';
@@ -68,6 +69,7 @@ function WindowForm() {
                   if (key == "new_password") text.push(`New Password can't be empty`);
                   if (key == "repeat_password") text.push(`Repeat New Password can't be empty`);
                 }
+                // webix.message({ type: "error", text: text.join("<br>"), expire:-1});
                 webix.message({ type: "error", text: text.join("<br>")});
               }
             }

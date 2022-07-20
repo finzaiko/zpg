@@ -83,6 +83,24 @@ const taskToolbar = {
       tooltip: "Download SQL script",
       hidden: true,
       click: function () {
+        // http://localhost:5000/api/task_run?id=20&download=true
+        // webix.extend($$(prefix + "_page_panel"), webix.OverlayBox);
+        // const item = state.dataSelected;
+        // $$(prefix + "_page_panel").showOverlay(
+        //   `
+        //     <div class='loading-content'>
+        //     <div class="spinner"></div>
+        //     <iframe id="downlaod_iframe" style="display: none;" onload="${closeDownloadFrame(this)}"></iframe>
+        //     </div>
+        //     `
+        // );
+        // setTimeout(() => {
+        //   const iframe = document.querySelector('#downlaod_iframe');
+        //   const url = `${API_URL}/task/download/${item.id}`;
+        //   const headers = [['Authorization', 'Bearer ' +  getToken()]];
+        //   loadIframe(iframe, url, headers);
+        // }, 800);
+
         const item = state.dataSelected;
         const url = `${API_URL}/task/download/${item.id}`;
         webix.ajax().get(url, function (res) {
@@ -226,6 +244,7 @@ function remove() {
 
 function openForm(_scope, isEdit) {
   state.isEdit = isEdit;
+  // _scope.show("/p/task.form");
   _scope.show("task.form?m=add", { target: "z_task_page" });
 }
 
@@ -260,4 +279,17 @@ export default class TaskPage extends JetView {
     };
   }
 
+  // urlChange(view, url) {
+  //   console.log(`url`, url);
+  //   console.log(`url[0].page`, url[0].page);
+  //   console.log(`url[0].params`, url[0].params);
+  // }
+
+  // init(_$view: IBaseView, _$: IJetURL): void;
+  // ready(_$view: IBaseView, _$url: IJetURL): void;
+
+  // init(view, url){
+  //   console.log(`view`, view);
+  //   console.log(`url`, url);
+  // }
 }

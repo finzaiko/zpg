@@ -36,8 +36,8 @@ webix.protoUI({
 		// folding: true,
 		lineDecorationsWidth: 4,
 		lineNumbersMinChars: 4,
-		overviewRulerLanes: 1,
-		overviewRulerBorder: false,
+		overviewRulerLanes: 1, // biang kerok
+		overviewRulerBorder: false, // biang kerok
 		hideCursorInOverviewRuler: true,
 
 		scrollbar: {
@@ -59,7 +59,7 @@ webix.protoUI({
 		};
 
 		var cdnLocal = "";
-		// var cdn = this.config.cdn || "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.30.1/min/";
+		// var cdn = this.config.cdn || "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.32.1/min/";
 		var cdn = this.config.cdn || "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.18.0/min/";
 
 		webix.require(cdn + "vs/loader.js")
@@ -79,8 +79,20 @@ webix.protoUI({
 	_render_when_ready:function(){
 		require(["vs/editor/editor.main"], webix.bind(function () {
 			var config = webix.copy(this.config);
+			// this._editor = monaco.editor.create(this.$view, config);
+			// console.log('config', config);
+
+			// const originalModel = monaco.editor.createModel("heLLo world!", "text/plain");
+			// const modifiedModel = monaco.editor.createModel("hello orlando!", "text/plain");
+
+			// console.log('config.diffEditor', config.diffEditor);
 			if(config.diffEditor){
+				// console.log("OKKKKKK")
 				this._editor = monaco.editor.createDiffEditor(this.$view, config);
+				// this._editor.setModel({
+				// 	original: originalModel,
+				// 	modified: modifiedModel
+				// });
 			}else if(config.diffEditorInline){
 				// enableSplitViewResizing: false,
 				config.renderSideBySide=false;
@@ -144,6 +156,8 @@ webix.protoUI({
 	 	return waitEditor?this._waitEditor:this._editor;
 	},
 	setDiffValue: function (originalValue, modifiedValue) {
+		// console.log(originalValue, modifiedValue);
+		// console.log('config-setDiffValue', this.config);
 		if(this.config.diffEditor || config.diffEditorInline){
 			// const originalModel = monaco.editor.createModel(originalValue, "sql");
 			const originalModel = monaco.editor.createModel(originalValue, "text/plain");
@@ -155,3 +169,6 @@ webix.protoUI({
 		}
 	}
 }, webix.ui.view);
+
+// TEST UPGRADE MONACO
+// https://snippet.webix.com/cekq039k

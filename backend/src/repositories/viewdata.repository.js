@@ -1,6 +1,9 @@
 const { db } = require("../core/database");
 const ProfileRepository = require(`./profile.repository`);
 const { Pool } = require("pg");
+// const {
+//   schemaList,
+// } = require("../core/sql/compare.sql");
 
 class ViewdataRepository {
   async getTableNameByOid(profileId, userId, oid) {
@@ -60,6 +63,7 @@ class ViewdataRepository {
       sql += ` ${sqlWhere} `;
       sql += ` ${sqlSort} `;
       sql += ` LIMIT ${limit} OFFSET ${offset}`;
+      // console.log(`sqlllllll`, sql);
       return pgPool.query(sql);
     }
     return [];
@@ -74,12 +78,18 @@ class ViewdataRepository {
       from information_schema.columns
       where table_schema='${schema}' and table_name = '${table}';
       `;
+      // console.log(`sql/////////////////`, sql);
       return pgPool.query(sql);
     }
     return [];
   }
 
   async updateTableData(profileId, userId, sqlStr) {
+    // console.log(`profileId, userId, oid, bodyData`, profileId, userId, oid, bodyData);
+    // console.log(`profileId >>`, profileId);
+    // console.log(`userId >>`, userId);
+    // console.log(`oid >>`, oid);
+    // console.log(`bodyData >>`, bodyData);
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);

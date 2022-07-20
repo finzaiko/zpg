@@ -4,6 +4,7 @@ const UserDto = require(`../dtos/user.dto`);
 class UserService {
   async getAll(offset = 0, limit = 10, sort = "desc") {
     const data = await UserRepository.getAll(offset, limit, sort);
+    // console.log(`data/////////////`, data);
     return data;
   }
 
@@ -14,6 +15,7 @@ class UserService {
 
   async getByField(fieldName, fieldValue) {
     const data = await UserRepository.getByField(fieldName, fieldValue);
+    // console.log(`getByField//////////////`, data);
     return data[0];
   }
 
@@ -38,6 +40,7 @@ class UserService {
     userDto.user_level = data.user_level;
     userDto.access_group = data.access_group;
 
+    // console.log(`userDto`, userDto);
     return await UserRepository.update(id, userDto);
   }
 

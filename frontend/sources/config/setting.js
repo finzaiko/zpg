@@ -19,6 +19,9 @@ export const LAST_DB_CONN_QUERY = "ldbconn";
 export const LAST_DB_CONN_VIEWDATA = "lvdbconn";
 
 export const LAST_DATATYPE = "ldtype";
+export const LAST_SEARCHTYPE = "lstype";
+export const CONFIRM_DROP_REPLACE = "dropreplace";
+export const CONFIRM_EXECUTE = "confirmexec";
 
 export const PING_SERVER = 15 * 60000; // Every 15m
 export const LOGIN_ANIMATE = true;

@@ -75,6 +75,7 @@ const dbAllTableBySchema = (schemaName) => {
 };
 
 const dbFuncContentByOid = (oid) => {
+  // console.log(`oid##########`, oid);
   let commentDefinition = `
       (select CONCAT(
         '-- FUNCTION: ', isr.specific_schema|| '.' ||  routine_name,'(',string_agg(isp.data_type::text,','),');',
@@ -125,6 +126,7 @@ const dbFuncContentByOid = (oid) => {
             ${commentSample}
         ) AS data;
         `;
+  // console.log(`sql++++++++++++`, sql);
   return sql;
 };
 
@@ -217,6 +219,7 @@ const dbTableContentByOid = (oid) => {
         ) as data
     FROM tabdef
   `;
+  // console.log(`sql>>>>>>>>>>`, sql);
   return sql;
 };
 
@@ -265,20 +268,20 @@ const dbTableContentByOid2 = (oid) => {
     if table_check is not null then
   
   --Definition creation
-      res := 'DROP TABLE IF EXISTS ' || _schema_name || '.' || _table_name || ' CASCADE;' || chr(10);
+      res := 'DROP TABLE IF EXISTS ' || _schema_name || '.' || _table_name || ' CASCADE;' || chr(10) || chr(10);
       res := res || 'CREATE TABLE ' || _schema_name || '.' || _table_name || ' (' || chr(10);
   
       for rec in
         select
           pa.attnum
-          , pa.attname
+          , concat(e'\t',pa.attname) as attname
           , pg_catalog.format_type(pa.atttypid, pa.atttypmod) || case 
             when pa.attnotnull 
               then ' not null' 
               else ''
-            end || ' ' || coalesce( 
+            end || ' ' || coalesce(  -- check default
             ( 
-              select
+              select 'default ' ||
                 substring( 
                   pg_catalog.pg_get_expr(pd.adbin, pd.adrelid) for 128
                 ) 
@@ -301,21 +304,15 @@ const dbTableContentByOid2 = (oid) => {
           and pc.relname = _table_name 
           and pa.attnum > 0
         order by attnum
-      loop
+ loop
   
     --Create column part
-        if comma_flg then
-          res := res || '  , ';
-        else
-          res := res || '  ';
-        end if;
-        comma_flg := true;
-        res := res || rec.attname || ' ' || rec.format || chr(10);
+		  res := res || rec.attname || ' ' || rec.format|| ',' || chr(10)  ;
       end loop;
   
       for rec in
         select
-          pg_catalog.pg_get_constraintdef(pco.oid, true) as ct_str
+          concat(e'\t',pg_catalog.pg_get_constraintdef(pco.oid, true)) as ct_str
           , pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true) as ci_str
         from pg_catalog.pg_class pc 
         inner join pg_catalog.pg_namespace pn 
@@ -343,7 +340,7 @@ const dbTableContentByOid2 = (oid) => {
         if rec.ct_str is not null then
   
           --Definition in CREATE TABLE
-          res := res || '  , ' || rec.ct_str || chr(10);
+          res := res || rec.ct_str || ',' || chr(10);
         else
   
           --CREATE TABLE External definition
@@ -366,9 +363,9 @@ const dbTableContentByOid2 = (oid) => {
       loop
   
         --Create check constraint part
-        res := res || '  , ' || rec.condef || chr(10);
+        res := res || ',' || rec.condef || chr(10);
       end loop;
-  
+  comma_flg := false;
       for rec in
         select
           pg_catalog.pg_get_constraintdef(pr.oid, true) as condef 
@@ -383,12 +380,19 @@ const dbTableContentByOid2 = (oid) => {
           and pr.contype = 'f'
       loop
   
+   if comma_flg then
+          res := res || ','|| chr(10);
+        else
+          res := res || '';
+        end if;
+        comma_flg := true;
+		
         --Creating a foreign key constraint part
-        res := res || '  , ' || rec.condef || chr(10);
+        res := res || e'\t ' ||rec.condef || '' ;
       end loop;
   
       --Add index part
-      res := res || ');' || chr(10) || idx_str || chr(10);
+      res := res || chr(10) || ');' || chr(10) || idx_str || chr(10);
   
       --Create owner change part
       select
@@ -404,27 +408,6 @@ const dbTableContentByOid2 = (oid) => {
           pn.nspname = _schema_name 
           and pc.relname = _table_name; 
       res := res || owr_str;
-  
-      --Create permission change part
-      res := res || 'REVOKE ALL PRIVILEGES ON ' || _schema_name || '.' || _table_name || ' FROM ' || usename || ';' || chr(10);
-      select
-      array_to_string( 
-          array ( 
-              select
-                  'GRANT ' || tp.privilege_type || ' ON ' || tp.table_schema || '.' || tp.table_name || ' TO ' || tp.grantee
-                   || ';' 
-              from
-                  information_schema.table_privileges tp 
-              where
-                  tp.table_schema = _schema_name
-                  and tp.table_name = _table_name
-              order by
-                  tp.grantee
-                  , tp.privilege_type
-          ) 
-          , chr(10)
-      ) into grt_str;
-      res := res || grt_str || chr(10);
   
       --Create comment part
       with check_data(_schema_name, _table_name) as ( 
@@ -506,8 +489,13 @@ const dbTableContentByOid2 = (oid) => {
     return res;
   end;
   $$  language plpgsql;
+  
+  select * from pg_temp.table_def(${oid}) as data;
   `;
+  // console.log(`sql>>>>>>>>>>`, sql);
+  return sql;
 }
+
 const dbFuncTableSearch = (search, type, view) => {
   let sql = "";
   let fields = "";
@@ -538,7 +526,8 @@ const dbFuncTableSearch = (search, type, view) => {
     limit = `200`;
   }
 
-  let sqlFunc = `SELECT prc.oid || '_g' AS id, prc.proname || '(f:' || isr.specific_schema || ')' AS value, 'z_combo_item_f' AS css
+  let sqlFunc = `SELECT prc.oid || '_g' AS id, prc.proname || '(f:' || isr.specific_schema || ')' AS value, 'z_combo_item_f' AS css, 
+      prc.proname as name, isr.specific_schema as schema, 'Function' as type
       ${fieldFunc}
       FROM information_schema.routines isr
       INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
@@ -546,19 +535,22 @@ const dbFuncTableSearch = (search, type, view) => {
       WHERE isr.specific_schema NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema']) 
       GROUP BY  prc.oid, prc.proname,isr.specific_schema`;
 
-  let sqlTbl = `SELECT c.relfilenode || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css
+  // let sqlTbl = `SELECT c.relfilenode || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css
+  let sqlTbl = `SELECT c.oid || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css, 
+      relname as name, n.nspname as schema, 'Table' as type
       ${fieldTbl}
       FROM pg_catalog.pg_class c
       JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
       WHERE c.relkind = 'r' AND nspname NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema'])`;
 
   if (view == "func") {
-    sql = `SELECT id, value, css ${fields} FROM (${sqlFunc}) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
+    sql = `SELECT id, value, css, name, schema, type ${fields} FROM (${sqlFunc}) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   } else if (view == "tbl") {
-    sql = `SELECT id, value, css ${fields} FROM (${sqlTbl}) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
+    sql = `SELECT id, value, css, name, schema, type ${fields} FROM (${sqlTbl}) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   } else {
-    sql = `SELECT id, value, css ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
+    sql = `SELECT id, value, css, name, schema, type ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   }
+  // console.log(`sql >>>>>`, sql);
   return sql;
 };
 

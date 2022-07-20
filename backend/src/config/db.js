@@ -1,8 +1,8 @@
 const DB_CONFIG = {
-    user: '',
-    host: '',
-    database: '',
-    password: '',
+    user: 'postgres',
+    host: 'localhost',
+    database: 'testdb',
+    password: 'postgres',
     port: 5432
 }
 

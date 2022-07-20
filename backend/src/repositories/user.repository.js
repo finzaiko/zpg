@@ -54,8 +54,8 @@ class UserRepository {
       "INSERT INTO user (fullname, email, username, password, salt, user_level, access_group) VALUES (?,?,?,?,?,NULLIF(?,''),NULLIF(?,''))";
     let params = [
       data.fullname,
-      data.email,
-      data.username,
+      (data.email).toLowerCase(),
+      (data.username).toLowerCase(),
       cryptPassword,
       salt,
       userLevel,

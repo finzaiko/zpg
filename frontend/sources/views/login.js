@@ -209,7 +209,7 @@ class WindowView extends JetView {
       on: {
         onShow: function () {
           $$("loginform_username").focus();
-          if(state.length>0){
+          if(state.meta.length>0){
             const isRegister =
               state.meta.find((r) => r.m_key == "allow_register").m_val ===
               "true";
@@ -217,11 +217,13 @@ class WindowView extends JetView {
               $$("z_register_btnlink").show();
             }
           }
+          
         },
       },
     };
   }
   showWindow() {
+    // this.getRoot().show({ x:100, y:100});
     this.getRoot().show();
   }
 
@@ -230,6 +232,10 @@ class WindowView extends JetView {
   }
 
   ready() {
+    console.log(`state.meta`, state.meta);
+    // user test only
+    // this.$$("loginform_username").setValue("arifin")
+    // this.$$("loginform_password").setValue("arifin123")
   }
 
   doLogin() {
@@ -279,6 +285,7 @@ class WindowView extends JetView {
         form.showProgress();
         register(data)
           .then((r) => {
+            console.log(`r`, r);
             form.hideProgress();
             form.enable();
             webix.message({

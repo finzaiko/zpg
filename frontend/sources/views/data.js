@@ -3,6 +3,7 @@ import {datarcd} from "models/records";
 
 
 export default class DataView extends JetView{
+	// http://localhost:5000/api/db_compare?source_id=1&target_id=3&schema=master
 	config(){
 
 		datarcd.sort("proname", "asc");
@@ -22,7 +23,10 @@ export default class DataView extends JetView{
 			  { id:"cols_count", header:"Tbl Cols Count", adjust: true},
 			  { id:"t_type", header:"Type", adjust: true},
 			],
+			// autoheight:true,
+			// autowidth:true,
 			data: datarcd
+			// url: "http://localhost:5000/api/db_compare?source_id=1&target_id=3&schema=master"
 		 };
 	}
 	init(view){

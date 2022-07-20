@@ -928,3 +928,80 @@ div.webix_list_item:hover .hoverButton {
   overflow-y: scroll;
 }
 
+.zheader .app_button button span{
+  margin-left: 5px !important;
+}
+
+
+/* https://bg.siteorigin.com/?color=%232AA062&pattern=arches&blend=4&intensity=10&noise=0&invert=0&2x=0 */
+/* https://bggenerator.com/index.php */
+/*
+.z_app_tabview .webix_el_tabbar{
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: black url("http://localhost:8000/assets/tabbar-bg5.png") !important;
+  background-repeat:repeat;
+  background-position: center center;
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+}
+
+.webix_item_tab.z_tabview_item{
+  background-color: rgba(255,255,255,0.3) ;
+  color: white;
+}
+.z_app_tabview div.webix_item_tab.webix_selected{
+  background-color: rgba(255,255,255,0.6);
+  color: white;
+}
+.z_app_tabview div.webix_item_tab.webix_selected:hover{
+  background-color: rgba(255,255,255,0.6);
+  color: white;
+}
+.z_app_tabview.webix_layout_line div.webix_item_tab.webix_selected{
+  color: white;
+}
+.z_app_tabview .webix_item_tab:hover{
+  background-color: rgba(255,255,255,0.6);
+}
+.z_app_tabview .webix_item_tab{
+  background-color: rgba(255,255,255,0.3);
+  color: white;
+}
+.webix_item_tab.z_tabview_item.webix_selected:hover {
+  background-color: rgba(255,255,255,0.5);
+}
+.webix_item_tab.z_tabview_item.webix_selected{
+  background-color: rgba(255,255,255,0.6);
+}
+
+.zheader.webix_layout_toolbar{
+  background:url("http://localhost:8000/assets/tabbar-bg5.png") rgba(0, 0, 0, 0.3);
+}
+
+.zheader.webix_layout_toolbar .app_header{
+  background-color: transparent;
+  color: white !important;
+} 
+*/
+
+
+.search_suggest_detach input{
+  font-size: 16px;
+  /* text-align: center !important; */
+}
+
+.search_suggest_detach_item .webix_list .webix_list_item {
+  /* height: 38px !important; */
+  font-size: 14px;
+  line-height: 2.3;
+  /* line-height: 1; */
+}
+.webix_list .webix_list_item.webix_selected{
+  background-color: #f4f5f9 !important;
+  color: #1ca1c1;
+}

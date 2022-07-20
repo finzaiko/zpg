@@ -19,6 +19,7 @@ function generate() {
     .headers(defaultHeader())
     .post(`${url}/outparams`, data, function (res) {
       let rData = JSON.parse(res);
+      // console.log(`rData`, rData.data);
       if (typeof rData.data != "undefined") {
         $$(prefixThis + "_result").setHTML(
           "<pre id='insert_query_result'>" + rData.data + "</pre>"
@@ -80,6 +81,7 @@ export default class GeneratorInsertQueryContent extends JetView {
             },
             {
               view: "icon",
+              // icon: "mdi mdi-motion-play-outline",
               icon: "mdi mdi-play-box-outline",
               tooltip: "Generate",
               autowidth: true,
@@ -131,6 +133,7 @@ export default class GeneratorInsertQueryContent extends JetView {
           scroll: "xy",
           css: "z_out_template",
           id: prefixThis + "_result",
+          // template: "Result",
         },
       ],
     };

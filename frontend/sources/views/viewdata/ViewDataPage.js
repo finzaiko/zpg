@@ -52,10 +52,15 @@ export function ViewDataPage(prefix, selectedDb) {
     currUrl = `${url}/data?id=${profileId}&&oid=${oidReal}`;
     webix
       .ajax()
+      // .get(`${url}/data?id=${profileId}&&oid=${oidReal}`)
       .get(currUrl)
       .then(function (data) {
+        // console.log(`data`, data);
         viewId.hideProgress();
+        // viewId.setValue(data.json().data);
         const rData = data.json();
+        // console.log(`rDdata-config`, rData.config);
+        // console.log(`rDdata-data`, rData.data);
 
         let views = $$(prefix + "_table_panel").getChildViews();
         if (views[0]) {
@@ -102,6 +107,12 @@ export function ViewDataPage(prefix, selectedDb) {
             },
           },
         };
+
+        // var processor = webix.dp($$(prefix + "_table"));
+        // console.log(`dp`, processor)
+        // dp.attachEvent("onBeforeDataSend", function(send){
+        //   send.data.some = 123;
+        // });
 
         $$(prefix + "_table_panel").addView(newView);
         $$(prefix + "_refresh").show();
@@ -364,6 +375,7 @@ export function ViewDataPage(prefix, selectedDb) {
             cols: [
               {
                 id: prefix + "_list_tbl",
+                // hidden: true,
                 view: "list",
                 width: 250,
                 template: "#title#",

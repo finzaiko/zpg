@@ -1,3 +1,4 @@
+// import { getToken } from "../models/UserProfile";
 
 import { getToken } from "../models/UserProfile";
 
@@ -12,3 +13,10 @@ export function setAppHeader(headers) {
   headers["Authorization"] = "Bearer " + getToken();
 }
 
+// export const parseJwt = (token) => {
+//   try {
+//     return JSON.parse(atob(token.split(".")[1]));
+//   } catch (e) {
+//     return null;
+//   }
+// };

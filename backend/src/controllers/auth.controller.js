@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 const UserService = require(`../services/user.service`);
+const env = process.env;
+const dotenv = require("dotenv");
 const refreshToken = require("../utils/token.util");
 const { responseValidate } = require("../utils/http.utils");
 

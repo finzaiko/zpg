@@ -37,6 +37,14 @@ const WindowForm = () => {
             name: "host",
             id: prefix + "_host",
           },
+          // {
+          //   view: "text",
+          //   label: "Port",
+          //   name: "port",
+          //   placeholder: "5432",
+          //   id: prefix + "_port",
+          //   labelWidth: labelWCol2,
+          // },
           {
             cols: [
               {
@@ -120,6 +128,7 @@ const WindowForm = () => {
               isEdit = false;
             },
           },
+          //   { width: labelW + 10 },
           {
             view: "button",
             value: "Save",
@@ -231,6 +240,9 @@ const WindowForm = () => {
         $$(prefix + "_add_btn").hide();
         $$(prefix + "_password").setValue();
         isEdit = true;
+        // const item = this.getItem(sel);
+        // state.dataSelected = item;
+        // state.isEdit = true;
       },
       onItemDblClick: function () {},
     },

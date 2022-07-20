@@ -80,6 +80,7 @@ export default class GeneratorOutParamsContent extends JetView {
             },
             {
               view: "icon",
+              // icon: "mdi mdi-motion-play-outline",
               icon: "mdi mdi-play-box-outline",
               tooltip: "Generate",
               autowidth: true,
@@ -131,6 +132,7 @@ export default class GeneratorOutParamsContent extends JetView {
           scroll: "xy",
           css: "z_out_template",
           id: prefixThis + "_result",
+          // template: "Result",
         },
       ],
     };

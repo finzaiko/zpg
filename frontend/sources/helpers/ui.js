@@ -7,6 +7,10 @@ export const dbDateFormat = "%Y-%m-%d";
 
 export const getDbDateFormat = webix.Date.dateToStr(dbDateFormat);
 
+// export function defaultHeader() {
+//   return { "Content-type": "application/json" };
+// }
+
 export const pagerToolbar = (pagerId) => {
   return {
     view: "pager",
@@ -47,8 +51,10 @@ export const pagerRow = (pagerId) => {
       "text-align": "right",
     },
     id: pagerId,
+    // css: "z-pager-aligned",
     size: pageSize,
     template: function (data, common) {
+      console.log("data.size", data.size);
       if (data.size > pageSize) {
         webix.message(`Data show only ${pageSize} records`);
       }
@@ -71,6 +77,7 @@ export function loadCollection(url) {
 }
 
 export function showError(xhr) {
+  // console.log("showErrorXHR:", xhr);
   if (SHOW_ERR_DEBUG) {
     let code = "UNKNOWN_ERR";
     let msgText = "Unknown error, check console for details";
@@ -115,6 +122,7 @@ export function showErrorResponse(errResponse) {
   const obj = JSON.parse(errResponse);
   let msg = "";
   Object.keys(obj).forEach(function (key) {
+    console.log(key, obj[key]);
     msg += `<b>${key}:</b> ${obj[key]}<br>`;
   });
   webix.message({ text: msg, type: "error" });
@@ -175,14 +183,14 @@ export function showExpiredMsg(app, forceLogout) {
 
 export function setEditorFontSize(editorId) {
   editorId.getEditor(true).then((editor) => {
-    let edFontSize = "12";
-    if (stateBase.appProfile && Array.isArray(stateBase.appProfile)) {
-      edFontSize = stateBase.appProfile.find(
-        (o) => o.m_key == "editor_font_size"
-      ).m_val;
-    }
-    editor.updateOptions({
-      fontSize: edFontSize + "px",
+      let edFontSize = "12";
+      if (stateBase.appProfile && Array.isArray(stateBase.appProfile)) {
+        edFontSize = stateBase.appProfile.find(
+          (o) => o.m_key == "editor_font_size"
+        ).m_val;
+      }
+      editor.updateOptions({
+        fontSize: edFontSize + "px",
+      });
     });
-  });
 }

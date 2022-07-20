@@ -3,7 +3,7 @@ export default {
   template: `
   <div class='z_about_content'>
 		<h3>About:</h3>
-		<p><strong>ZPGTOOL</strong> an experimental side project written with <a href='https://nodejs.org' target='_blank'>NodeJS</a> and <a href='https://webix.com' target='_blank'>Webix</a> (<a href='https://www.npmjs.com/package/webix' target='_blank'>GPL license</a>), inspired by Jenkins and PgAdmin add some features to make it simple and easy.<br>
+		<p><strong>ZPGTOOL</strong> an experimental side project written with <a href='https://nodejs.org' target='_blank'>NodeJS</a> and <a href='https://webix.com' target='_blank'>Webix</a> (<a href='https://www.npmjs.com/package/webix' target='_blank'>GPL license</a>), inspired by Jenkins and PgAdmin to improve unavailable features to make it simple and easy.<br>
 		For more other functionality of Postgres please use PgAdmin</p>
 		<p>Features idea:
 			<ul>
@@ -11,9 +11,7 @@ export default {
 				<li>Task SQL continues integration</li>
 				<li>Comparing between SQL function direct correction</li>
 				<li>Simple query editor</li>
-				<li>Easy copy data between database (under development)</li>
-				<li>Easy view table content</li>
-				<li>Generator</li>
+				<li>Easy copy data between database</li>
 				<li>and more..</li>
 			</ul>
 		</p>
@@ -35,15 +33,34 @@ export default {
 		<section>
 			<h4>Todo:</h4>
 			<ul>
-				<li>init app query (reset: profile last 1 month deleted)</li>
-				<li>setting ui</li>
-				<li>save last state user (history, dbconn =sideright menu)</li>
+				<li>compare by profile </li>
+				<li>execute query in compare </li>
+				<li>check compatible version </li>
+				<li>duplicate conn [done]</li>
+				<li>init app query (reset: profile last 1 month deleted) [done]</li>
+				<li>setting ui [done]</li>
+				<li>save last state user (history, dbconn =sideright menu) [done]</li>
 				<li>dashboard: show process activity</li>
 			</ul>
 		</section>
 		
 		<section>
 			<h4>Change log:</h4>
+			<p>
+				<h4>1.0.10-dev (28-06-2022)</h4>
+				<ul>
+					<li>improve deep compare, using db left right joining </li>
+					<li>compare table row content</li>
+					<li>add popup quick search</li>
+				</ul>
+			</p>
+			<p>
+				<h4>1.0.9-dev (22-04-2022)</h4>
+				<ul>
+					<li>improve show table defenition</li>
+					<li>add cascade generate out</li>
+				</ul>
+			</p>
 			<p>
 				<h4>1.0.8-dev (11-03-2022)</h4>
 				<ul>

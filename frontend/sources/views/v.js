@@ -37,6 +37,7 @@ export default class MainView extends JetView {
       data: menuData,
       on: {
         onMenuItemClick: function (id) {
+          // https://snippet.webix.com/9f70z3kn
           const item = this.getItem(id);
           state.viewScope = this.$scope;
           if (!$$(item.id)) {
@@ -81,12 +82,24 @@ export default class MainView extends JetView {
                 header,
               ],
             },
+            // {
+            //   view: "button",
+            //   type: "icon",
+            //   icon: "mdi mdi-menu",
+            //   width: 37,
+            //   align: "left",
+            //   css: "app_button",
+            //   click: function() {
+            //     $$("app:sidebar").toggle();
+            //   }
+            // },
             {
               view: "sidebar",
               id: "app:sidebar",
               data: menuData,
               width: 180,
               on: {
+                // onAfterSelect: function (id) {
                 onItemClick: function (id, e, node) {
                   const item = this.getItem(id);
                   state.viewScope = this.$scope;
@@ -141,6 +154,7 @@ export default class MainView extends JetView {
                     edId = `z_query_sql_editor`;
                   }
                   const a = $$(edId);
+                  // console.log(`a`, a);
                   if (typeof a != "undefined") {
                     if (a.getValue().length > 0) {
                       webix.confirm("Are you sure?").then((result) => {

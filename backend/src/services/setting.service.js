@@ -8,7 +8,11 @@ class SettingService {
   }
   
   async getByMultiKey(keys) {
+    // console.log('keys>>>>',keys);
+    
     const data = await SettingRepository.getByMultiKey(keys);
+    // console.log('data>>>>',data);
+    
     return data;
   }
 }

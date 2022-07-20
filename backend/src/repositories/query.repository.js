@@ -4,6 +4,7 @@ const { Pool } = require("pg");
 class QueryRepository {
   async runSQL(profileId, sql, userId, callback) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
+    // console.log(`serverCfggggggggggggggggggg>>`, serverCfg);
     const pgPool = new Pool(serverCfg[0]);
     pgPool.on("connect", (client) => {
       client.on("notice", (msg) => {

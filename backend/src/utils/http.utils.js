@@ -5,6 +5,7 @@ const responseHttp = (reply, code, message, data) => {
   if (typeof message == "undefined") {
     code = "Ok";
   }
+  // if (typeof data.data != "undefined" && data.data.length > 0) {
     let res = {
       meta: {
         code: code,
@@ -12,6 +13,7 @@ const responseHttp = (reply, code, message, data) => {
       },
     };
 
+    // console.log(`data`, data);
     if (typeof data != "undefined") {
       Object.assign(res, data)
     }
@@ -20,9 +22,13 @@ const responseHttp = (reply, code, message, data) => {
       .code(code)
       .header(`Content-Type`, `application/json; charset=utf-8`)
       .send(res);
+  // }
+  // return reply.send([]);
 };
 
 const responseOk = (reply, data) => {
+  // console.log(`data.data != "undefined"`, data.data != "undefined")
+  // console.log(`data.data.length`, data.data)
   if (typeof data.data != "undefined" && data.data.length > 0) {
     return reply
       .code(200)
@@ -56,6 +62,7 @@ const verifyToken = (fastify, request, reply) => {
   if (typeof auth != "undefined") {
     const token = auth.replace("Bearer", "").trim();
     fastify.jwt.verify(token, (err, decoded) => {
+      // console.log(`decoded`, decoded)
       if (!err || typeof decoded != "undefined") {
         reply.send({
           status: decoded.username ? true : null,

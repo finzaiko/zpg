@@ -19,7 +19,14 @@ class ViewdataService {
       tablename
     );
 
+    // console.log(`tblType//////////`, tblType);
+    // console.log(`tblType-rows//////////`, tblType.rows);
     const tblTypes = tblType.rows;
+
+    // console.log(`tblTypes>>>>>>`, tblTypes);
+
+    // console.log(`filter>>>>>>`, filter);
+    //  console.log(`sort>>>>>>`, sort);
 
     const dataPk = await getPrimaryKeyByTableName(
       profileId,
@@ -27,20 +34,25 @@ class ViewdataService {
       tableschema,
       tablename
     );
-
+    // console.log(`dataPk.rows`, dataPk.rows);
+    // const pk = dataPk.rows[0].attname;
+    
     let pk = "";
-    if (dataPk.rows.length > 0) {
+    if(dataPk.rows.length>0){
       pk = dataPk.rows[0].attname;
-    } else {
-      if (tblTypes.length > 0) {
+    }else{
+      if(tblTypes.length>0){
         pk = tblTypes[0].column_name;
       }
     }
+
+    // console.log(`pkkkkkk`, pk);
 
     let whereStr = "";
     if (typeof filter != "undefined") {
       let w = [];
       for (const [key, value] of Object.entries(filter)) {
+        // console.log(`***${key}: ${value}`);
         if (value != "") {
           const tt = tblTypes.find((tp) => tp.column_name == key);
           switch (tt.data_type) {
@@ -61,6 +73,7 @@ class ViewdataService {
     if (typeof sort != "undefined") {
       let s = [];
       for (const [key, value] of Object.entries(sort)) {
+        // console.log(`***${key}: ${value}`);
         if (value != "") {
           s.push(`${key} ${value}`);
         }
@@ -76,9 +89,11 @@ class ViewdataService {
       limit,
       offset,
       whereStr,
-      sortStr,
+      sortStr, 
       pk
     );
+
+    // console.log(`tblData//////////`, tblData);
 
     let ttlCount = 0;
     if (tblData.rows.length > 0) {
@@ -112,14 +127,15 @@ class ViewdataService {
     );
 
     let pk = "";
-    if (dataPk.rows.length > 0) {
+    if(dataPk.rows.length>0){
       pk = dataPk.rows[0].attname;
-    } else {
-      if (tblTypes.length > 0) {
+    }else{
+      if(tblTypes.length>0){
         pk = tblTypes[0].column_name;
       }
     }
 
+    // const pk = dataPk.rows[0].attname;
     let dataInput = bodyData.data;
     const pkValue = dataInput[pk];
     let result;
@@ -136,9 +152,9 @@ class ViewdataService {
               fieldValue.push(`${key}=${value}`);
               break;
             default:
-              if (value === null) {
+              if(value===null){
                 fieldValue.push(`${key}=${value}`);
-              } else {
+              }else{
                 fieldValue.push(`${key}='${value}'`);
               }
               break;
@@ -149,6 +165,7 @@ class ViewdataService {
       `);
       let sqlStr = `UPDATE ${tableschema}.${tablename} SET
       ${fieldValueSql} WHERE ${pk}=${pkValue}`;
+      // console.log(`sql******`, sqlStr);
       const tblData = await ViewdataRepository.updateTableData(
         profileId,
         userId,

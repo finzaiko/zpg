@@ -48,6 +48,10 @@ class TaskRepository {
       data.user_id,
     ];
     const res = await new Promise((resolve, reject) => {
+      // db.run(sql, params, (err, row) => {
+      //   if (err) reject(err);
+      //   resolve(row);
+      // });
       db.serialize(() => {
         var stmt = db.prepare(sql);
         stmt.run(params, function (err,row) {  

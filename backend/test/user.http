@@ -10,8 +10,7 @@ GET http://localhost:3000/api/v1/users/1 HTTP/1.1
 
 ###
 
-# POST http://localhost:9000/api/v1/register HTTP/1.1
-POST http://10.109.129.137:9000/api/v1/register HTTP/1.1
+POST http://localhost:9000/api/v1/register HTTP/1.1
 content-type: application/json
 
 {

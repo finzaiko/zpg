@@ -7,7 +7,8 @@
     "start": "node app.js",
     "dev": "concurrently \"cd backend && npm start\" \"cd frontend && npm start\" ",
     "backend": "cd backend && npm start",
-    "frontend": "cd frontend && npm start"
+    "frontend": "cd frontend && npm start",
+    "postinstall": "(npm install); (cd backend && npm install); (cd frontend && npm install)"
   },
   "keywords": [],
   "author": "",

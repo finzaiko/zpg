@@ -1005,3 +1005,20 @@ background-size: cover;
   background-color: #f4f5f9 !important;
   color: #1ca1c1;
 }
+
+
+
+.myGlyphMarginClass {
+	background: green !important;
+}
+.myContentClass {
+	background: #ebf1dc !important;
+}
+.breakpointStyle {
+	background: #ff5c4c !important;
+}
+/*
+.rightLineDecoration {
+	background: red !important;
+}
+*/

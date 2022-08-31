@@ -28,7 +28,6 @@ export default class AppView extends JetView {
     return ui;
   }
   ready(){
-    console.log(`userProfile`, userProfile);
     document.querySelectorAll('.ztemplate-main')[0].click();
   }
 }

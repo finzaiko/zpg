@@ -263,7 +263,7 @@ const compareDefenition = () => {
           a.z_content val_a,
           COALESCE(b.oid,0) id_b,
           b.z_content val_b
-        FROM tbl_a a LEFT JOIN tbl_b b ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in AND a.z_params_out=b.z_params_out 
+        FROM tbl_a a LEFT JOIN tbl_b b ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in 
         UNION 
         SELECT 
           b.z_schema,
@@ -277,7 +277,7 @@ const compareDefenition = () => {
           a.z_content val_a,
           COALESCE(b.oid,0) id_b,
           b.z_content val_b
-        FROM tbl_b b LEFT JOIN tbl_a a ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in AND a.z_params_out=b.z_params_out
+        FROM tbl_b b LEFT JOIN tbl_a a ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in 
         WHERE a.z_name IS NULL
       ) t ORDER BY z_schema, z_name
     `;

@@ -19,11 +19,25 @@ export default class MainView extends JetView {
     $$("tabs").addView(config);
   }
   config() {
+    const _this = this;
     const header = {
       type: "header",
       borderless: true,
-      template: `<span route="/index" class='z_link_btn'>${this.app.config.name}</span>`,
+      // template: `<span route="/index" class='z_link_btn app_name_link'>${this.app.config.name}</span>`,
+      template: `<span class='z_link_btn app_name_link'>${this.app.config.name}</span>`,
       css: "webix_header app_header",
+      onClick: {
+        "app_name_link": function (e, id){
+          webix.confirm({
+            title:"Confirm Exit",
+            ok:"Yes", cancel:"No",
+            text:"Are you sure to exit current working editor ?"
+          })
+          .then(function(){
+            _this.show("/index");
+          })
+        }
+      }
     };
 
     const menu = {

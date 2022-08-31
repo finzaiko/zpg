@@ -33,19 +33,31 @@ export default {
 		<section>
 			<h4>Todo:</h4>
 			<ul>
+				<li>query: result direct save change</li>
+				<li>query: change reload on user setting</li>
+				<li>viewdata: action on save</li>
 				<li>compare by profile </li>
-				<li>execute query in compare </li>
-				<li>check compatible version </li>
-				<li>duplicate conn [done]</li>
-				<li>init app query (reset: profile last 1 month deleted) [done]</li>
-				<li>setting ui [done]</li>
-				<li>save last state user (history, dbconn =sideright menu) [done]</li>
+				<li>execute query in compare</li>
+				<li>check compatible version</li>
 				<li>dashboard: show process activity</li>
-			</ul>
-		</section>
+				</ul>
+				</section>
 		
 		<section>
 			<h4>Change log:</h4>
+			<p>
+			<h4>1.0.11-dev (10-08-2022)</h4>
+				<ul>
+					<li>fix compare duplicate, remove out params </li>
+					<li>fix overlap search</li>
+					<li>fix show all data duplicate id (webix datatable)</li>
+					<li>upd: query human error result</li>
+					<li>duplicate conn</li>
+					<li>setting ui</li>
+					<li>save last state user (history, dbconn =sideright menu) </li>
+					<li>init app query (reset: profile last 1 month deleted)</li>
+				</ul>
+			</p>
 			<p>
 				<h4>1.0.10-dev (28-06-2022)</h4>
 				<ul>

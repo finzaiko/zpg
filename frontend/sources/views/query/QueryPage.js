@@ -48,11 +48,15 @@ function newQueryTab() {
 }
 
 export function QueryPage(prefix, selectedDb) {
-  console.log(`prefix`, prefix);
+  // console.log(`prefix`, prefix);
   state.countPage = parseInt(prefix.split("_")[2]) || 0;
 
-  let searchState = 'sname';
+  console.log('prefix',prefix);
+  
+  let searchState = prefix+'_sname';
   let searchDetachWin;
+
+  let decorations = [];
 
   const sType = webix.storage.local.get(LAST_SEARCHTYPE) || 0;
 
@@ -480,8 +484,8 @@ export function QueryPage(prefix, selectedDb) {
           body: {
                 view:"list", 
                 data:[
-                  {id:"sname", name:"name", icon: "mdi mdi-magnify", tooltip: "Search by name"},
-                  {id:"scontent", name:"content", icon:"mdi mdi-text-search", tooltip: "Search by content"},
+                  {id:prefix+"_sname", name:"name", icon: "mdi mdi-magnify", tooltip: "Search by name"},
+                  {id:prefix+"_scontent", name:"content", icon:"mdi mdi-text-search", tooltip: "Search by content"},
                 ],
                 template:"<span class='#icon#'></span> #name#",
                 autoheight:true,
@@ -498,11 +502,11 @@ export function QueryPage(prefix, selectedDb) {
 
                     const search = $$(prefix + "_database_search");
                     const searchContent = $$(prefix + "_database_search_content");
-                    if(id=="sname"){
+                    if(id==prefix+"_sname"){
                       search.show();
                       search.focus();
                       searchContent.hide();
-                    }else if(id=="scontent"){
+                    }else if(id==prefix+"_scontent"){
                       search.hide();
                       searchContent.show();
                       searchContent.focus();
@@ -872,7 +876,7 @@ export function QueryPage(prefix, selectedDb) {
         ],
         on: {
           onItemClick: function (sel) {
-            console.log(`sel`, sel.row);
+            // console.log(`sel`, sel.row);
             loadSchemaContent(0, sel.row);
           }
         }
@@ -1311,12 +1315,19 @@ export function QueryPage(prefix, selectedDb) {
     let editorId = $$(prefix + "_sql_editor");
 
     const getEditor = editorId.getEditor();
-    const ed = getEditor.getModel().getValueInRange(getEditor.getSelection());
-    // console.log(`test`, ed);
+    const selectionText = getEditor.getSelection();
+    const ed = getEditor.getModel().getValueInRange(selectionText);
+
+    let selectionLineNo = 0;
+    let isSelection = false;
+
     // return;
     let sqlInput = "";
     if (ed.length > 0) {
+      isSelection = true;
       sqlInput = ed;
+      selectionLineNo = selectionText.positionLineNumber;
+      console.log('selectionLineNo',selectionLineNo);
     } else {
       sqlInput = editorId.getValue();
     }
@@ -1351,14 +1362,23 @@ export function QueryPage(prefix, selectedDb) {
         alert("Not implemented yet");
         $$(prefix + "_page_panel").hideOverlay();
       }
-      console.log(`prefix`, prefix)
       webix
         .ajax()
         .headers(defaultHeader())
         .post(url + "/run", input)
         .then((r) => {
           let rData = r.json();
-          // console.log(`rData`, rData);
+
+          let newArr;
+
+          if (!rData.error) {
+              newArr = rData.data.map((elm) => {
+                if(elm.hasOwnProperty('id')){
+                 elm.id += "<i style='color:white;'>__" + webix.uid()+"</i>";
+                }
+               return elm
+             });
+          }
 
           // console.log(`rData.config`, rData.config)
           let newView = {
@@ -1439,14 +1459,9 @@ export function QueryPage(prefix, selectedDb) {
                     id: prefix + "_result",
                     columns: rData.config,
                     resizeColumn: true,
-                    data: rData.data,
+                    // data: rData.data,
+                    data: newArr,
                     pager: prefix + "_result_row_pager",
-                    scheme:{
-                      $init: function(obj){
-                          // obj.id = webix.uid(); //if you do not need original id
-                          // obj.id += "|" + webix.uid(); //if you need to know original id
-                      }
-                    }
                   },
                   {
                     view: "template",
@@ -1477,15 +1492,16 @@ export function QueryPage(prefix, selectedDb) {
           };
 
           let views = $$(prefix + "_scrollview_body").getChildViews();
-          console.log(`views`, views);
           if (views[0]) {
             $$(prefix + "_scrollview_body").removeView(views[0]);
           }
           $$(prefix + "_resizer").show();
           $$(prefix + "_result_scrollview").show();
-          console.log(`rData.error`, rData.error);
+
+          let lineNo;
+
           if (!rData.error) {
-            console.log(`onerror>>>>>>>>>>>>>>>>>>>>>>>>>`);
+            // console.log(`onerror>>>>>>>>>>>>>>>>>>>>>>>>>`);
             $$(prefix + "_scrollview_body").addView(newView);
             if (typeof rData.message != "undefined") {
               $$(prefix + "_console").setHTML(
@@ -1498,15 +1514,54 @@ export function QueryPage(prefix, selectedDb) {
             } else {
               $$(prefix + "_tabbar").setValue(prefix + "_console");
             }
+
+            lineNo = 0;
+
           } else {
             $$(prefix + "_scrollview_body").addView(newView);
             let output = rData.error;
             const arr = output.match(/errline:(.*)/);
+            
             if (arr != null) { 
-              const lineNo = Number(arr[1]);
-                const getEditor = $$(prefix + "_sql_editor").getEditor();
-                getEditor.revealLineInCenter(lineNo);
-                getEditor.setPosition({ lineNumber: lineNo, column: 1 })
+              
+              lineNo = Number(arr[1]);
+
+              if(lineNo>0){
+                
+                const getEditorId = $$(prefix + "_sql_editor").getEditor();
+                getEditorId.revealLineInCenter(lineNo);
+
+                lineNo = isSelection ? lineNo +selectionLineNo-1 : lineNo;
+
+                getEditorId.setPosition({ lineNumber: lineNo, column: 1 });
+
+                // reset decoration
+                decorations.forEach((el, i)=>{
+                    const targetId = decorations[i];
+                    getEditorId.deltaDecorations([targetId], []);
+                });
+
+                // https://snippet.webix.com/prqn82na
+                let deco = getEditorId.deltaDecorations(
+                  [],
+                  [
+                    {
+                      range: new monaco.Range(lineNo, 0, lineNo, 0),
+                      options: {
+                        isWholeLine: true,
+                        // className: 'myContentClass',
+                        glyphMarginClassName: 'myGlyphMarginClass',
+                        linesDecorationsClassName: 'breakpointStyle',
+                        marginClassName: 'rightLineDecoration',
+                        inlineClassName: 'problematicCodeLine'
+                      }
+                    }
+                  ]
+                );
+
+                decorations.push(deco);
+
+              }
             }
 
             $$(prefix + "_console").setHTML(
@@ -1516,6 +1571,21 @@ export function QueryPage(prefix, selectedDb) {
                 "</pre>"
             );
             $$(prefix + "_tabbar").setValue(prefix + "_console");
+
+          }
+
+          if(lineNo==0){
+              $$(prefix + "_sql_editor").getEditor(true).then((ed) => {
+                // const targetId = decorations[0];
+                decorations.forEach((el, i)=>{
+                  console.log(decorations);
+                    const targetId = decorations[i];
+                    ed.deltaDecorations([targetId], []);
+                });
+                
+                decorations = [];
+
+              });
           }
 
           $$(prefix + "_page_panel").hideOverlay();
@@ -1759,7 +1829,13 @@ export function QueryPage(prefix, selectedDb) {
             } 
           });
         }else{
-          $$(prefix + "_database_search").show();
+          if($$(prefix + "_database_search").isVisible()){
+            $$(prefix + "_database_search_content").hide();
+            $$(prefix + "_database_search").show();
+          }else{
+            $$(prefix + "_database_search_content").show();
+            $$(prefix + "_database_search").hide();
+          }
           $$(prefix+"_search_detach_btn").hide();
         }
         webix.UIManager.addHotKey("Ctrl+;", function() { 

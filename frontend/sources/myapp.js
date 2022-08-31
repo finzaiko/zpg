@@ -20,16 +20,17 @@ webix.protoUI({
   $init:function(){
     this.$ready.push(function(){
       this.attachEvent("onShow", function(){
-        // this.$view.className = this.$view.className.split("animated")[0] + " animated fadeInDown";  
-        this.$view.className = this.$view.className.split("animated")[0] + " animated bounceInDown";  
+        this.$view.className = this.$view.className + " animate__animated animate__fadeInDown";  
       })
       this.attachEvent("onHide", function(){
         this.$view.style.display = "block";
-        this.$view.className += " animated fadeOut";  
+        this.$view.className += " animate__fadeOut";  
       })
     });
   }
 }, webix.ui.window);
+// https://snippet.webix.com/mw0mlhvz
+
 
 export default class MyApp extends JetApp {
   constructor(config) {
@@ -52,7 +53,6 @@ export default class MyApp extends JetApp {
     });
 
     webix.ajax(`${API_URL}/meta`).then((ra) => {
-      console.log(`ra`, ra.json());
       state.meta = ra.json();
     });
   }

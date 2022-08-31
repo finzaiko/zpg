@@ -33,6 +33,20 @@ git clone `https://github.com/finzaiko/zpg.git`
 npm i && npm run postinstall
 ```
 
+or manual install
+```
+npm i
+cd backend && npm install
+cd frontend && npm install
+
+```
+
+#### Change ENV config
+
+```
+cd backend && cp .env.example .env
+```
+
 #### Run
 
 ```
@@ -48,8 +62,8 @@ http://localhost:8000
 ##### Login
 
 ```
-username: user1
-password: user123#
+username: admin
+password: admin123
 ```
 
 #### Some Screenshot

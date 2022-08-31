@@ -39,13 +39,15 @@ class QueryController {
 
     const userId = request.user.uid;
     QueryService.runSQL(data.source_id, data.sql, userId, data.dtype, data.sqltype, data.dropreplace, function (cb) {
-      // console.log(`rcb###########`, cb);
+      // console.log(`rcb###########`, cb.severity);
       rcb.push(`\n${cb.severity}: ${cb.message}\n`);
       // rcb = cb;
     })
       .then((r) => {
         let tableConfig;
         let tableData;
+        // console.log('r',r);
+        
         if (typeof r.length == "undefined") {
           if(r.dType){
             tableConfig = r.dType.map((a) => {
@@ -108,11 +110,13 @@ class QueryController {
 
         let textMsg = [];
         const et = new Date().getTime() - start_time;
-        if (typeof r.rowCount != "undefined") {
+        // console.log('r.rowCount',r.rowCount);
+        
+        if (r.rowCount) {
           textMsg.push(`\n${r.rowCount} rows found.`);
         }
 
-        // console.log(`rcb###########`, rcb);
+        // console.log(`rcb###########2`, rcb);
         if (typeof rcb != "undefined" && rcb.length>0) {
           // textMsg.push(`\n--notice:--\n${rcb.severity} ${rcb.message}\n`);
           textMsg.push(`\n--notice:-- ${rcb.join("\n")}`);
@@ -136,12 +140,13 @@ class QueryController {
         reply.send(rd);
       })
       .catch((e) => {
+        
         let textMsg = [];
         if (typeof rcb != "undefined" && rcb.length>0) {
           // textMsg.push(`\n--notice:--\n${rcb.severity} ${rcb.message}\n`);
           textMsg.push(`\n--notice:-- ${rcb.join("\n")}`);
         }
-        let aa = textMsg.join("\n");
+        let zErrorMsg = textMsg.join("\n");
 
         // console.log(`eeeeeeeeeeeeee`, e);
         const _sql = data.sql;
@@ -149,14 +154,21 @@ class QueryController {
         // console.log('>>>>>>>>>>line: %s', errLine);
         let errDetail = "",
           errHint = "";
-        if (typeof e.detail != "undefined" && typeof e.hint != "undefined") {
+        // if (typeof e.detail != "undefined" && typeof e.hint != "undefined") {
+        //   errDetail = e.detail;
+        //   errHint = e.hint;
+        // }
+
+        if (typeof e.detail != "undefined") {
           errDetail = e.detail;
+        }
+        if (typeof e.hint != "undefined") {
           errHint = e.hint;
         }
         const errStack = e.stack.split("\n")
         reply.send({
-          // error: `${errStack[0]}\n${errStack[1]}\n${errStack[2]} \n${errDetail} \n${errHint} \nerrline:${errLine}`,
-          error: `${aa}\n\n${errStack[0]}\n${errStack[1]}\n${errStack[2]} \n${errDetail} \n${errHint} \nerrline:${errLine}`,
+          // error: `${aa}\n\n${errStack[0]}\n${errStack[1]}\n${errStack[2]} \n${errDetail} \n${errHint} \nerrline:${errLine}`,
+          error: `${zErrorMsg}\n${errStack[0]}\nerrline: ${errLine}${errDetail? "\n"+errDetail: ""} \n\nhint: ${errHint}`,
         });
       });
   }

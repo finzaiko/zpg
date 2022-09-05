@@ -12,6 +12,7 @@ const {
   dbFuncContentByOid,
   dbTableContentByOid,
   dbFuncTableSearch,
+  dbTableContentByOid2,
 } = require("../core/sql/db.sql");
 
 class DbRepository {
@@ -95,7 +96,7 @@ class DbRepository {
     if (mode[1] == "g") {
       rsql = dbFuncContentByOid(mode[0]);
     } else if (mode[1] == "u") {
-      rsql = dbTableContentByOid(mode[0]);
+      rsql = dbTableContentByOid2(mode[0]);
     } else {
       return "";
     }

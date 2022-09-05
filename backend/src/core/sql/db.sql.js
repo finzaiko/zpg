@@ -268,7 +268,7 @@ const dbTableContentByOid2 = (oid) => {
     if table_check is not null then
   
   --Definition creation
-      res := 'DROP TABLE IF EXISTS ' || _schema_name || '.' || _table_name || ' CASCADE;' || chr(10) || chr(10);
+      res := '-- DROP TABLE IF EXISTS ' || _schema_name || '.' || _table_name || ' CASCADE;' || chr(10) || chr(10);
       res := res || 'CREATE TABLE ' || _schema_name || '.' || _table_name || ' (' || chr(10);
   
       for rec in
@@ -564,5 +564,6 @@ module.exports = {
   dbAllTableBySchema,
   dbFuncContentByOid,
   dbTableContentByOid,
+  dbTableContentByOid2,
   dbFuncTableSearch,
 };

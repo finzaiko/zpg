@@ -1022,3 +1022,24 @@ background-size: cover;
 	background: red !important;
 }
 */
+
+.z_tabbar_result .webix_layout_line {
+  border-bottom-width: 1px !important;
+}
+
+.z_console_editor_panel {
+  border: 1px solid #dadee0;
+}
+
+.z_query_sidemenu_right {
+  margin-left: 0 !important;
+}
+
+.z_query_detail_cell textarea{  
+  font-family: Courier New, sans-serif;
+  font-size: 14px;
+}
+
+.z_list_cursor_pointer .webix_list_item{
+  cursor: pointer;
+}

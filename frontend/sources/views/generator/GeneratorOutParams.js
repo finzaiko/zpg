@@ -4,6 +4,7 @@ import { defaultHeader } from "../../helpers/api";
 import { url as urlProfile } from "../../models/Profile";
 import { LAST_DB_CONN_VIEWDATA } from "../../config/setting";
 import { setEditorFontSize, showErrorResponse } from "../../helpers/ui";
+import { copyToClipboard } from "../../helpers/copy";
 
 const prefixThis = state.prefix + "_outprms";
 
@@ -30,20 +31,6 @@ function generate() {
     });
 }
 
-const copyToClipboard = (viewId, text) => {
-  try {
-    navigator.clipboard.writeText(text);
-    webix.extend(viewId, webix.OverlayBox);
-    viewId.showOverlay(
-      `<div class="z_overlay"><span class='z_copied_label animate__animated animate__flash'>Copied! <span class='mdi mdi-checkbox-marked-circle-outline' style='color:orange;'></span></span></div>`
-    );
-    setTimeout(() => {
-      viewId.hideOverlay();
-    }, 1000);
-  } catch (err) {
-    console.error("Failed to copy: ", err);
-  }
-};
 
 const clearAll = () => {
   const editorId = $$(prefixThis + "_outparams_ed");
@@ -98,7 +85,7 @@ export default class GeneratorOutParamsContent extends JetView {
               click: function () {
                 const val = document.getElementById("generator_result");
                 if (val) {
-                  copyToClipboard($$(prefixThis + "_result"), val.innerHTML);
+                  copyToClipboard(val.innerHTML);
                 }
               },
             },

@@ -22,7 +22,11 @@ class QueryRepository {
     //   console.log('result>>>>> ',result);
       
     // })
-    return pgPool.query(sql)
+    // return pgPool.query(sql)
+    return pgPool.query({
+      rowMode: 'array',
+      text: sql,
+    })
   }
 
   async getQueryDataType(profileId, userId, runSql) {

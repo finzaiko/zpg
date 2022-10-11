@@ -2,12 +2,15 @@ import { JetView } from "webix-jet";
 import { state } from "../../models/Query";
 import { userProfile } from "../../models/UserProfile";
 import { url } from "../../models/Profile";
+import { url as urlDb } from "../../models/Db";
 import { showError } from "../../helpers/ui";
 import { testConnection } from "../../models/Database";
-import { defaultHeader} from '../../helpers/api';
+import { defaultHeader } from "../../helpers/api";
+import { url as urlProfile } from "../../models/Profile";
 
 const prefix = state.prefix + "_server";
-let isEdit = false, oldConnName= '';
+let isEdit = false,
+  oldConnName = "";
 
 const WindowForm = () => {
   const winId = prefix + "_win",
@@ -58,8 +61,15 @@ const WindowForm = () => {
                 type: "number",
                 labelWidth: labelWCol2,
               },
-              { view: "switch", name: "ssl", value: 0, label:"SSL", labelWidth: 35,width:80},
-            ]
+              {
+                view: "switch",
+                name: "ssl",
+                value: 0,
+                label: "SSL",
+                labelWidth: 35,
+                width: 80,
+              },
+            ],
           },
         ],
       },
@@ -207,6 +217,83 @@ const WindowForm = () => {
     ],
   };
 
+  const formToolbarDbList = {
+    view: "toolbar",
+    id: prefix + "_form_tb_dblist",
+    css: "z-tb",
+    elements: [
+      {
+        cols: [
+          {
+            view: "combo",
+            id: prefix + "_source_combo",
+            placeholder: "Source DB",
+            options: {
+              url: `${urlProfile}/content?type=1&ls=true`,
+              on: {
+                onBeforeShow: function () {
+                  reloadServerCombo();
+                },
+              },
+            },
+            on: {
+              onChange: function (id, val) {
+                console.log("this", this);
+                const getItem = this.getPopup().getList();
+                // .getItem(id);
+                console.log("getItem", getItem);
+                console.log("getItem", getItem.data.serialize());
+
+                loadDb(id);
+              },
+            },
+          },
+          {
+            view: "button",
+            type: "icon",
+            icon: "mdi mdi-chevron-right",
+            tooltip: "Add selected database",
+            css: "zmdi_padding",
+            autowidth: true,
+            click: function () {
+              const dt = $$(prefix + "_db_list");
+              const item = dt.getItem(dt.getSelectedId());
+              const sourceCmbId = $$(prefix + "_source_combo");
+              const data = {
+                id: sourceCmbId.getValue(),
+                server: sourceCmbId.getText(),
+                copydb: item.value,
+              };
+              webix
+                .ajax()
+                .headers(defaultHeader())
+                .post(url + "/copyconn", data, function (res) {
+                  webix.message({
+                    text: `Connection <strong>${
+                      item.value
+                    } (${sourceCmbId.getText()})</strong> added.`,
+                    type: "success",
+                  });
+                  reload();
+                })
+                .fail(function (err) {
+                  showError(err);
+                });
+            },
+          },
+        ],
+      },
+    ],
+  };
+
+  const gridDbList = {
+    view: "list",
+    template: "#value#",
+    id: prefix + "_db_list",
+    select: true,
+    data: [],
+  };
+
   const grid = {
     view: "datatable",
     id: prefix + "_table",
@@ -270,9 +357,8 @@ const WindowForm = () => {
         $$(prefix + "_password").setValue();
         isEdit = true;
         const item = this.getItem(sel);
-        console.log('item',item);
+        console.log("item", item);
         oldConnName = item.conn_name;
-        
       },
       onItemDblClick: function () {},
     },
@@ -291,31 +377,43 @@ const WindowForm = () => {
     },
     body: {
       rows: [
-        form,
-        formToolbar,
-        grid,
         {
-          view: "toolbar",
-          elements: [
+          cols: [
             {
-              view: "pager",
-              id: "pagerA",
-              css: "z-pager-aligned-left",
-              size: pageSize,
-              template: function (data, common) {
-                return data.count > 0
-                  ? `<span class='z-pager-no'>${data.count}</span>`
-                  : "";
-              },
+              width: 220,
+              rows: [formToolbarDbList, gridDbList],
             },
-            {},
             {
-              view: "button",
-              value: "Close",
-              autowidth: true,
-              click: function () {
-                close();
-              },
+              rows: [
+                form,
+                formToolbar,
+                grid,
+                {
+                  view: "toolbar",
+                  elements: [
+                    {
+                      view: "pager",
+                      id: "pagerA",
+                      css: "z-pager-aligned-left",
+                      size: pageSize,
+                      template: function (data, common) {
+                        return data.count > 0
+                          ? `<span class='z-pager-no'>${data.count}</span>`
+                          : "";
+                      },
+                    },
+                    {},
+                    {
+                      view: "button",
+                      value: "Close",
+                      autowidth: true,
+                      click: function () {
+                        close();
+                      },
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
@@ -329,21 +427,38 @@ const WindowForm = () => {
   };
 };
 
+function loadDb(id) {
+  const tblId = $$(prefix + "_db_list");
+  tblId.clearAll();
+  tblId.load(urlDb + "?id=" + id);
+}
+
+function reloadServerCombo() {
+  const cmbId = $$(prefix + "_source_combo");
+  var cmbList = cmbId.getPopup().getList();
+  cmbList.clearAll();
+  cmbId.setValue("");
+  cmbId.getPopup().getList().unselect();
+  cmbList.load(urlProfile + "/conn?type=1&ls=true");
+}
+
+
 function save(isDuplicate) {
   if ($$(prefix + "_form").validate()) {
-
-    if(typeof isDuplicate=="undefined"){
-      isDuplicate=false;
+    if (typeof isDuplicate == "undefined") {
+      isDuplicate = false;
     }
     var data = $$(prefix + "_form").getValues(),
       msgName = data.conn_name;
     data.type = 2;
     data.user_id = userProfile.userId;
     if (!isEdit || isDuplicate) {
-
-      if(isDuplicate){
-        if(oldConnName==data.conn_name){
-          webix.message({text: "Please Change to different Name", type: "error"});
+      if (isDuplicate) {
+        if (oldConnName == data.conn_name) {
+          webix.message({
+            text: "Please Change to different Name",
+            type: "error",
+          });
           return;
         }
         // data.conn_name = data.conn_name + "_copy" + Math.floor(Math.random()*(999-100+1)+100);
@@ -352,7 +467,10 @@ function save(isDuplicate) {
         .ajax()
         .headers(defaultHeader())
         .post(url + "/conn", data, function (res) {
-          webix.message({ text: "<strong>" + msgName + "</strong> saved.", type: "success" });
+          webix.message({
+            text: "<strong>" + msgName + "</strong> saved.",
+            type: "success",
+          });
           reload();
         })
         .fail(function (err) {
@@ -364,7 +482,8 @@ function save(isDuplicate) {
         .headers(defaultHeader())
         .put(url + "/conn/" + data.id, data, function (res) {
           webix.message({
-            text: "<strong>" + msgName + "</strong> updated.",type: "success"
+            text: "<strong>" + msgName + "</strong> updated.",
+            type: "success",
           });
           reload();
         })

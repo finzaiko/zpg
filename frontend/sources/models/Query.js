@@ -5,7 +5,8 @@ const path = "query";
 
 export let state = {
   prefix: CODE_PREFIX + path,
-  countPage: 0
+  countPage: 0,
+  isDataType: 1
 };
 
 export const url = API_URL + "/" + path;

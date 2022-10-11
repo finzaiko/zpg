@@ -3,10 +3,29 @@ import { UserForm } from './UserForm';
 import { userProfile } from '../../models/UserProfile';
 import { url } from '../../models/Setting';
 import { ChangePassword } from './ChangePassword';
+import { VERSION } from "../../config/setting";
 
 
 function changePass(scope) {
   scope.ui(ChangePassword).show();
+}
+
+function about(scope) {
+  scope.ui({
+      view:"window",
+      height:200,
+      width:300,
+      move:true,
+      position:"center",
+      close:true,
+      head:"About ZPG",
+      body:{
+        template: `
+          <strong>Version: </strong> ${VERSION} <br>
+          <strong>Repository: </strong> <a href="https://github.com/finzaiko/zpg" target="_blank">https://github.com/finzaiko/zpg</a><br>
+        `
+      }
+  }).show();
 }
 
 export default class SettingPage extends JetView {
@@ -68,6 +87,17 @@ export default class SettingPage extends JetView {
           label: `(${userProfile.fullname})`,
           css: {
             "text-align":"right"
+          }
+        },
+        {
+          view: "button",
+          type: "icon",
+          icon: "mdi mdi-information-outline",
+          css: "zmdi_padding",
+          autowidth: true,
+          tooltip: "About ZPG",
+          click: function () {
+            about(this.$scope);
           }
         },
         {

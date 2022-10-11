@@ -1,6 +1,6 @@
 import { state as stateBase } from "../models/Base";
 
-export const pageSize = 1000;
+export const pageSize = 10000;
 export const defaultDateFormat = "%d/%m/%Y";
 export const mmyyDateFormat = "%M %Y";
 export const dbDateFormat = "%Y-%m-%d";
@@ -54,7 +54,6 @@ export const pagerRow = (pagerId) => {
     // css: "z-pager-aligned",
     size: pageSize,
     template: function (data, common) {
-      console.log("data.size", data.size);
       if (data.size > pageSize) {
         webix.message(`Data show only ${pageSize} records`);
       }

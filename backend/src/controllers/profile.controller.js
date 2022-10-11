@@ -66,6 +66,23 @@ class ProfileController {
     responseHttp(reply, 201, "Content created");
   }
 
+  async copyConnContent(request, reply) {
+    const userId = request.user.uid;
+
+    const {id, server, copydb} = request.body;
+    const data = await ProfileService.getById(
+      id,
+      5,
+      userId
+    );
+    data.conn_name = `${copydb} (${server})`;
+    data.type = 2;
+    data.database = copydb;
+
+    await ProfileService.createConn(data, userId);
+    responseHttp(reply, 201, "Content created");
+  }
+
   async updateContent(request, reply) {
     const userId = request.user.uid;
     await ProfileService.updateContent(request.params.id, request.body, userId);

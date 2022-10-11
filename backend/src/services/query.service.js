@@ -1,16 +1,18 @@
 const QueryRepository = require(`../repositories/query.repository`);
+const { pgType } = require("../utils/pg.util");
 
 class QueryService {
   async runSQL(profileId, sql, userId, isDType, sqlType, isDropReplace, callback) {
-    console.log('qqqqqq>>>');
     let q = await QueryRepository.runSQL(profileId, sql, userId, callback);
-    
     if(isDType){
-      const tp = await QueryRepository.getQueryDataType(profileId, userId, sql);
-      q.dType = tp.pop().rows;
+      // const tp = await QueryRepository.getQueryDataType(profileId, userId, sql);
+      // q.dType = tp.pop().rows;
+      q.dType = isDType;
     }
-    
-    console.log('qqqqqqqqqqqqqq',q);
+    if(q.length>1){
+      return q[q.length - 1];
+    }
+
     return q;
   }
 }

@@ -58,13 +58,12 @@ webix.protoUI({
 			return;
 		};
 
-		var cdnLocal = "";
 		// var cdn = this.config.cdn || "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.32.1/min/";
-		var cdn = this.config.cdn || "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.18.0/min/";
+		var cdn = this.config.cdn || "http://localhost:9000/assets/monaco-editor/";
 
 		webix.require(cdn + "vs/loader.js")
 		.then(webix.bind(function(){
-			require.config({ paths: { 'vs': cdn+"vs/" }});
+			require.config({ paths: { 'vs': cdn+"vs" }});
 			window.MonacoEnvironment = {
 				getWorkerUrl: function(workerId, label) {
 				  return "data:text/javascript;charset=utf-8,"+

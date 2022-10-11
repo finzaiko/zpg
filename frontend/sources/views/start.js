@@ -33,6 +33,7 @@ export default {
 		<section>
 			<h4>Todo:</h4>
 			<ul>
+				<li>query: direct show data</li>
 				<li>query: result direct save change</li>
 				<li>query: change reload on user setting</li>
 				<li>viewdata: action on save</li>
@@ -40,13 +41,29 @@ export default {
 				<li>execute query in compare</li>
 				<li>check compatible version</li>
 				<li>dashboard: show process activity</li>
-				</ul>
-				</section>
+			</ul>
+		</section>
 		
 		<section>
 			<h4>Change log:</h4>
 			<p>
-			<h4>1.0.11-dev (10-08-2022)</h4>
+				<h4>1.0.13-dev (26-09-2022)</h4>
+				<ul>
+					<li>improve query result change to array mode, show type</li>
+					<li>smart cell show detail base on type/text length</li>
+					<li>add connection db from server section</li>
+				</ul>
+			</p>
+			<p>
+				<h4>1.0.12-dev (08-09-2022)</h4>
+				<ul>
+					<li>update console editor </li>
+					<li>fix copy clipboard</li>
+					<li>fix get table content prev version</li>
+				</ul>
+			</p>
+			<p>
+				<h4>1.0.11-dev (10-08-2022)</h4>
 				<ul>
 					<li>fix compare duplicate, remove out params </li>
 					<li>fix overlap search</li>

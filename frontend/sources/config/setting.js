@@ -1,5 +1,6 @@
 export const APP_NAME = "ZPG";
 
+export const VERSION = "1.0.13-dev";
 export const CODE_PREFIX = "z_";
 
 const HOST = `localhost`;

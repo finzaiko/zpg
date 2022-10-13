@@ -61,6 +61,7 @@ export function QueryPage(prefix, selectedDb) {
 
   let searchState = prefix + "_sname";
   let searchDetachWin;
+  let searchOidSelected;
 
   let decorations = [];
 
@@ -198,15 +199,21 @@ export function QueryPage(prefix, selectedDb) {
         css: "zmdi_padding",
         icon: "mdi mdi-table",
         id: prefix + "_viewdata_btn",
-        tooltip: "View data selected tree",
+        tooltip: "View data selected tree or search",
         disabled: true,
         autowidth: true,
         click: function () {
           let profileId = $$(prefix + "_source_combo").getValue();
-          const tableOid = $$(prefix + "_db_tree")
+          let tableOid = $$(prefix + "_db_tree")
             .getSelectedId()
             .split("_")[0];
-          runViewData(profileId, tableOid);
+            if(!tableOid){
+              tableOid = searchOidSelected.split("_")[0];
+            } else{
+              webix.message({text: "Selected table view not defined", type: "error"});
+              return false;
+            }
+            runViewData(profileId, tableOid);
         },
       },
       {
@@ -983,7 +990,7 @@ export function QueryPage(prefix, selectedDb) {
       .get(`${url}/table_name?id=${profileId}&&oid=${tableOid}`)
       .then((r) => {
         const rData = r.json();
-        let optionSql = "";
+        let optionSql = "LIMIT 1000";
         if (type == 1) {
           optionSql = `ORDER BY id DESC LIMIT 100`;
         }
@@ -1919,8 +1926,10 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const loadSchemaContent = (itemRootId, oid) => {
-    const pre = oid.split("_")[1];
-    if (pre == "g" || pre == "u") {
+    searchOidSelected = oid;
+    const typ = oid.split("_")[1];
+    
+    if (typ == "g" || typ == "u") {
       let profileId = $$(prefix + "_source_combo").getValue();
       let viewId = $$(prefix + "_sql_editor");
       webix.extend(viewId, webix.ProgressBar);
@@ -1936,7 +1945,13 @@ export function QueryPage(prefix, selectedDb) {
           viewId.hideProgress();
           viewId.setValue(data.json().data);
         });
-    }
+
+      }
+      if(typ=="u"){
+        $$(prefix+"_viewdata_btn").enable();
+      }else{
+        $$(prefix+"_viewdata_btn").disable();
+      }
   };
 
   let QueryPage = {

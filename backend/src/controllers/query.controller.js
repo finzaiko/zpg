@@ -56,8 +56,6 @@ class QueryController {
         let status = 0;
         // console.log('r>>>>>>>>>',r);
         const columnDef = r.fields.map((obj, i) => {
-          console.log('obj',obj);
-          
           return {
             colHeader: obj.name,
             colName: obj.name + "_" + i,
@@ -150,7 +148,6 @@ class QueryController {
 
         let textMsg = [];
         const et = new Date().getTime() - start_time;
-        // console.log('r.rowCount',r.rowCount);
 
         if (r.rowCount) {
           textMsg.push(`\n${r.rowCount} rows found.`);

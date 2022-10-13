@@ -501,8 +501,13 @@ const dbFuncTableSearch = (search, type, view) => {
   let fields = "";
   let fieldFunc = "";
   let fieldTbl = "";
-  let limit = "30";
+  let limit = "50";
   let where = ` value ILIKE '%${search}%' OR value ILIKE REPLACE('%${search}%', ' ', '_')`;
+
+  if(search.includes(".")){
+    let spl = search.split(".")
+    where = `schema ILIKE '%${spl[0]}%' AND name ILIKE '%${spl.pop()}%'`;
+  }
 
   // content search
   if (type == "content") {

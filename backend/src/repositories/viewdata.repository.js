@@ -17,6 +17,8 @@ class ViewdataRepository {
         from pg_class c
         inner join pg_namespace n on (c.relnamespace = n.oid)
         where c.relfilenode = ${oid}`;
+        console.log('sql',sql);
+        
       return pgPool.query(sql);
     }
     return [];

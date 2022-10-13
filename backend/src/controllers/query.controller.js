@@ -225,6 +225,18 @@ class QueryController {
         });
       });
   }
+
+  async getTableName(request, reply) {
+    const { id, oid, start, count, filter, sort } = request.query; // t = is type level, 1 show db only;
+    // console.log(`request.query /////////`, request.query);
+    const userId = request.user.uid;
+    const r = await QueryService.getTableNameByOid(
+      id,
+      userId,
+      oid
+    );
+    reply.send(r.rows[0]);
+  }
 }
 
 module.exports = new QueryController();

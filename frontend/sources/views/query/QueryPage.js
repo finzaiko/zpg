@@ -22,9 +22,9 @@ import { copyToClipboard } from "../../helpers/copy";
 TimeAgo.addDefaultLocale(en);
 let timeAgo = new TimeAgo("en-US");
 
-function truncateString(str, n){
-  return (str.length > n) ? str.slice(0, n-1) + '&nbsp;' : str; //&hellip;
-};
+function truncateString(str, n) {
+  return str.length > n ? str.slice(0, n - 1) + "&nbsp;" : str; //&hellip;
+}
 
 function newQueryTab() {
   function isInt(value) {
@@ -98,6 +98,7 @@ export function QueryPage(prefix, selectedDb) {
             this.config.tooltip = { template: "Show database content" };
             this.refresh();
             loadDb(false);
+            $$(prefix+"_viewdata_btn").disable();
           } else {
             treeId.show();
             this.config.icon = "mdi mdi-backburger";
@@ -189,6 +190,23 @@ export function QueryPage(prefix, selectedDb) {
               $$(prefix + "_right_resizer").hide();
             }
           },
+        },
+      },
+      {
+        view: "button",
+        type: "icon",
+        css: "zmdi_padding",
+        icon: "mdi mdi-table",
+        id: prefix + "_viewdata_btn",
+        tooltip: "View data selected tree",
+        disabled: true,
+        autowidth: true,
+        click: function () {
+          let profileId = $$(prefix + "_source_combo").getValue();
+          const tableOid = $$(prefix + "_db_tree")
+            .getSelectedId()
+            .split("_")[0];
+          runViewData(profileId, tableOid);
         },
       },
       {
@@ -580,6 +598,7 @@ export function QueryPage(prefix, selectedDb) {
     // type:"lineTree",
     hidden: true,
     select: true,
+    threeState: true,
     type: {
       icon: function (obj, common) {
         if (obj.open && obj.$count <= 0)
@@ -621,15 +640,11 @@ export function QueryPage(prefix, selectedDb) {
     template: "{common.icon()} {common.my_folder()} <span>#value#</span>",
     on: {
       onAfterSelect: function (id) {
-        // console.log(`id`, id);
-        const a = this.getItem(id);
-        // console.log(`a`, a);
         baseRootId = id;
         while (this.getParentId(baseRootId)) {
           baseRootId = this.getParentId(baseRootId);
         }
         baseDbName = this.getItem(baseRootId).value;
-        // console.log(`baseDbName`, baseDbName)
         loadSchemaContent(baseRootId, id);
       },
       onItemClick: function (id) {
@@ -641,12 +656,27 @@ export function QueryPage(prefix, selectedDb) {
           itemRootId = this.getParentId(itemRootId);
         }
         baseDbName = this.getItem(itemRootId).value;
+
+        if (id.split("_")[1] == "u") {
+          $$(prefix + "_viewdata_btn").enable();
+        } else {
+          $$(prefix + "_viewdata_btn").disable();
+        }
+        
       },
       onItemDblClick: function (id) {
         if (this.isBranchOpen(id)) {
           this.close(id);
         } else {
           this.open(id);
+        }
+      },
+      onBeforeContextMenu: function (id, e, node) {
+        if (id.split("_")[1] == "u") {
+          return true;
+        } else {
+          // return false;
+          return webix.html.preventEvent(e);
         }
       },
       onAfterContextMenu: function (id, e, node) {
@@ -661,6 +691,35 @@ export function QueryPage(prefix, selectedDb) {
         loadBranch(this, id);
         return false;
       },
+      onBeforeLoad: function () {
+        webix.extend(this, webix.OverlayBox);
+        this.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
+      },
+      onAfterLoad: function () {
+        this.hideOverlay();
+      },
+      onAfterRender: webix.once(function () {
+        const _this = this;
+        let ctxMenu = this.$scope.ui({
+          view: "contextmenu",
+          data: [
+            { id: "view_data_all", value: "View Data All Rows" },
+            { id: "view_data_last100", value: "View Data Last 100" },
+          ],
+          on: {
+            onItemClick: function (id) {
+              let profileId = $$(prefix + "_source_combo").getValue();
+              const tableOid = _this.getSelectedId().split("_")[0];
+              if (id == "view_data_all") {
+                runViewData(profileId, tableOid);
+              } else if (id == "view_data_last100") {
+                runViewData(profileId, tableOid, 1);
+              }
+            },
+          },
+        });
+        ctxMenu.attachTo(this);
+      }),
     },
   };
 
@@ -703,9 +762,7 @@ export function QueryPage(prefix, selectedDb) {
                   //   document.getElementById(prefix + "_result_history")
                   //     .innerHTML
                   // );
-                  copyToQuery(
-                    $$(prefix + "_history_content").getValue()
-                  );
+                  copyToQuery($$(prefix + "_history_content").getValue());
                   let editorId = $$(prefix + "_sql_editor");
                   editorId.focus();
                 },
@@ -752,9 +809,8 @@ export function QueryPage(prefix, selectedDb) {
             renderLineHighlight: "none",
             // readOnly: true,
           },
-        ]
+        ],
       },
-
     ],
   };
 
@@ -834,9 +890,11 @@ export function QueryPage(prefix, selectedDb) {
             css: "z_fade_list z_list_cursor_pointer",
             template: function (obj) {
               if (obj.content) {
-                return `${truncateString(obj.content, 40)} <span style='color: grey;font-style:italic;font-size:13;float:right;'>
-                ${timeAgo.format(new Date(obj.created_at), "mini"
-                )}</span>`;
+                return `${truncateString(
+                  obj.content,
+                  40
+                )} <span style='color: grey;font-style:italic;font-size:13;float:right;'>
+                ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
               }
             },
             select: true,
@@ -918,62 +976,22 @@ export function QueryPage(prefix, selectedDb) {
     ],
   };
 
-  const copyToClipboard3 = (viewId, text) => {
-    try {
-      navigator.clipboard.writeText(text);
-      webix.extend(viewId, webix.OverlayBox);
-      viewId.showOverlay(
-        `<div class="z_overlay"><span class='z_copied_label animate__animated animate__flash'>Copied! <span class='mdi mdi-hand-okay' style='color:orange;'></span></span></div>`
-      );
-      setTimeout(() => {
-        viewId.hideOverlay();
-      }, 1000);
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-    }
-  };
-
-  function copyToClipboard2(viewId, textToCopy) {
-    // navigator clipboard api needs a secure context (https)
-    if (navigator.clipboard && window.isSecureContext) {
-      // navigator clipboard api method'
-      return navigator.clipboard.writeText(textToCopy);
-    } else {
-      // text area method
-      let textArea = document.createElement("textarea");
-      textArea.value = textToCopy;
-      // make the textarea out of viewport
-      textArea.style.position = "fixed";
-      textArea.style.left = "-999999px";
-      textArea.style.top = "-999999px";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      return new Promise((res, rej) => {
-        // here the magic happens
-        document.execCommand("copy") ? res() : rej();
-        textArea.remove();
+  const runViewData = (profileId, tableOid, type) => {
+    webix
+      .ajax()
+      .headers(defaultHeader())
+      .get(`${url}/table_name?id=${profileId}&&oid=${tableOid}`)
+      .then((r) => {
+        const rData = r.json();
+        let optionSql = "";
+        if (type == 1) {
+          optionSql = `ORDER BY id DESC LIMIT 100`;
+        }
+        let sql = `SELECT * FROM ${rData.tableschema}.${rData.tablename} ${optionSql}`;
+        $$(prefix + "_sql_editor").setValue(sql);
+        runQuery($$(prefix + "_source_combo").getValue());
       });
-    }
-  }
-
-  // function copyToClipboard4(viewId, str) {
-  //   navigator.permissions.query({
-  //       name: "clipboard-write"
-  //   }).then(result => {
-  //       if (result.state == "granted") {
-  //           navigator.clipboard.writeText(str).then(function () {
-  //               alert("Enlace copiado con succeso!");
-  //           }, function () {
-  //               alert("No fue posible copiar el enlace.");
-  //           });
-  //       }
-  //   });
-  // };
-
-  // function copyToClipboard(viewId, str) {
-  //   copy(str);
-  // }
+  };
 
   const openBookmarkManager = () => {
     webix
@@ -1364,54 +1382,54 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const openDetailCell = (type, content) => {
-    const allowType = ['json','jsonb','text','varchar']
-    if(allowType.indexOf(type) !== -1){
-
-      if(type=='json' || type=='jsonb'){
+    const allowType = ["json", "jsonb", "text", "varchar"];
+    if (allowType.indexOf(type) !== -1) {
+      if (type == "json" || type == "jsonb") {
         // formatter json type result
         content = JSON.stringify(JSON.parse(content), null, 4);
-        openWinCell(content)
+        openWinCell(content);
       }
 
-      if((type=='text' || type=='varchar') && content.length>100){
+      if ((type == "text" || type == "varchar") && content.length > 100) {
         openWinCell(content);
       }
 
       function openWinCell(content) {
         webix
-        .ui({
-          view: "window",
-          modal: true,
-          resize: true,
-          id: prefix + "_win_detail_cell",
-          width: 600,
-          height: 400,
-          position: "center",
-          move: true,
-          head: {
-            view: "toolbar",
-            cols: [
-              { view: "label", label: "Detail Cell" },
-              {
-                view: "icon",
-                icon: "mdi mdi-close",
-                tooltip: "Close me",
-                align: "right",
-                click: function () {
-                  $$(prefix + "_win_detail_cell").destructor();
+          .ui({
+            view: "window",
+            modal: true,
+            resize: true,
+            id: prefix + "_win_detail_cell",
+            width: 600,
+            height: 400,
+            position: "center",
+            move: true,
+            head: {
+              view: "toolbar",
+              cols: [
+                { view: "label", label: "Detail Cell" },
+                {
+                  view: "icon",
+                  icon: "mdi mdi-close",
+                  tooltip: "Close me",
+                  align: "right",
+                  click: function () {
+                    $$(prefix + "_win_detail_cell").destructor();
+                  },
                 },
-              },
-            ],
-          },
-          body: {
-            view:"textarea",
-            css: "z_query_detail_cell",
-            value: content
-          }
-        }).show();
+              ],
+            },
+            body: {
+              view: "textarea",
+              css: "z_query_detail_cell",
+              value: content,
+            },
+          })
+          .show();
       }
-    } 
-  }
+    }
+  };
 
   const loadDb = (isShow) => {
     const srcId = $$(prefix + "_source_combo").getValue();
@@ -1459,7 +1477,7 @@ export function QueryPage(prefix, selectedDb) {
 
   const runQuery = (inputSourceId) => {
     // let url = `${urlDb}_query`;
-    let editorId = $$(prefix + "_sql_editor");
+    const editorId = $$(prefix + "_sql_editor");
 
     const getEditor = editorId.getEditor();
     const selectionText = getEditor.getSelection();
@@ -1583,9 +1601,12 @@ export function QueryPage(prefix, selectedDb) {
                       const content = $$(prefix + "_console").getValue();
                       const val = content.split("--notice:--")[1];
                       if (typeof val != "undefined") {
-                        copyToClipboard(val);  
+                        copyToClipboard(val);
                       } else {
-                        webix.message({ text: "No content to copy", type: "debug" });
+                        webix.message({
+                          text: "No content to copy",
+                          type: "debug",
+                        });
                       }
                     },
                   },
@@ -1630,13 +1651,13 @@ export function QueryPage(prefix, selectedDb) {
                         }
                         */
                       },
-                      onItemClick:function(id, e, trg){
-                          const cols = this.config.columns;
-                          const type = cols.find(o=>o.id==id.column).ztype;
-                          const sel = this.getItem(id);
-                          openDetailCell(type, sel[id.column]);
-                        }
-                    }
+                      onItemClick: function (id, e, trg) {
+                        const cols = this.config.columns;
+                        const type = cols.find((o) => o.id == id.column).ztype;
+                        const sel = this.getItem(id);
+                        openDetailCell(type, sel[id.column]);
+                      },
+                    },
                   },
                   // {
                   //   view: "template",
@@ -1977,7 +1998,7 @@ export function QueryPage(prefix, selectedDb) {
     ],
     on: {
       // onViewShow: function () {
-      onViewShow:  webix.once(function(id){
+      onViewShow: webix.once(function (id) {
         // onInit, onReady
 
         state.isDataType = webix.storage.local.get(LAST_DATATYPE);

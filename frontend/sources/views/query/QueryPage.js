@@ -65,7 +65,7 @@ export function QueryPage(prefix, selectedDb) {
 
   let decorations = [];
 
-  const sType = webix.storage.local.get(LAST_SEARCHTYPE) || 0;
+  // const sType = webix.storage.local.get(LAST_SEARCHTYPE) || 0;
 
   let QueryToolbar = {
     view: "toolbar",
@@ -1347,18 +1347,8 @@ export function QueryPage(prefix, selectedDb) {
               value: 0,
               on: {
                 onChange: function (newVal, oldVal) {
+                  state.isSearchDetach = newVal;
                   webix.storage.local.put(LAST_SEARCHTYPE, newVal);
-                  webix
-                    .confirm({
-                      title: "Change Search Style",
-                      ok: "Yes, reload",
-                      cancel: "Later",
-                      text: "Need reload this page to apply changes",
-                    })
-                    .then(function () {
-                      setInterval(() => location.reload(), 1000);
-                    })
-                    .fail(function () {});
                 },
               },
             },
@@ -2017,6 +2007,7 @@ export function QueryPage(prefix, selectedDb) {
         // onInit, onReady
 
         state.isDataType = webix.storage.local.get(LAST_DATATYPE);
+        state.isSearchDetach = webix.storage.local.get(LAST_SEARCHTYPE);
 
         const cmbId = $$(prefix + "_source_combo");
         if (typeof selectedDb != "undefined") {

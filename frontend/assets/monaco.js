@@ -41,7 +41,7 @@ webix.protoUI({
 		hideCursorInOverviewRuler: true,
 
 		scrollbar: {
-		vertical: "hidden",
+			// vertical: "hidden",
 		},
 		minimap: {
 		enabled: false,
@@ -96,7 +96,7 @@ webix.protoUI({
 				// enableSplitViewResizing: false,
 				config.renderSideBySide=false;
 				this._editor = monaco.editor.createDiffEditor(this.$view, config);
-				
+
 			}else{
 				monaco.languages.registerCompletionItemProvider('sql', {
 					provideCompletionItems: function(model, position) {
@@ -117,10 +117,10 @@ webix.protoUI({
 			// this._editor = monaco.editor.createDiffEditor(this.$view, config);
 			// var diffEditor = monaco.editor.createDiffEditor(document.getElementById("container"));
 
-			
+
 			this._waitEditor.resolve(this._editor);
 		}, this));
-		
+
 		if (this._focus_await)
 			this._editor.focus();
 	},

@@ -92,7 +92,7 @@ export function QueryPage(prefix, selectedDb) {
         tooltip: "Show database content",
         icon: "mdi mdi-forwardburger",
         click: function () {
-          const treeId = $$(prefix + "_db_tree");
+          const treeId = $$(prefix + "_db_tree_panel");
           if (treeId.isVisible()) {
             treeId.hide();
             this.config.icon = "mdi mdi-forwardburger";
@@ -598,136 +598,157 @@ export function QueryPage(prefix, selectedDb) {
 
   let baseRootId, nodeId, baseDbName;
   let QueryDBTree = {
-    view: "tree",
-    width: 250,
-    id: prefix + "_db_tree",
-    css: "z_db_tree",
-    // type:"lineTree",
+    id: prefix + "_db_tree_panel",
     hidden: true,
-    select: true,
-    threeState: true,
-    type: {
-      icon: function (obj, common) {
-        if (obj.open && obj.$count <= 0)
-          return '<div class=" webix_icon mdi mdi-sync spin_mdi"></div>';
-        return (
-          '<div class="webix_tree_' +
-          (obj.$count ? (obj.open ? "open" : "close") : "none") +
-          '"></div>'
-        );
-      },
-      my_folder: function (obj) {
-        // console.log('obj', obj)
-        const suffix = obj.id.split("_")[1];
-        if (suffix == "d") {
-          return `<span class='webix_icon mdi mdi-database-outline ${
-            obj.open ? "z_tree_d_open" : ""
-          }'></span>`;
-        }
-        if (suffix == "s")
-          return `<span class='webix_icon mdi mdi-rhombus-split-outline ${
-            obj.open ? "z_tree_s_open" : ""
-          }'></span>`;
-        if (suffix == "t")
-          return `<span class='webix_icon mdi mdi-table-large ${
-            obj.open ? "z_tree_t_open" : ""
-          }'></span>`;
-        if (suffix == "u")
-          return `<span class='webix_icon mdi mdi-table z_tree_u_open z_tree_u_open'></span>`;
-        if (suffix == "f")
-          return `<span class='webix_icon mdi mdi-script-text-outline ${
-            obj.open ? "z_tree_f_open" : ""
-          }'></span>`;
-        if (suffix == "g")
-          return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
-        return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
-      },
-    },
-    // template:"{common.icon()}&nbsp;#value#",
-    template: "{common.icon()} {common.my_folder()} <span>#value#</span>",
-    on: {
-      onAfterSelect: function (id) {
-        baseRootId = id;
-        while (this.getParentId(baseRootId)) {
-          baseRootId = this.getParentId(baseRootId);
-        }
-        baseDbName = this.getItem(baseRootId).value;
-        loadSchemaContent(baseRootId, id);
-      },
-      onItemClick: function (id) {
-        let itemRootId = id;
-        let itemx = this.getItem(id);
-        stateBase.currentDBSelected = itemx.value;
-        // console.log("itemx", itemx);
-        while (this.getParentId(itemRootId)) {
-          itemRootId = this.getParentId(itemRootId);
-        }
-        baseDbName = this.getItem(itemRootId).value;
-
-        if (id.split("_")[1] == "u") {
-          $$(prefix + "_viewdata_btn").enable();
-        } else {
-          $$(prefix + "_viewdata_btn").disable();
-        }
-        
-      },
-      onItemDblClick: function (id) {
-        if (this.isBranchOpen(id)) {
-          this.close(id);
-        } else {
-          this.open(id);
+    rows: [
+      {
+        view:"text",
+        placeholder:"filter..",
+        id: prefix + "_db_tree_filter",
+        css: "z_db_tree_filter",
+        on: {
+          onTimedKeyPress: function () {
+            $$(prefix + "_db_tree").filter("#value#",this.getValue());
+          }
         }
       },
-      onBeforeContextMenu: function (id, e, node) {
-        if (id.split("_")[1] == "u") {
-          return true;
-        } else {
-          // return false;
-          return webix.html.preventEvent(e);
-        }
-      },
-      onAfterContextMenu: function (id, e, node) {
-        this.select(id);
-        baseRootId = id;
-        while (this.getParentId(baseRootId)) {
-          baseRootId = this.getParentId(baseRootId);
-        }
-        nodeId = id;
-      },
-      onDataRequest: function (id) {
-        loadBranch(this, id);
-        return false;
-      },
-      onBeforeLoad: function () {
-        webix.extend(this, webix.OverlayBox);
-        this.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
-      },
-      onAfterLoad: function () {
-        this.hideOverlay();
-      },
-      onAfterRender: webix.once(function () {
-        const _this = this;
-        let ctxMenu = this.$scope.ui({
-          view: "contextmenu",
-          data: [
-            { id: "view_data_all", value: "View Data All Rows" },
-            { id: "view_data_last100", value: "View Data Last 100" },
-          ],
-          on: {
-            onItemClick: function (id) {
-              let profileId = $$(prefix + "_source_combo").getValue();
-              const tableOid = _this.getSelectedId().split("_")[0];
-              if (id == "view_data_all") {
-                runViewData(profileId, tableOid);
-              } else if (id == "view_data_last100") {
-                runViewData(profileId, tableOid, 1);
-              }
-            },
+      {
+        view: "tree",
+        width: 250,
+        id: prefix + "_db_tree",
+        css: "z_db_tree",
+        // type:"lineTree",
+        // hidden: true,
+        select: true,
+        threeState: true,
+        type: {
+          icon: function (obj, common) {
+            if (obj.open && obj.$count <= 0)
+              return '<div class=" webix_icon mdi mdi-sync spin_mdi"></div>';
+            return (
+              '<div class="webix_tree_' +
+              (obj.$count ? (obj.open ? "open" : "close") : "none") +
+              '"></div>'
+            );
           },
-        });
-        ctxMenu.attachTo(this);
-      }),
-    },
+          my_folder: function (obj) {
+            // console.log('obj', obj)
+            const suffix = obj.id.split("_")[1];
+            if (suffix == "d") {
+              return `<span class='webix_icon mdi mdi-database-outline ${
+                obj.open ? "z_tree_d_open" : ""
+              }'></span>`;
+            }
+            if (suffix == "s")
+              return `<span class='webix_icon mdi mdi-rhombus-split-outline ${
+                obj.open ? "z_tree_s_open" : ""
+              }'></span>`;
+            if (suffix == "t")
+              return `<span class='webix_icon mdi mdi-table-large ${
+                obj.open ? "z_tree_t_open" : ""
+              }'></span>`;
+            if (suffix == "u")
+              return `<span class='webix_icon mdi mdi-table z_tree_u_open z_tree_u_open'></span>`;
+            if (suffix == "f")
+              return `<span class='webix_icon mdi mdi-script-text-outline ${
+                obj.open ? "z_tree_f_open" : ""
+              }'></span>`;
+            if (suffix == "g")
+              return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
+            return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
+          },
+        },
+        filterMode:{
+          showSubItems:false,
+          level:1
+        },
+        // template:"{common.icon()}&nbsp;#value#",
+        template: "{common.icon()} {common.my_folder()} <span>#value#</span>",
+        on: {
+          onAfterSelect: function (id) {
+            baseRootId = id;
+            while (this.getParentId(baseRootId)) {
+              baseRootId = this.getParentId(baseRootId);
+            }
+            baseDbName = this.getItem(baseRootId).value;
+            loadSchemaContent(baseRootId, id);
+          },
+          onItemClick: function (id) {
+            let itemRootId = id;
+            let itemx = this.getItem(id);
+            stateBase.currentDBSelected = itemx.value;
+            // console.log("itemx", itemx);
+            while (this.getParentId(itemRootId)) {
+              itemRootId = this.getParentId(itemRootId);
+            }
+            baseDbName = this.getItem(itemRootId).value;
+
+            if (id.split("_")[1] == "u") {
+              $$(prefix + "_viewdata_btn").enable();
+            } else {
+              $$(prefix + "_viewdata_btn").disable();
+            }
+
+          },
+          onItemDblClick: function (id) {
+            if (this.isBranchOpen(id)) {
+              this.close(id);
+            } else {
+              this.open(id);
+            }
+          },
+          onBeforeContextMenu: function (id, e, node) {
+            if (id.split("_")[1] == "u") {
+              return true;
+            } else {
+              // return false;
+              return webix.html.preventEvent(e);
+            }
+          },
+          onAfterContextMenu: function (id, e, node) {
+            this.select(id);
+            baseRootId = id;
+            while (this.getParentId(baseRootId)) {
+              baseRootId = this.getParentId(baseRootId);
+            }
+            nodeId = id;
+          },
+          onDataRequest: function (id) {
+            loadBranch(this, id);
+            return false;
+          },
+          onBeforeLoad: function () {
+            webix.extend(this, webix.OverlayBox);
+            this.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
+          },
+          onAfterLoad: function () {
+            this.hideOverlay();
+          },
+          onAfterRender: webix.once(function () {
+            const _this = this;
+            let ctxMenu = this.$scope.ui({
+              view: "contextmenu",
+              data: [
+                { id: "view_data_all", value: "View Data All Rows" },
+                { id: "view_data_last100", value: "View Data Last 100" },
+              ],
+              on: {
+                onItemClick: function (id) {
+                  let profileId = $$(prefix + "_source_combo").getValue();
+                  const tableOid = _this.getSelectedId().split("_")[0];
+                  if (id == "view_data_all") {
+                    runViewData(profileId, tableOid);
+                  } else if (id == "view_data_last100") {
+                    runViewData(profileId, tableOid, 1);
+                  }
+                },
+              },
+            });
+            ctxMenu.attachTo(this);
+          }),
+        },
+      }
+    ]
   };
 
   let QueryHistoryPreview = {
@@ -1918,7 +1939,7 @@ export function QueryPage(prefix, selectedDb) {
   const loadSchemaContent = (itemRootId, oid) => {
     searchOidSelected = oid;
     const typ = oid.split("_")[1];
-    
+
     if (typ == "g" || typ == "u") {
       let profileId = $$(prefix + "_source_combo").getValue();
       let viewId = $$(prefix + "_sql_editor");

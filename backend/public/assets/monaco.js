@@ -21,7 +21,7 @@ webix.protoUI({
 		hideCursorInOverviewRuler: true,
 
 		scrollbar: {
-		vertical: "hidden",
+			// vertical: "hidden",
 		},
 		minimap: {
 		enabled: false,
@@ -79,7 +79,7 @@ webix.protoUI({
 
 			this._waitEditor.resolve(this._editor);
 		}, this));
-		
+
 		if (this._focus_await)
 			this._editor.focus();
 	},

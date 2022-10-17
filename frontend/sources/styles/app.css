@@ -986,7 +986,7 @@ background-size: cover;
 .zheader.webix_layout_toolbar .app_header{
   background-color: transparent;
   color: white !important;
-} 
+}
 */
 
 
@@ -1035,11 +1035,15 @@ background-size: cover;
   margin-left: 0 !important;
 }
 
-.z_query_detail_cell textarea{  
+.z_query_detail_cell textarea{
   font-family: Courier New, sans-serif;
   font-size: 14px;
 }
 
 .z_list_cursor_pointer .webix_list_item{
   cursor: pointer;
+}
+
+.z_db_tree_filter input {
+  border: none !important;
 }

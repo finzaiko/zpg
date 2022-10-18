@@ -1979,8 +1979,12 @@ export function QueryPage(prefix, selectedDb) {
                 view: "monaco-editor",
                 id: prefix + "_sql_editor",
                 language: "sql",
-                // fontSize: "16px",
-                //borderless: true,
+                minimap: {
+                  enabled: false,
+                },
+                scrollbar: {
+                  vertical: "auto",
+                },
               },
               QueryHistoryPreview,
               QuerySidemenuRight,
@@ -2047,7 +2051,8 @@ export function QueryPage(prefix, selectedDb) {
         }
         initQueryEditor();
 
-        if (sType) {
+        // if (sType) {
+        if (state.isSearchDetach) {
           $$(prefix + "_database_search").hide();
           $$(prefix + "_database_search_content").hide();
           $$(prefix + "_search_more_btn").hide();
@@ -2071,7 +2076,7 @@ export function QueryPage(prefix, selectedDb) {
           $$(prefix + "_search_detach_btn").hide();
         }
         webix.UIManager.addHotKey("Ctrl+;", function () {
-          if (sType) {
+          if (state.isSearchDetach) {
             openSearchDetach();
           } else {
             $$(prefix + "_database_search").focus();

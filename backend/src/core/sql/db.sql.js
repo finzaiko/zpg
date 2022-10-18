@@ -5,10 +5,10 @@ const dbSchemaAll = `select oid || '_s' as id, nspname as value,true::boolean as
 where  nspname not in ('information_schema') and nspname not like 'pg\_%' order by nspname`;
 
 const _getAllFunc = `
-    SELECT 
-      prc.oid AS id, 
-      isr.specific_schema AS schema, 
-      prc.proname AS name, 
+    SELECT
+      prc.oid AS id,
+      isr.specific_schema AS schema,
+      prc.proname AS name,
       isr.type_udt_name AS return_type,
       COUNT(*) FILTER(WHERE isp.parameter_mode='IN') AS params_in,
       COUNT(*) FILTER(WHERE isp.parameter_mode='OUT') AS params_out,
@@ -23,8 +23,8 @@ const _getAllFunc = `
       'f'::text AS type,
       1::int AS task_type
       FROM information_schema.routines isr
-      INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
-      INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
+      LEFT JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
+      LEFT JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
       WHERE isr.specific_schema NOT IN ('pg_catalog', 'information_schema')
 `;
 
@@ -46,14 +46,14 @@ const dbAllFunc = (schema, oidArr) => {
     _schema = ` AND isr.specific_schema='${schema}'`;
   }
 
-  return `SELECT * FROM 
+  return `SELECT * FROM
           (${_getAllFunc} ${_schema} ${_oidArr}
         GROUP BY 1, 2, 3, 4 order by prc.proname )t
     `;
 };
 
 const dbAllFuncBySchema = (schemaName) => {
-  return `SELECT id || '_g' as id, name || '(r:'|| return_type ||', i:'|| params_in || ')' AS value FROM 
+  return `SELECT id || '_g' as id, name || '(r:'|| return_type ||', i:'|| params_in || ')' AS value FROM
           (${_getAllFunc} AND isr.specific_schema='${schemaName}'
         GROUP BY 1, 2, 3, 4 order by prc.proname )t
     `;
@@ -67,10 +67,33 @@ const dbAllTableBySchema = (schemaName) => {
         (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_name)) || '_u'
       END AS id,
       table_name AS value
-      FROM information_schema.columns 
+      FROM information_schema.columns
       WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
     and table_schema='${schemaName}'
     GROUP BY 1, 2  order by table_name
+    `;
+};
+
+const dbAllFuncTriggerBySchema = (schemaOid) => {
+  return `SELECT p.oid || '_w' as id, proname as value
+    FROM  pg_proc p
+    JOIN  pg_user u ON u.usesysid = p.proowner
+    WHERE usename <> 'postgres' AND prorettype = 2279
+    and pronamespace=${schemaOid}
+    `;
+};
+
+const dbAllViewsBySchema = (schemaOid) => {
+  return `SELECT
+    c.oid || '_y' as id,
+    -- n.oid as schema_oid
+    c.relname AS value
+    FROM pg_catalog.pg_class c
+    LEFT JOIN pg_catalog.pg_namespace n ON (n.oid = c.relnamespace)
+    WHERE c.relkind  = 'v' and n.nspname NOT IN ('pg_catalog', 'information_schema')
+    AND n.oid=${schemaOid}
+    GROUP BY 1,2
+    ORDER BY c.relname
     `;
 };
 
@@ -240,260 +263,307 @@ const dbTableContentByOid2 = (oid) => {
   declare _table_name text;
   begin
   -- SOURCE: https://github.com/ester41/pg_scripts/blob/master/pg_get_tabledef.sql
-  
+
   select nsp.nspname, tbl.relname into _schema_name, _table_name
   from pg_namespace nsp join pg_class tbl on nsp.oid = tbl.relnamespace
   where tbl.oid=oid_id;
-    
+
   --Schema null check
     if _schema_name is null then
       select current_schema() into _schema_name;
     end if;
-  
+
   --Convert arguments to lowercase
   --(Because PostgreSQL manages definitions in lowercase)
     _schema_name := lower(_schema_name);
     _table_name := lower(_table_name);
-  
+
     --Check for table presence
     select
       1 into table_check
-    from pg_class pc 
-    inner join pg_namespace pn 
-      on pn.oid = pc.relnamespace 
+    from pg_class pc
+    inner join pg_namespace pn
+      on pn.oid = pc.relnamespace
     where
       pn.nspname = _schema_name
       and pc.relname = _table_name;
-  
+
     if table_check is not null then
-  
+
   --Definition creation
       res := '-- DROP TABLE IF EXISTS ' || _schema_name || '.' || _table_name || ' CASCADE;' || chr(10) || chr(10);
       res := res || 'CREATE TABLE ' || _schema_name || '.' || _table_name || ' (' || chr(10);
-  
+
       for rec in
         select
           pa.attnum
           , concat(e'\t',pa.attname) as attname
-          , pg_catalog.format_type(pa.atttypid, pa.atttypmod) || case 
-            when pa.attnotnull 
-              then ' not null' 
+          , pg_catalog.format_type(pa.atttypid, pa.atttypmod) || case
+            when pa.attnotnull
+              then ' not null'
               else ''
             end || ' ' || coalesce(  -- check default
-            ( 
+            (
               select 'default ' ||
-                substring( 
+                substring(
                   pg_catalog.pg_get_expr(pd.adbin, pd.adrelid) for 128
-                ) 
+                )
               from
-                pg_catalog.pg_attrdef pd 
+                pg_catalog.pg_attrdef pd
               where
-                pd.adrelid = pa.attrelid 
-                and pd.adnum = pa.attnum 
+                pd.adrelid = pa.attrelid
+                and pd.adnum = pa.attnum
                 and pa.atthasdef
-            ) 
+            )
             , ''
           ) as format
-        from pg_catalog.pg_attribute pa 
-        inner join pg_catalog.pg_class pc 
-          on pa.attrelid = pc.oid 
-        inner join pg_catalog.pg_namespace pn 
-          on pn.oid = pc.relnamespace 
+        from pg_catalog.pg_attribute pa
+        inner join pg_catalog.pg_class pc
+          on pa.attrelid = pc.oid
+        inner join pg_catalog.pg_namespace pn
+          on pn.oid = pc.relnamespace
         where
-          pn.nspname = _schema_name 
-          and pc.relname = _table_name 
+          pn.nspname = _schema_name
+          and pc.relname = _table_name
           and pa.attnum > 0
         order by attnum
  loop
-  
+
     --Create column part
 		  res := res || rec.attname || ' ' || rec.format|| ',' || chr(10)  ;
       end loop;
-  
+
       for rec in
         select
           concat(e'\t',pg_catalog.pg_get_constraintdef(pco.oid, true)) as ct_str
           , pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true) as ci_str
-        from pg_catalog.pg_class pc 
-        inner join pg_catalog.pg_namespace pn 
-          on pn.oid = pc.relnamespace 
-        inner join pg_catalog.pg_index pi 
-          on pc.oid = pi.indrelid 
-        inner join pg_catalog.pg_class pc2 
-          on pi.indexrelid = pc2.oid 
-        left join pg_catalog.pg_constraint pco 
-          on ( 
-            pco.conrelid = pi.indrelid 
-            and pco.conindid = pi.indexrelid 
+        from pg_catalog.pg_class pc
+        inner join pg_catalog.pg_namespace pn
+          on pn.oid = pc.relnamespace
+        inner join pg_catalog.pg_index pi
+          on pc.oid = pi.indrelid
+        inner join pg_catalog.pg_class pc2
+          on pi.indexrelid = pc2.oid
+        left join pg_catalog.pg_constraint pco
+          on (
+            pco.conrelid = pi.indrelid
+            and pco.conindid = pi.indexrelid
             and pco.contype in ('p', 'u', 'x')
-          ) 
+          )
         where
-          pn.nspname = _schema_name 
-          and pc.relname = _table_name 
+          pn.nspname = _schema_name
+          and pc.relname = _table_name
         order by
           pi.indisprimary desc
           , pi.indisunique desc
           , pc.relname
       loop
-  
+
     --Create index part
         if rec.ct_str is not null then
-  
+
           --Definition in CREATE TABLE
           res := res || rec.ct_str || ',' || chr(10);
         else
-  
+
           --CREATE TABLE External definition
           idx_str := idx_str || rec.ci_str || ';' || chr(10);
         end if;
-      end loop; 
-  
+      end loop;
+
       for rec in
         select
-          pg_catalog.pg_get_constraintdef(pr.oid, true) as condef 
-        from pg_catalog.pg_constraint pr 
-        inner join pg_catalog.pg_class pc 
-          on pr.conrelid = pc.oid 
-        inner join pg_catalog.pg_namespace pn 
-          on pn.oid = pc.relnamespace 
+          pg_catalog.pg_get_constraintdef(pr.oid, true) as condef
+        from pg_catalog.pg_constraint pr
+        inner join pg_catalog.pg_class pc
+          on pr.conrelid = pc.oid
+        inner join pg_catalog.pg_namespace pn
+          on pn.oid = pc.relnamespace
         where
-          pn.nspname = _schema_name 
-          and pc.relname = _table_name 
+          pn.nspname = _schema_name
+          and pc.relname = _table_name
           and pr.contype = 'c'
       loop
-  
+
         --Create check constraint part
         res := res || ',' || rec.condef || chr(10);
       end loop;
   comma_flg := false;
       for rec in
         select
-          pg_catalog.pg_get_constraintdef(pr.oid, true) as condef 
-        from pg_catalog.pg_constraint pr 
-        inner join pg_catalog.pg_class pc 
-          on pr.conrelid = pc.oid 
-        inner join pg_catalog.pg_namespace pn 
-          on pn.oid = pc.relnamespace 
+          pg_catalog.pg_get_constraintdef(pr.oid, true) as condef
+        from pg_catalog.pg_constraint pr
+        inner join pg_catalog.pg_class pc
+          on pr.conrelid = pc.oid
+        inner join pg_catalog.pg_namespace pn
+          on pn.oid = pc.relnamespace
         where
-          pn.nspname = _schema_name 
-          and pc.relname = _table_name 
+          pn.nspname = _schema_name
+          and pc.relname = _table_name
           and pr.contype = 'f'
       loop
-  
+
    if comma_flg then
           res := res || ','|| chr(10);
         else
           res := res || '';
         end if;
         comma_flg := true;
-		
+
         --Creating a foreign key constraint part
         res := res || e'\t ' ||rec.condef || '' ;
       end loop;
-  
+
       --Add index part
       res := res || chr(10) || ');' || chr(10) || idx_str || chr(10);
-  
+
       --Create owner change part
       select
-          'ALTER TABLE ' ||  pn.nspname || '.' || pc.relname || ' OWNER TO ' || pu.usename || ';' || chr(10) 
+          'ALTER TABLE ' ||  pn.nspname || '.' || pc.relname || ' OWNER TO ' || pu.usename || ';' || chr(10)
           , pu.usename into owr_str, usename
       from
-          pg_catalog.pg_class pc 
-          inner join pg_catalog.pg_namespace pn 
-              on pn.oid = pc.relnamespace 
-          inner join pg_catalog.pg_user pu 
-              on pc.relowner = pu.usesysid 
+          pg_catalog.pg_class pc
+          inner join pg_catalog.pg_namespace pn
+              on pn.oid = pc.relnamespace
+          inner join pg_catalog.pg_user pu
+              on pc.relowner = pu.usesysid
       where
-          pn.nspname = _schema_name 
-          and pc.relname = _table_name; 
+          pn.nspname = _schema_name
+          and pc.relname = _table_name;
       res := res || owr_str;
-  
+
       --Create comment part
-      with check_data(_schema_name, _table_name) as ( 
+      with check_data(_schema_name, _table_name) as (
         select
           _schema_name as _schema_name
           , _table_name as _table_name
-      ) 
-      , table_data(_schema_name, _table_name, table_comment, positon) as ( 
+      )
+      , table_data(_schema_name, _table_name, table_comment, positon) as (
         select
           pn.nspname as _schema_name
           , pc.relname as _table_name
           , pg_catalog.obj_description(pc.oid) as table_comment
-          , 0 as positon 
+          , 0 as positon
         from
-          pg_catalog.pg_class pc 
-          inner join pg_catalog.pg_namespace pn 
-            on pn.oid = pc.relnamespace 
-          inner join check_data cd 
-            on pn.nspname = cd._schema_name 
-            and pc.relname = cd._table_name 
+          pg_catalog.pg_class pc
+          inner join pg_catalog.pg_namespace pn
+            on pn.oid = pc.relnamespace
+          inner join check_data cd
+            on pn.nspname = cd._schema_name
+            and pc.relname = cd._table_name
         where
           pg_catalog.obj_description(pc.oid) is not null
-      ) 
-      , column_data( 
+      )
+      , column_data(
         _schema_name
         , _table_name
         , column_name
         , column_comment
         , positon
-      ) as ( 
+      ) as (
         select
           cd._schema_name
           , cd._table_name
           , pa.attname as column_name
           , pg_catalog.col_description(pc.oid, pa.attnum) as column_comment
-          , pa.attnum as positon 
+          , pa.attnum as positon
         from
-          pg_catalog.pg_attribute pa 
-          inner join pg_catalog.pg_class pc 
-            on pc.oid = pa.attrelid 
-          inner join pg_catalog.pg_namespace pn 
-            on pn.oid = pc.relnamespace 
-          inner join check_data cd 
-            on pn.nspname = cd._schema_name 
-            and pc.relname = cd._table_name 
+          pg_catalog.pg_attribute pa
+          inner join pg_catalog.pg_class pc
+            on pc.oid = pa.attrelid
+          inner join pg_catalog.pg_namespace pn
+            on pn.oid = pc.relnamespace
+          inner join check_data cd
+            on pn.nspname = cd._schema_name
+            and pc.relname = cd._table_name
         where
-          pa.attnum > 0 
-          and pg_catalog.col_description(pc.oid, pa.attnum) is not null 
+          pa.attnum > 0
+          and pg_catalog.col_description(pc.oid, pa.attnum) is not null
         order by
           pa.attnum
-      ) 
+      )
       select
-        array_to_string( 
-          array ( 
+        array_to_string(
+          array (
             select
-              str 
+              str
             from
-              ( 
+              (
                 select
                   'COMMENT ON TABLE ' || td._schema_name || '.' || td._table_name || ' IS ''' || td.table_comment || ''';' as str
-                  , td.positon 
+                  , td.positon
                 from
-                  table_data td 
-                union 
+                  table_data td
+                union
                 select
                   'COMMENT ON COLUMN ' || cd._schema_name || '.' || cd._table_name || '.' || cd.column_name || ' IS ''' || cd.column_comment || ''';'
                    as str
-                  , cd.positon 
+                  , cd.positon
                 from
                   column_data cd
-              ) base 
+              ) base
             order by
               positon
-          ) 
+          )
           , chr(10)
-        ) into com_str; 
+        ) into com_str;
       res := res || com_str;
     end if;
     return res;
   end;
   $$  language plpgsql;
-  
+
   select * from pg_temp.table_def(${oid}) as data;
   `;
   // console.log(`sql>>>>>>>>>>`, sql);
   return sql;
+}
+
+const dbFuncTriggerContentByOid = (oid) => {
+  let sql = `
+    SELECT
+    -- t.tgrelid::regclass
+        p.oid || '_w' as id
+        ,p.proname
+        , pt.tgname
+        , pg_get_triggerdef(pt.oid)
+        , pg_get_functiondef(pt.tgfoid)
+        , tgenabled
+    FROM  pg_trigger pt
+    join pg_proc p on p.oid = pt.tgfoid
+    JOIN  pg_user u ON u.usesysid = p.proowner
+    WHERE  tgrelid = 'stock.pipe'::regclass
+    -- and usename <> 'postgres' AND prorettype = 2279
+    -- and not tgisinternal
+
+
+    SELECT p.oid || '_w' as id, proname as value
+        -- .*
+        ,pg_get_triggerdef(pt.oid)
+        , pg_get_functiondef(pt.tgfoid)
+        , tgenabled
+    FROM  pg_proc p
+    JOIN  pg_user u ON u.usesysid = p.proowner
+    WHERE
+    usename <> 'postgres'
+    AND prorettype = 2279
+    and
+    pronamespace=4813594
+    order by proname
+  `;
+  sql = `SELECT 'Not implement yet!'`; // under test trial
+  return sql;
+}
+const dbViewContentByOid = (oid) => {
+  return `SELECT
+      CASE c.relkind
+      WHEN 'v'
+      THEN pg_catalog.pg_get_viewdef(c.oid, true)
+      ELSE null
+      END AS data
+    FROM pg_catalog.pg_class c
+    WHERE c.oid=${oid}
+  `;
 }
 
 const dbFuncTableSearch = (search, type, view) => {
@@ -514,7 +584,7 @@ const dbFuncTableSearch = (search, type, view) => {
     fieldFunc = `,pg_get_functiondef((SELECT oid FROM pg_proc WHERE oid = prc.oid)) AS content_val, prc.proname AS content_name, isr.specific_schema AS content_schema, 'f'::text AS ttype `;
     fieldTbl = `,(SELECT string_agg(column_name,', ') FROM pg_namespace nsp
           JOIN pg_class tbl on nsp.oid = tbl.relnamespace
-          JOIN information_schema.columns scm on scm.table_schema=nsp.nspname and scm.table_name=tbl.relname 
+          JOIN information_schema.columns scm on scm.table_schema=nsp.nspname and scm.table_name=tbl.relname
         WHERE tbl.oid = c.relfilenode
       ) AS content_val, c.relname AS content_name, n.nspname AS content_schema, 't'::text AS ttype`;
   }
@@ -531,17 +601,17 @@ const dbFuncTableSearch = (search, type, view) => {
     limit = `200`;
   }
 
-  let sqlFunc = `SELECT prc.oid || '_g' AS id, prc.proname || '(f:' || isr.specific_schema || ')' AS value, 'z_combo_item_f' AS css, 
+  let sqlFunc = `SELECT prc.oid || '_g' AS id, prc.proname || '(f:' || isr.specific_schema || ')' AS value, 'z_combo_item_f' AS css,
       prc.proname as name, isr.specific_schema as schema, 'Function' as type
       ${fieldFunc}
       FROM information_schema.routines isr
       INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
       INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
-      WHERE isr.specific_schema NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema']) 
+      WHERE isr.specific_schema NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema'])
       GROUP BY  prc.oid, prc.proname,isr.specific_schema`;
 
   // let sqlTbl = `SELECT c.relfilenode || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css
-  let sqlTbl = `SELECT c.oid || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css, 
+  let sqlTbl = `SELECT c.oid || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css,
       relname as name, n.nspname as schema, 'Table' as type
       ${fieldTbl}
       FROM pg_catalog.pg_class c
@@ -571,4 +641,8 @@ module.exports = {
   dbTableContentByOid,
   dbTableContentByOid2,
   dbFuncTableSearch,
+  dbAllFuncTriggerBySchema,
+  dbAllViewsBySchema,
+  dbFuncTriggerContentByOid,
+  dbViewContentByOid
 };

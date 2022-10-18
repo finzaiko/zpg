@@ -24,6 +24,8 @@ class DbController {
       const data = [
         { id: newParent + "_t", value: "Tables", webix_kids: true },
         { id: newParent + "_f", value: "Functions", webix_kids: true },
+        { id: newParent + "_r", value: "Trigger Functions", webix_kids: true },
+        { id: newParent + "_v", value: "Views", webix_kids: true },
       ];
       responseOk(reply, { parent: parent, data: data });
     } else {

@@ -8,6 +8,7 @@ import { QueryPage } from "../query/QueryPage";
 import { DatabaseServer } from "./DatabaseServer";
 import { LAST_DB_SERVER } from "../../config/setting";
 import { setEditorFontSize } from "../../helpers/ui";
+import { copyToClipboard } from "../../helpers/copy";
 
 const prefix = state.prefix;
 let baseRootId, nodeId, baseDbName;
@@ -35,6 +36,7 @@ const toolbar = {
     {
       view: "button",
       type: "icon",
+      css: "zmdi_padding",
       autowidth: true,
       icon: "mdi mdi-connection",
       click: function () {
@@ -45,59 +47,10 @@ const toolbar = {
       view: "button",
       type: "icon",
       autowidth: true,
+      css: "zmdi_padding",
       icon: "mdi mdi-sync",
       click: function () {},
     },
-    // {
-    //   view: "combo",
-    //   id: "database_search_cmb",
-    //   css: "database_search_cmb",
-    //   hidden: true,
-    //   icon: "",
-    //   placeholder: "search",
-    //   width: 300,
-    //   options: {
-    //     fitMaster: false,
-    //     width: 300,
-    //     // suggest
-    //     keyPressTimeout: 500,
-    //     body: {
-    //       // list
-    //       template: '<span class="#css#">#value#</span>',
-    //       dataFeed: function (text) {
-    //         const cmbId = $$("database_search_cmb");
-    //         webix.extend(cmbId, webix.OverlayBox);
-    //         cmbId.showOverlay(
-    //           `<span style='display:block;text-align:right;padding-right:10px;height:100%;line-height:2.5; color:orange' class='mdi mdi-circle-slice-8 mdi_pulsate'></span>`
-    //         );
-
-    //         if (!text) {
-    //           cmbId.hideOverlay();
-    //         }
-
-    //         const filterCombo = cmbId.getPopup().getList();
-    //         filterCombo.clearAll();
-    //         const profileId = $$(prefix + "_server").getValue();
-
-    //         this.load(
-    //           `${urlDb}/content_search?id=${profileId}&root=${baseRootId}&filter[value]=` +
-    //             text
-    //         ).then((_) => {
-    //           setTimeout(() => {
-    //             cmbId.hideOverlay();
-    //             filterCombo.show(cmbId.getInputNode());
-    //             cmbId.focus();
-    //           }, 1000);
-    //         });
-    //       },
-    //     },
-    //   },
-    //   on: {
-    //     onChange: function (newv) {
-    //       loadSchemaContent(baseRootId, newv);
-    //     },
-    //   },
-    // },
     {
       view: "text",
       css: "search_suggest",
@@ -166,6 +119,7 @@ const toolbar = {
     {
       view: "button",
       type: "icon",
+      css: "zmdi_padding",
       autowidth: true,
       id: prefix + "_copy_content",
       hidden: true,
@@ -173,7 +127,6 @@ const toolbar = {
       click: function () {
         if ($$("database_sql_editor").getValue() != "") {
           copyToClipboard(
-            $$("database_sql_editor"),
             $$("database_sql_editor").getValue()
           );
         }
@@ -183,6 +136,7 @@ const toolbar = {
     {
       view: "button",
       type: "icon",
+      css: "zmdi_padding",
       id: prefix + "_send_backward",
       icon: "mdi mdi-arrange-send-backward",
       autowidth: true,
@@ -236,51 +190,6 @@ function openQueryTab(baseDbName) {
   stateBase.currentTab++;
 }
 
-function copyToQuery(val) {
-  // $$("query_sql_editor").setValue(val);
-  // $$(prefix + "_history_preview").hide();
-  // $$("query_sql_editor").show();
-}
-
-function copyToClipboard2(textToCopy) {
-  // navigator clipboard api needs a secure context (https)
-  if (navigator.clipboard && window.isSecureContext) {
-    // navigator clipboard api method'
-    return navigator.clipboard.writeText(textToCopy);
-  } else {
-    // text area method
-    let textArea = document.createElement("textarea");
-    textArea.value = textToCopy;
-    // make the textarea out of viewport
-    textArea.style.position = "fixed";
-    textArea.style.left = "-999999px";
-    textArea.style.top = "-999999px";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    return new Promise((res, rej) => {
-      // here the magic happens
-      document.execCommand("copy") ? res() : rej();
-      textArea.remove();
-    });
-  }
-}
-
-function copyToClipboard(viewId, text) {
-  try {
-    navigator.clipboard.writeText(text);
-    webix.extend(viewId, webix.OverlayBox);
-    viewId.showOverlay(
-      `<div class="z_overlay"><span class='z_copied_label animate__animated animate__flash'>Copied!</span></div>`
-    );
-    setTimeout(() => {
-      viewId.hideOverlay();
-    }, 1000);
-  } catch (err) {
-    console.error("Failed to copy: ", err);
-  }
-}
-
 function loadBranch(viewId, id, isContext) {
   let rootroot;
   if (typeof isContext == "undefined") {
@@ -296,24 +205,36 @@ function loadBranch(viewId, id, isContext) {
 
   const profileId = $$(prefix + "_server").getValue();
 
-  viewId.parse(
-    webix
-      .ajax()
-      // .headers(defaultHeader())
-      .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}&t=0`)
-      .then(function (data) {
-        // console.log("tree", tree);
-        var item = tree.getItem(id);
-        // console.log("item///////////////////", item);
-        setTimeout(() => {
-          if (item.$count <= 0) {
-            item.open = false;
-            tree.refresh(id);
-          }
-        }, 600);
-        return (data = data.json());
-      })
-  );
+  const item = tree.getItem(id);
+
+  // REFRESH ON RIGHT CLICK
+  // item.open = true;
+  // item.$count = -1;
+  // tree.refresh(id);
+
+  // webix.extend(viewId, webix.ProgressBar);
+  // viewId.showProgress({
+  //   type: "top",
+  // });
+
+    viewId.parse(
+      webix
+        .ajax()
+        .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}&t=0`)
+        .then(function (data) {
+          console.log('data',data.json());
+
+          setTimeout(() => {
+            if (item.$count <= 0) {
+              item.open = false;
+              tree.refresh(id);
+            }
+            // viewId.hideProgress();
+          }, 600);
+          return (data = data.json());
+        })
+    );
+
 }
 
 function changeComboColors(val) {
@@ -322,8 +243,8 @@ function changeComboColors(val) {
   webix.delay(function () {
     let value = _this.getValue();
     if (value) {
-      let item = _this.$view.getElementsByClassName("webix_el_box")[0]
-        .childNodes[0];
+      let item =
+        _this.$view.getElementsByClassName("webix_el_box")[0].childNodes[0];
       item.className = getItem.css;
     }
   });
@@ -380,97 +301,133 @@ export default class DatabasePage extends JetView {
         {
           cols: [
             {
-              view: "tree",
-              width: 250,
-              id: prefix + "_db_tree",
-              css: "z_db_tree",
-              // type:"lineTree",
-              select: true,
-              type: {
-                icon: function (obj, common) {
-                  if (obj.open && obj.$count <= 0)
-                    return '<div class=" webix_icon mdi mdi-sync spin_mdi"></div>';
-                  return (
-                    '<div class="webix_tree_' +
-                    (obj.$count ? (obj.open ? "open" : "close") : "none") +
-                    '"></div>'
-                  );
+              rows: [
+                {
+                  view: "text",
+                  placeholder: "filter..",
+                  id: prefix + "_db_tree_filter",
+                  css: "z_db_tree_filter",
+                  on: {
+                    onTimedKeyPress: function () {
+                      $$(prefix + "_db_tree").filter(
+                        "#value#",
+                        this.getValue()
+                      );
+                    },
+                  },
                 },
-                my_folder: function (obj) {
-                  // console.log('obj', obj)
-                  const suffix = obj.id.split("_")[1];
-                  if (suffix == "d") {
-                    return `<span class='webix_icon mdi mdi-database-outline ${
-                      obj.open ? "z_tree_d_open" : ""
-                    }'></span>`;
-                  }
-                  if (suffix == "s")
-                    return `<span class='webix_icon mdi mdi-rhombus-split-outline ${
-                      obj.open ? "z_tree_s_open" : ""
-                    }'></span>`;
-                  if (suffix == "t")
-                    return `<span class='webix_icon mdi mdi-table-large ${
-                      obj.open ? "z_tree_t_open" : ""
-                    }'></span>`;
-                  if (suffix == "u")
-                    return `<span class='webix_icon mdi mdi-table z_tree_u_open z_tree_u_open'></span>`;
-                  if (suffix == "f")
-                    return `<span class='webix_icon mdi mdi-script-text-outline ${
-                      obj.open ? "z_tree_f_open" : ""
-                    }'></span>`;
-                  if (suffix == "g")
-                    return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
-                  return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
+                {
+                  view: "tree",
+                  width: 250,
+                  id: prefix + "_db_tree",
+                  css: "z_db_tree",
+                  // type:"lineTree",
+                  select: true,
+                  type: {
+                    icon: function (obj, common) {
+                      if (obj.open && obj.$count <= 0)
+                        return '<div class=" webix_icon mdi mdi-sync spin_mdi"></div>';
+                      return (
+                        '<div class="webix_tree_' +
+                        (obj.$count ? (obj.open ? "open" : "close") : "none") +
+                        '"></div>'
+                      );
+                    },
+                    my_folder: function (obj) {
+                      const suffix = obj.id.split("_")[1];
+                      if (suffix == "d") {
+                        return `<span class='webix_icon mdi mdi-database-outline ${
+                          obj.open ? "z_tree_d_open" : ""
+                        }'></span>`;
+                      }
+                      if (suffix == "s")
+                        return `<span class='webix_icon mdi mdi-rhombus-split-outline ${
+                          obj.open ? "z_tree_s_open" : ""
+                        }'></span>`;
+                      if (suffix == "t")
+                        return `<span class='webix_icon mdi mdi-table-large ${
+                          obj.open ? "z_tree_t_open" : ""
+                        }'></span>`;
+                      if (suffix == "u")
+                        return `<span class='webix_icon mdi mdi-table z_tree_u_open z_tree_u_open'></span>`;
+                      if (suffix == "f")
+                        return `<span class='webix_icon mdi mdi-script-text-outline ${
+                          obj.open ? "z_tree_f_open" : ""
+                        }'></span>`;
+                      if (suffix == "r")
+                        return `<span class='webix_icon mdi mdi-script-text-play-outline ${
+                          obj.open ? "z_tree_f_open" : ""
+                        }'></span>`;
+                      if (suffix == "v")
+                        return `<span class='webix_icon mdi mdi-file-table-box-multiple-outline ${
+                          obj.open ? "z_tree_f_open" : ""
+                        }'></span>`;
+                      if (suffix == "y")
+                        return `<span class='webix_icon mdi mdi-file-table-box-outline ${
+                          obj.open ? "z_tree_f_open" : ""
+                        }'></span>`;
+                      if (suffix == "g" || suffix == "w")
+                        return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
+                      return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
+                    },
+                  },
+                  // template:"{common.icon()}&nbsp;#value#",
+                  template:
+                    "{common.icon()} {common.my_folder()} <span>#value#</span>",
+                  on: {
+                    onAfterSelect: function (id) {
+                      // console.log(`id`, id);
+                      const a = this.getItem(id);
+                      // console.log(`a`, a);
+                      baseRootId = id;
+                      while (this.getParentId(baseRootId)) {
+                        baseRootId = this.getParentId(baseRootId);
+                      }
+                      baseDbName = this.getItem(baseRootId).value;
+                      // console.log(`baseDbName`, baseDbName)
+                      $$(prefix + "_database_search").show();
+                      loadSchemaContent(baseRootId, id);
+                    },
+                    onItemClick: function (id) {
+                      let itemRootId = id;
+                      let itemx = this.getItem(id);
+                      stateBase.currentDBSelected = itemx.value;
+                      // console.log("itemx", itemx);
+                      while (this.getParentId(itemRootId)) {
+                        itemRootId = this.getParentId(itemRootId);
+                      }
+                      baseDbName = this.getItem(itemRootId).value;
+                      // loadSchemaContent(itemRootId, id);
+                    },
+                    onItemDblClick: function (id) {
+                      if (this.isBranchOpen(id)) {
+                        this.close(id);
+                      } else {
+                        this.open(id);
+                      }
+                    },
+                    onAfterContextMenu: function (id, e, node) {
+                      this.select(id);
+                      baseRootId = id;
+                      while (this.getParentId(baseRootId)) {
+                        baseRootId = this.getParentId(baseRootId);
+                      }
+                      nodeId = id;
+                    },
+                    onDataRequest: function (id) {
+                      loadBranch(this, id);
+                      return false;
+                    },
+                    onBeforeLoad: function () {
+                      webix.extend(this, webix.OverlayBox);
+                      this.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
+                    },
+                    onAfterLoad: function () {
+                      this.hideOverlay();
+                    },
+                  },
                 },
-              },
-              // template:"{common.icon()}&nbsp;#value#",
-              template:
-                "{common.icon()} {common.my_folder()} <span>#value#</span>",
-              on: {
-                onAfterSelect: function (id) {
-                  // console.log(`id`, id);
-                  const a = this.getItem(id);
-                  // console.log(`a`, a);
-                  baseRootId = id;
-                  while (this.getParentId(baseRootId)) {
-                    baseRootId = this.getParentId(baseRootId);
-                  }
-                  baseDbName = this.getItem(baseRootId).value;
-                  // console.log(`baseDbName`, baseDbName)
-                  $$(prefix + "_database_search").show();
-                  loadSchemaContent(baseRootId, id);
-                },
-                onItemClick: function (id) {
-                  let itemRootId = id;
-                  let itemx = this.getItem(id);
-                  stateBase.currentDBSelected = itemx.value;
-                  // console.log("itemx", itemx);
-                  while (this.getParentId(itemRootId)) {
-                    itemRootId = this.getParentId(itemRootId);
-                  }
-                  baseDbName = this.getItem(itemRootId).value;
-                  // loadSchemaContent(itemRootId, id);
-                },
-                onItemDblClick: function (id) {
-                  if (this.isBranchOpen(id)) {
-                    this.close(id);
-                  } else {
-                    this.open(id);
-                  }
-                },
-                onAfterContextMenu: function (id, e, node) {
-                  this.select(id);
-                  baseRootId = id;
-                  while (this.getParentId(baseRootId)) {
-                    baseRootId = this.getParentId(baseRootId);
-                  }
-                  nodeId = id;
-                },
-                onDataRequest: function (id) {
-                  loadBranch(this, id);
-                  return false;
-                },
-              },
+              ],
             },
             {
               view: "resizer",
@@ -489,16 +446,23 @@ export default class DatabasePage extends JetView {
     const ctxMenu = this.ui({
       view: "contextmenu",
       id: "tree_contextmenu",
-      data: [
-        {id: "refresh", value: "Refresh"},
-        { $template: "Separator" }, 
-        {id: "createconn", value: "Create Connection"}
-      ],
+      data: [],
       on: {
+        onBeforeShow: function () {
+          this.clearAll();
+          let arr = [];
+          arr.push({ id: "refresh", value: "Refresh" });
+          const a = $$(prefix + "_db_tree");
+          if (a.getSelectedId().split("_")[1] == "d") {
+            arr.push({ $template: "Separator" });
+            arr.push({ id: "createconn", value: "Create Connection" });
+          }
+          this.parse(arr);
+        },
         onItemClick: function (id) {
-          if(id=="refresh"){
+          if (id == "refresh") {
             loadBranch($$(prefix + "_db_tree"), nodeId, true);
-          }else if(id=="createconn"){
+          } else if (id == "createconn") {
             webix.message("Not implement yet");
           }
         },

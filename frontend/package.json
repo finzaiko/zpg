@@ -42,6 +42,7 @@
     "animate.css": "^4.1.1",
     "copy-text-to-clipboard": "^3.0.1",
     "javascript-time-ago": "^2.3.4",
+    "monaco-editor": "^0.34.0",
     "sql-formatter": "^4.0.2",
     "webix": "^8.2.0",
     "webix-jet": "^2.1.3"

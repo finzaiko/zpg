@@ -13,6 +13,10 @@ const {
   dbTableContentByOid,
   dbFuncTableSearch,
   dbTableContentByOid2,
+  dbAllFuncTriggerBySchema,
+  dbAllViewsBySchema,
+  dbViewContentByOid,
+  dbFuncTriggerContentByOid,
 } = require("../core/sql/db.sql");
 
 class DbRepository {
@@ -71,6 +75,10 @@ class DbRepository {
       sql = dbAllFuncBySchema(schemaName);
     } else if (dbOid.split("_")[1] == "t") {
       sql = dbAllTableBySchema(schemaName);
+    } else if (dbOid.split("_")[1] == "r") { // functions trigger
+      sql = dbAllFuncTriggerBySchema(dbOid.split("_")[0]);
+    } else if (dbOid.split("_")[1] == "v") { // views
+      sql = dbAllViewsBySchema(dbOid.split("_")[0]);
     } else {
       console.log("Not handled!");
     }
@@ -81,7 +89,7 @@ class DbRepository {
   async getSchemaContentTree(profileId, baseRootIdOid, oid, userId, typeLevel) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     let cfg = serverCfg[0];
-    
+
     if(baseRootIdOid!=0){
       const pgPool = new Pool(cfg);
       const pg1 = await pgPool.query(dbAllByOid(baseRootIdOid.split("_")[0]));
@@ -97,6 +105,10 @@ class DbRepository {
       rsql = dbFuncContentByOid(mode[0]);
     } else if (mode[1] == "u") {
       rsql = dbTableContentByOid2(mode[0]);
+    } else if (mode[1] == "w") { // func triggers
+      rsql = dbFuncTriggerContentByOid(mode[0]);
+    } else if (mode[1] == "y") { // views
+      rsql = dbViewContentByOid(mode[0]);
     } else {
       return "";
     }
@@ -138,7 +150,7 @@ class DbRepository {
       (select CONCAT(
           'DROP FUNCTION IF EXISTS ',isr.specific_schema|| '.' ||  routine_name,'(',string_agg(isp.data_type::text,','),');',
           e'\n\n')
-          as func_def, 
+          as func_def,
           1 as s_no
           FROM information_schema.routines isr
           INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
@@ -149,12 +161,12 @@ class DbRepository {
         select CONCAT(
           'DROP FUNCTION IF EXISTS ',isr.specific_schema|| '.' ||  routine_name,'();',
           e'\n\n')
-          as func_def, 
+          as func_def,
           2 as s_no
           FROM information_schema.routines isr
           INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
           INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
-          where prc.oid=${oid} 
+          where prc.oid=${oid}
           group by routine_name, isr.specific_schema
         ) t order by s_no limit 1)
   `;

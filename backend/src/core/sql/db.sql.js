@@ -605,8 +605,8 @@ const dbFuncTableSearch = (search, type, view) => {
       prc.proname as name, isr.specific_schema as schema, 'Function' as type
       ${fieldFunc}
       FROM information_schema.routines isr
-      INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
-      INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
+      LEFT JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
+      LEFT JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
       WHERE isr.specific_schema NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema'])
       GROUP BY  prc.oid, prc.proname,isr.specific_schema`;
 

@@ -265,15 +265,11 @@ export function QueryPage(prefix, selectedDb) {
                   arr.push({
                     id: prefix + "_add_bookmark",
                     value:
-                      "<span class='mdi mdi-star-outline webix_icon'></span>Add Bookmark",
-                  });
-                  arr.push({
-                    id: prefix + "_all_bookmark",
-                    value: "<span class='webix_icon'></span>All Bookmark",
+                      "<span class='mdi mdi-star-plus-outline webix_icon'></span>  Add Bookmark",
                   });
                   arr.push({
                     id: prefix + "_manage_bookmark",
-                    value: "<span class='webix_icon'></span>Manage Bookmark",
+                    value: "<span class='webix_icon'></span>  Manage Bookmark",
                   });
 
                   const _data = r.json().data;
@@ -281,7 +277,7 @@ export function QueryPage(prefix, selectedDb) {
                     arr.push({ $template: "Separator" });
                     this.config.width = 300;
                   } else {
-                    this.config.width = 150;
+                    this.config.width = 160;
                   }
                   this.refresh();
                   _data.forEach((item, index) => {
@@ -302,7 +298,9 @@ export function QueryPage(prefix, selectedDb) {
                 webix
                   .ajax()
                   .headers(defaultHeader())
-                  .post(urlProfile + "/content", data);
+                  .post(urlProfile + "/content", data, (r)=>{
+                    webix.message({text: "Bookmark added.", type:"success"});
+                  });
               } else if (id == prefix + "_manage_bookmark") {
                 openBookmarkManager();
               } else {
@@ -1050,26 +1048,44 @@ export function QueryPage(prefix, selectedDb) {
         body: {
           cols: [
             {
-              view: "list",
-              width: 250,
-              drag: "order",
-              template: "#title#",
-              id: prefix + "_bm_list",
-              select: true,
-              url: `${urlProfile}/content?type=4`,
-              on: {
-                onItemClick: function (id) {
-                  $$(prefix + "_bm_toolbar").show();
-                  $$(prefix + "_bm_sql_editor").show();
-                  $$(prefix + "_bm_editor_tmpl").hide();
-
-                  const sel = this.getItem(id);
-                  let editorId = $$(prefix + "_bm_sql_editor");
-                  editorId.setValue(sel.content);
-                  $$(prefix + "_bm_title").setValue(sel.title);
+              rows: [
+                {view:"text", placeholder: "filter..", id: prefix + "_bm_list_filter", css: "z_db_tree_filter",
+                on: {
+                  onTimedKeyPress: function () {
+                    $$(prefix + "_bm_list").filter("#value#",this.getValue());
+                  }
+                }
                 },
-              },
+                {
+                  view: "list",
+                  width: 250,
+                  drag: "order",
+                  template: "<div style='cursor: pointer;'>#title#</div>",
+                  id: prefix + "_bm_list",
+                  select: true,
+                  url: `${urlProfile}/content?type=4`,
+                  on: {
+                    onItemClick: function (id) {
+                      $$(prefix + "_bm_toolbar").show();
+                      $$(prefix + "_bm_sql_editor").show();
+                      $$(prefix + "_bm_editor_tmpl").hide();
+
+                      const sel = this.getItem(id);
+                      let editorId = $$(prefix + "_bm_sql_editor");
+                      editorId.setValue(sel.content);
+                      $$(prefix + "_bm_title").setValue(sel.title);
+                    },
+                    onItemDblClick: function (id) {
+                      const sel = this.getItem(id);
+                      let editorId = $$(prefix + "_sql_editor");
+                      editorId.setValue(sel.content);
+                      $$(prefix + "_win_bookmark_manage").destructor();
+                    }
+                  },
+                },
+              ]
             },
+
             {
               view: "resizer",
               resizeColumn: { size: 1 },
@@ -1982,9 +1998,9 @@ export function QueryPage(prefix, selectedDb) {
                 minimap: {
                   enabled: false,
                 },
-                scrollbar: {
-                  vertical: "auto",
-                },
+                // scrollbar: {
+                //   vertical: "auto", // visible
+                // },
               },
               QueryHistoryPreview,
               QuerySidemenuRight,

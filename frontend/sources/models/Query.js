@@ -7,7 +7,8 @@ export let state = {
   prefix: CODE_PREFIX + path,
   countPage: 0,
   isDataType: 1,
-  isSearchDetach: 0
+  isSearchDetach: 0,
+  isMinimap: 0,
 };
 
 export const url = API_URL + "/" + path;

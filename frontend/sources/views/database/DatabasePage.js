@@ -217,6 +217,8 @@ function loadBranch(viewId, id, isContext) {
   //   type: "top",
   // });
 
+  document.body.style.cursor = 'progress';
+
     viewId.parse(
       webix
         .ajax()
@@ -228,6 +230,7 @@ function loadBranch(viewId, id, isContext) {
             if (item.$count <= 0) {
               item.open = false;
               tree.refresh(id);
+              document.body.style.cursor = 'default';
             }
             // viewId.hideProgress();
           }, 600);

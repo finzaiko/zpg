@@ -21,6 +21,7 @@ export const LAST_DB_CONN_VIEWDATA = "lvdbconn";
 
 export const LAST_DATATYPE = "ldtype";
 export const LAST_SEARCHTYPE = "lstype";
+export const LAST_MINIMAP = "lsmnmap";
 export const CONFIRM_DROP_REPLACE = "dropreplace";
 export const CONFIRM_EXECUTE = "confirmexec";
 

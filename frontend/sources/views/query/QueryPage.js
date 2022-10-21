@@ -12,6 +12,7 @@ import { QueryHelp } from "./QueryHelp";
 import {
   LAST_DATATYPE,
   LAST_DB_CONN_QUERY,
+  LAST_MINIMAP,
   LAST_SEARCHTYPE,
 } from "../../config/setting";
 import { userId } from "../../../../backend/src/test/user-profile.test";
@@ -1282,9 +1283,7 @@ export function QueryPage(prefix, selectedDb) {
         },
         on: {
           onValueSuggest: function (node) {
-            loadSchemaContent(0, node.id);
-            $$(prefix + "_search_detach_win").close();
-            panelId.hideOverlay();
+            loadSchemaContent(0, node.id, panelId);
           },
         },
       },
@@ -1385,7 +1384,25 @@ export function QueryPage(prefix, selectedDb) {
               on: {
                 onChange: function (newVal, oldVal) {
                   state.isSearchDetach = newVal;
+                  setSearchType();
                   webix.storage.local.put(LAST_SEARCHTYPE, newVal);
+                },
+              },
+            },
+            {
+              view: "checkbox",
+              id: prefix + "_show_minimap",
+              labelRight: "Show minimap",
+              tooltip: "Show minimap scrollbar",
+              name: "ck_show_minimap",
+              labelWidth: 8,
+              value: 0,
+              on: {
+                onChange: function (newVal, oldVal) {
+                  state.isMinimap = newVal;
+                  // setSearchType();
+                  webix.storage.local.put(LAST_MINIMAP, newVal);
+                  webix.message({text: "Not implement yet!", type: "debug"});
                 },
               },
             },
@@ -1952,7 +1969,40 @@ export function QueryPage(prefix, selectedDb) {
     });
   };
 
-  const loadSchemaContent = (itemRootId, oid) => {
+  const setSearchType = () => {
+    if (state.isSearchDetach) {
+      console.log("test1 detach yes");
+
+      $$(prefix + "_database_search").hide();
+      $$(prefix + "_database_search_content").hide();
+      $$(prefix + "_search_more_btn").hide();
+      $$(prefix + "_search_detach_btn").show();
+
+      webix.UIManager.addHotKey("Esc", function () {
+        if ($$(prefix + "_search_detach_win")) {
+          const panelId = $$(prefix + "_page_panel");
+          panelId.hideOverlay();
+          $$(prefix + "_search_detach_win").hide();
+        }
+      });
+    } else {
+      $$(prefix + "_database_search_content").hide();
+      $$(prefix + "_database_search").show();
+      $$(prefix + "_search_more_btn").show();
+      $$(prefix + "_search_detach_btn").hide();
+    }
+    webix.UIManager.addHotKey("Ctrl+;", function () {
+      if (state.isSearchDetach) {
+        openSearchDetach();
+      } else {
+        $$(prefix + "_database_search").focus();
+        $$(prefix + "_database_search")
+          .getInputNode()
+          .select();
+      }
+    });
+  }
+  const loadSchemaContent = (itemRootId, oid, panelId) => {
     searchOidSelected = oid;
     const typ = oid.split("_")[1];
 
@@ -1971,6 +2021,10 @@ export function QueryPage(prefix, selectedDb) {
         .then(function (data) {
           viewId.hideProgress();
           viewId.setValue(data.json().data);
+          if(panelId){
+            $$(prefix + "_search_detach_win").close();
+            panelId.hideOverlay();
+          }
         });
 
       }
@@ -2067,40 +2121,8 @@ export function QueryPage(prefix, selectedDb) {
         }
         initQueryEditor();
 
-        // if (sType) {
-        if (state.isSearchDetach) {
-          $$(prefix + "_database_search").hide();
-          $$(prefix + "_database_search_content").hide();
-          $$(prefix + "_search_more_btn").hide();
-          $$(prefix + "_search_detach_btn").show();
+        setSearchType();
 
-          webix.UIManager.addHotKey("Esc", function () {
-            if ($$(prefix + "_search_detach_win")) {
-              const panelId = $$(prefix + "_page_panel");
-              panelId.hideOverlay();
-              $$(prefix + "_search_detach_win").hide();
-            }
-          });
-        } else {
-          if ($$(prefix + "_database_search").isVisible()) {
-            $$(prefix + "_database_search_content").hide();
-            $$(prefix + "_database_search").show();
-          } else {
-            $$(prefix + "_database_search_content").show();
-            $$(prefix + "_database_search").hide();
-          }
-          $$(prefix + "_search_detach_btn").hide();
-        }
-        webix.UIManager.addHotKey("Ctrl+;", function () {
-          if (state.isSearchDetach) {
-            openSearchDetach();
-          } else {
-            $$(prefix + "_database_search").focus();
-            $$(prefix + "_database_search")
-              .getInputNode()
-              .select();
-          }
-        });
       }),
       onDestruct: function () {
         settingMore = {};

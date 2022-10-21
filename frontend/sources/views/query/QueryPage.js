@@ -1399,10 +1399,10 @@ export function QueryPage(prefix, selectedDb) {
               value: 0,
               on: {
                 onChange: function (newVal, oldVal) {
+                  console.log('newVal',newVal);
                   state.isMinimap = newVal;
-                  // setSearchType();
+                  setMinimap();
                   webix.storage.local.put(LAST_MINIMAP, newVal);
-                  webix.message({text: "Not implement yet!", type: "debug"});
                 },
               },
             },
@@ -1413,6 +1413,7 @@ export function QueryPage(prefix, selectedDb) {
           onShow: function () {
             $$(prefix + "_show_data_type").blockEvent();
             $$(prefix + "_detach_quick_search").blockEvent();
+            $$(prefix + "_show_minimap").blockEvent();
             const ck = webix.storage.local.get(LAST_DATATYPE);
             if (ck) {
               $$(prefix + "_show_data_type").setValue(ck);
@@ -1421,8 +1422,13 @@ export function QueryPage(prefix, selectedDb) {
             if (st) {
               $$(prefix + "_detach_quick_search").setValue(st);
             }
+            const mn = state.isMinimap || webix.storage.local.get(LAST_MINIMAP);
+            if (mn) {
+              $$(prefix + "_show_minimap").setValue(mn);
+            }
             $$(prefix + "_show_data_type").unblockEvent();
             $$(prefix + "_detach_quick_search").unblockEvent();
+            $$(prefix + "_show_minimap").unblockEvent();
           },
           onHide: function () {
             this.close();
@@ -2002,6 +2008,22 @@ export function QueryPage(prefix, selectedDb) {
       }
     });
   }
+
+  const setMinimap = () =>{
+    const editorId = $$(prefix + "_sql_editor");
+    editorId.getEditor(true).then((editor) => {
+      console.log('state.isMinimap',state.isMinimap);
+
+      editor.updateOptions({
+        // minimap: state.LAST_MINIMAP,
+        minimap: {
+          enabled: state.isMinimap,
+          // enabled: true
+        },
+      });
+    });
+  }
+
   const loadSchemaContent = (itemRootId, oid, panelId) => {
     searchOidSelected = oid;
     const typ = oid.split("_")[1];
@@ -2100,9 +2122,9 @@ export function QueryPage(prefix, selectedDb) {
       // onViewShow: function () {
       onViewShow: webix.once(function (id) {
         // onInit, onReady
-
         state.isDataType = webix.storage.local.get(LAST_DATATYPE);
         state.isSearchDetach = webix.storage.local.get(LAST_SEARCHTYPE);
+        state.isMinimap = webix.storage.local.get(LAST_MINIMAP);
 
         const cmbId = $$(prefix + "_source_combo");
         if (typeof selectedDb != "undefined") {
@@ -2122,6 +2144,8 @@ export function QueryPage(prefix, selectedDb) {
         initQueryEditor();
 
         setSearchType();
+
+        setMinimap();
 
       }),
       onDestruct: function () {

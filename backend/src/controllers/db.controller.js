@@ -38,10 +38,11 @@ class DbController {
     const { id, root, oid, t } = request.query;
     const userId = request.user.uid;
     const r = await DbService.getSchemaContentTree(id, root, oid, userId, t);
+console.log('r>>>>>>>>>>>>>>>>>>',r);
 
     let m = oid.split("_")[1];
     let _data = [];
-    if (m == "g" || m == "u") {
+    if (m == "g" || m == "u" || m == "y"|| m == "w") {
       if(Array.isArray(r)){
         const r2 = r[r.length - 1];
         if(r2.rows.length>0){

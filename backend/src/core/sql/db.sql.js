@@ -521,49 +521,42 @@ const dbTableContentByOid2 = (oid) => {
 
 const dbFuncTriggerContentByOid = (oid) => {
   let sql = `
-    SELECT
-    -- t.tgrelid::regclass
-        p.oid || '_w' as id
-        ,p.proname
-        , pt.tgname
-        , pg_get_triggerdef(pt.oid)
-        , pg_get_functiondef(pt.tgfoid)
-        , tgenabled
-    FROM  pg_trigger pt
-    join pg_proc p on p.oid = pt.tgfoid
-    JOIN  pg_user u ON u.usesysid = p.proowner
-    WHERE  tgrelid = 'stock.pipe'::regclass
-    -- and usename <> 'postgres' AND prorettype = 2279
-    -- and not tgisinternal
-
-
-    SELECT p.oid || '_w' as id, proname as value
-        -- .*
-        ,pg_get_triggerdef(pt.oid)
-        , pg_get_functiondef(pt.tgfoid)
-        , tgenabled
-    FROM  pg_proc p
-    JOIN  pg_user u ON u.usesysid = p.proowner
-    WHERE
-    usename <> 'postgres'
-    AND prorettype = 2279
-    and
-    pronamespace=4813594
-    order by proname
+      WITH trg AS (
+        SELECT
+        nspname,
+        proname,
+        pg_get_functiondef(p.oid) as def
+        FROM  pg_proc p
+        JOIN pg_namespace nsp on nsp.oid=p.pronamespace
+        WHERE p.oid=${oid}
+    )
+    SELECT CONCAT(
+    FORMAT(E'-- FUNCTION: %1$s.%2$s()\n\n-- DROP FUNCTION IF EXISTS %1$s.%2$s();\n\n',nspname,proname),
+    def) AS data
+    FROM trg
   `;
-  sql = `SELECT 'Not implement yet!'`; // under test trial
+  // sql = `SELECT '-- NOTICE: Not implement yet!' as data`; // under test trial
   return sql;
 }
+
 const dbViewContentByOid = (oid) => {
-  return `SELECT
-      CASE c.relkind
-      WHEN 'v'
-      THEN pg_catalog.pg_get_viewdef(c.oid, true)
-      ELSE null
-      END AS data
+  let sql = `WITH vw  AS (
+    SELECT
+        c.relname,
+        n.nspname,
+        CASE c.relkind WHEN 'v' THEN pg_catalog.pg_get_viewdef(c.oid, true) ELSE null END AS def
     FROM pg_catalog.pg_class c
-    WHERE c.oid=${oid}
+    JOIN pg_catalog.pg_namespace n ON (n.oid = c.relnamespace)
+    AND c.oid=${oid}
+    )
+    SELECT CONCAT(
+    FORMAT(E'-- View: %1$s.%2$s \n\n-- DROP VIEW %1$s.%2$s;\n\n', nspname, relname),
+    FORMAT(E'CREATE OR REPLACE VIEW %1$s.%2$s \n AS \n',nspname, relname),
+    def) AS data
+    FROM vw
   `;
+  // sql = `SELECT '-- NOTICE: Not implement yet!' as data`; // under test trial
+  return sql;
 }
 
 const dbFuncTableSearch = (search, type, view) => {

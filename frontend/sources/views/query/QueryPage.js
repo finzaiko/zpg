@@ -652,8 +652,20 @@ export function QueryPage(prefix, selectedDb) {
               return `<span class='webix_icon mdi mdi-script-text-outline ${
                 obj.open ? "z_tree_f_open" : ""
               }'></span>`;
+            if (suffix == "r")
+              return `<span class='webix_icon mdi mdi-script-text-play-outline ${
+                obj.open ? "z_tree_r_open" : ""
+              }'></span>`;
+            if (suffix == "v")
+              return `<span class='webix_icon mdi mdi-view-grid-outline ${
+                obj.open ? "z_tree_v_open" : ""
+              }'></span>`;
+            if (suffix == "y")
+                return `<span class='webix_icon mdi mdi-view-module-outline z_tree_y_open z_tree_y_open'></span>`;
             if (suffix == "g")
               return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
+            if (suffix == "w")
+              return `<span class='webix_icon mdi mdi-script-outline z_tree_w_open'></span>`;
             return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
           },
         },
@@ -1399,7 +1411,6 @@ export function QueryPage(prefix, selectedDb) {
               value: 0,
               on: {
                 onChange: function (newVal, oldVal) {
-                  console.log('newVal',newVal);
                   state.isMinimap = newVal;
                   setMinimap();
                   webix.storage.local.put(LAST_MINIMAP, newVal);
@@ -2028,7 +2039,7 @@ export function QueryPage(prefix, selectedDb) {
     searchOidSelected = oid;
     const typ = oid.split("_")[1];
 
-    if (typ == "g" || typ == "u") {
+    if (typ == "g" || typ == "u" || typ == "y" || typ == "w") {
       let profileId = $$(prefix + "_source_combo").getValue();
       let viewId = $$(prefix + "_sql_editor");
       webix.extend(viewId, webix.ProgressBar);

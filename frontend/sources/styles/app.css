@@ -490,10 +490,24 @@ div.webix_list_item:hover .hoverButton {
   color: #89c4ed !important;
 }
 
+.z_tree_r_open,
+.z_tree_w_open,
+.z_db_tree .webix_selected {
+  color: #109afc !important;
+}
+
 .z_tree_t_open,
 .z_tree_u_open,
 .z_db_tree .webix_selected {
   color: #82940b !important;
+  /* #834EC7 */
+  /* #B0D73D */
+}
+
+.z_tree_v_open,
+.z_tree_y_open,
+.z_db_tree .webix_selected {
+  color: #d3cf07 !important;
   /* #834EC7 */
   /* #B0D73D */
 }

@@ -167,7 +167,7 @@ function isInt(value) {
 }
 
 function openQueryTab(baseDbName) {
-  const newViewId = parseInt(stateBase.currentTab) + 1;
+  const newViewId = parseInt(stateBase.currentTabQuery) + 1;
   let str = stateQuery.prefix;
 
   let strLast = str.substring(str.lastIndexOf("_") + 1, str.length);

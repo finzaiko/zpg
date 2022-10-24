@@ -33,7 +33,8 @@ function newQueryTab() {
     return isNaN(value) ? !1 : ((x = parseFloat(value)), (0 | x) === x);
   }
 
-  const newViewId = parseInt(stateBase.currentTabQuery) + 1;
+  stateBase.currentTabQuery = parseInt(stateBase.currentTabQuery) +1;
+  const newViewId = parseInt(stateBase.currentTabQuery);
   let str = state.prefix;
 
   let strLast = str.substring(str.lastIndexOf("_") + 1, str.length);

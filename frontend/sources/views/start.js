@@ -43,9 +43,19 @@ export default {
 				<li>dashboard: show process activity</li>
 			</ul>
 		</section>
-		
+
 		<section>
 			<h4>Change log:</h4>
+			<p>
+				<h4>1.0.14-dev (24-10-2022)</h4>
+				<ul>
+					<li>add func triggers defenition</li>
+					<li>add views defenition</li>
+					<li>upd bookmark manager</li>
+					<li>show void func list</li>
+					<li>fix detach quick search</li>
+				</ul>
+			</p>
 			<p>
 				<h4>1.0.13-dev (26-09-2022)</h4>
 				<ul>

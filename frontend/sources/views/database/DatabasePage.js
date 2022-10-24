@@ -167,7 +167,8 @@ function isInt(value) {
 }
 
 function openQueryTab(baseDbName) {
-  const newViewId = parseInt(stateBase.currentTabQuery) + 1;
+  stateBase.currentTabQuery = parseInt(stateBase.currentTabQuery) +1;
+  const newViewId = parseInt(stateBase.currentTabQuery);
   let str = stateQuery.prefix;
 
   let strLast = str.substring(str.lastIndexOf("_") + 1, str.length);
@@ -187,7 +188,8 @@ function openQueryTab(baseDbName) {
   });
 
   $$("tabs").getTabbar().setValue(stateQuery.prefix);
-  stateBase.currentTab++;
+  setTimeout(() => $$(stateQuery.prefix + "_sql_editor").setValue( $$("database_sql_editor").getValue()), 600);
+  // stateBase.currentTab++;
 }
 
 function loadBranch(viewId, id, isContext) {

@@ -44,14 +44,6 @@ const toolbar = {
       },
     },
     {
-      view: "button",
-      type: "icon",
-      autowidth: true,
-      css: "zmdi_padding",
-      icon: "mdi mdi-sync",
-      click: function () {},
-    },
-    {
       view: "text",
       css: "search_suggest",
       id: prefix + "_database_search",
@@ -308,18 +300,31 @@ export default class DatabasePage extends JetView {
             {
               rows: [
                 {
-                  view: "text",
-                  placeholder: "filter..",
-                  id: prefix + "_db_tree_filter",
-                  css: "z_db_tree_filter",
-                  on: {
-                    onTimedKeyPress: function () {
-                      $$(prefix + "_db_tree").filter(
-                        "#value#",
-                        this.getValue()
-                      );
+                  cols: [
+                    {
+                      view: "text",
+                      placeholder: "filter..",
+                      id: prefix + "_db_tree_filter",
+                      css: "z_db_tree_filter",
+                      on: {
+                        onTimedKeyPress: function () {
+                          $$(prefix + "_db_tree").filter(
+                            "#value#",
+                            this.getValue()
+                          );
+                        },
+                      },
                     },
-                  },
+                    {
+                      view: "icon",
+                      toolbar: "Refresh current selected DB",
+                      autowidth: true,
+                      icon: "mdi mdi-reload",
+                      click: function () {
+                        loadDb($$(prefix + "_server").getValue());
+                      }
+                    }
+                  ]
                 },
                 {
                   view: "tree",

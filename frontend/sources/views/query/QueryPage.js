@@ -133,6 +133,11 @@ export function QueryPage(prefix, selectedDb) {
             } else {
               $$(prefix + "_run_btn").disable();
             }
+
+            const treeId = $$(prefix + "_db_tree_panel");
+            if (treeId.isVisible()) {
+              loadDb(true);
+            }
           },
         },
       },
@@ -602,15 +607,29 @@ export function QueryPage(prefix, selectedDb) {
     hidden: true,
     rows: [
       {
-        view:"text",
-        placeholder:"filter..",
-        id: prefix + "_db_tree_filter",
-        css: "z_db_tree_filter",
-        on: {
-          onTimedKeyPress: function () {
-            $$(prefix + "_db_tree").filter("#value#",this.getValue());
+        cols: [
+          {
+            view:"text",
+            placeholder:"filter..",
+            id: prefix + "_db_tree_filter",
+            css: "z_db_tree_filter",
+            on: {
+              onTimedKeyPress: function () {
+                $$(prefix + "_db_tree").filter("#value#",this.getValue());
+              }
+            }
+          },
+          {
+            view: "icon",
+            toolbar: "Refresh current selected DB",
+            autowidth: true,
+            icon: "mdi mdi-reload",
+            click: function () {
+              loadDb(true);
+            }
           }
-        }
+
+        ]
       },
       {
         view: "tree",

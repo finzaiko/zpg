@@ -1,4 +1,5 @@
 import { state as stateBase } from "../models/Base";
+import { copyToClipboard } from "./copy";
 
 export const pageSize = 10000;
 export const defaultDateFormat = "%d/%m/%Y";
@@ -182,14 +183,46 @@ export function showExpiredMsg(app, forceLogout) {
 
 export function setEditorFontSize(editorId) {
   editorId.getEditor(true).then((editor) => {
-      let edFontSize = "12";
-      if (stateBase.appProfile && Array.isArray(stateBase.appProfile)) {
-        edFontSize = stateBase.appProfile.find(
-          (o) => o.m_key == "editor_font_size"
-        ).m_val;
-      }
-      editor.updateOptions({
-        fontSize: edFontSize + "px",
-      });
+    let edFontSize = "12";
+    if (stateBase.appProfile && Array.isArray(stateBase.appProfile)) {
+      edFontSize = stateBase.appProfile.find(
+        (o) => o.m_key == "editor_font_size"
+      ).m_val;
+    }
+    editor.updateOptions({
+      fontSize: edFontSize + "px",
     });
+  });
+}
+
+export function copyComponent(callback) {
+  return {
+    cols: [
+      {
+        view: "button",
+        type: "icon",
+        icon: "mdi mdi-content-copy",
+        tooltip: "Copy to clipboard",
+        autowidth: true,
+        click: function () {
+          callback()
+
+          this.hide();
+          const ck = this.getParentView().getChildViews()[1];
+          ck.show();
+          setTimeout(() => {
+            this.show();
+            ck.hide();
+          }, 1500);
+        },
+      },
+      {
+        view: "button",
+        autowidth: true,
+        hidden: true,
+        label:
+          '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+      },
+    ],
+  };
 }

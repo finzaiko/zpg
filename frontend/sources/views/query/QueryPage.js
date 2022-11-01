@@ -1689,6 +1689,15 @@ export function QueryPage(prefix, selectedDb) {
                       const content = $$(prefix + "_console").getValue();
                       const val = content.split("--notice:--")[1];
                       if (typeof val != "undefined") {
+
+                        this.hide();
+                        const ck = $$(prefix + "_copy_result_clipboard_done");
+                        ck.show();
+                        setTimeout(() => {
+                          this.show();
+                          ck.hide();
+                        }, 1500);
+
                         copyToClipboard(val);
                       } else {
                         webix.message({
@@ -1697,6 +1706,14 @@ export function QueryPage(prefix, selectedDb) {
                         });
                       }
                     },
+                  },
+                  {
+                    view: "button",
+                    autowidth: true,
+                    hidden: true,
+                    id: prefix + "_copy_result_clipboard_done",
+                    label:
+                      '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
                   },
                   pagerRow(prefix + "_result_row_pager"),
                   { width: 10 },

@@ -118,13 +118,28 @@ const toolbar = {
       icon: "mdi mdi-content-copy",
       click: function () {
         if ($$("database_sql_editor").getValue() != "") {
+          this.hide();
+          const ck = $$(prefix + "_copy_content_done");
+          ck.show();
+          setTimeout(() => {
+            this.show();
+            ck.hide();
+          }, 1500);
+
           copyToClipboard(
             $$("database_sql_editor").getValue()
           );
         }
       },
     },
-
+    {
+      view: "button",
+      autowidth: true,
+      hidden: true,
+      id: prefix + "_copy_content_done",
+      label:
+        '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+    },
     {
       view: "button",
       type: "icon",

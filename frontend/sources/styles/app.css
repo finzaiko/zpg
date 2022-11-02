@@ -1085,3 +1085,10 @@ background-size: cover;
   }
 }
 
+.z_icon_color_primary .webix_icon{
+  color: #1CA1C1;
+}
+
+.z_icon_color_primary .webix_icon:hover{
+  color: #0a8dad;
+}

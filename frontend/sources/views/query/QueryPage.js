@@ -839,8 +839,25 @@ export function QueryPage(prefix, selectedDb) {
                 id: prefix + "_copy_clipboard",
                 tooltip: "Copy to clipboard",
                 click: function () {
+                  this.hide();
+                  const ck = $$(prefix + "_copy_clipboard_done");
+                  ck.show();
+                  setTimeout(() => {
+                    this.show();
+                    ck.hide();
+                  }, 1500);
+
                   copyToClipboard($$(prefix + "_history_content").getValue());
                 },
+              },
+              {
+                view: "button",
+                // autowidth: true,
+                width:55,
+                hidden: true,
+                id: prefix + "_copy_clipboard_done",
+                label:
+                  '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
               },
             ],
           },
@@ -1685,6 +1702,7 @@ export function QueryPage(prefix, selectedDb) {
                     autowidth: true,
                     id: prefix + "_copy_result_clipboard",
                     tooltip: "Copy result to clipboard",
+                    css: "z_icon_color_primary",
                     click: function () {
                       const content = $$(prefix + "_console").getValue();
                       const val = content.split("--notice:--")[1];

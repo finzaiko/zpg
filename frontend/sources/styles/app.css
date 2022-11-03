@@ -474,6 +474,26 @@ div.webix_list_item:hover .hoverButton {
   animation-timing-function: linear;
 }
 
+@keyframes spin_mdi_right {
+  from {
+    transform: rotate(-360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.spin_mdi_right {
+  animation-name: spin_mdi_right;
+  animation-duration: 3000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.z_mdi_splin_color {
+  color: orange !important;
+}
+
 .z_tree_d_open,
 .z_db_tree .webix_selected {
   color: #ac9230 !important;

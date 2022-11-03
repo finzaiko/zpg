@@ -643,6 +643,7 @@ export function QueryPage(prefix, selectedDb) {
             view: "icon",
             toolbar: "Refresh current selected DB",
             autowidth: true,
+            id: prefix + "_db_tree_filter_reload",
             icon: "mdi mdi-reload",
             click: function () {
               loadDb(true);
@@ -749,11 +750,13 @@ export function QueryPage(prefix, selectedDb) {
             }
           },
           onBeforeContextMenu: function (id, e, node) {
-            if (id.split("_")[1] == "u") {
-              return true;
-            } else {
+            // Right click not handle in this node: show functions trigger, views
+            const nodeType = id.split("_")[1];
+            if (nodeType == "g" || nodeType == "r" || nodeType == "y") {
               // return false;
               return webix.html.preventEvent(e);
+            } else {
+              return true;
             }
           },
           onAfterContextMenu: function (id, e, node) {
@@ -779,18 +782,33 @@ export function QueryPage(prefix, selectedDb) {
             const _this = this;
             let ctxMenu = this.$scope.ui({
               view: "contextmenu",
-              data: [
-                { id: "view_data_all", value: "View Data All Rows" },
-                { id: "view_data_last100", value: "View Data Last 100" },
-              ],
+              data: [],
               on: {
+                onBeforeShow: function () {
+                  this.clearAll();
+                  let arr = [];
+                  const tre = $$(prefix + "_db_tree");
+                  const nodeType = tre.getSelectedId().split("_")[1];
+                  // Refresh only for have childs
+                  if (nodeType == "s" || nodeType == "t" || nodeType == "f" || nodeType == "r" || nodeType == "v") {
+                    arr.push({ id: "refresh", value: "Refresh" });
+                  }else if (tre.getSelectedId().split("_")[1] == "u") {
+                    // arr.push({ $template: "Separator" });
+                    arr.push({ id: "view_data_all", value: "View Data All Rows" });
+                    arr.push({ id: "view_data_last100", value: "View Data Last 100" });
+                  }
+                  this.parse(arr);
+                },
                 onItemClick: function (id) {
                   let profileId = $$(prefix + "_source_combo").getValue();
-                  const tableOid = _this.getSelectedId().split("_")[0];
+                  const nodeId = _this.getSelectedId();
+                  const tableOid = nodeId.split("_")[0];
                   if (id == "view_data_all") {
                     runViewData(profileId, tableOid);
                   } else if (id == "view_data_last100") {
                     runViewData(profileId, tableOid, 1);
+                  } else if (id=="refresh"){
+                    loadBranch($$(prefix + "_db_tree"), nodeId, true);
                   }
                 },
               },
@@ -1571,6 +1589,12 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const loadBranch = (viewId, id, isContext) => {
+    let reloadIconId = $$(prefix + "_db_tree_filter_reload");
+    console.log('reloadIconId',reloadIconId);
+
+    reloadIconId.config.icon = "mdi mdi-refresh-circle spin_mdi_right z_mdi_splin_color";
+    reloadIconId.refresh();
+
     let rootroot;
     if (typeof isContext == "undefined") {
       let rootId = id;
@@ -1599,6 +1623,8 @@ export function QueryPage(prefix, selectedDb) {
               item.open = false;
               tree.refresh(id);
             }
+            reloadIconId.config.icon = "mdi mdi-reload";
+            reloadIconId.refresh();
           }, 600);
           return (data = data.json());
         })

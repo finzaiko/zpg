@@ -92,10 +92,10 @@ class CompareRepository {
       dbCompare.run(sqlDelete);
       dbCompare.run(sqlDelete2);
 
-      
+
       dbCompare.serialize(() => {
-        let sql = `INSERT INTO ${tableName} (oid, z_schema, z_name, z_return, z_type, z_params_in, z_params_out, z_content) 
-          VALUES (?, ?, ? ,?, ?, ?, ? ,?)`;
+        let sql = `INSERT INTO ${tableName} (oid, z_schema, z_name, z_return, z_type, z_params_in, z_params_out, z_content, z_params_in_type)
+          VALUES (?, ?, ? ,?, ?, ?, ? ,?, ?)`;
         // console.log("sql", sql);
 
         dbCompare.run("begin transaction");

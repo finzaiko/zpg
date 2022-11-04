@@ -11,18 +11,19 @@ const schemaList = `
 
 const schemaInfo = (schema, oidArr, filter, aliasId) => {
   let sql = "";
-  
+
   let sqlFunc = `
-      SELECT 
-      prc.oid AS id, 
-      isr.specific_schema AS z_schema, 
-      prc.proname AS z_name, 
+      SELECT
+      prc.oid AS id,
+      isr.specific_schema AS z_schema,
+      prc.proname AS z_name,
       isr.type_udt_name AS z_return,
       'f'::text AS z_type,
       -- 1::int AS z_tasktype,
       COUNT(*) FILTER(WHERE isp.parameter_mode='IN')::int AS z_params_in,
       COUNT(*) FILTER(WHERE isp.parameter_mode='OUT')::int AS z_params_out,
-      LENGTH(regexp_replace(pg_get_functiondef(prc.oid), E'[\n\r]+', '', 'g')) AS z_content
+      LENGTH(regexp_replace(pg_get_functiondef(prc.oid), E'[\n\r]+', '', 'g')) AS z_content,
+      STRING_AGG(isp.data_type, ',' order by isp.dtd_identifier) FILTER(WHERE isp.parameter_mode='IN') as params_in_type
     FROM information_schema.routines isr
     INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
     INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
@@ -41,7 +42,7 @@ const schemaInfo = (schema, oidArr, filter, aliasId) => {
   let sqlTable = `
   SELECT
     COALESCE(
-      (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_schema) || '.' || quote_ident(table_name)) 
+      (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_schema) || '.' || quote_ident(table_name))
       ,(SELECT oid FROM pg_class WHERE relname = quote_ident(table_name) AND relkind = 'r' LIMIT 1)
     )AS id,
     table_schema AS z_schema,
@@ -52,7 +53,7 @@ const schemaInfo = (schema, oidArr, filter, aliasId) => {
     null::int AS z_params_out,
     -- 2::int AS z_tasktype,
     COUNT(*) FILTER (WHERE column_name IS NOT NULL)::int AS z_content
-  FROM information_schema.columns 
+  FROM information_schema.columns
   WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
   `;
 
@@ -85,10 +86,10 @@ const schemaInfo = (schema, oidArr, filter, aliasId) => {
 const diffDetail = (schema, oid, funcName, retType, paramsIn) => {
   let sql = `
   WITH t AS (
-  SELECT 
-      prc.oid AS id, 
-      isr.specific_schema, 
-      prc.proname, 
+  SELECT
+      prc.oid AS id,
+      isr.specific_schema,
+      prc.proname,
       isr.type_udt_name,
       COUNT(*) FILTER(WHERE isp.parameter_mode='IN') AS params_in,
       COUNT(*) FILTER(WHERE isp.parameter_mode='OUT') AS params_out,
@@ -97,19 +98,20 @@ const diffDetail = (schema, oid, funcName, retType, paramsIn) => {
       +COUNT(*) FILTER(WHERE isp.parameter_mode='OUT')
       +COUNT(*) FILTER(WHERE isp.parameter_mode='INOUT')
       ) as params_length,
-      LENGTH(regexp_replace(pg_get_functiondef(prc.oid), E'[\n\r]+', '', 'g')) AS sql_length
+      LENGTH(regexp_replace(pg_get_functiondef(prc.oid), E'[\n\r]+', '', 'g')) AS sql_length,
+      STRING_AGG(isp.data_type, ',' order by isp.dtd_identifier) FILTER(WHERE isp.parameter_mode='IN') as params_in_type
       FROM information_schema.routines isr
       INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
       INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
       WHERE isr.specific_schema NOT IN ('pg_catalog', 'information_schema')
-    GROUP BY 1, 2, 3, 4) 
+    GROUP BY 1, 2, 3, 4)
     -- SELECT params_in, params_out, params_inout, params_length, sql_length FROM t
     SELECT * FROM t
 `;
   if (oid) {
     sql += ` WHERE id=${oid}`;
   } else {
-    sql += ` WHERE 
+    sql += ` WHERE
               specific_schema='${schema}' AND
               proname='${funcName}' AND
               type_udt_name = '${retType}' AND
@@ -121,7 +123,7 @@ const diffDetail = (schema, oid, funcName, retType, paramsIn) => {
 };
 
 const contentDiff = (schemaTableName, oid, type) => {
-  
+
   let sql = `
   WITH attrdef AS (
     SELECT
@@ -229,7 +231,7 @@ FROM tabdef
     `;
   }
   // console.log('sql>>>>>>>>>>>>>> ',sql);
-  
+
   if(oid==0){
     sql = "SELECT '' AS value";
   }
@@ -238,24 +240,25 @@ FROM tabdef
 
 const compareDefenition = () => {
   let sql = `
-    SELECT 
-        ROW_NUMBER () OVER ( 
-              ORDER BY z_name 
+    SELECT
+        ROW_NUMBER () OVER (
+              ORDER BY z_name
       ) as id,
-      *, 
+      *,
       CASE WHEN val_a!=val_b  OR val_a is null OR val_b is null THEN true ELSE false END as diff,
-      CASE 
-        WHEN val_a!=val_b THEN 'dif' 
+      CASE
+        WHEN val_a!=val_b THEN 'dif'
         WHEN val_a is null THEN 'src'
-        WHEN val_b is null THEN 'trg' 
+        WHEN val_b is null THEN 'trg'
         ELSE null END as err
       FROM
       (
-        SELECT 
+        SELECT
           a.z_schema,
           a.z_name,
           a.z_return,
           a.z_params_in,
+          a.z_params_in_type,
           a.z_params_out,
           a.z_type,
           1 as z_tasktype,
@@ -263,13 +266,14 @@ const compareDefenition = () => {
           a.z_content val_a,
           COALESCE(b.oid,0) id_b,
           b.z_content val_b
-        FROM tbl_a a LEFT JOIN tbl_b b ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in 
-        UNION 
-        SELECT 
+        FROM tbl_a a LEFT JOIN tbl_b b ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in AND a.z_params_in_type=b.z_params_in_type
+        UNION
+        SELECT
           b.z_schema,
           b.z_name,
           b.z_return,
           b.z_params_in,
+          b.z_params_in_type,
           b.z_params_out,
           b.z_type,
           1 as z_tasktype,
@@ -277,12 +281,12 @@ const compareDefenition = () => {
           a.z_content val_a,
           COALESCE(b.oid,0) id_b,
           b.z_content val_b
-        FROM tbl_b b LEFT JOIN tbl_a a ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in 
+        FROM tbl_b b LEFT JOIN tbl_a a ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in AND a.z_params_in_type=b.z_params_in_type
         WHERE a.z_name IS NULL
       ) t ORDER BY z_schema, z_name
     `;
     // console.log('sql##############',sql);
-    
+
     return sql;
 }
 const countRowTable = (exludeShema, schema) => {
@@ -291,7 +295,7 @@ const countRowTable = (exludeShema, schema) => {
   }
   // oid, z_schema, z_name, z_return, z_type, z_params_in, z_params_out, z_content
   let sql = `
-  create or replace function 
+  create or replace function
     pg_temp.count_rows(schema text, tablename text) returns integer
     as
     $body$
@@ -306,7 +310,7 @@ const countRowTable = (exludeShema, schema) => {
     $body$
     language plpgsql;
 
-    select 
+    select
       null::text as oid,
       table_schema as z_schema,
       table_name as z_name,
@@ -316,8 +320,8 @@ const countRowTable = (exludeShema, schema) => {
       null::text as z_params_out,
       pg_temp.count_rows(table_schema, table_name) as z_content
     from information_schema.tables
-    where 
-      table_schema not in ('pg_catalog', 'information_schema') 
+    where
+      table_schema not in ('pg_catalog', 'information_schema')
       and table_type='BASE TABLE'
   `;
 
@@ -328,14 +332,14 @@ const countRowTable = (exludeShema, schema) => {
   sql += ` and table_schema like any('{${exludeShema}}'::text[]) is not true order by 1,2`;
 
   // console.log('sql>>>>>>>>>>>',sql);
-  
+
   return sql;
 }
 
 const dropSqlDefenition = (type, oid) => {
   let sql = `SELECT '' as value`;
   let sqlFDrop = `
-    select 
+    select
       CONCAT('DROP FUNCTION IF EXISTS ',isr.specific_schema|| '.' ||  routine_name,'(',string_agg(isp.data_type::text,','),');')
     as value
     FROM information_schema.routines isr
@@ -349,12 +353,12 @@ const dropSqlDefenition = (type, oid) => {
     select value from (
       SELECT
           CASE WHEN table_schema<>'public' THEN
-          (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_schema) || '.' || quote_ident(table_name)) 
+          (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_schema) || '.' || quote_ident(table_name))
           ELSE
           (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_name))
           END AS oid,
           concat('DROP TABLE IF EXIST ', table_schema,'.', table_name) as value
-          FROM information_schema.columns 
+          FROM information_schema.columns
           WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
       GROUP BY 1,2
     ) t where oid=${oid}
@@ -366,7 +370,7 @@ const dropSqlDefenition = (type, oid) => {
       sql= sqlFDrop;
     }
     // console.log('sql+++++++++',sql);
-    
+
     return sql;
 }
 

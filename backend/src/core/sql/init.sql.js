@@ -4,8 +4,8 @@ CREATE TABLE user (
     fullname text,
     email text,
     username text,
-    password text, 
-    salt text, 
+    password text,
+    salt text,
     user_level integer DEFAULT 3,
     access_group integer,
     menu text,
@@ -31,8 +31,8 @@ const dbConnTable = `
 CREATE TABLE db_conn (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     conn_name text,
-    host text, 
-    port text, 
+    host text,
+    port text,
     database text,
     user text,
     password text,
@@ -48,8 +48,8 @@ const profileTable = `
 CREATE TABLE profile (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     conn_name text,
-    host text, 
-    port text, 
+    host text,
+    port text,
     database text,
     user text,
     password text,
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS task (
     task_name text NOT NULL,
     source_db_id integer, -- ref to profile
     target_db_id integer,
-    note text, 
+    note text,
     user_id integer,
     created_at timestamp DATE DEFAULT (datetime('now','localtime')),
     modified_at TIMESTAMP,
@@ -90,10 +90,10 @@ CREATE TABLE task_item (
     return_type text,
     type integer,
     sql_content text,
-    oid integer, 
+    oid integer,
     FOREIGN KEY (task_id)
-        REFERENCES task (id) 
-        ON DELETE CASCADE 
+        REFERENCES task (id)
+        ON DELETE CASCADE
         ON UPDATE NO ACTION
 );
 `;
@@ -104,18 +104,19 @@ const compareTable = (tableName) => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         oid text,
         z_schema text,
-        z_name text, 
-        z_return text, 
+        z_name text,
+        z_return text,
         z_type text,
         z_params_in integer,
         z_params_out integer,
-        z_content integer
+        z_content integer,
+        z_params_in_type text
     );
     `;
 };
 
 const defaultSetting = `
-    INSERT INTO setting(m_key, m_val, d_type, note, u_type) VALUES 
+    INSERT INTO setting(m_key, m_val, d_type, note, u_type) VALUES
     ('menu', '{}', 'text', 'Menu config', '0'),
     ('allow_register', 'true', 'boolean', 'Enable self registration', '1'),
     ('theme', 'default', 'text', 'Theme', '3'),
@@ -123,7 +124,7 @@ const defaultSetting = `
 `;
 
 const defaultUser = `
-    INSERT INTO user (fullname, email, username, password, salt, user_level) VALUES 
+    INSERT INTO user (fullname, email, username, password, salt, user_level) VALUES
     ('Admin', 'admin@zpg.com', 'admin', '$2b$10$AOWgReYaPvcDqaOw1h6Gfe6IHeS0rCmSQ7ctGAfzlaWnazf35AiXC', '$2b$10$AOWgReYaPvcDqaOw1h6Gfe', 1);
 `;
 

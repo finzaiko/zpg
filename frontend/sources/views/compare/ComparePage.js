@@ -569,6 +569,8 @@ function compare() {
 
 function showCompareDetail(_this, sel) {
   const item = _this.getItem(sel);
+  console.log('item',item);
+
   const srcId = $$("diffsourcecombo").getValue();
   const tarId = $$("difftargetcombo").getValue();
   const diffPanelId = $$("diff_detail_panel");

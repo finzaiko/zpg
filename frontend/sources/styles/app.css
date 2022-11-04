@@ -1126,3 +1126,7 @@ background-size: cover;
 .key { color: red; }
 
 
+.z_app_sidebar .webix_template:hover {
+  cursor: pointer;
+  color: #1CA1C1;
+}

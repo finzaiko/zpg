@@ -1,5 +1,5 @@
 import { JetView, plugins } from "webix-jet";
-import { API_URL } from "../config/setting";
+import { API_URL, LAST_SIDEBAR } from "../config/setting";
 import { showError } from "../helpers/ui";
 import { menuData, state } from "../models/Base";
 import { routeName, routes } from "./routes";
@@ -27,17 +27,19 @@ export default class MainView extends JetView {
       template: `<span class='z_link_btn app_name_link'>${this.app.config.name}</span>`,
       css: "webix_header app_header",
       onClick: {
-        "app_name_link": function (e, id){
-          webix.confirm({
-            title:"Confirm Exit",
-            ok:"Yes", cancel:"No",
-            text:"Are you sure to exit current working editor ?"
-          })
-          .then(function(){
-            _this.show("/index");
-          })
-        }
-      }
+        app_name_link: function (e, id) {
+          webix
+            .confirm({
+              title: "Confirm Exit",
+              ok: "Yes",
+              cancel: "No",
+              text: "Are you sure to exit current working editor ?",
+            })
+            .then(function () {
+              _this.show("/index");
+            });
+        },
+      },
     };
 
     const menu = {
@@ -91,6 +93,11 @@ export default class MainView extends JetView {
                   css: "app_button",
                   click: function () {
                     $$("app:sidebar").toggle();
+                    if ($$("app:sidebar").config.collapsed) {
+                      webix.storage.local.put(LAST_SIDEBAR, "1");
+                    } else {
+                      webix.storage.local.put(LAST_SIDEBAR, "0");
+                    }
                   },
                 },
                 header,
@@ -110,28 +117,16 @@ export default class MainView extends JetView {
             {
               view: "sidebar",
               id: "app:sidebar",
+              css: "z_app_sidebar",
               data: menuData,
               width: 180,
+              collapsed: true,
               on: {
-                // onAfterSelect: function (id) {
+                onAfterSelect: function (id) {
+                  this.$scope.menuClick(this.$scope, id);
+                },
                 onItemClick: function (id, e, node) {
-                  const item = this.getItem(id);
-                  state.viewScope = this.$scope;
-                  if (!$$(item.id)) {
-                    const view = routes.find((o) => o.id === item.id);
-                    this.$scope.addTab({
-                      header: item.value,
-                      css: "z_tabview_item",
-                      id: item.id,
-                      close: true,
-                      width: 150,
-                      body: view,
-                    });
-                    $$("tabs").getTabbar().setValue(item.id);
-                  } else {
-                    $$("tabs").getTabbar().setValue(item.id);
-                  }
-                  // webix.message("Selected: "+this.getItem(id).value)
+                  this.$scope.menuClick(this.$scope, id);
                 },
               },
             },
@@ -202,6 +197,31 @@ export default class MainView extends JetView {
   }
 
   ready() {
-    
+    const menuState = webix.storage.local.get(LAST_SIDEBAR);
+    const st = $$("app:sidebar");
+    if (menuState == "1") {
+      st.collapse();
+    } else {
+      st.expand();
+    }
+  }
+
+  menuClick(_scope, id) {
+    const item = $$("app:sidebar").getItem(id);
+    state.viewScope = _scope;
+    if (!$$(item.id)) {
+      const view = routes.find((o) => o.id === item.id);
+      _scope.addTab({
+        header: item.value,
+        css: "z_tabview_item",
+        id: item.id,
+        close: true,
+        width: 150,
+        body: view,
+      });
+      $$("tabs").getTabbar().setValue(item.id);
+    } else {
+      $$("tabs").getTabbar().setValue(item.id);
+    }
   }
 }

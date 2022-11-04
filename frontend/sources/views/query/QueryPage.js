@@ -29,22 +29,28 @@ function truncateString(str, n) {
 
 function syntaxHighlight(json) {
   // https://stackoverflow.com/questions/4810841/pretty-print-json-using-javascript/7220510#7220510
-  json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-      var cls = 'number';
+  json = json
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    function (match) {
+      var cls = "number";
       if (/^"/.test(match)) {
-          if (/:$/.test(match)) {
-              cls = 'key';
-          } else {
-              cls = 'string';
-          }
+        if (/:$/.test(match)) {
+          cls = "key";
+        } else {
+          cls = "string";
+        }
       } else if (/true|false/.test(match)) {
-          cls = 'boolean';
+        cls = "boolean";
       } else if (/null/.test(match)) {
-          cls = 'null';
+        cls = "null";
       }
-      return '<span class="' + cls + '">' + match + '</span>';
-  });
+      return '<span class="' + cls + '">' + match + "</span>";
+    }
+  );
 }
 
 function newQueryTab() {
@@ -53,7 +59,7 @@ function newQueryTab() {
     return isNaN(value) ? !1 : ((x = parseFloat(value)), (0 | x) === x);
   }
 
-  stateBase.currentTabQuery = parseInt(stateBase.currentTabQuery) +1;
+  stateBase.currentTabQuery = parseInt(stateBase.currentTabQuery) + 1;
   const newViewId = parseInt(stateBase.currentTabQuery);
   let str = state.prefix;
 
@@ -121,7 +127,7 @@ export function QueryPage(prefix, selectedDb) {
             this.config.tooltip = { template: "Show database content" };
             this.refresh();
             loadDb(false);
-            $$(prefix+"_viewdata_btn").disable();
+            $$(prefix + "_viewdata_btn").disable();
           } else {
             treeId.show();
             this.config.icon = "mdi mdi-backburger";
@@ -234,13 +240,16 @@ export function QueryPage(prefix, selectedDb) {
           let tableOid = $$(prefix + "_db_tree")
             .getSelectedId()
             .split("_")[0];
-            if(!tableOid){
-              tableOid = searchOidSelected.split("_")[0];
-            } else{
-              webix.message({text: "Selected table view not defined", type: "error"});
-              return false;
-            }
-            runViewData(profileId, tableOid);
+          if (!tableOid) {
+            tableOid = searchOidSelected.split("_")[0];
+          } else {
+            webix.message({
+              text: "Selected table view not defined",
+              type: "error",
+            });
+            return false;
+          }
+          runViewData(profileId, tableOid);
         },
       },
       {
@@ -325,8 +334,8 @@ export function QueryPage(prefix, selectedDb) {
                 webix
                   .ajax()
                   .headers(defaultHeader())
-                  .post(urlProfile + "/content", data, (r)=>{
-                    webix.message({text: "Bookmark added.", type:"success"});
+                  .post(urlProfile + "/content", data, (r) => {
+                    webix.message({ text: "Bookmark added.", type: "success" });
                   });
               } else if (id == prefix + "_manage_bookmark") {
                 openBookmarkManager();
@@ -629,15 +638,15 @@ export function QueryPage(prefix, selectedDb) {
       {
         cols: [
           {
-            view:"text",
-            placeholder:"filter..",
+            view: "text",
+            placeholder: "filter..",
             id: prefix + "_db_tree_filter",
             css: "z_db_tree_filter",
             on: {
               onTimedKeyPress: function () {
-                $$(prefix + "_db_tree").filter("#value#",this.getValue());
-              }
-            }
+                $$(prefix + "_db_tree").filter("#value#", this.getValue());
+              },
+            },
           },
           {
             view: "icon",
@@ -647,10 +656,9 @@ export function QueryPage(prefix, selectedDb) {
             icon: "mdi mdi-reload",
             click: function () {
               loadDb(true);
-            }
-          }
-
-        ]
+            },
+          },
+        ],
       },
       {
         view: "tree",
@@ -702,7 +710,7 @@ export function QueryPage(prefix, selectedDb) {
                 obj.open ? "z_tree_v_open" : ""
               }'></span>`;
             if (suffix == "y")
-                return `<span class='webix_icon mdi mdi-view-module-outline z_tree_y_open z_tree_y_open'></span>`;
+              return `<span class='webix_icon mdi mdi-view-module-outline z_tree_y_open z_tree_y_open'></span>`;
             if (suffix == "g")
               return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
             if (suffix == "w")
@@ -710,9 +718,9 @@ export function QueryPage(prefix, selectedDb) {
             return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
           },
         },
-        filterMode:{
-          showSubItems:false,
-          level:1
+        filterMode: {
+          showSubItems: false,
+          level: 1,
         },
         // template:"{common.icon()}&nbsp;#value#",
         template: "{common.icon()} {common.my_folder()} <span>#value#</span>",
@@ -740,7 +748,6 @@ export function QueryPage(prefix, selectedDb) {
             } else {
               $$(prefix + "_viewdata_btn").disable();
             }
-
           },
           onItemDblClick: function (id) {
             if (this.isBranchOpen(id)) {
@@ -790,12 +797,24 @@ export function QueryPage(prefix, selectedDb) {
                   const tre = $$(prefix + "_db_tree");
                   const nodeType = tre.getSelectedId().split("_")[1];
                   // Refresh only for have childs
-                  if (nodeType == "s" || nodeType == "t" || nodeType == "f" || nodeType == "r" || nodeType == "v") {
+                  if (
+                    nodeType == "s" ||
+                    nodeType == "t" ||
+                    nodeType == "f" ||
+                    nodeType == "r" ||
+                    nodeType == "v"
+                  ) {
                     arr.push({ id: "refresh", value: "Refresh" });
-                  }else if (tre.getSelectedId().split("_")[1] == "u") {
+                  } else if (tre.getSelectedId().split("_")[1] == "u") {
                     // arr.push({ $template: "Separator" });
-                    arr.push({ id: "view_data_all", value: "View Data All Rows" });
-                    arr.push({ id: "view_data_last100", value: "View Data Last 100" });
+                    arr.push({
+                      id: "view_data_all",
+                      value: "View Data All Rows",
+                    });
+                    arr.push({
+                      id: "view_data_last100",
+                      value: "View Data Last 100",
+                    });
                   }
                   this.parse(arr);
                 },
@@ -807,7 +826,7 @@ export function QueryPage(prefix, selectedDb) {
                     runViewData(profileId, tableOid);
                   } else if (id == "view_data_last100") {
                     runViewData(profileId, tableOid, 1);
-                  } else if (id=="refresh"){
+                  } else if (id == "refresh") {
                     loadBranch($$(prefix + "_db_tree"), nodeId, true);
                   }
                 },
@@ -816,8 +835,8 @@ export function QueryPage(prefix, selectedDb) {
             ctxMenu.attachTo(this);
           }),
         },
-      }
-    ]
+      },
+    ],
   };
 
   let QueryHistoryPreview = {
@@ -891,7 +910,7 @@ export function QueryPage(prefix, selectedDb) {
               {
                 view: "button",
                 // autowidth: true,
-                width:55,
+                width: 55,
                 hidden: true,
                 id: prefix + "_copy_clipboard_done",
                 label:
@@ -1137,12 +1156,19 @@ export function QueryPage(prefix, selectedDb) {
           cols: [
             {
               rows: [
-                {view:"text", placeholder: "filter..", id: prefix + "_bm_list_filter", css: "z_db_tree_filter",
-                on: {
-                  onTimedKeyPress: function () {
-                    $$(prefix + "_bm_list").filter("#value#",this.getValue());
-                  }
-                }
+                {
+                  view: "text",
+                  placeholder: "filter..",
+                  id: prefix + "_bm_list_filter",
+                  css: "z_db_tree_filter",
+                  on: {
+                    onTimedKeyPress: function () {
+                      $$(prefix + "_bm_list").filter(
+                        "#value#",
+                        this.getValue()
+                      );
+                    },
+                  },
                 },
                 {
                   view: "list",
@@ -1168,10 +1194,10 @@ export function QueryPage(prefix, selectedDb) {
                       let editorId = $$(prefix + "_sql_editor");
                       editorId.setValue(sel.content);
                       $$(prefix + "_win_bookmark_manage").destructor();
-                    }
+                    },
                   },
                 },
-              ]
+              ],
             },
 
             {
@@ -1571,7 +1597,9 @@ export function QueryPage(prefix, selectedDb) {
             body: {
               view: "template",
               css: "z_query_detail_cell",
-              template: `<pre style='height:100%;overflow: auto;'>${syntaxHighlight(content)}</pre>`,
+              template: `<pre style='height:100%;overflow: auto;'>${syntaxHighlight(
+                content
+              )}</pre>`,
             },
           })
           .show();
@@ -1584,15 +1612,23 @@ export function QueryPage(prefix, selectedDb) {
     const treeId = $$(prefix + "_db_tree");
     treeId.clearAll();
     if (isShow) {
-      treeId.load(`${urlDb}?id=${srcId}&t=1`);
+      let reloadIconId = $$(prefix + "_db_tree_filter_reload");
+      reloadIconId.config.icon =
+        "mdi mdi-refresh-circle spin_mdi_right z_mdi_splin_color";
+      reloadIconId.refresh();
+      treeId.load(`${urlDb}?id=${srcId}&t=1`).then((_) => {
+        setTimeout(() => {
+          reloadIconId.config.icon = "mdi mdi-reload";
+          reloadIconId.refresh();
+        }, 600);
+      });
     }
   };
 
   const loadBranch = (viewId, id, isContext) => {
     let reloadIconId = $$(prefix + "_db_tree_filter_reload");
-    console.log('reloadIconId',reloadIconId);
-
-    reloadIconId.config.icon = "mdi mdi-refresh-circle spin_mdi_right z_mdi_splin_color";
+    reloadIconId.config.icon =
+      "mdi mdi-refresh-circle spin_mdi_right z_mdi_splin_color";
     reloadIconId.refresh();
 
     let rootroot;
@@ -1758,7 +1794,6 @@ export function QueryPage(prefix, selectedDb) {
                       const content = $$(prefix + "_console").getValue();
                       const val = content.split("--notice:--")[1];
                       if (typeof val != "undefined") {
-
                         this.hide();
                         const ck = $$(prefix + "_copy_result_clipboard_done");
                         ck.show();
@@ -2124,12 +2159,12 @@ export function QueryPage(prefix, selectedDb) {
           .select();
       }
     });
-  }
+  };
 
-  const setMinimap = () =>{
+  const setMinimap = () => {
     const editorId = $$(prefix + "_sql_editor");
     editorId.getEditor(true).then((editor) => {
-      console.log('state.isMinimap',state.isMinimap);
+      console.log("state.isMinimap", state.isMinimap);
 
       editor.updateOptions({
         // minimap: state.LAST_MINIMAP,
@@ -2139,7 +2174,7 @@ export function QueryPage(prefix, selectedDb) {
         },
       });
     });
-  }
+  };
 
   const loadSchemaContent = (itemRootId, oid, panelId) => {
     searchOidSelected = oid;
@@ -2160,18 +2195,17 @@ export function QueryPage(prefix, selectedDb) {
         .then(function (data) {
           viewId.hideProgress();
           viewId.setValue(data.json().data);
-          if(panelId){
+          if (panelId) {
             $$(prefix + "_search_detach_win").close();
             panelId.hideOverlay();
           }
         });
-
-      }
-      if(typ=="u"){
-        $$(prefix+"_viewdata_btn").enable();
-      }else{
-        $$(prefix+"_viewdata_btn").disable();
-      }
+    }
+    if (typ == "u") {
+      $$(prefix + "_viewdata_btn").enable();
+    } else {
+      $$(prefix + "_viewdata_btn").disable();
+    }
   };
 
   let QueryPage = {
@@ -2263,7 +2297,6 @@ export function QueryPage(prefix, selectedDb) {
         setSearchType();
 
         setMinimap();
-
       }),
       onDestruct: function () {
         settingMore = {};

@@ -245,9 +245,9 @@ const compareDefenition = () => {
               ORDER BY z_name
       ) as id,
       *,
-      CASE WHEN val_a!=val_b  OR val_a is null OR val_b is null THEN true ELSE false END as diff,
+      CASE WHEN val_a!=val_b OR z_params_in_type_a!=z_params_in_type_b OR val_a is null OR val_b is null THEN true ELSE false END as diff,
       CASE
-        WHEN val_a!=val_b THEN 'dif'
+        WHEN val_a!=val_b OR z_params_in_type_a!=z_params_in_type_b THEN 'dif'
         WHEN val_a is null THEN 'src'
         WHEN val_b is null THEN 'trg'
         ELSE null END as err
@@ -258,7 +258,8 @@ const compareDefenition = () => {
           a.z_name,
           a.z_return,
           a.z_params_in,
-          a.z_params_in_type,
+          a.z_params_in_type as z_params_in_type_a,
+		      b.z_params_in_type as z_params_in_type_b,
           a.z_params_out,
           a.z_type,
           1 as z_tasktype,
@@ -266,14 +267,15 @@ const compareDefenition = () => {
           a.z_content val_a,
           COALESCE(b.oid,0) id_b,
           b.z_content val_b
-        FROM tbl_a a LEFT JOIN tbl_b b ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in AND a.z_params_in_type=b.z_params_in_type
+        FROM tbl_a a LEFT JOIN tbl_b b ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in
         UNION
         SELECT
           b.z_schema,
           b.z_name,
           b.z_return,
           b.z_params_in,
-          b.z_params_in_type,
+          a.z_params_in_type as z_params_in_type_a,
+		      b.z_params_in_type as z_params_in_type_b,
           b.z_params_out,
           b.z_type,
           1 as z_tasktype,
@@ -281,7 +283,7 @@ const compareDefenition = () => {
           a.z_content val_a,
           COALESCE(b.oid,0) id_b,
           b.z_content val_b
-        FROM tbl_b b LEFT JOIN tbl_a a ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in AND a.z_params_in_type=b.z_params_in_type
+        FROM tbl_b b LEFT JOIN tbl_a a ON a.z_name=b.z_name AND a.z_schema=b.z_schema AND a.z_params_in=b.z_params_in
         WHERE a.z_name IS NULL
       ) t ORDER BY z_schema, z_name
     `;

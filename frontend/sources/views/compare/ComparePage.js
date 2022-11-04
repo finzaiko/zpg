@@ -49,7 +49,7 @@ const defenitionColumn = [
   // { id: "z_content", header: "Content Length", adjust: true },
 ];
 
-const contentColumn =  [
+const contentColumn = [
   {
     id: "err",
     header: ["", { content: "textFilter" }],
@@ -92,13 +92,16 @@ const toolbar = {
       placeholder: "Type",
       width: 100,
       value: 1,
-      options: [{id: 1, value: "defenition"},{id: 2, value: "content"}],
+      options: [
+        { id: 1, value: "defenition" },
+        { id: 2, value: "content" },
+      ],
       on: {
         onChange: function (id, val) {
-          if(id==1){
+          if (id == 1) {
             $$("diff_filter").show();
             $$("griddiff").config.columns = defenitionColumn;
-          }else{
+          } else {
             $$("diff_filter").hide();
             $$("griddiff").config.columns = contentColumn;
             // $$("griddiff").attachEvent("onBeforeDrag",function(){
@@ -107,8 +110,8 @@ const toolbar = {
           }
           $$("griddiff").refreshColumns();
           setTimeout(() => reset(), 800);
-        }
-      }
+        },
+      },
     },
     {
       view: "combo",
@@ -119,7 +122,10 @@ const toolbar = {
         url: `${urlProfile}/content?type=2&ls=true`,
         on: {
           onBeforeShow: function () {
-            reloaCombo($$("diffsourcecombo"), `${urlProfile}/content?type=2&ls=true`);
+            reloaCombo(
+              $$("diffsourcecombo"),
+              `${urlProfile}/content?type=2&ls=true`
+            );
           },
         },
       },
@@ -166,7 +172,10 @@ const toolbar = {
         url: `${urlProfile}/content?type=2&ls=true`,
         on: {
           onBeforeShow: function () {
-            reloaCombo($$("difftargetcombo"), `${urlProfile}/content?type=2&ls=true`);
+            reloaCombo(
+              $$("difftargetcombo"),
+              `${urlProfile}/content?type=2&ls=true`
+            );
           },
         },
       },
@@ -252,13 +261,16 @@ const toolbar = {
         },
         on: {
           onMenuItemClick: function (id) {
-            console.log('id',id);
-            
-            $$("griddiff").define("multiselect","touch"); 
+            console.log("id", id);
+
+            $$("griddiff").define("multiselect", "touch");
             $$("griddiff").detachEvent(tableDragEvent);
-            tableDragEvent = $$("griddiff").attachEvent("onBeforeDrag",function(){
-              return true;
-            });
+            tableDragEvent = $$("griddiff").attachEvent(
+              "onBeforeDrag",
+              function () {
+                return true;
+              }
+            );
             if (id == 1) {
               $$("diff_detail_panel").hide();
               $$("diff_detail_resizer").show();
@@ -393,13 +405,12 @@ function reloaCombo(comboId, url) {
   cmbList.load(url);
 }
 
-
 function saveTaskNew() {
   const taksInputId = $$("diff_taskname_input");
   const taskName = taksInputId.getValue();
   if (taskName.trim() == "") {
     webix.html.addCss(taksInputId.getNode(), "webix_invalid");
-    webix.message({text: "Task name can not empty", type: "error"});
+    webix.message({ text: "Task name can not empty", type: "error" });
   } else {
     webix.html.removeCss(taksInputId.$view, "webix_invalid");
 
@@ -454,7 +465,7 @@ function reset() {
   $$("differrfilter").hide();
   $$("diff_moreoptions_btn").hide();
   $$("diff_config_info_lbl").setValue();
-  if($$("diff_detail_panel")){
+  if ($$("diff_detail_panel")) {
     webix.extend($$("diff_detail_panel"), webix.OverlayBox);
     $$("diff_detail_panel").hideOverlay();
   }
@@ -473,11 +484,10 @@ function filterSchema(id) {
 }
 
 function compare() {
-
-  $$("griddiff").define("multiselect",false); 
+  $$("griddiff").define("multiselect", false);
 
   // $$("griddiff").detachEvent(tableDragEvent);
-  tableDragEvent = $$("griddiff").attachEvent("onBeforeDrag",function(){
+  tableDragEvent = $$("griddiff").attachEvent("onBeforeDrag", function () {
     return false;
   });
 
@@ -489,13 +499,13 @@ function compare() {
   const itemTar = $$("difftargetcombo").getPopup().getList().getItem(tarId);
   $$("diff_config_info_lbl").setValue(
     `Source: ${itemSrc.host}/${itemSrc.database} &nbsp;&nbsp;&nbsp; Target: ${itemTar.host}/${itemTar.database}`
-    );
+  );
 
   $$("griddiff").clearAll();
   $$("differrfilter").setValue("all");
 
   let routePath = "generate";
-  if($$("typecompare").getValue()==2){
+  if ($$("typecompare").getValue() == 2) {
     routePath = "generate_rowcount";
   }
   const _url = `${url}/${routePath}?source_id=${srcId}&target_id=${tarId}&schema=${scmId}&filter=${diffFilter}`;
@@ -511,34 +521,40 @@ function compare() {
   const diffPanelId = $$("diff_detail_panel");
   webix
     .ajax(_url)
-    // .then((ra) => {})
     .then(function (rb) {
-      console.log("rb", rb);
       const _url2 = `${url}/result`;
       webix.ajax(_url2).then((rc) => {
-        // console.log('rc.json--->>>> ',rc.json());
-        // $$("griddiff").parse(rc.json());
-        pageId.hideProgress();
-        pageId.enable();
-        $$("griddiff").parse(rc.json());
-        webix.extend(diffPanelId, webix.OverlayBox);
-        diffPanelId.showOverlay(
-          `<div style='background:white;padding-top:0;height:99%; display: flex;justify-content: center;align-items: center; flex-direction: column;margin-top:1px; margin-bottom:1px'>
-      <div>Select left table to show the differences</div>
-      <div style='font-size: 20px' class='mdi mdi-arrow-left'></div>
-      </div>`
-        );
+        const res = rc.json();
+        console.log('res.data',res.data);
 
-        if ($$("griddiff").serialize().length > 0) {
-          $$("diff_detail_resizer").show();
-          $$("diff_detail_panel").show();
+        if (typeof res.data == "undefined") {
+          webix.alert({
+            type: "alert-error",
+            title: "Comparing Failed",
+            text: "Problem accured when not show comparing result, please try again.",
+          });
+          pageId.hideProgress();
+          pageId.enable();
         } else {
-          $$("diff_detail_resizer").hide();
-          $$("diff_detail_panel").hide();
-        }
+          pageId.hideProgress();
+          pageId.enable();
+          $$("griddiff").parse(rc.json());
+          webix.extend(diffPanelId, webix.OverlayBox);
+          diffPanelId.showOverlay(
+            `<div style='background:white;padding-top:0;height:99%; display: flex;justify-content: center;align-items: center; flex-direction: column;margin-top:1px; margin-bottom:1px'>
+          <div>Select left table to show the differences</div>
+          <div style='font-size: 20px' class='mdi mdi-arrow-left'></div>
+          </div>`
+          );
 
-        // pageId.hideProgress();
-        // pageId.enable();
+          if ($$("griddiff").serialize().length > 0) {
+            $$("diff_detail_resizer").show();
+            $$("diff_detail_panel").show();
+          } else {
+            $$("diff_detail_resizer").hide();
+            $$("diff_detail_panel").hide();
+          }
+        }
       });
     })
     .fail(function (err) {
@@ -572,14 +588,13 @@ function showCompareDetail(_this, sel) {
   webix
     .ajax(_url)
     .then((ra) => {
-
       const data = ra.json().data;
       let objSource = data.source;
       let objTarget = data.target;
 
-      if($$("diff_is_drop_replace").getValue()==1){
-        objSource = data.source_dropdef+"\n"+objSource;
-        objTarget = data.target_dropdef+"\n"+objTarget;
+      if ($$("diff_is_drop_replace").getValue() == 1) {
+        objSource = data.source_dropdef + "\n" + objSource;
+        objTarget = data.target_dropdef + "\n" + objTarget;
       }
 
       storeDiffSQL.parse([
@@ -657,24 +672,23 @@ function showFullscreenDiff(scope, title, objSource, objTarget) {
 }
 
 function execQuery(tranferTo) {
+  const isConfirm = $$("diff_is_confirm").getValue();
 
-    const isConfirm = $$("diff_is_confirm").getValue();
-
-    if(isConfirm==1){
-        webix.confirm({
-          title:`Execute to ${tranferTo=='trg' ? 'Target' : 'Source'}`,
-          ok:"Yes", cancel:"No",
-          text:`Are you sure execute query?`
-        })
-        .then(function(){
-          doExecQuery(tranferTo)
-        })
-        .fail(function(){
-        });
-    }else{
-      doExecQuery(tranferTo);
-    }
-  
+  if (isConfirm == 1) {
+    webix
+      .confirm({
+        title: `Execute to ${tranferTo == "trg" ? "Target" : "Source"}`,
+        ok: "Yes",
+        cancel: "No",
+        text: `Are you sure execute query?`,
+      })
+      .then(function () {
+        doExecQuery(tranferTo);
+      })
+      .fail(function () {});
+  } else {
+    doExecQuery(tranferTo);
+  }
 }
 
 function doExecQuery(tranferTo) {
@@ -687,30 +701,28 @@ function doExecQuery(tranferTo) {
   const isDropReplace = $$("diff_is_drop_replace").getValue();
 
   let input = {
-    source_id: tranferTo=='trg' ? trg : src,
-    sql: tranferTo=='trg' ? sqlSrc : sqlTrg,
+    source_id: tranferTo == "trg" ? trg : src,
+    sql: tranferTo == "trg" ? sqlSrc : sqlTrg,
     dtype: 0,
-    sqltype: '', // f or t, f=function, t=table
-    dropreplace: isDropReplace
+    sqltype: "", // f or t, f=function, t=table
+    dropreplace: isDropReplace,
   };
 
-  console.log('input',input);
-  webix.message({text: "Not implement yet",type: "warning"})
+  console.log("input", input);
+  webix.message({ text: "Not implement yet", type: "warning" });
 
   return;
   webix
-  .ajax()
-  .headers(defaultHeader())
-  .post(urlQuery + "/run", input)
-  .then((r) => {
-    let rData = r.json();
-    console.log('rData',rData);
-    
-
-  })
-  .fail(function(err){
-    console.log('err',err);
-  });
+    .ajax()
+    .headers(defaultHeader())
+    .post(urlQuery + "/run", input)
+    .then((r) => {
+      let rData = r.json();
+      console.log("rData", rData);
+    })
+    .fail(function (err) {
+      console.log("err", err);
+    });
 }
 export default class ComparePage extends JetView {
   config() {
@@ -780,7 +792,7 @@ export default class ComparePage extends JetView {
 
             const gridId = $$("griddiff");
             const item = gridId.getItem(gridId.getSelectedId());
-            
+
             const title = `${item.z_type}: ${item.z_schema}.${item.z_name} - ${item.z_return}`;
             showFullscreenDiff(this.$scope, title, objSource, objTarget);
           },
@@ -792,7 +804,7 @@ export default class ComparePage extends JetView {
           autowidth: true,
           click: function () {
             execQuery("trg");
-          }
+          },
         },
         {
           view: "icon",
@@ -801,23 +813,36 @@ export default class ComparePage extends JetView {
           autowidth: true,
           click: function () {
             execQuery("scr");
-          }
+          },
         },
-        { width: 20},
-        { view: "checkbox", name: "is_confirm", id: "diff_is_confirm", value: 1, labelRight:"Confirm Replace", labelWidth: 8, width: 150,
-        on: {
-          onChange: function (newVal, oldVal) {
-            webix.storage.local.put(CONFIRM_EXECUTE, newVal);
-          }
-        }
+        { width: 20 },
+        {
+          view: "checkbox",
+          name: "is_confirm",
+          id: "diff_is_confirm",
+          value: 1,
+          labelRight: "Confirm Replace",
+          labelWidth: 8,
+          width: 150,
+          on: {
+            onChange: function (newVal, oldVal) {
+              webix.storage.local.put(CONFIRM_EXECUTE, newVal);
+            },
+          },
         },
-        { view: "checkbox", name: "is_drop_replace", id: "diff_is_drop_replace", value: 0, labelRight:"Drop and replace", labelWidth: 8,
+        {
+          view: "checkbox",
+          name: "is_drop_replace",
+          id: "diff_is_drop_replace",
+          value: 0,
+          labelRight: "Drop and replace",
+          labelWidth: 8,
           width: 150,
           on: {
             onChange: function (newVal, oldVal) {
               webix.storage.local.put(CONFIRM_DROP_REPLACE, newVal);
-            }
-          }
+            },
+          },
         },
       ],
     };

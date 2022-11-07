@@ -52,16 +52,10 @@ export function ViewDataPage(prefix, selectedDb) {
     currUrl = `${url}/data?id=${profileId}&&oid=${oidReal}`;
     webix
       .ajax()
-      // .get(`${url}/data?id=${profileId}&&oid=${oidReal}`)
       .get(currUrl)
       .then(function (data) {
-        // console.log(`data`, data);
         viewId.hideProgress();
-        // viewId.setValue(data.json().data);
         const rData = data.json();
-        // console.log(`rDdata-config`, rData.config);
-        // console.log(`rDdata-data`, rData.data);
-
         let views = $$(prefix + "_table_panel").getChildViews();
         if (views[0]) {
           $$(prefix + "_table_panel").removeView(views[0]);
@@ -80,14 +74,14 @@ export function ViewDataPage(prefix, selectedDb) {
           save: {
             // "insert":"url",
             // "delete":"url"
-            update: function (id, operation, update) {
-              let inputData = {
-                data: update,
-                oid: rData.tbl_oid,
-                source_id: profileId,
-              };
-              return webix.ajax().post(`${url}/update`, inputData);
-            },
+            // update: function (id, operation, update) {
+            //   let inputData = {
+            //     data: update,
+            //     oid: rData.tbl_oid,
+            //     source_id: profileId,
+            //   };
+            //   return webix.ajax().post(`${url}/update`, inputData);
+            // },
           },
           editaction: "dblclick",
           pager: prefix + "_pagerA",
@@ -105,6 +99,11 @@ export function ViewDataPage(prefix, selectedDb) {
             onItemClick: function (sel) {
               $$(prefix + "_remove_row").show();
             },
+            onAfterEditStop:function(state,editor){
+							if(state.old != state.value){
+                    this.addRowCss(editor.row, "z_orange_row");
+							}
+						}
           },
         };
 
@@ -289,6 +288,19 @@ export function ViewDataPage(prefix, selectedDb) {
             tbl.load(currUrl);
             $$(prefix + "_remove_row").show();
           }
+        },
+      },
+      {
+        view: "button",
+        type: "icon",
+        css: "zmdi_padding",
+        id: prefix + "_save_row",
+        autowidth: true,
+        hidden: true,
+        tooltip: "Apply Save Changes",
+        icon: "mdi mdi-table-check",
+        click: function () {
+
         },
       },
       {

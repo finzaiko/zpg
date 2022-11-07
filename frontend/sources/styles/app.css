@@ -1130,3 +1130,12 @@ background-size: cover;
   cursor: pointer;
   color: #1CA1C1;
 }
+
+.z_red_row{
+  background-color:#FFAAAA;
+  /* #ffeeee */
+}
+
+.z_orange_row{
+  background-color:#ffe08a;
+}

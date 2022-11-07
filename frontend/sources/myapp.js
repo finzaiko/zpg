@@ -16,15 +16,15 @@ import { showExpiredMsg } from "./helpers/ui";
 // }
 
 webix.protoUI({
-  name:"fadeInWindow", 
+  name:"fadeInWindow",
   $init:function(){
     this.$ready.push(function(){
       this.attachEvent("onShow", function(){
-        this.$view.className = this.$view.className + " animate__animated animate__fadeInDown";  
+        this.$view.className = this.$view.className + " animate__animated animate__bounceInDown";  // animate__fadeInDown
       })
       this.attachEvent("onHide", function(){
         this.$view.style.display = "block";
-        this.$view.className += " animate__fadeOut";  
+        this.$view.className += " animate__fadeOut";
       })
     });
   }
@@ -117,9 +117,9 @@ if (!BUILD_AS_MODULE) {
   //       history.pushState(null, null, window.location.href);
   //     });
   //   }
-    
+
   //   // window.onbeforeunload = function() { return "You will  leave this page"; };
-    
+
   //   if (window.history && history.pushState) {
   //     addEventListener('load', function() {
   //        history.pushState(null, null, null); // creates new history entry with same URL

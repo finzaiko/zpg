@@ -1411,6 +1411,10 @@ export function QueryPage(prefix, selectedDb) {
       },
     };
 
+    let sidebarSize = 0;
+    if ($$("app:sidebar").config.collapsed) {
+      sidebarSize = $$("app:sidebar").$width+100; // estimate centered position
+    }
     webix
       .ui({
         view: "fadeInWindow",
@@ -1423,7 +1427,7 @@ export function QueryPage(prefix, selectedDb) {
         move: true,
         padding: 10,
         top: 100,
-        left: $$(prefix + "_page_panel").$width / 2 - sidemenuWidth / 2,
+        left: $$(prefix + "_page_panel").$width / 2 - sidemenuWidth / 2 - sidebarSize,
         on: {
           onShow: function () {
             $$(prefix + "_database_search_detach").focus();

@@ -100,3 +100,7 @@ export let initQueryEditor = () => {
 export let defaultValue = () => {
   $$(state.prefix + "_source_combo").setValue(1);
 };
+
+
+export let searchHistoryStore = new webix.DataCollection();
+// export default new webix.DataCollection();

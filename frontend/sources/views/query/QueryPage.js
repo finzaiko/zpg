@@ -6,7 +6,7 @@ import { defaultHeader } from "../../helpers/api";
 import { url as urlDb } from "../../models/Db";
 import { state as stateBase } from "../../models/Base";
 import { url as urlProfile } from "../../models/Profile";
-import { url, state } from "../../models/Query";
+import { url, state, searchHistoryStore } from "../../models/Query";
 import { QueryDatabase } from "./QueryDatabase";
 import { QueryHelp } from "./QueryHelp";
 import {
@@ -874,10 +874,6 @@ export function QueryPage(prefix, selectedDb) {
                 autowidth: true,
                 tooltip: "Copy to query editor",
                 click: function () {
-                  // copyToQuery(
-                  //   document.getElementById(prefix + "_result_history")
-                  //     .innerHTML
-                  // );
                   copyToQuery($$(prefix + "_history_content").getValue());
                   let editorId = $$(prefix + "_sql_editor");
                   editorId.focus();
@@ -1318,16 +1314,14 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const openSearchDetach = () => {
+
     const winWidth = 500,
       sidemenuWidth = 180;
     if ($$(prefix + "_search_detach_win")) {
       $$(prefix + "_search_detach_win").close();
     }
     const panelId = $$(prefix + "_page_panel");
-    webix.extend(panelId, webix.OverlayBox);
-    panelId.showOverlay(
-      "<div style='height:100%;background:#e3e3e373'>&nbsp;</div>"
-    );
+
     const search = {
       view: "text",
       css: "search_suggest_detach",
@@ -1365,7 +1359,12 @@ export function QueryPage(prefix, selectedDb) {
             this.load(
               `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=` +
                 filtervalue
-            );
+            ).then(data=>{
+              setTimeout(() => {
+                searchHistoryStore.clearAll();
+                searchHistoryStore.parse(data.json().data);
+              }, 500);
+            });
           },
           on: {
             onBeforeLoad: function () {
@@ -1387,7 +1386,6 @@ export function QueryPage(prefix, selectedDb) {
                 null,
                 2000
               );
-
               // var yCount = this.count() < 100 ? this.count():20;
               // this.define({yCount:yCount});
               // this.refresh();
@@ -1404,8 +1402,14 @@ export function QueryPage(prefix, selectedDb) {
         onKeyPress: function (code, e) {
           if (code == 9) {
             $$(prefix + "_sql_editor")
-              .getEditor(true)
-              .then((editor) => editor.focus());
+            .getEditor(true)
+            .then((editor) => editor.focus());
+          }
+          if(code==13 && this.getValue()=="" && searchHistoryStore.count()){
+            const listId = $$(prefix + "_search_detach_history");
+            listId.show();
+            webix.html.triggerEvent(listId.$view, "MouseEvents", "click");
+            listId.select(listId.getFirstId());
           }
         },
       },
@@ -1419,9 +1423,30 @@ export function QueryPage(prefix, selectedDb) {
       .ui({
         view: "fadeInWindow",
         head: false,
+        modal: true,
         body: {
           padding: 2,
-          cols: [search],
+          rows: [search,
+            {
+              view:"list",
+              height:300,
+              id: prefix + "_search_detach_history",
+              hidden: true,
+              template:"#value#",
+              select:true,
+              data:searchHistoryStore,
+              on: {
+                onItemClick: function (sel) {
+                  loadSchemaContent(0, sel, panelId);
+                },
+                onKeyPress: function (code, e) {
+                  if(code==13){
+                    loadSchemaContent(0, this.getSelectedId(), panelId);
+                  }
+                }
+              }
+            }
+          ],
         },
         id: prefix + "_search_detach_win",
         move: true,
@@ -1762,16 +1787,7 @@ export function QueryPage(prefix, selectedDb) {
                         id: prefix + "_result",
                         width: 150,
                       },
-                      // {
-                      //   value: "Console",
-                      //   id: prefix + "_console",
-                      //   width: 150,
-                      // },
                       {
-                        //   value: "Console2",
-                        //   id: prefix + "_result_console",
-                        //   width: 150,
-                        // },
                         value: "Console",
                         id: prefix + "_console",
                         width: 150,
@@ -2113,28 +2129,34 @@ export function QueryPage(prefix, selectedDb) {
             autoFormat();
             return null;
           },
-        }),
+        })
         editor.addAction({
           id: "search-focus",
-          label: "Search focus cursor",
-          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_P],
+          label: "Focus Quick Search",
+          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Semicolon],
           precondition: null,
           keybindingContext: null,
           contextMenuGroupId: "navigation",
           contextMenuOrder: 1.5,
           run: function (ed) {
-            // $$(prefix + "_database_search_cmb").focus();
-            $$(prefix + "_database_search").focus();
+            if (state.isSearchDetach) {
+              openSearchDetach();
+            } else {
+              $$(prefix + "_database_search").focus();
+              $$(prefix + "_database_search")
+                .getInputNode()
+                .select();
+            }
+
             return null;
           },
-        });
+        })
+        ;
     });
   };
 
   const setSearchType = () => {
     if (state.isSearchDetach) {
-      console.log("test1 detach yes");
-
       $$(prefix + "_database_search").hide();
       $$(prefix + "_database_search_content").hide();
       $$(prefix + "_search_more_btn").hide();
@@ -2142,8 +2164,10 @@ export function QueryPage(prefix, selectedDb) {
 
       webix.UIManager.addHotKey("Esc", function () {
         if ($$(prefix + "_search_detach_win")) {
-          const panelId = $$(prefix + "_page_panel");
-          panelId.hideOverlay();
+          const boxes = document.querySelectorAll('body > div.webix_modal');
+          boxes.forEach(box => {
+            box.style.backgroundColor = '#000';
+          });
           $$(prefix + "_search_detach_win").hide();
         }
       });
@@ -2153,16 +2177,7 @@ export function QueryPage(prefix, selectedDb) {
       $$(prefix + "_search_more_btn").show();
       $$(prefix + "_search_detach_btn").hide();
     }
-    webix.UIManager.addHotKey("Ctrl+;", function () {
-      if (state.isSearchDetach) {
-        openSearchDetach();
-      } else {
-        $$(prefix + "_database_search").focus();
-        $$(prefix + "_database_search")
-          .getInputNode()
-          .select();
-      }
-    });
+
   };
 
   const setMinimap = () => {
@@ -2199,10 +2214,14 @@ export function QueryPage(prefix, selectedDb) {
         .then(function (data) {
           viewId.hideProgress();
           viewId.setValue(data.json().data);
-          if (panelId) {
-            $$(prefix + "_search_detach_win").close();
-            panelId.hideOverlay();
-          }
+          // if (panelId) {
+            //   panelId.hideOverlay();
+            // }
+            const boxes = document.querySelectorAll('body > div.webix_modal');
+            boxes.forEach(box => {
+              box.style.backgroundColor = '#000';
+            });
+              $$(prefix + "_search_detach_win").close();
         });
     }
     if (typ == "u") {
@@ -2296,9 +2315,9 @@ export function QueryPage(prefix, selectedDb) {
             $$(prefix + "_source_combo").setValue(db);
           }
         }
-        initQueryEditor();
-
         setSearchType();
+
+        initQueryEditor();
 
         setMinimap();
       }),

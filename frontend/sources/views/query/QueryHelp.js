@@ -6,11 +6,12 @@ const prefix = state.prefix + "_help";
 const data = [
   // { id:1, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>P</span>", shortcut: "Go to quick search when current focus on Query Editor"},
   { id:1, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>;&nbsp;</span>", shortcut: "Focus to quick search"},
-  { id:2, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>F</span>", shortcut: "Find"},
-  { id:3, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>H</span>", shortcut: "Find and Replace"},
-  { id:4, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>Shift</span>  <span class='btn_template'>K</span>", shortcut: "Delete line"},
-  { id:5, key: "<span class='btn_template'>Alt</span> <span class='btn_template'> <i class='mdi mdi-arrow-up'></i> or <i class='mdi mdi-arrow-down'></i> </span>", shortcut: "Move line up or down"},
-  { id:6, key: "<span class='btn_template'>Shift</span> <span class='btn_template'>Alt</span> <span class='btn_template'> <i class='mdi mdi-arrow-up'></i> or <i class='mdi mdi-arrow-down'></i> </span>", shortcut: "Edit multiline"},
+  { id:2, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>M</span>", shortcut: "Open new Query"},
+  { id:3, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>F</span>", shortcut: "Find"},
+  { id:4, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>H</span>", shortcut: "Find and Replace"},
+  { id:5, key: "<span class='btn_template'>Ctrl</span> <span class='btn_template'>Shift</span>  <span class='btn_template'>K</span>", shortcut: "Delete line"},
+  { id:6, key: "<span class='btn_template'>Alt</span> <span class='btn_template'> <i class='mdi mdi-arrow-up'></i> or <i class='mdi mdi-arrow-down'></i> </span>", shortcut: "Move line up or down"},
+  { id:7, key: "<span class='btn_template'>Shift</span> <span class='btn_template'>Alt</span> <span class='btn_template'> <i class='mdi mdi-arrow-up'></i> or <i class='mdi mdi-arrow-down'></i> </span>", shortcut: "Edit multiline"},
 ];
 
 const WindowForm = () => {
@@ -66,7 +67,7 @@ const WindowForm = () => {
 					},
 				},
       ]
-      
+
     },
     body: {
       rows: [grid],

@@ -80,7 +80,6 @@ function newQueryTab() {
   });
 
   $$("tabs").getTabbar().setValue(state.prefix);
-  stateBase.currentTabQuery++;
 }
 
 export function QueryPage(prefix, selectedDb) {
@@ -104,6 +103,7 @@ export function QueryPage(prefix, selectedDb) {
         view: "button",
         type: "icon",
         css: "zmdi_padding",
+        id: prefix + "_new_query_btn",
         autowidth: true,
         tooltip: "Open new Query",
         icon: "mdi mdi-play-box-multiple-outline",
@@ -2150,6 +2150,19 @@ export function QueryPage(prefix, selectedDb) {
 
             return null;
           },
+        }),
+        editor.addAction({
+          id: "open-new-query-ed",
+          label: "Open New Query",
+          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyM],
+          precondition: null,
+          keybindingContext: null,
+          contextMenuGroupId: "navigation",
+          contextMenuOrder: 1.5,
+          run: function (ed) {
+            newQueryTab();
+            return null;
+          },
         })
         ;
     });
@@ -2183,8 +2196,6 @@ export function QueryPage(prefix, selectedDb) {
   const setMinimap = () => {
     const editorId = $$(prefix + "_sql_editor");
     editorId.getEditor(true).then((editor) => {
-      console.log("state.isMinimap", state.isMinimap);
-
       editor.updateOptions({
         // minimap: state.LAST_MINIMAP,
         minimap: {

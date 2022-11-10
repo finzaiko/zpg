@@ -1113,6 +1113,10 @@ background-size: cover;
   color: #0a8dad;
 }
 
+.z_icon_size_17 .webix_icon{
+  font-size: 17px;
+}
+
 /* Syntax highlighted */
 .z_query_detail_cell pre{
   font-size: 14px;

@@ -4,7 +4,7 @@ export const copyToClipboard = (content) => {
   } else {
     unsecuredCopyToClipboard(content);
   }
-  webix.message({ text: "Copied to clipboard", type: "success" });
+  webix.message({ text: "Copied", type: "success" });
 };
 
 const unsecuredCopyToClipboard = (text) => {

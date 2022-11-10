@@ -1606,7 +1606,38 @@ export function QueryPage(prefix, selectedDb) {
             head: {
               view: "toolbar",
               cols: [
-                { view: "label", label: "Detail Cell" },
+                { view: "label", label: "Detail Cell", width: 70 },
+                {
+                  view: "icon",
+                  icon: "mdi mdi-content-copy",
+                  autowidth: true,
+                  // hidden: true,
+                  id: prefix + "_copy_detail_cell",
+                  tooltip: "Copy to clipboard",
+                  css: "z_icon_color_primary z_icon_size_17",
+                  click: function () {
+                    this.hide();
+                    const ck = $$(prefix + "_copy_detail_cell_done");
+                    ck.show();
+                    setTimeout(() => {
+                      this.show();
+                      ck.hide();
+                    }, 1500);
+
+                    copyToClipboard(content);
+                  },
+                },
+                {
+                  view: "template",
+                  autowidth: true,
+                  hidden: true,
+                  css: {"padding-top":"3px"},
+                  borderless: true,
+                  id: prefix + "_copy_detail_cell_done",
+                  template:
+                    '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                },
+                {},
                 {
                   view: "icon",
                   icon: "mdi mdi-close",
@@ -1809,7 +1840,7 @@ export function QueryPage(prefix, selectedDb) {
                     autowidth: true,
                     id: prefix + "_copy_result_clipboard",
                     tooltip: "Copy result to clipboard",
-                    css: "z_icon_color_primary",
+                    css: "z_icon_color_primary z_icon_size_17",
                     click: function () {
                       const content = $$(prefix + "_console").getValue();
                       const val = content.split("--notice:--")[1];
@@ -1832,11 +1863,13 @@ export function QueryPage(prefix, selectedDb) {
                     },
                   },
                   {
-                    view: "button",
+                    view: "template",
                     autowidth: true,
                     hidden: true,
+                    css: {"padding-top":"3px"},
+                    borderless: true,
                     id: prefix + "_copy_result_clipboard_done",
-                    label:
+                    template:
                       '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
                   },
                   pagerRow(prefix + "_result_row_pager"),

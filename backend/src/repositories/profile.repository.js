@@ -19,12 +19,12 @@ class ProfileRepository {
     }
 
     sql += " ORDER BY id DESC";
-    
+
     if(limit){
       sql += " LIMIT "+ limit;
     }
     // console.log('sql',sql);
-    
+
     let params = [type, userId];
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
@@ -118,7 +118,7 @@ class ProfileRepository {
     if (type == 3 || type == 4) {
       sql = `SELECT title, content, type, user_id FROM profile WHERE id=? AND user_id=?`;
     }
-    
+
     let params = [id, userId];
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
@@ -137,13 +137,13 @@ class ProfileRepository {
   async check(data) {
     // const sql = "SELECT * FROM profile WHERE id=? AND type=?";
 
-    const sql = `SELECT COUNT(*) AS data FROM profile 
-    WHERE user_id=? 
-    AND type=? 
-    AND host=? 
-    AND port=? 
-    AND database=? 
-    AND user=? 
+    const sql = `SELECT COUNT(*) AS data FROM profile
+    WHERE user_id=?
+    AND type=?
+    AND host=?
+    AND port=?
+    AND database=?
+    AND user=?
     `;
     const params = [
       data.user_id,
@@ -236,6 +236,7 @@ class ProfileRepository {
         if (err) reject(err);
         setTimeout(() => {
           this.getClearUserProfile();
+          this.setLastLogin(userId);
         }, 1000);
         resolve(row);
       });
@@ -246,6 +247,17 @@ class ProfileRepository {
   // Clear history after last one monthh
   async getClearUserProfile() {
     let sql = `DELETE FROM profile WHERE created_at < DATETIME('now', '-30 day') AND type!=2`;
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql,(err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
+  async setLastLogin(userId) {
+    let sql = `UPDATE user SET last_login=datetime('now','localtime') WHERE id=${userId}`;
     const res = await new Promise((resolve, reject) => {
       db.all(sql,(err, row) => {
         if (err) reject(err);

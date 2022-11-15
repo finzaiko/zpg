@@ -1408,7 +1408,8 @@ export function QueryPage(prefix, selectedDb) {
           if(code==13 && this.getValue()=="" && searchHistoryStore.count()){
             const listId = $$(prefix + "_search_detach_history");
             listId.show();
-            webix.html.triggerEvent(listId.$view, "MouseEvents", "click");
+            // webix.html.triggerEvent(listId.$view, "MouseEvents", "click");
+            webix.UIManager.setFocus(listId); //to set focus
             listId.select(listId.getFirstId());
           }
         },

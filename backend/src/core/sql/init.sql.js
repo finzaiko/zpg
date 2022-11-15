@@ -12,7 +12,7 @@ CREATE TABLE user (
     last_login TIMESTAMP,
     created_at TIMESTAMP DATE DEFAULT (datetime('now','localtime')),
     modified_at TIMESTAMP,
-    UNIQUE(username)
+    UNIQUE(username, email)
 );
 `;
 

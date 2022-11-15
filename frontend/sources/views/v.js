@@ -204,6 +204,16 @@ export default class MainView extends JetView {
     } else {
       st.expand();
     }
+    webix.event(window, "keydown", function(e){
+      // webix.message("KeyCode= " + e.keyCode);
+      if(e.keyCode==188 && e.ctrlKey){
+        // webix.message({text:"focust tab check", type: "error"})
+          webix.UIManager.setFocus($$('$tabbar1')); //to set focus
+        $$('$tabbar1').attachEvent("onEnter",function(ev){
+          console.log("onenter");
+        });
+      }
+    })
   }
 
   menuClick(_scope, id) {

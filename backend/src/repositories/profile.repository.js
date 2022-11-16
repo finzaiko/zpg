@@ -10,7 +10,7 @@ class ProfileRepository {
     }
     if (type == 3 || type == 4) {
       // fields = `id, title, content, created_at`;
-      fields = `id, CASE WHEN title IS NULL THEN substr(content,0,30) ELSE title END AS title, content, created_at`;
+      fields = `id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content, created_at`;
     }
     let sql = `SELECT ${fields} FROM profile WHERE type=? AND user_id=?`;
     if (isList) {

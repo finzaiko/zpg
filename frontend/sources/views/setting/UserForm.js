@@ -92,9 +92,9 @@ function WindowForm() {
 									name: "user_level",
 									labelWidth: 70,
 									id: prefix + "_role",
-									options:[ 
+									options:[
 										{ id:1, value:"Elephant" },
-										{ id:2, value:"Spider" }, 
+										{ id:2, value:"Spider" },
 										{ id:3, value:"Turtle" }
 									  ],
 									value: 3,
@@ -156,7 +156,7 @@ function WindowForm() {
 				},
 				{
 					view:"datatable",
-					minHeight:300, 
+					minHeight:300,
 					id: prefix+"_table",
 					select: "row",
 					columns:[
@@ -206,10 +206,10 @@ function WindowForm() {
 									`<button type="button" class="webix_pager_item z_refresh_user_pager" aria-label="Refresh page"><span class="webix_icon mdi mdi-sync"></span></button>`
 								);
 							},
-							onClick:{ 
+							onClick:{
 								"z_refresh_user_pager":function(e, el){
 									reload();
-									return false; 
+									return false;
 								}
 							},
 						},
@@ -266,7 +266,11 @@ const remove = () => {
 	const dt = $$(prefix + "_table");
 	const item = dt.getItem(dt.getSelectedId()),
 	  msgName = item.username;
-  
+
+	if(item.username=='admin'){
+		return webix.message({text: `Ops, <strong>admin</strong> user can not delete.`, type:"error"});
+	}
+
 	webix.confirm({
 	  ok: "Yes",
 	  cancel: "No",

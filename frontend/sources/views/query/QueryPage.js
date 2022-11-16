@@ -1020,8 +1020,8 @@ export function QueryPage(prefix, selectedDb) {
             template: function (obj) {
               if (obj.content) {
                 return `${truncateString(
-                  obj.content,
-                  40
+                  obj.title,
+                  38
                 )} <span style='color: grey;font-style:italic;font-size:13;float:right;'>
                 ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
               }

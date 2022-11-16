@@ -1,5 +1,6 @@
 import { JetView, plugins } from "webix-jet";
 import { LOGIN_ANIMATE } from "../config/setting";
+import { isUserNameValid } from "../helpers/ui";
 import { state } from "../models/Base";
 import { register } from "../models/User";
 
@@ -217,7 +218,7 @@ class WindowView extends JetView {
               $$("z_register_btnlink").show();
             }
           }
-          
+
         },
       },
     };
@@ -269,16 +270,26 @@ class WindowView extends JetView {
     const form = this.$$("loginForm");
     if (form.validate()) {
       const data = form.getValues();
-      
+
       data.username = data.username_reg;
       data.password = data.password_reg;
       delete data.username_reg;
       delete data.password_reg;
-      
+
       if(data.username=="" && data.password=="" && data.fullname =="" && data.email==""){
-        webix.message({
+        return webix.message({
           type: "error",
           text: "All data required",
+        });
+      }else if(!isUserNameValid(data.username)){
+        return webix.message({
+          type: "error",
+          text: `<strong>Invalid username format:</strong><br>
+          - Char length 4 to 20<br>
+          - Underscore or dot can't be used multiple times in a row (e.g user__name / user..name)<br>
+          - Underscore and dot can't be next to each other (e.g user_.name)<br>
+          - Underscore and dot can't be at the end or start of a username (e.g _username / username_ / .username / username.)<br>
+          - Only contains alphanumeric characters, underscore and dot`,
         });
       }else{
         form.disable();

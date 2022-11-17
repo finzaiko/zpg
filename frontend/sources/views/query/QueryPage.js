@@ -1586,14 +1586,17 @@ export function QueryPage(prefix, selectedDb) {
       if (type == "json" || type == "jsonb") {
         // formatter json type result
         content = JSON.stringify(JSON.parse(content), null, 4);
-        openWinCell(content);
+        openWinCell(type, content);
       }
 
       if ((type == "text" || type == "varchar") && content.length > 100) {
-        openWinCell(content);
+        openWinCell(type, content);
       }
 
-      function openWinCell(content) {
+      function openWinCell(type, content) {
+        if(type=="json" || type=="jsonb"){
+          content = syntaxHighlight(content);
+        }
         webix
           .ui({
             view: "window",
@@ -1658,9 +1661,7 @@ export function QueryPage(prefix, selectedDb) {
             body: {
               view: "template",
               css: "z_query_detail_cell",
-              template: `<pre style='height:100%;overflow: auto;'>${syntaxHighlight(
-                content
-              )}</pre>`,
+              template: `<pre style='height:100%;overflow: auto;'>${content}}</pre>`,
             },
           })
           .show();

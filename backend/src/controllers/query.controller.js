@@ -103,7 +103,7 @@ class QueryController {
 
           tableData = r.rows.map(function (x) {
             let newObj = {};
-            const objType = ["json","jsonb","json[]","jsonb[]"];
+            const objType = ["json","jsonb","json[]","jsonb[]","interval"];
             columnDef.forEach((obj, i) => {
               const isObjVal = objType.find(o=>o==obj.colType);
               if(typeof isObjVal!="undefined"){

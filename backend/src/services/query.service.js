@@ -1,6 +1,5 @@
 const QueryRepository = require(`../repositories/query.repository`);
 const viewdataRepository = require("../repositories/viewdata.repository");
-const { pgType } = require("../utils/pg.util");
 
 class QueryService {
   async runSQL(

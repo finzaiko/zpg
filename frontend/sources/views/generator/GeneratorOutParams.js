@@ -91,7 +91,7 @@ export default class GeneratorOutParamsContent extends JetView {
             },
             {
               view: "icon",
-              icon: "mdi mdi-refresh",
+              icon: "mdi mdi-close-box-outline",
               tooltip: "Reset",
               autowidth: true,
               click: function () {

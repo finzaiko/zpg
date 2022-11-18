@@ -301,7 +301,17 @@ export function reloadServerCombo() {
 function loadDb(id) {
   const tblId = $$(prefix + "_db_tree");
   tblId.clearAll();
-  tblId.load(urlDb + "?id=" + id);
+  let reloadIconId = $$(prefix + "_db_tree_filter_reload");
+  reloadIconId.config.icon =
+    "mdi mdi-refresh-circle spin_mdi_right z_mdi_splin_color";
+  reloadIconId.refresh();
+
+  tblId.load(urlDb + "?id=" + id).then((_) => {
+    setTimeout(() => {
+      reloadIconId.config.icon = "mdi mdi-reload";
+      reloadIconId.refresh();
+    }, 600);
+  });
   webix.storage.local.put(LAST_DB_SERVER, id);
 }
 
@@ -334,6 +344,7 @@ export default class DatabasePage extends JetView {
                       view: "icon",
                       toolbar: "Refresh current selected DB",
                       autowidth: true,
+                      id: prefix + "_db_tree_filter_reload",
                       icon: "mdi mdi-reload",
                       click: function () {
                         loadDb($$(prefix + "_server").getValue());

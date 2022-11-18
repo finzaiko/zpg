@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 
 class UserRepository {
   async getAll() {
-    const fields = `id, fullname, email, username, user_level, access_group`;
+    const fields = `id, fullname, email, username, user_level, access_group, last_login`;
     let sql = `SELECT ${fields} FROM user`;
     sql += " ORDER BY id DESC";
     let params = [];

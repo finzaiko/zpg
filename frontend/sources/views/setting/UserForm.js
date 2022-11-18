@@ -164,6 +164,7 @@ function WindowForm() {
 						{ id: "fullname", header:"Fullname", sort:"string", width: 200 },
 						{ id: "email", header:"Email",  sort:"string", width: 200 },
 						{ id: "user_level", header:"Role", width: 100 },
+						{ id: "last_login", header:"Last login", width: 150 },
 					],
 					url: url +"/users",
 					pager: prefix+"_pagerA",

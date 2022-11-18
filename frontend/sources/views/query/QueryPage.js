@@ -1030,6 +1030,13 @@ export function QueryPage(prefix, selectedDb) {
             headerRowHeight: 0,
             url: `${urlProfile}/content?type=3`,
             on: {
+              onBeforeLoad: function () {
+                webix.extend(this, webix.OverlayBox);
+                this.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
+              },
+              onAfterLoad: function () {
+                this.hideOverlay();
+              },
               onItemClick: function (id) {
                 $$(prefix + "_history_preview").show();
                 $$(prefix + "_sql_editor").hide();
@@ -1581,6 +1588,8 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const openDetailCell = (type, content) => {
+    console.log('content',content);
+
     const allowType = ["json", "jsonb", "text", "varchar"];
     if (allowType.indexOf(type) !== -1) {
       if (type == "json" || type == "jsonb") {
@@ -1661,7 +1670,7 @@ export function QueryPage(prefix, selectedDb) {
             body: {
               view: "template",
               css: "z_query_detail_cell",
-              template: `<pre style='height:100%;overflow: auto;'>${content}}</pre>`,
+              template: `<pre style='height:100%;overflow: auto;'>${content}</pre>`,
             },
           })
           .show();

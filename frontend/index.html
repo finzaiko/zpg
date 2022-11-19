@@ -1,26 +1,47 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<title>ZPG</title>
-	<link rel="apple-touch-icon" sizes="180x180" href="assets//apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="assets//favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="assets//favicon-16x16.png">
-	<link rel="manifest" href="assets/site.webmanifest">
-	<!-- Webix Library -->
-	<script type="text/javascript" src="node_modules/webix/webix.js"></script>
-	<!-- <script type="text/javascript" src="assets/webix/skins/dark/webix.js"></script> -->
-	<link rel="stylesheet" type="text/css" href="node_modules/webix/skins/mini.min.css">
-	<!-- <link rel="stylesheet" type="text/css" href="assets/webix/skins/dark/webix.css"> -->
-	<!-- <script type="text/javascript" src="assets/webix/webix.js"></script> -->
-	<!-- <link rel="stylesheet" type="text/css" href="assets/webix/webix.css"> -->
-	<!-- <script type="text/javascript" src="node_modules/diff/dist/diff.js"></script> -->
-	<!-- <script type="text/javascript" src="node_modules/codemirror/lib/codemirror.js"></script> -->
-	<script type="text/javascript" src="node_modules/sql-formatter/dist/sql-formatter.js"></script>
-	<!-- You can get this file from https://github.com/webix-hub/components -->
-	<!-- <script src="assets/codemirror.js"></script> -->
-	<script src="assets/monaco.js"></script>
-	<!-- <script>
+  <head>
+    <meta charset="utf-8" />
+    <title>ZPG</title>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets//apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets//favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets//favicon-16x16.png"
+    />
+    <link rel="manifest" href="assets/site.webmanifest" />
+    <!-- Webix Library -->
+    <script type="text/javascript" src="node_modules/webix/webix.js"></script>
+    <!-- <script type="text/javascript" src="assets/webix/skins/dark/webix.js"></script> -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="node_modules/webix/skins/mini.min.css"
+    />
+    <!-- <link rel="stylesheet" type="text/css" href="assets/webix/skins/dark/webix.css"> -->
+    <!-- <script type="text/javascript" src="assets/webix/webix.js"></script> -->
+    <!-- <link rel="stylesheet" type="text/css" href="assets/webix/webix.css"> -->
+    <!-- <script type="text/javascript" src="node_modules/diff/dist/diff.js"></script> -->
+    <!-- <script type="text/javascript" src="node_modules/codemirror/lib/codemirror.js"></script> -->
+    <script
+      type="text/javascript"
+      src="node_modules/sql-formatter/dist/sql-formatter.js"
+    ></script>
+    <!-- You can get this file from https://github.com/webix-hub/components -->
+    <!-- <script src="assets/codemirror.js"></script> -->
+    <script src="assets/monaco.js"></script>
+    <!-- <script>
 		window.sqlFormatter ||
 		  document.write(
 			unescape(
@@ -29,26 +50,102 @@
 		  );
 	  </script> -->
 
-	<!-- App -->
-	<!-- <script type="text/javascript" src="node_modules/copy-text-to-clipboard/index.js"></script> -->
-	<script type="text/javascript" src="codebase/myapp.js"></script>
-	<link
-	rel="stylesheet"
-		type="text/css"
-		href="node_modules/@mdi/font/css/materialdesignicons.css"
-	/>
-	<!-- <link
+    <!-- App -->
+    <!-- <script type="text/javascript" src="node_modules/copy-text-to-clipboard/index.js"></script> -->
+    <script type="text/javascript" src="codebase/myapp.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="node_modules/@mdi/font/css/materialdesignicons.css"
+    />
+    <!-- <link
 	rel="stylesheet"
 	type="text/css"
 	href="node_modules/codemirror/lib/codemirror.css"
 	/> -->
-	
-	<link rel="stylesheet" type="text/css" href="codebase/myapp.css">
-	<link
-		rel="stylesheet"
-		href="node_modules/animate.css/animate.min.css"
-	/>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.5.2/animate.min.css" type="text/css" media="screen" charset="utf-8">
-</head>
-<body></body>
+
+    <link rel="stylesheet" type="text/css" href="codebase/myapp.css" />
+    <link rel="stylesheet" href="node_modules/animate.css/animate.min.css" />
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.5.2/animate.min.css" type="text/css" media="screen" charset="utf-8"> -->
+    <style>
+      .spinner-container {
+        text-align: center;
+      }
+
+      .spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: -30px 0 0 -30px;
+        display: inline-block;
+        height: 60px;
+        width: 60px;
+        -webkit-animation: rotation 0.6s infinite linear;
+        -moz-animation: rotation 0.6s infinite linear;
+        -o-animation: rotation 0.6s infinite linear;
+        animation: rotation 0.6s infinite linear;
+        border: 6px solid rgba(221, 171, 137, 0.15);
+        border-top: 6px solid rgba(221, 171, 137, 0.8);
+        border-radius: 100%;
+      }
+
+      @-webkit-keyframes rotation {
+        from {
+          -webkit-transform: rotate(0deg);
+        }
+        to {
+          -webkit-transform: rotate(359deg);
+        }
+      }
+
+      @-moz-keyframes rotation {
+        from {
+          -moz-transform: rotate(0deg);
+        }
+        to {
+          -moz-transform: rotate(359deg);
+        }
+      }
+
+      @-ms-keyframes rotation {
+        from {
+          -moz-transform: rotate(0deg);
+        }
+        to {
+          -moz-transform: rotate(359deg);
+        }
+      }
+
+      @-o-keyframes rotation {
+        from {
+          -o-transform: rotate(0deg);
+        }
+        to {
+          -o-transform: rotate(359deg);
+        }
+      }
+
+      @keyframes rotation {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(359deg);
+        }
+      }
+
+      .zfo {
+        animation: fade 1s steps(10) forwards;
+        -webkit-animation: fade 1s steps(10) forwards;
+        -moz-animation: fade 1s steps(10) forwards;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="zl">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </body>
 </html>

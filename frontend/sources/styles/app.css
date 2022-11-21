@@ -1143,3 +1143,8 @@ background-size: cover;
 .z_orange_row{
   background-color:#ffe08a;
 }
+
+.z_cell_null:before {
+  content: "[null]";
+  color:rgb(182, 182, 182);
+}

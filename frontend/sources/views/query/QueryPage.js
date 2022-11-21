@@ -1598,8 +1598,10 @@ export function QueryPage(prefix, selectedDb) {
         openWinCell(type, content);
       }
 
-      if ((type == "text" || type == "varchar") && content.length > 100) {
-        openWinCell(type, content);
+      if(content){
+        if ((type == "text" || type == "varchar") && content.length > 100) {
+          openWinCell(type, content);
+        }
       }
 
       function openWinCell(type, content) {
@@ -1809,6 +1811,19 @@ export function QueryPage(prefix, selectedDb) {
           }
 
           // console.log(`rData.config`, rData.config)
+
+          /*
+          // ON TESTED NULL VALUE
+          function mark_old(value,item){
+            if (item.test_0===null)
+              return "z_cell_null";
+          }
+
+          if (rData.config) {
+            newCfg = rData.config.map(obj => ({ ...obj, cssFormat: mark_old}));
+          }
+          */
+
           let newView = {
             type: "clean",
             css: "z_tabbar_result",

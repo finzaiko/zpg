@@ -1588,7 +1588,6 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const openDetailCell = (type, content) => {
-    console.log('content',content);
 
     const allowType = ["json", "jsonb", "text", "varchar"];
     if (allowType.indexOf(type) !== -1) {
@@ -1598,16 +1597,17 @@ export function QueryPage(prefix, selectedDb) {
         openWinCell(type, content);
       }
 
+
+      const ctn = content.match(/\n/gm); // get number of row results
+
       if(content){
-        if ((type == "text" || type == "varchar") && content.length > 100) {
+        if ((type == "text" || type == "varchar") && (ctn && ctn.length > 0)) {
           openWinCell(type, content);
         }
       }
 
       function openWinCell(type, content) {
-        if(type=="json" || type=="jsonb"){
-          content = syntaxHighlight(content);
-        }
+
         webix
           .ui({
             view: "window",
@@ -1672,8 +1672,19 @@ export function QueryPage(prefix, selectedDb) {
             body: {
               view: "template",
               css: "z_query_detail_cell",
-              template: `<pre style='height:100%;overflow: auto;'>${content}</pre>`,
+              // template: `<pre style='height:100%;overflow: auto;'>${content}</pre>`,
+              template: `<pre id='${prefix+"_detail_cell_content"}' style='height:100%;overflow: auto;'></pre>`,
             },
+            on: {
+              onShow: function(){
+                const s = document.querySelector("#"+prefix+"_detail_cell_content");
+                if(type=="json" || type=="jsonb"){
+                  s.innerHTML = syntaxHighlight(content);
+                }else{
+                  s.innerText = content;
+                }
+              }
+            }
           })
           .show();
       }
@@ -1995,11 +2006,14 @@ export function QueryPage(prefix, selectedDb) {
               // $$(prefix + "_result_console").setValue(rData.message);
               $$(prefix + "_console").setValue(rData.message);
             }
+            $$(prefix + "_tabbar").setValue(prefix + "_result");
+            /*
             if (rData.total_count > 0 || rData.data.length > 0) {
               $$(prefix + "_tabbar").setValue(prefix + "_result");
             } else {
               $$(prefix + "_tabbar").setValue(prefix + "_console");
             }
+            */
 
             lineNo = 0;
           } else {

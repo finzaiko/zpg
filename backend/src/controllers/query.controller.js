@@ -149,9 +149,9 @@ class QueryController {
         let textMsg = [];
         const et = new Date().getTime() - start_time;
 
-        if (r.rowCount) {
+        // if (r.rowCount) {
           textMsg.push(`\n${r.rowCount} rows found.`);
-        }
+        // }
 
         // console.log(`rcb###########2`, rcb);
         if (typeof rcb != "undefined" && rcb.length > 0) {

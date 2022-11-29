@@ -12,6 +12,7 @@ import { QueryHelp } from "./QueryHelp";
 import {
   LAST_DATATYPE,
   LAST_DB_CONN_QUERY,
+  LAST_HISTORY,
   LAST_MINIMAP,
   LAST_SEARCHTYPE,
 } from "../../config/setting";
@@ -1006,7 +1007,7 @@ export function QueryPage(prefix, selectedDb) {
               {
                 view: "icon",
                 icon: "mdi mdi-delete-sweep-outline",
-                tooltip: "Clear all History",
+                tooltip: "Clear all History<br>(history auto clear after 30 days)",
                 click: function () {
                   console.log("clear");
                 },
@@ -1488,6 +1489,7 @@ export function QueryPage(prefix, selectedDb) {
               cols: [
                 {
                   view: "label",
+                  tooltip: "Current setting store in browser local storage",
                   label:
                     "<span style='padding-left:4px;color:#1ca1c1'>Setting</span>",
                 },
@@ -1555,6 +1557,22 @@ export function QueryPage(prefix, selectedDb) {
                 },
               },
             },
+            {
+              view: "checkbox",
+              id: prefix + "_disable_history",
+              labelRight: "Disable History",
+              tooltip: "Disable capture log history",
+              name: "ck_disable_history",
+              labelWidth: 8,
+              value: 0,
+              on: {
+                onChange: function (newVal, oldVal) {
+                  state.isDisableHistory = newVal;
+                  // setMinimap();
+                  webix.storage.local.put(LAST_HISTORY, newVal);
+                },
+              },
+            },
             { template: "" },
           ],
         },
@@ -1575,9 +1593,14 @@ export function QueryPage(prefix, selectedDb) {
             if (mn) {
               $$(prefix + "_show_minimap").setValue(mn);
             }
+            const hs = webix.storage.local.get(LAST_HISTORY);
+            if (hs) {
+              $$(prefix + "_disable_history").setValue(hs);
+            }
             $$(prefix + "_show_data_type").unblockEvent();
             $$(prefix + "_detach_quick_search").unblockEvent();
             $$(prefix + "_show_minimap").unblockEvent();
+            $$(prefix + "_disable_history").unblockEvent();
           },
           onHide: function () {
             this.close();
@@ -1776,6 +1799,7 @@ export function QueryPage(prefix, selectedDb) {
       source_id: inputSourceId,
       sql: sqlInput,
       dtype: state.isDataType,
+      history: state.isDisableHistory, // is store history
     };
     const sourceCmb = $$(prefix + "_source_combo").getValue();
 

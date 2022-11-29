@@ -31,6 +31,7 @@ class QueryController {
       dtype: request.body.dtype,
       sqltype: request.body.sqltype,
       dropreplace: request.body.dropreplace,
+      history: request.body.history,
     };
 
     let rcb = [];
@@ -179,14 +180,15 @@ class QueryController {
           message: `Query successfully in ${et} ms.${aa}`,
         });
 
-        let hsData = {
-          title: "",
-          content: data.sql,
-          type: 3,
-          user_id: userId,
-        };
-
-        profileService.createContent(hsData, userId);
+        if(!data.history){ // is disable history
+          const hsData = {
+            title: "",
+            content: data.sql,
+            type: 3,
+            user_id: userId,
+          };
+          profileService.createContent(hsData, userId);
+        }
 
         let seen = new Set();
         const hasDuplicates = r.fields.some(function (currentObject) {

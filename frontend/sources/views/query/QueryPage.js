@@ -1597,10 +1597,8 @@ export function QueryPage(prefix, selectedDb) {
         openWinCell(type, content);
       }
 
-
-      const ctn = content.match(/\n/gm); // get number of row results
-
       if(content){
+        const ctn = content.match(/\n/gm); // get number of break line row results
         if ((type == "text" || type == "varchar") && (ctn && ctn.length > 0)) {
           openWinCell(type, content);
         }
@@ -1811,6 +1809,7 @@ export function QueryPage(prefix, selectedDb) {
           let rData = r.json();
 
           let newArr;
+          let newCfg;
 
           if (!rData.error) {
             newArr = rData.data.map((elm) => {
@@ -1820,18 +1819,16 @@ export function QueryPage(prefix, selectedDb) {
               return elm;
             });
           }
-
-          // console.log(`rData.config`, rData.config)
-
           /*
           // ON TESTED NULL VALUE
-          function mark_old(value,item){
-            if (item.test_0===null)
-              return "z_cell_null";
+          function styleNullValue(value,item){
+            if(value=='[null]'){
+              return 'z_cell_null';
+            }
           }
 
           if (rData.config) {
-            newCfg = rData.config.map(obj => ({ ...obj, cssFormat: mark_old}));
+            newCfg = rData.config.map(obj => ({ ...obj, cssFormat: styleNullValue}));
           }
           */
 
@@ -1932,10 +1929,14 @@ export function QueryPage(prefix, selectedDb) {
                     select: "row",
                     editable: true,
                     id: prefix + "_result",
+                    css: "z_query_result_grid",
                     columns: rData.config,
+                    // columns: newCfg,
                     resizeColumn: true,
-                    // data: rData.data,
-                    data: newArr,
+                    data: rData.data,
+                    // data: newArr,
+                    // maxColumnWidth:200,
+                    resizeRow:true,
                     pager: prefix + "_result_row_pager",
                     on: {
                       onAfterLoad: function () {

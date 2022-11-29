@@ -109,6 +109,13 @@ class QueryController {
               if(typeof isObjVal!="undefined"){
                 newObj[obj.colName] = JSON.stringify(x[i]);
               }else{
+                /*
+                if(x[i]===null){ //  Object.is(x[i], null)
+                  newObj[obj.colName] = '[null]';
+                }else{
+                  newObj[obj.colName] = x[i];
+                }
+                */
                 newObj[obj.colName] = x[i];
               }
             });
@@ -134,6 +141,13 @@ class QueryController {
               if(obj.colType=='json' || obj.colType=='jsonb'){
                 newObj[obj.colName] = JSON.stringify(x[i]);
               }else{
+                /*
+                if(x[i]===null){ //  Object.is(x[i], null)
+                  newObj[obj.colName] = '[null]';
+                }else{
+                  newObj[obj.colName] = x[i];
+                }
+                */
                 newObj[obj.colName] = x[i];
               }
             });

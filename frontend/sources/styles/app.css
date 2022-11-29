@@ -1144,7 +1144,12 @@ background-size: cover;
   background-color:#ffe08a;
 }
 
-.z_cell_null:before {
-  content: "[null]";
+/* .z_cell_null:before { */
+.z_cell_null {
+  /* content: "[null]"; */
   color:rgb(182, 182, 182);
+}
+
+.z_query_result_grid .webix_hcell{
+  border-right: 1px solid #e1e1e1 !important;
 }

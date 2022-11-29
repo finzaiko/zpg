@@ -246,7 +246,8 @@ class ProfileRepository {
 
   // Clear history after last one monthh
   async getClearUserProfile() {
-    let sql = `DELETE FROM profile WHERE created_at < DATETIME('now', '-30 day') AND type NOT IN (1,2)`;
+    // Delete all query history, not for profile, serverconn, dbconn, bookmark
+    let sql = `DELETE FROM profile WHERE created_at < DATETIME('now', '-30 day') AND type NOT IN (1,2,3)`;
     const res = await new Promise((resolve, reject) => {
       db.all(sql,(err, row) => {
         if (err) reject(err);

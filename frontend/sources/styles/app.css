@@ -1144,10 +1144,11 @@ background-size: cover;
   background-color:#ffe08a;
 }
 
-/* .z_cell_null:before { */
-.z_cell_null {
-  /* content: "[null]"; */
+.z_cell_null:before {
+/* .z_cell_null { */
+  content: "[null]";
   color:rgb(182, 182, 182);
+  /* background-color: yellow; */
 }
 
 .z_query_result_grid .webix_hcell{

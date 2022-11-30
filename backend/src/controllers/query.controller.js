@@ -110,18 +110,27 @@ class QueryController {
               if(typeof isObjVal!="undefined"){
                 newObj[obj.colName] = JSON.stringify(x[i]);
               }else{
-                /*
-                if(x[i]===null){ //  Object.is(x[i], null)
-                  newObj[obj.colName] = '[null]';
-                }else{
-                  newObj[obj.colName] = x[i];
-                }
-                */
                 newObj[obj.colName] = x[i];
               }
             });
-            return newObj;
+
+            // Handle null value
+            let nullVal = [], nullObj={};
+            Object.keys(newObj).forEach(function (item) {
+              if (newObj[item] === null){
+                nullVal.push(item)
+              }
+            });
+
+            nullVal.forEach((value, index) => {
+              nullObj[value] = 'z_cell_null';
+            });
+            // END: Handle null value
+
+            // return newObj;
+            return Object.assign(newObj, {"$cellCss":nullObj});
           });
+
         } else {
           const rr = r[r.length - 1];
           tableConfig = columnDef.map((obj) => {

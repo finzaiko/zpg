@@ -3,10 +3,20 @@ const { db } = require("../core/database");
 const bcrypt = require("bcrypt");
 
 class UserRepository {
-  async getAll() {
-    const fields = `id, fullname, email, username, user_level, access_group, last_login`;
+  async getAll(offset, limit, sort, search, type) {
+
+    let fields = `id, fullname, email, username, user_level, access_group, last_login`;
+    if(type==1 || type==2){ // list
+      fields = `id, fullname as value`;
+    }
     let sql = `SELECT ${fields} FROM user`;
+    sql += ` WHERE username!='admin' `;
+
+    if(type==2) { // list suggest
+      sql += ` AND username like '%${search}%' or fullname like '%${search}%' `;
+    }
     sql += " ORDER BY id DESC";
+
     let params = [];
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {

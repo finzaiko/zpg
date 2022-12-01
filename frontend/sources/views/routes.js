@@ -18,6 +18,7 @@ export const routeName = {
   viewdata: "viewdata",
   copydata: "copydata",
   generator: "generator",
+  shared: "shared",
   setting: "setting",
 };
 
@@ -69,5 +70,11 @@ export const routes = [
     type: "clean",
     borderless: true,
     rows: [GeneratorIndex],
+  },
+  {
+    id: routeName.shared,
+    type: "clean",
+    borderless: true,
+    rows: [{template: "shared page"}],
   },
 ];

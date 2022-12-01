@@ -3,9 +3,9 @@ const { responseHttp } = require("../utils/http.utils");
 
 class UserController {
   async getAll(request, reply) {
-    const { offset, limit, sort } = request.query;
+    const { offset, limit, sort, search, type } = request.query;
 
-    const data = await UserService.getAll(offset, limit, sort);
+    const data = await UserService.getAll(offset, limit, sort, search, type);
     responseHttp(reply, 200, "Ok", { data: data });
   }
 

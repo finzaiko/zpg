@@ -46,7 +46,7 @@ class QueryController {
       data.sqltype,
       data.dropreplace,
       function (cb) {
-        // console.log(`rcb###########`, cb.severity);
+        // console.log(`cb>>>>>>>>>>>>`, cb);
         rcb.push(`\n${cb.severity}: ${cb.message}\n`);
         // rcb = cb;
       }
@@ -105,6 +105,7 @@ class QueryController {
           tableData = r.rows.map(function (x) {
             let newObj = {};
             const objType = ["json","jsonb","json[]","jsonb[]","interval"];
+            let nullVal = [];
             columnDef.forEach((obj, i) => {
               const isObjVal = objType.find(o=>o==obj.colType);
               if(typeof isObjVal!="undefined"){
@@ -112,10 +113,18 @@ class QueryController {
               }else{
                 newObj[obj.colName] = x[i];
               }
+              if (x[i] === null){
+                nullVal.push([obj.colName,'z_cell_null'])
+              }
             });
+            const nullObj = Object.fromEntries(nullVal);
 
+            // return newObj;
+            return Object.assign(newObj, {"$cellCss":nullObj});
+
+            /*
             // Handle null value
-            let nullVal = [], nullObj={};
+            let nullObj={};
             Object.keys(newObj).forEach(function (item) {
               if (newObj[item] === null){
                 nullVal.push(item)
@@ -125,10 +134,11 @@ class QueryController {
             nullVal.forEach((value, index) => {
               nullObj[value] = 'z_cell_null';
             });
-            // END: Handle null value
 
-            // return newObj;
             return Object.assign(newObj, {"$cellCss":nullObj});
+            // END: Handle null value
+            */
+
           });
 
         } else {
@@ -171,22 +181,20 @@ class QueryController {
         };
 
         let textMsg = [];
-        const et = new Date().getTime() - start_time;
-
-        // if (r.rowCount) {
-          textMsg.push(`\n${r.rowCount} rows found.`);
-        // }
-
-        // console.log(`rcb###########2`, rcb);
-        if (typeof rcb != "undefined" && rcb.length > 0) {
+        //  console.log(`rcb###########2`, rcb);
+         if (typeof rcb != "undefined" && rcb.length > 0) {
           // textMsg.push(`\n--notice:--\n${rcb.severity} ${rcb.message}\n`);
-          textMsg.push(`\n--notice:-- ${rcb.join("\n")}`);
+          textMsg.push(`${rcb.join("\n")}\n--end:notice:--\n`);
         }
 
-        let aa = textMsg.join("\n");
+        const et = new Date().getTime() - start_time;
+
+        let noticeResult = textMsg.join("\n");
+        const rc = r.rowCount;
+        let effected = rc ? `\n${rc} rows effected.` : '';
         Object.assign(rd, {
-          total_count: r.rowCount,
-          message: `Query successfully in ${et} ms.${aa}`,
+          total_count: rc,
+          message: `${noticeResult}\nQuery successfully in ${et} ms.${effected}\n`,
         });
 
         if(!data.history){ // is disable history

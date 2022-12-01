@@ -2,9 +2,8 @@ const UserRepository = require(`../repositories/user.repository`);
 const UserDto = require(`../dtos/user.dto`);
 
 class UserService {
-  async getAll(offset = 0, limit = 10, sort = "desc") {
-    const data = await UserRepository.getAll(offset, limit, sort);
-    // console.log(`data/////////////`, data);
+  async getAll(offset = 0, limit = 10, sort = "desc", search="",type=0) {
+    const data = await UserRepository.getAll(offset, limit, sort, search, type);
     return data;
   }
 

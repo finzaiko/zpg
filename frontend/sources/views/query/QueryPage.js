@@ -9,6 +9,7 @@ import { url as urlProfile } from "../../models/Profile";
 import { url, state, searchHistoryStore } from "../../models/Query";
 import { QueryDatabase } from "./QueryDatabase";
 import { QueryHelp } from "./QueryHelp";
+import { userProfile } from "../../models/UserProfile";
 import {
   LAST_DATATYPE,
   LAST_DB_CONN_QUERY,
@@ -19,6 +20,7 @@ import {
 import { userId } from "../../../../backend/src/test/user-profile.test";
 import { FONT_SIZE_EDITOR } from "../../../../backend/src/config/contant";
 import { copyToClipboard } from "../../helpers/copy";
+import { url as urlUser } from "../../models/User";
 // import copy from 'copy-text-to-clipboard';
 
 TimeAgo.addDefaultLocale(en);
@@ -606,6 +608,19 @@ export function QueryPage(prefix, selectedDb) {
           openSearchDetach();
         },
       },
+      /*
+      {
+        view: "icon",
+        icon: "mdi mdi-share-variant-outline",
+        css: "zmdi_padding",
+        id: prefix + "_share_btn",
+        tooltip: "Share to other users",
+        autowidth: true,
+        click: function () {
+          openShareUser();
+        },
+      },
+      */
       {},
       {
         view: "icon",
@@ -1006,10 +1021,22 @@ export function QueryPage(prefix, selectedDb) {
               },
               {
                 view: "icon",
+                icon: "mdi mdi-format-list-group",
+                tooltip: "Admin: Show all users history",
+                id: prefix + "_all_history",
+                hidden: true,
+                click: function () {
+                  console.log("show user history");
+                  webix.message({text: "Not implement yet", type: "debug"});
+                },
+              },
+              {
+                view: "icon",
                 icon: "mdi mdi-delete-sweep-outline",
                 tooltip: "Clear all History<br>(history auto clear after 30 days)",
                 click: function () {
                   console.log("clear");
+                  webix.message({text: "Not implement yet", type: "debug"});
                 },
               },
             ],
@@ -1112,6 +1139,100 @@ export function QueryPage(prefix, selectedDb) {
       },
     ],
   };
+
+
+  const openShareUser = () => {
+    webix
+      .ui({
+        view: "window",
+        modal: true,
+        id: prefix + "_win_share_user",
+        width: 300,
+        height: 350,
+        position: "center",
+        move: true,
+        head: {
+          view: "toolbar",
+          cols: [
+            { view: "label", label: "Share to user" },
+            {
+              view: "icon",
+              icon: "mdi mdi-close",
+              tooltip: "Close me",
+              align: "right",
+              click: function () {
+                $$(prefix + "_win_share_user").destructor();
+              },
+            },
+          ],
+        },
+        body: {
+          rows: [
+           {
+            cols: [
+              {
+                view: "text",
+                css: "search_suggest",
+                id: prefix + "_user_sharelist",
+                placeholder: "Type name..",
+                width: 300,
+                suggest: {
+                  keyPressTimeout: 500,
+                  body: {
+                    dataFeed: function (filtervalue, filter) {
+                      if (filtervalue.length < 2) {
+                        this.clearAll();
+                        return;
+                      }
+                      this.clearAll();
+                      this.load(
+                        `${urlUser}/users?type=2&search=${filtervalue}`
+                      );
+                    },
+                    on: {
+                      onBeforeLoad: function () {
+                      },
+                      onAfterLoad: function () {
+                      },
+                    },
+                  },
+                  on: {
+                    onValueSuggest: function (node) {
+                      // loadSchemaContent(0, node.id);
+                    },
+                  },
+                },
+                on: {
+                  onKeyPress: function (code, e) {
+                    // if (code == 9) {
+                    // }
+                    console.log('code',code);
+
+                  },
+                },
+              },
+              {
+                view: "button", type: "icon", icon: "mdi mdi-plus", autowidth:true,
+                css: "zmdi_padding",
+              },
+            ]
+           },
+           {
+            view:"list",
+            template:"#title#",
+            select:true,
+            data:[
+              { id:1, title:"Item 1"},
+              { id:2, title:"Item 2"},
+              { id:3, title:"Item 3"}
+            ]
+          },
+          ],
+        },
+      })
+      .show();
+  };
+
 
   const runViewData = (profileId, tableOid, type) => {
     webix
@@ -1886,12 +2007,20 @@ export function QueryPage(prefix, selectedDb) {
                       onChange: function (v) {
                         if (v == prefix + "_console") {
                           $$(prefix + "_copy_result_clipboard").show();
+                          $$(prefix + "_result_scrolldown").show();
+                          $$(prefix + "_result_scrollup").show();
+                          $$(prefix + "_console").getEditor(true).then((editor) => {
+                            editor.revealLineInCenter(editor.getModel().getLineCount());
+                          });
                         } else {
                           $$(prefix + "_copy_result_clipboard").hide();
+                          $$(prefix + "_result_scrolldown").hide();
+                          $$(prefix + "_result_scrollup").hide();
                         }
                       },
                     },
                   },
+                  {width: 10},
                   {
                     view: "icon",
                     icon: "mdi mdi-content-copy",
@@ -1901,7 +2030,7 @@ export function QueryPage(prefix, selectedDb) {
                     css: "z_icon_color_primary z_icon_size_17",
                     click: function () {
                       const content = $$(prefix + "_console").getValue();
-                      const val = content.split("--notice:--")[1];
+                      const val = content.split("--end:notice:--")[0];
                       if (typeof val != "undefined") {
                         this.hide();
                         const ck = $$(prefix + "_copy_result_clipboard_done");
@@ -1924,11 +2053,42 @@ export function QueryPage(prefix, selectedDb) {
                     view: "template",
                     autowidth: true,
                     hidden: true,
+                    width: 31,
                     css: {"padding-top":"3px"},
                     borderless: true,
                     id: prefix + "_copy_result_clipboard_done",
                     template:
                       '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                  },
+                  {width: 10},
+                  {
+                    view: "icon",
+                    icon: "mdi mdi-arrow-collapse-down",
+                    autowidth: true,
+                    hidden: true,
+                    id: prefix + "_result_scrolldown",
+                    tooltip: "Scroll to bottom",
+                    css: "z_icon_color_primary z_icon_size_17",
+                    click: function () {
+                      $$(prefix + "_console").getEditor(true).then((editor) => {
+                        editor.revealLineInCenter(editor.getModel().getLineCount());
+                      });
+                    }
+                  },
+                  {width: 10},
+                  {
+                    view: "icon",
+                    icon: "mdi mdi-arrow-collapse-up",
+                    autowidth: true,
+                    hidden: true,
+                    id: prefix + "_result_scrollup",
+                    tooltip: "Scroll to top",
+                    css: "z_icon_color_primary z_icon_size_17",
+                    click: function () {
+                      $$(prefix + "_console").getEditor(true).then((editor) => {
+                        editor.revealLineInCenter(1);
+                      });
+                    }
                   },
                   pagerRow(prefix + "_result_row_pager"),
                   { width: 10 },
@@ -1983,18 +2143,8 @@ export function QueryPage(prefix, selectedDb) {
                       },
                     },
                   },
-                  // {
-                  //   view: "template",
-                  //   scroll: "xy",
-                  //   css: "z_out_template",
-                  //   id: prefix + "_console",
-                  //   template: function (obj) {
-                  //     return "";
-                  //   },
-                  // },
                   {
                     view: "monaco-editor",
-                    // id: prefix + "_result_console",
                     css: "z_console_editor",
                     id: prefix + "_console",
                     language: "text",
@@ -2085,12 +2235,6 @@ export function QueryPage(prefix, selectedDb) {
               }
             }
 
-            // $$(prefix + "_console").setHTML(
-            //   "<pre>" +
-            //     output.charAt(0).toUpperCase() +
-            //     output.slice(1) +
-            //     "</pre>"
-            // );
             $$(prefix + "_console").setValue(
               output.charAt(0).toUpperCase() + output.slice(1)
             );
@@ -2103,7 +2247,6 @@ export function QueryPage(prefix, selectedDb) {
               .then((ed) => {
                 // const targetId = decorations[0];
                 decorations.forEach((el, i) => {
-                  console.log(decorations);
                   const targetId = decorations[i];
                   ed.deltaDecorations([targetId], []);
                 });
@@ -2175,6 +2318,17 @@ export function QueryPage(prefix, selectedDb) {
     editorId.disable();
 
     editorId.getEditor(true).then((editor) => {
+
+      // console.log('editor.getPosition().lineNumber',editor.getPosition().lineNumber);
+      // console.log('editor.getPosition().lineNumber',editor.viewModel.lines.getViewLineCount());
+      // console.log('editor.getPosition().lineNumber',editor);
+      console.log('editor.getPosition().lineNumber',editor.getModel().getLineCount());
+      // editor.onDidScrollChange(function (e) {
+      //   console.error(editor.getVisibleRanges()[0].startLineNumber);
+      // });
+
+
+
       editorId.hideProgress();
       editorId.enable();
 
@@ -2424,6 +2578,11 @@ export function QueryPage(prefix, selectedDb) {
             $$(prefix + "_source_combo").setValue(db);
           }
         }
+
+        if(userProfile.userLevel==1){
+          $$(prefix + "_all_history").show();
+        }
+
         setSearchType();
 
         initQueryEditor();

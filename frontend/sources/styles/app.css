@@ -1094,7 +1094,7 @@ background-size: cover;
   stroke-width: 4;
   stroke-dasharray: 23;
   stroke-dashoffset: 23;
-  animation: draw 1s linear forwards;
+  animation: draw 500ms linear forwards;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

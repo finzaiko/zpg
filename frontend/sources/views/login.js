@@ -233,10 +233,6 @@ class WindowView extends JetView {
   }
 
   ready() {
-    console.log(`state.meta`, state.meta);
-    // user test only
-    // this.$$("loginform_username").setValue("arifin")
-    // this.$$("loginform_password").setValue("arifin123")
   }
 
   doLogin() {

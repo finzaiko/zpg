@@ -113,7 +113,9 @@ class QueryController {
               }else{
                 newObj[obj.colName] = x[i];
               }
-              if (x[i] === null){
+              console.log('x[i]',x[i], typeof x[i], obj.colType);
+
+              if (x[i] === null && obj.colType!='json' && obj.colType!='jsonb'){
                 nullVal.push([obj.colName,'z_cell_null'])
               }
             });

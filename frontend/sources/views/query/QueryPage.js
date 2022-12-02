@@ -2023,6 +2023,53 @@ export function QueryPage(prefix, selectedDb) {
                   {width: 10},
                   {
                     view: "icon",
+                    // icon: "mdi mdi-table-arrow-up",
+                    icon: "mdi mdi-content-save-outline",
+                    autowidth: true,
+                    hidden: true,
+                    id: prefix + "_save_result",
+                    tooltip: "Save changes",
+                    css: "z_icon_color_primary z_icon_size_17",
+                    click: function () {
+                      const grid = $$(prefix + "_result");
+                      grid.editStop();
+                      let cache = grid.$values_cache;
+                      if(cache.length>0){
+                        cache.forEach((o)=>{
+                          $$(prefix + "_result").removeCellCss(o.id, o.column, "z_changes_cell_result", false);
+                        });
+                      }
+                      console.log(JSON.stringify(cache));
+                      grid.$values_cache = [];
+                    }
+                  },
+                  {width: 10},
+                  {
+                    view: "icon",
+                    icon: "mdi mdi-table-row-plus-after",
+                    autowidth: true,
+                    hidden: true,
+                    id: prefix + "_addrow_result",
+                    tooltip: "Add new row",
+                    css: "z_icon_color_primary z_icon_size_17",
+                    click: function () {
+                    }
+                  },
+                  {width: 10},
+                  {
+                    view: "icon",
+                    icon: "mdi mdi-table-row-remove",
+                    autowidth: true,
+                    hidden: true,
+                    id: prefix + "_removerow_result",
+                    tooltip: "Remove selected row",
+                    css: "z_icon_color_primary z_icon_size_17",
+                    click: function () {
+                    }
+                  },
+                  {width: 10},
+                  {
+                    view: "icon",
                     icon: "mdi mdi-content-copy",
                     autowidth: true,
                     id: prefix + "_copy_result_clipboard",
@@ -2141,6 +2188,12 @@ export function QueryPage(prefix, selectedDb) {
                         const sel = this.getItem(id);
                         openDetailCell(type, sel[id.column]);
                       },
+                      onAfterEditStop:function(state, editor){
+                        if (state.old == state.value) return true;
+                        if (!this.$values_cache) this.$values_cache = [];
+                        this.$values_cache.push({id: editor.row, column: editor.column, value:state.value});
+                        $$(this).addCellCss(editor.row, editor.column, "z_changes_cell_result", true);
+                      }
                     },
                   },
                   {
@@ -2264,6 +2317,8 @@ export function QueryPage(prefix, selectedDb) {
 
           $$(prefix + "_page_panel").hideOverlay();
           loadHistory();
+          copyFieldName();
+
         });
     } else {
       webix.message({
@@ -2283,6 +2338,25 @@ export function QueryPage(prefix, selectedDb) {
     let listId = $$(prefix + "_history_list");
     listId.clearAll();
     listId.load(`${urlProfile}/content?type=3`);
+  }
+
+  function copyFieldName() {
+    const resultTblId = $$(`${prefix}_result`);
+    webix.event(resultTblId.$view, "contextmenu", function(e){
+      webix.html.preventEvent(e);
+      const pos = resultTblId.locate(e);
+      if (pos && !pos.row) {
+        webix.ui({
+          view:"contextmenu",
+          data:["Copy Field Name"],
+          click:function(id, context){
+          const temp = pos.column.split("_");
+          temp.pop();
+          copyToClipboard(temp.join("_"))
+          }
+        }).show(e);
+      }
+    });
   }
 
   function reloadDBConnCombo() {

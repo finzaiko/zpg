@@ -98,6 +98,17 @@ CREATE TABLE task_item (
 );
 `;
 
+const shareTable = `
+CREATE TABLE share (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    profile_id integer not null,
+    user_id integer not null,
+    created_at timestamp DATE DEFAULT (datetime('now','localtime')),
+    FOREIGN KEY (profile_id) REFERENCES profile (id),
+    FOREIGN KEY (user_id) REFERENCES user (id)
+);
+`;
+
 const compareTable = (tableName) => {
   return `
     CREATE TABLE ${tableName} (
@@ -136,6 +147,7 @@ module.exports = {
   userTable,
   settingTable,
   compareTable,
+  shareTable,
   defaultSetting,
   defaultUser,
 };

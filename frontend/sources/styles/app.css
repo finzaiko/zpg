@@ -1154,3 +1154,8 @@ background-size: cover;
 .z_query_result_grid .webix_hcell{
   border-right: 1px solid #e1e1e1 !important;
 }
+
+.z_changes_cell_result{
+  font-weight:bold;
+  /* color: #1CA1C1 !important; */
+}

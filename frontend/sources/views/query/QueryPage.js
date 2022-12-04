@@ -1009,13 +1009,16 @@ export function QueryPage(prefix, selectedDb) {
               {
                 view: "text",
                 placeholder: "filter..",
+                keyPressTimeout: 800,
                 on: {
                   onTimedKeyPress: function () {
-                    // $$(prefix + "_history_list").filterByAll();
+                    loadHistory(this.getValue());
+                    /*
                     const value = this.getValue().toLowerCase();
                     $$(prefix + "_history_list").filter(function (obj) {
                       return obj.content.toLowerCase().indexOf(value) !== -1;
                     });
+                    */
                   },
                 },
               },
@@ -2034,13 +2037,58 @@ export function QueryPage(prefix, selectedDb) {
                       const grid = $$(prefix + "_result");
                       grid.editStop();
                       let cache = grid.$values_cache;
-                      if(cache.length>0){
-                        cache.forEach((o)=>{
-                          $$(prefix + "_result").removeCellCss(o.id, o.column, "z_changes_cell_result", false);
-                        });
+                      if(typeof cache!="undefined"){
+                        if(cache.length>0){
+                          cache.forEach((o)=>{
+                            console.log('o',o);
+                            $$(prefix + "_result").removeCellCss(o.id, o.column, "z_changes_cell_result", false);
+                          });
+                        }
+
+                        const strQry = input.sql.toLowerCase().split('from')
+                        const tableName = strQry.pop().trim().split(' ');
+
+                        const uniqueAddedArr = Array.from(new Set(cache.map(a => a.id)))
+                              .map(id => {
+                                return cache.find(a => a.id === id)
+                              }).filter(o=>o.id<1)
+
+                        // console.log('uniqueAddedArr',uniqueAddedArr);
+                        let createdCache = [];
+                        uniqueAddedArr.forEach(o=>{
+                          createdCache.push(grid.getItem(o.id))
+                        })
+
+                        let editedCache = cache.filter(o=>o.id>0);
+                        const dataSave = [...createdCache, ...editedCache];
+                        // console.log('dataSave',dataSave);
+
+
+                        console.log(JSON.stringify(dataSave));
+
+                        return webix.message({text: 'Not implement yet!', type: "debug"});
+                        if(cache.length>0){
+                          const inputData = {
+                            table_name: tableName[0],
+                            data: JSON.stringify(cache)
+                          }
+                          webix
+                            .ajax()
+                            .post(
+                              `${url}/save_result`, inputData
+                            )
+                            .then(function (data) {
+                              console.log('data',data);
+                              webix.message({text: 'Data saved', type: "success"});
+                            });
+                            grid.$values_cache = [];
+                        }else{
+                          webix.message({text: 'No data to save', type: "error"});
+                        }
+                      }else{
+                        webix.message({text: 'Update first, no data to save', type: "error"});
                       }
-                      console.log(JSON.stringify(cache));
-                      grid.$values_cache = [];
+
                     }
                   },
                   {width: 10},
@@ -2053,6 +2101,7 @@ export function QueryPage(prefix, selectedDb) {
                     tooltip: "Add new row",
                     css: "z_icon_color_primary z_icon_size_17",
                     click: function () {
+                      $$(prefix + "_result").add({ id: -webix.uid() }, 0);
                     }
                   },
                   {width: 10},
@@ -2065,6 +2114,7 @@ export function QueryPage(prefix, selectedDb) {
                     tooltip: "Remove selected row",
                     css: "z_icon_color_primary z_icon_size_17",
                     click: function () {
+                      webix.message({text: "Not implement yet", type: "debug"});
                     }
                   },
                   {width: 10},
@@ -2189,10 +2239,19 @@ export function QueryPage(prefix, selectedDb) {
                         openDetailCell(type, sel[id.column]);
                       },
                       onAfterEditStop:function(state, editor){
+                        // console.log('editor',editor);
                         if (state.old == state.value) return true;
                         if (!this.$values_cache) this.$values_cache = [];
-                        this.$values_cache.push({id: editor.row, column: editor.column, value:state.value});
+
+                        const r = this.getItem(editor.row);
+                        let idRow = editor.row;
+                        let idDb = -1;
+                        if(typeof r['id_0']!="undefined"){
+                          idDb = r['id_0'];
+                        }
+                        this.$values_cache.push({id: idRow, id_db: idDb, column: editor.column, value:state.value});
                         $$(this).addCellCss(editor.row, editor.column, "z_changes_cell_result", true);
+                        $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", false);
                       }
                     },
                   },
@@ -2244,6 +2303,17 @@ export function QueryPage(prefix, selectedDb) {
             */
 
             lineNo = 0;
+
+            const inputSql = input.sql.toLowerCase();
+            if(inputSql.includes('from') && !inputSql.includes('join')){
+              $$(prefix + "_save_result").show();
+              $$(prefix + "_addrow_result").show();
+              $$(prefix + "_removerow_result").show();
+            }else{
+              $$(prefix + "_save_result").hide();
+              $$(prefix + "_addrow_result").hide();
+              $$(prefix + "_removerow_result").hide();
+            }
           } else {
             $$(prefix + "_scrollview_body").addView(newView);
             let output = rData.error;
@@ -2334,10 +2404,14 @@ export function QueryPage(prefix, selectedDb) {
     $$(prefix + "_sql_editor").show();
   };
 
-  function loadHistory() {
+  function loadHistory(search='') {
     let listId = $$(prefix + "_history_list");
     listId.clearAll();
-    listId.load(`${urlProfile}/content?type=3`);
+    let qs = '';
+    if(search){
+      qs = `&search=${search}`
+    }
+    listId.load(`${urlProfile}/content?type=3${qs}`);
   }
 
   function copyFieldName() {

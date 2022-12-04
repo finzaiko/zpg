@@ -2,7 +2,7 @@ const { db } = require("../core/database");
 const { Pool } = require("pg");
 
 class ProfileRepository {
-  async findAll(type, userId, isList, limit, offset) {
+  async findAll(type, userId, isList, limit, offset, search) {
     // console.log(`type, userId, isList////////`, type, userId, isList);
     let fields = "*";
     if (type == 1 || type == 2) {
@@ -18,12 +18,15 @@ class ProfileRepository {
         "SELECT id, conn_name  as value, host, database, ssl FROM profile WHERE type=? AND user_id=?";
     }
 
+    if(search){
+      sql += ` AND content LIKE '%${search}%'`;
+    }
     sql += " ORDER BY id DESC";
 
     if(limit){
       sql += " LIMIT "+ limit;
     }
-    // console.log('sql',sql);
+    //  console.log('sql',sql);
 
     let params = [type, userId];
     const res = await new Promise((resolve, reject) => {

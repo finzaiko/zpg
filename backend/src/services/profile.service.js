@@ -3,11 +3,11 @@ const ProfileContentDto = require("../dtos/profile-content.dto");
 const ProfileRepository = require(`../repositories/profile.repository`);
 
 class ProfileService {
-  async findAll(type, userId, isList, limit, offset) {
+  async findAll(type, userId, isList, limit, offset, search) {
     if(typeof limit=="undefined"){
       limit = 100;
     }
-    return await ProfileRepository.findAll(type, userId, isList, limit, offset);
+    return await ProfileRepository.findAll(type, userId, isList, limit, offset, search);
   }
 
   async getById(id, type, userId) {

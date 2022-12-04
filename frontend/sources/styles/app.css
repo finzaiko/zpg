@@ -1144,7 +1144,7 @@ background-size: cover;
   background-color:#ffe08a;
 }
 
-.z_cell_null:before {
+.z_cell_null::before {
 /* .z_cell_null { */
   content: "[null]";
   color:rgb(182, 182, 182);

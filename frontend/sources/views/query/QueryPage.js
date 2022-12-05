@@ -2012,10 +2012,16 @@ export function QueryPage(prefix, selectedDb) {
                           $$(prefix + "_copy_result_clipboard").show();
                           $$(prefix + "_result_scrolldown").show();
                           $$(prefix + "_result_scrollup").show();
+                          $$(prefix + "_save_result").hide();
+                          $$(prefix + "_addrow_result").hide();
+                          $$(prefix + "_removerow_result").hide();
                           $$(prefix + "_console").getEditor(true).then((editor) => {
                             editor.revealLineInCenter(editor.getModel().getLineCount());
                           });
                         } else {
+                          $$(prefix + "_save_result").show();
+                          $$(prefix + "_addrow_result").show();
+                          $$(prefix + "_removerow_result").show();
                           $$(prefix + "_copy_result_clipboard").hide();
                           $$(prefix + "_result_scrolldown").hide();
                           $$(prefix + "_result_scrollup").hide();

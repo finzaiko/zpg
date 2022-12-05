@@ -191,7 +191,7 @@ class QueryController {
 
         let noticeResult = textMsg.join("\n");
         const rc = r.rowCount;
-        let effected = rc ? `\n${rc} rows effected.` : '';
+        let effected = `\n${rc} rows effected.`;
         Object.assign(rd, {
           total_count: rc,
           message: `${noticeResult}\nQuery successfully in ${et} ms.${effected}\n`,

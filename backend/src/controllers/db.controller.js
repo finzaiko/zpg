@@ -38,7 +38,7 @@ class DbController {
     const { id, root, oid, t } = request.query;
     const userId = request.user.uid;
     const r = await DbService.getSchemaContentTree(id, root, oid, userId, t);
-console.log('r>>>>>>>>>>>>>>>>>>',r);
+// console.log('r>>>>>>>>>>>>>>>>>>',r);
 
     let m = oid.split("_")[1];
     let _data = [];

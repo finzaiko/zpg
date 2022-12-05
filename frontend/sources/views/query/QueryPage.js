@@ -1029,7 +1029,7 @@ export function QueryPage(prefix, selectedDb) {
                 id: prefix + "_all_history",
                 hidden: true,
                 click: function () {
-                  console.log("show user history");
+                  // console.log("show user history");
                   webix.message({text: "Not implement yet", type: "debug"});
                 },
               },
@@ -1038,7 +1038,7 @@ export function QueryPage(prefix, selectedDb) {
                 icon: "mdi mdi-delete-sweep-outline",
                 tooltip: "Clear all History<br>(history auto clear after 30 days)",
                 click: function () {
-                  console.log("clear");
+                  // console.log("clear");
                   webix.message({text: "Not implement yet", type: "debug"});
                 },
               },
@@ -1209,7 +1209,7 @@ export function QueryPage(prefix, selectedDb) {
                   onKeyPress: function (code, e) {
                     // if (code == 9) {
                     // }
-                    console.log('code',code);
+                    // console.log('code',code);
 
                   },
                 },
@@ -2040,7 +2040,6 @@ export function QueryPage(prefix, selectedDb) {
                       if(typeof cache!="undefined"){
                         if(cache.length>0){
                           cache.forEach((o)=>{
-                            console.log('o',o);
                             $$(prefix + "_result").removeCellCss(o.id, o.column, "z_changes_cell_result", false);
                           });
                         }
@@ -2078,7 +2077,7 @@ export function QueryPage(prefix, selectedDb) {
                               `${url}/save_result`, inputData
                             )
                             .then(function (data) {
-                              console.log('data',data);
+                              // console.log('data',data);
                               webix.message({text: 'Data saved', type: "success"});
                             });
                             grid.$values_cache = [];
@@ -2251,9 +2250,16 @@ export function QueryPage(prefix, selectedDb) {
                         }
                         this.$values_cache.push({id: idRow, id_db: idDb, column: editor.column, value:state.value});
                         $$(this).addCellCss(editor.row, editor.column, "z_changes_cell_result", true);
-                        $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", false);
-                      }
+                        $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
+                      },
                     },
+                    /*
+                    scheme:{
+                      $change:function(item){
+                        // console.log('item',item);
+                      }
+                    }
+                    */
                   },
                   {
                     view: "monaco-editor",
@@ -2416,19 +2422,22 @@ export function QueryPage(prefix, selectedDb) {
 
   function copyFieldName() {
     const resultTblId = $$(`${prefix}_result`);
-    webix.event(resultTblId.$view, "contextmenu", function(e){
-      webix.html.preventEvent(e);
-      const pos = resultTblId.locate(e);
-      if (pos && !pos.row) {
-        webix.ui({
-          view:"contextmenu",
-          data:["Copy Field Name"],
-          click:function(id, context){
-          const temp = pos.column.split("_");
-          temp.pop();
-          copyToClipboard(temp.join("_"))
-          }
-        }).show(e);
+    webix.event(resultTblId.$view, "contextmenu", function(e, node){
+      const hasHeader = e.srcElement.classList.contains('webix_hcell');
+      if(hasHeader){
+        webix.html.preventEvent(e);
+        const pos = resultTblId.locate(e);
+        if (pos && !pos.row) {
+          webix.ui({
+            view:"contextmenu",
+            data:["Copy Field Name"],
+            click:function(id, context){
+            const temp = pos.column.split("_");
+            temp.pop();
+            copyToClipboard(temp.join("_"))
+            }
+          }).show(e);
+        }
       }
     });
   }
@@ -2466,17 +2475,6 @@ export function QueryPage(prefix, selectedDb) {
     editorId.disable();
 
     editorId.getEditor(true).then((editor) => {
-
-      // console.log('editor.getPosition().lineNumber',editor.getPosition().lineNumber);
-      // console.log('editor.getPosition().lineNumber',editor.viewModel.lines.getViewLineCount());
-      // console.log('editor.getPosition().lineNumber',editor);
-      console.log('editor.getPosition().lineNumber',editor.getModel().getLineCount());
-      // editor.onDidScrollChange(function (e) {
-      //   console.error(editor.getVisibleRanges()[0].startLineNumber);
-      // });
-
-
-
       editorId.hideProgress();
       editorId.enable();
 

@@ -32,5 +32,15 @@ class QueryService {
     );
     return tblName;
   }
+
+  async getIsTable(profileId, userId, schema, table) {
+    const tblName = await viewdataRepository.getIsTable(
+      profileId,
+      userId,
+      schema,
+      table
+    );
+    return tblName.rows[0];
+  }
 }
 module.exports = new QueryService();

@@ -1745,8 +1745,14 @@ export function QueryPage(prefix, selectedDb) {
       }
 
       if(content){
+        console.log('content',content);
+        console.log('type',type);
+
+
         const ctn = content.match(/\n/gm); // get number of break line row results
-        if ((type == "text" || type == "varchar") && (ctn && ctn.length > 0)) {
+        if ((type == "text" || type == "varchar") && ((ctn && ctn.length > 0) || content.length>50)) {
+          console.log("xxx");
+
           openWinCell(type, content);
         }
       }
@@ -1958,6 +1964,7 @@ export function QueryPage(prefix, selectedDb) {
 
           let newArr;
           let newCfg;
+          let isTableCanSave = false;
 
           if (!rData.error) {
             newArr = rData.data.map((elm) => {
@@ -2014,14 +2021,20 @@ export function QueryPage(prefix, selectedDb) {
                           $$(prefix + "_result_scrollup").show();
                           $$(prefix + "_save_result").hide();
                           $$(prefix + "_addrow_result").hide();
+                          $$(prefix + "_addrow_result_spacer").hide();
                           $$(prefix + "_removerow_result").hide();
+                          $$(prefix + "_removerow_result_spacer").hide();
                           $$(prefix + "_console").getEditor(true).then((editor) => {
                             editor.revealLineInCenter(editor.getModel().getLineCount());
                           });
                         } else {
-                          $$(prefix + "_save_result").show();
-                          $$(prefix + "_addrow_result").show();
-                          $$(prefix + "_removerow_result").show();
+                          if(isTableCanSave){
+                            $$(prefix + "_save_result").show();
+                            $$(prefix + "_addrow_result").show();
+                            $$(prefix + "_addrow_result_spacer").show();
+                            $$(prefix + "_removerow_result").show();
+                            $$(prefix + "_removerow_result_spacer").show();
+                          }
                           $$(prefix + "_copy_result_clipboard").hide();
                           $$(prefix + "_result_scrolldown").hide();
                           $$(prefix + "_result_scrollup").hide();
@@ -2096,7 +2109,7 @@ export function QueryPage(prefix, selectedDb) {
 
                     }
                   },
-                  {width: 10},
+                  {width: 10,id: prefix + "_addrow_result_spacer",},
                   {
                     view: "icon",
                     icon: "mdi mdi-table-row-plus-after",
@@ -2104,12 +2117,12 @@ export function QueryPage(prefix, selectedDb) {
                     hidden: true,
                     id: prefix + "_addrow_result",
                     tooltip: "Add new row",
-                    css: "z_icon_color_primary z_icon_size_17",
+                    css: "z_icon_color_primary z_icon_size_18",
                     click: function () {
                       $$(prefix + "_result").add({ id: -webix.uid() }, 0);
                     }
                   },
-                  {width: 10},
+                  {width: 10,id: prefix + "_removerow_result_spacer",},
                   {
                     view: "icon",
                     icon: "mdi mdi-table-row-remove",
@@ -2117,12 +2130,13 @@ export function QueryPage(prefix, selectedDb) {
                     hidden: true,
                     id: prefix + "_removerow_result",
                     tooltip: "Remove selected row",
-                    css: "z_icon_color_primary z_icon_size_17",
+                    css: "z_icon_color_primary z_icon_size_18",
                     click: function () {
                       webix.message({text: "Not implement yet", type: "debug"});
                     }
                   },
-                  {width: 10},
+                  // {width: 10},
+                  // space
                   {
                     view: "icon",
                     icon: "mdi mdi-content-copy",
@@ -2170,7 +2184,7 @@ export function QueryPage(prefix, selectedDb) {
                     hidden: true,
                     id: prefix + "_result_scrolldown",
                     tooltip: "Scroll to bottom",
-                    css: "z_icon_color_primary z_icon_size_17",
+                    css: "z_icon_color_primary z_icon_size_16",
                     click: function () {
                       $$(prefix + "_console").getEditor(true).then((editor) => {
                         editor.revealLineInCenter(editor.getModel().getLineCount());
@@ -2185,7 +2199,7 @@ export function QueryPage(prefix, selectedDb) {
                     hidden: true,
                     id: prefix + "_result_scrollup",
                     tooltip: "Scroll to top",
-                    css: "z_icon_color_primary z_icon_size_17",
+                    css: "z_icon_color_primary z_icon_size_16",
                     click: function () {
                       $$(prefix + "_console").getEditor(true).then((editor) => {
                         editor.revealLineInCenter(1);
@@ -2255,8 +2269,8 @@ export function QueryPage(prefix, selectedDb) {
                           idDb = r['id_0'];
                         }
                         this.$values_cache.push({id: idRow, id_db: idDb, column: editor.column, value:state.value});
-                        $$(this).addCellCss(editor.row, editor.column, "z_changes_cell_result", true);
-                        $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
+                        // $$(this).addCellCss(editor.row, editor.column, "z_changes_cell_result", true);
+                        // $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
                       },
                     },
                     /*
@@ -2316,16 +2330,26 @@ export function QueryPage(prefix, selectedDb) {
 
             lineNo = 0;
 
-            const inputSql = input.sql.toLowerCase();
-            if(inputSql.includes('from') && !inputSql.includes('join')){
-              $$(prefix + "_save_result").show();
-              $$(prefix + "_addrow_result").show();
-              $$(prefix + "_removerow_result").show();
-            }else{
-              $$(prefix + "_save_result").hide();
-              $$(prefix + "_addrow_result").hide();
-              $$(prefix + "_removerow_result").hide();
-            }
+            isCanSave($$(prefix + "_source_combo").getValue(),input.sql).then((d)=>{
+              const data = d.json();
+              if(data.data){
+                  isTableCanSave = true;
+                  $$(prefix + "_save_result").show();
+                  $$(prefix + "_addrow_result").show();
+                  $$(prefix + "_addrow_result_spacer").show();
+                  $$(prefix + "_removerow_result").show();
+                  $$(prefix + "_removerow_result_spacer").show();
+                }else{
+                  isTableCanSave = false;
+                  $$(prefix + "_save_result").hide();
+                  $$(prefix + "_addrow_result").hide();
+                  $$(prefix + "_removerow_result").hide();
+                  $$(prefix + "_addrow_result_spacer").hide();
+                  $$(prefix + "_removerow_result_spacer").hide();
+              }
+
+            })
+
           } else {
             $$(prefix + "_scrollview_body").addView(newView);
             let output = rData.error;
@@ -2604,11 +2628,17 @@ export function QueryPage(prefix, selectedDb) {
         // minimap: state.LAST_MINIMAP,
         minimap: {
           enabled: state.isMinimap,
-          // enabled: true
+          // enabl   ed: true
         },
-      });
+      }); 6
     });
   };
+
+  const isCanSave = (profileId,sqlString)=>{
+    const strQry = sqlString.toLowerCase().split('from')
+    const tableName = strQry.pop().trim().split(' ');
+    return webix.ajax().get(`${url}/is_table?id=${profileId}&table=${tableName}`);
+  }
 
   const loadSchemaContent = (itemRootId, oid, panelId) => {
     searchOidSelected = oid;

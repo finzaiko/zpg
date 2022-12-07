@@ -68,7 +68,10 @@ class QueryController {
         });
 
         if (typeof r.length == "undefined") {
-          if (r.dType) {
+          // console.log('rrrrr',r);
+
+          // if (r.dType) {
+          if (data.dtype==1) {
             tableConfig = columnDef.map((obj) => {
               return {
                 id: obj.colName,
@@ -147,6 +150,7 @@ class QueryController {
             return {
               id: obj.colName,
               editor: "text",
+              ztype: obj.colType,
               header: [
                 { text: `${obj.colHeader}` },
                 { content: "textFilter" },
@@ -190,7 +194,7 @@ class QueryController {
         const et = new Date().getTime() - start_time;
 
         let noticeResult = textMsg.join("\n");
-        const rc = r.rowCount;
+        const rc = r.rowCount ? r.rowCount : 0;
         let effected = `\n${rc} rows effected.`;
         Object.assign(rd, {
           total_count: rc,
@@ -266,6 +270,26 @@ class QueryController {
       oid
     );
     reply.send(r.rows[0]);
+  }
+
+  async getIsTable(request, reply) {
+    const { id, table } = request.query; // t = is type level, 1 show db only;
+    const userId = request.user.uid;
+    let schema = 'public', tbl;
+    if(table.includes('.')){
+      const tblSchema = table.split('.');
+      schema = tblSchema[0];
+      tbl = tblSchema[1];
+    }else{
+      tbl = table;
+    }
+
+    const r = await QueryService.getIsTable(
+      id,
+      userId,
+      schema,
+      tbl);
+    reply.send(r);
   }
 }
 

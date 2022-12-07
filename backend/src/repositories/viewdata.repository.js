@@ -11,14 +11,14 @@ class ViewdataRepository {
     if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
 
-      const sql = `select 
-            n.nspname AS tableschema, 
+      const sql = `select
+            n.nspname AS tableschema,
             c.relname AS tablename
         from pg_class c
         inner join pg_namespace n on (c.relnamespace = n.oid)
         where c.relfilenode = ${oid}`;
         console.log('sql',sql);
-        
+
       return pgPool.query(sql);
     }
     return [];
@@ -76,7 +76,7 @@ class ViewdataRepository {
     if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
       const sql = `
-      select column_name, REPLACE(data_type,'character varying','varchar') as data_type 
+      select column_name, REPLACE(data_type,'character varying','varchar') as data_type
       from information_schema.columns
       where table_schema='${schema}' and table_name = '${table}';
       `;
@@ -96,6 +96,17 @@ class ViewdataRepository {
     if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
       return pgPool.query(sqlStr);
+    }
+    return [];
+  }
+
+  async getIsTable(profileId, userId, schema, table) {
+    const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
+    if (serverCfg.length > 0) {
+      console.log('hereeee2');
+      const pgPool = new Pool(serverCfg[0]);
+      const sql = `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = '${schema}' and table_name = '${table}') as data;`;
+      return pgPool.query(sql);
     }
     return [];
   }

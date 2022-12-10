@@ -48,8 +48,6 @@ class ViewdataController {
     // responseOk(reply, { data: data.rows, pos: 0, total_count: data.rowCount });
   }
 
-
-
   async updateTableData(request, reply) {
     // const { id, oid, start, count, filter, sort } = request.query; // t = is type level, 1 show db only;
     // console.log(`request.params.oid`, request.params.oid);
@@ -58,6 +56,12 @@ class ViewdataController {
     const userId = request.user.uid;
     // profileId, userId, oid, bodyData
     const r = await ViewdataService.updateTableData(userId, request.body)
+    reply.send({status: "ok"});
+  }
+
+  async saveResult(request, reply) {
+    const userId = request.user.uid;
+    const r = await ViewdataService.saveResult(userId, request.body)
     reply.send({status: "ok"});
   }
 }

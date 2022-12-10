@@ -36,7 +36,7 @@ class ViewdataService {
     );
     // console.log(`dataPk.rows`, dataPk.rows);
     // const pk = dataPk.rows[0].attname;
-    
+
     let pk = "";
     if(dataPk.rows.length>0){
       pk = dataPk.rows[0].attname;
@@ -89,7 +89,7 @@ class ViewdataService {
       limit,
       offset,
       whereStr,
-      sortStr, 
+      sortStr,
       pk
     );
 
@@ -175,5 +175,100 @@ class ViewdataService {
     }
     return result;
   }
+
+
+  async saveResult(userId, bodyData) {
+    const { source_id, table_name, data } = bodyData;
+
+    const ts = table_name.split('.');
+    const tableschema = ts[0]
+    const tablename = ts[1]
+
+    const tblType = await ViewdataRepository.getTableType(
+      source_id,
+      userId,
+      tableschema,
+      tablename
+    );
+    const tblTypes = tblType.rows;
+
+    const dataPk = await getPrimaryKeyByTableName(
+      source_id,
+      userId,
+      tableschema,
+      tablename
+    );
+
+
+    let sqlStr = '';
+    JSON.parse(data).forEach(o=>{
+      console.log('o',o);
+
+      const col = (o.column).split(".")[0];
+      // update table
+      if(o.id>0){
+        sqlStr = `UPDATE ${tableschema}.${tablename} SET ${col}='${o.value}' WHERE ${pk}=${o.id_db}`;
+        // console.log(`sql******`, sqlStr);
+      }else{
+
+      }
+    })
+    const tblData = await ViewdataRepository.updateTableData(
+      profileId,
+      userId,
+      sqlStr
+    );
+
+    return;
+    let pk = "";
+    if(dataPk.rows.length>0){
+      pk = dataPk.rows[0].attname;
+    }else{
+      if(tblTypes.length>0){
+        pk = tblTypes[0].column_name;
+      }
+    }
+
+    // const pk = dataPk.rows[0].attname;
+    let dataInput = bodyData.data;
+    const pkValue = dataInput[pk];
+    let result;
+
+    delete dataInput[pk];
+    if (typeof dataInput != "undefined") {
+      let fieldValue = [];
+      for (const [key, value] of Object.entries(dataInput)) {
+        const tt = tblTypes.find((tp) => tp.column_name == key);
+        if (typeof tt != "undefined") {
+          switch (tt.data_type) {
+            case "integer":
+            case "boolean":
+              fieldValue.push(`${key}=${value}`);
+              break;
+            default:
+              if(value===null){
+                fieldValue.push(`${key}=${value}`);
+              }else{
+                fieldValue.push(`${key}='${value}'`);
+              }
+              break;
+          }
+        }
+      }
+      const fieldValueSql = fieldValue.join(`,
+      `);
+      let sqlStr = `UPDATE ${tableschema}.${tablename} SET
+      ${fieldValueSql} WHERE ${pk}=${pkValue}`;
+      // console.log(`sql******`, sqlStr);
+      const tblData = await ViewdataRepository.updateTableData(
+        profileId,
+        userId,
+        sqlStr
+      );
+      result = tblData;
+    }
+    return result;
+  }
+
 }
 module.exports = new ViewdataService();

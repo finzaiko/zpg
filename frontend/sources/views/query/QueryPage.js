@@ -4,6 +4,7 @@ import en from "javascript-time-ago/locale/en";
 import { pagerRow, pageSize } from "../../helpers/ui";
 import { defaultHeader } from "../../helpers/api";
 import { url as urlDb } from "../../models/Db";
+import { url as urlViewData } from "../../models/ViewData";
 import { state as stateBase } from "../../models/Base";
 import { url as urlProfile } from "../../models/Profile";
 import { url, state, searchHistoryStore } from "../../models/Query";
@@ -2084,16 +2085,17 @@ export function QueryPage(prefix, selectedDb) {
 
                         console.log(JSON.stringify(dataSave));
 
-                        return webix.message({text: 'Not implement yet!', type: "debug"});
+                        // return webix.message({text: 'Not implement yet!', type: "debug"});
                         if(cache.length>0){
                           const inputData = {
+                            source_id: input.source_id,
                             table_name: tableName[0],
-                            data: JSON.stringify(cache)
+                            data: JSON.stringify(dataSave)
                           }
                           webix
                             .ajax()
                             .post(
-                              `${url}/save_result`, inputData
+                              `${urlViewData}/save_result`, inputData
                             )
                             .then(function (data) {
                               // console.log('data',data);

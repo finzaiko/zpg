@@ -90,13 +90,9 @@ export function QueryPage(prefix, selectedDb) {
   // console.log(`prefix`, prefix);
   state.countPage = parseInt(prefix.split("_")[2]) || 0;
 
-  let searchState = prefix + "_sname";
-  let searchDetachWin;
   let searchOidSelected;
 
   let decorations = [];
-
-  // const sType = webix.storage.local.get(LAST_SEARCHTYPE) || 0;
 
   let QueryToolbar = {
     view: "toolbar",
@@ -682,8 +678,6 @@ export function QueryPage(prefix, selectedDb) {
         width: 250,
         id: prefix + "_db_tree",
         css: "z_db_tree",
-        // type:"lineTree",
-        // hidden: true,
         select: true,
         threeState: true,
         type: {
@@ -697,7 +691,6 @@ export function QueryPage(prefix, selectedDb) {
             );
           },
           my_folder: function (obj) {
-            // console.log('obj', obj)
             const suffix = obj.id.split("_")[1];
             if (suffix == "d") {
               return `<span class='webix_icon mdi mdi-database-outline ${
@@ -739,7 +732,6 @@ export function QueryPage(prefix, selectedDb) {
           showSubItems: false,
           level: 1,
         },
-        // template:"{common.icon()}&nbsp;#value#",
         template: "{common.icon()} {common.my_folder()} <span>#value#</span>",
         on: {
           onAfterSelect: function (id) {
@@ -754,7 +746,6 @@ export function QueryPage(prefix, selectedDb) {
             let itemRootId = id;
             let itemx = this.getItem(id);
             stateBase.currentDBSelected = itemx.value;
-            // console.log("itemx", itemx);
             while (this.getParentId(itemRootId)) {
               itemRootId = this.getParentId(itemRootId);
             }
@@ -777,7 +768,6 @@ export function QueryPage(prefix, selectedDb) {
             // Right click not handle in this node: show functions trigger, views
             const nodeType = id.split("_")[1];
             if (nodeType == "g" || nodeType == "r" || nodeType == "y") {
-              // return false;
               return webix.html.preventEvent(e);
             } else {
               return true;
@@ -934,13 +924,6 @@ export function QueryPage(prefix, selectedDb) {
           {},
         ],
       },
-      // {
-      //   view: "template",
-      //   id: prefix + "_history_content",
-      //   css: "z_out_template",
-      //   scroll: "xy",
-      //   template: "test",
-      // },
       {
         css: "z_console_editor_panel",
         rows: [
@@ -953,7 +936,6 @@ export function QueryPage(prefix, selectedDb) {
             fontSize: "12px",
             borderless: true,
             renderLineHighlight: "none",
-            // readOnly: true,
           },
         ],
       },
@@ -2661,9 +2643,6 @@ export function QueryPage(prefix, selectedDb) {
         .then(function (data) {
           viewId.hideProgress();
           viewId.setValue(data.json().data);
-          // if (panelId) {
-            //   panelId.hideOverlay();
-            // }
             const boxes = document.querySelectorAll('body > div.webix_modal');
             boxes.forEach(box => {
               box.style.backgroundColor = '#000';
@@ -2695,9 +2674,6 @@ export function QueryPage(prefix, selectedDb) {
                 minimap: {
                   enabled: false,
                 },
-                // scrollbar: {
-                //   vertical: "auto", // visible
-                // },
               },
               QueryHistoryPreview,
               QuerySidemenuRight,

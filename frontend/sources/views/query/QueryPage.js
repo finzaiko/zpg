@@ -1185,6 +1185,7 @@ export function QueryPage(prefix, selectedDb) {
                   on: {
                     onValueSuggest: function (node) {
                       // loadSchemaContent(0, node.id);
+                      addShareUser();
                     },
                   },
                 },
@@ -1234,6 +1235,15 @@ export function QueryPage(prefix, selectedDb) {
         let sql = `SELECT * FROM ${rData.tableschema}.${rData.tablename} ${optionSql}`;
         $$(prefix + "_sql_editor").setValue(sql);
         runQuery($$(prefix + "_source_combo").getValue());
+      });
+  };
+
+  const addShareUser = (userId) => {
+    webix
+      .ajax()
+      .headers(defaultHeader())
+      .get(`${url}/table_name?id=${profileId}&&oid=${tableOid}`)
+      .then((r) => {
       });
   };
 

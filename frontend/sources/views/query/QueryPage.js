@@ -2253,7 +2253,7 @@ export function QueryPage(prefix, selectedDb) {
                           idDb = r['id_0'];
                         }
                         this.$values_cache.push({id: idRow, id_db: idDb, column: editor.column, value:state.value});
-                        // $$(this).addCellCss(editor.row, editor.column, "z_changes_cell_result", true);
+                        $$(this).addCellCss(editor.row, editor.column, "z_changes_cell_result", true);
                         // $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
                       },
                     },

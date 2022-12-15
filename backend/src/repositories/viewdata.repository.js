@@ -1,6 +1,7 @@
 const { db } = require("../core/database");
 const ProfileRepository = require(`./profile.repository`);
 const { Pool } = require("pg");
+const async = require("async");
 // const {
 //   schemaList,
 // } = require("../core/sql/compare.sql");
@@ -87,15 +88,91 @@ class ViewdataRepository {
   }
 
   async updateTableData(profileId, userId, sqlStr) {
-    // console.log(`profileId, userId, oid, bodyData`, profileId, userId, oid, bodyData);
-    // console.log(`profileId >>`, profileId);
-    // console.log(`userId >>`, userId);
-    // console.log(`oid >>`, oid);
-    // console.log(`bodyData >>`, bodyData);
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
       return pgPool.query(sqlStr);
+    }
+    return [];
+  }
+
+  async updateTableResult(profileId, userId, tableName, data) {
+    const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
+    if (serverCfg.length > 0) {
+      const pgPool = new Pool(serverCfg[0]);
+      const client = await pgPool.connect()
+      try {
+
+        const ts = tableName.split('.');
+        const schema = ts[0]
+        const table = ts[1]
+
+        await client.query('BEGIN')
+        let sqlAll = [];
+        JSON.parse(data).forEach(o=>{
+          console.log('o',o);
+
+          // update table
+          if(o.id>0){
+            const inputColName = o.column;
+            const colName = inputColName.substring(0, inputColName.lastIndexOf('_'));
+            const oneSql = `UPDATE ${schema}.${table} SET ${colName}='${o.value}' WHERE id=${o.id_db};`;
+            sqlAll.push(oneSql);
+          }else{ // insert table
+            let field = [], val = [];
+            Object.entries(o).forEach(entry => {
+              const [key, value] = entry;
+              console.log(key, value);
+              if(key!="id"){
+                const colName = key.substring(0, key.lastIndexOf('_'));
+                field.push(colName);
+                val.push(`'${value}'`);
+              }
+            });
+            const sqlField = field.join(',');
+            const sqlValue = val.join(',');
+            const oneSql = `INSERT INTO ${schema}.${table} (${sqlField}) VALUES (${sqlValue});`;
+            sqlAll.push(oneSql);
+          }
+        });
+
+        const dataPk = await this.getPrimaryKeyByTableName(profileId, userId, schema, table);
+        let pk = "";
+        if(dataPk.rows.length>0){
+          pk = dataPk.rows[0].attname;
+        }else{
+          if(tblTypes.length>0){
+            pk = tblTypes[0].column_name;
+          }
+        }
+
+        if(pk!="id"){
+          console.log('PK name not ID');
+          return;
+        }
+
+        async.eachSeries(
+          sqlAll,
+          (query, next) => {
+            console.log(`Running query: ${query}`);
+            client.query(query, (err, results) => {
+              if(err){
+                console.log('ERROR: ',err);
+              }
+            });
+            next();
+          },
+          () => {
+            console.log("Done..");
+          });
+
+        await client.query('COMMIT')
+      } catch (e) {
+        await client.query('ROLLBACK')
+        throw e
+      } finally {
+        client.release()
+      }
     }
     return [];
   }

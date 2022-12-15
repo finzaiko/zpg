@@ -59,9 +59,17 @@ class ViewdataController {
     reply.send({status: "ok"});
   }
 
+  async saveResult2(request, reply) {
+    const userId = request.user.uid;
+    const r = await ViewdataService.saveResult2(userId, request.body);
+    reply.send({status: "ok"});
+  }
+
   async saveResult(request, reply) {
     const userId = request.user.uid;
-    const r = await ViewdataService.saveResult(userId, request.body)
+    const r = await ViewdataService.saveResult(userId, request.body);
+    console.log('r',r);
+
     reply.send({status: "ok"});
   }
 }

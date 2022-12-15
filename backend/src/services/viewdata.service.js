@@ -177,7 +177,7 @@ class ViewdataService {
   }
 
 
-  async saveResult(userId, bodyData) {
+  async saveResult2(userId, bodyData) {
     const { source_id, table_name, data } = bodyData;
 
     const ts = table_name.split('.');
@@ -268,6 +268,21 @@ class ViewdataService {
       result = tblData;
     }
     return result;
+  }
+
+  async saveResult(userId, bodyData) {
+
+    const { source_id, table_name, data } = bodyData;
+
+    const tblData = await ViewdataRepository.updateTableResult(
+      source_id,
+      userId,
+      table_name,
+      data
+    );
+
+    console.log('tblData',tblData);
+
   }
 
 }

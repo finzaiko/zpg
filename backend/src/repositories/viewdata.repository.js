@@ -110,6 +110,7 @@ class ViewdataRepository {
         await client.query('BEGIN')
         let sqlAll = [];
         JSON.parse(data).forEach(o=>{
+          console.log('o',o);
 
           // update table
           if(o.id>0){

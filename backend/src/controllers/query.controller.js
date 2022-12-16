@@ -232,17 +232,29 @@ class QueryController {
         }
         let zErrorMsg = textMsg.join("\n");
 
-        // console.log(`eeeeeeeeeeeeee`, e);
         const _sql = data.sql;
         const errLine =
           (_sql.substring(0, e.position).match(/\n/g) || []).length + 1;
         // console.log('>>>>>>>>>>line: %s', errLine);
         let errDetail = "",
-          errHint = "";
+          errHint = "",
+          errQuery = "",
+          errQueryLabel = "QUERY: ",
+          errWhere = "",
+          errLinePos = ""
+          ;
         // if (typeof e.detail != "undefined" && typeof e.hint != "undefined") {
         //   errDetail = e.detail;
         //   errHint = e.hint;
         // }
+
+        // ERROR:  operator does not exist: text = integer
+        // LINE 1: ...               FROM supplychain.work_order WHERE id=in_wo_id
+        //                                                               ^
+        // HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+        // QUERY:  SELECT wo_no               FROM supplychain.work_order WHERE id=in_wo_id
+        // CONTEXT:  PL/pgSQL function dashboard.allocation_detail_get_dev_test1(integer) line 30 at SQL statement
+        // SQL state: 42883
 
         if (typeof e.detail != "undefined") {
           errDetail = e.detail;
@@ -250,12 +262,24 @@ class QueryController {
         if (typeof e.hint != "undefined") {
           errHint = e.hint;
         }
+        if (typeof e.internalQuery != "undefined") {
+          errQuery = e.internalQuery;
+
+          const str = '^^',
+          len = str.length,
+          space = parseInt(e.internalPosition)+ errQueryLabel.length;
+          errLinePos = str.padStart(len + space, ' ');
+        }
+        if (typeof e.where != "undefined") {
+          errWhere = e.where;
+        }
+
         const errStack = e.stack.split("\n");
         reply.send({
           // error: `${aa}\n\n${errStack[0]}\n${errStack[1]}\n${errStack[2]} \n${errDetail} \n${errHint} \nerrline:${errLine}`,
-          error: `${zErrorMsg}\n${errStack[0]}\nerrline: ${errLine}${
+          error: `${zErrorMsg}\n${errStack[0]}\n\nLINE: ${errLine}${
             errDetail ? "\n" + errDetail : ""
-          } \n\nhint: ${errHint}`,
+          } \nHINT: ${errHint}\nQUERY: ${errQuery}\n${errLinePos}\nCONTEXT: ${errWhere}`,
         });
       });
   }

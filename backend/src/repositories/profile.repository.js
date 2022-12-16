@@ -117,6 +117,13 @@ class ProfileRepository {
     const timeOut = 120 * 1000;
     if (type == 1 || type == 2) {
       sql = `SELECT host, database, user, password, port, IFNULL(ssl,0) AS ssl, 'ZGP-Finzaiko' AS application_name, ${timeOut} AS statement_timeout FROM profile WHERE id=? AND user_id=?`;
+      // Other configuration set later
+      /*
+          max: configSql.get('connectionlimit'),
+          min: 0,
+          ssl: false,
+          idleTimeoutMillis: 30000
+      */
     }
     if (type == 3 || type == 4) {
       sql = `SELECT title, content, type, user_id FROM profile WHERE id=? AND user_id=?`;

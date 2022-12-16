@@ -1,12 +1,24 @@
 const ProfileRepository = require(`./profile.repository`);
 const { Pool } = require("pg");
+const types = require('pg').types
 
 class QueryRepository {
   async runSQL(profileId, sql, userId, callback) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
-    const pgPool = new Pool(serverCfg[0]);
-    pgPool.on("connect", (client) => {
 
+    // stop pg from parsing dates and timestamps without timezone
+    const TIMESTAMPTZ_OID = 1184
+    const TIMESTAMP_OID = 1114
+    types.setTypeParser(TIMESTAMP_OID, function(stringValue) {
+      return new Date(stringValue + '+0000');
+    });
+    types.setTypeParser(TIMESTAMPTZ_OID, function(stringValue) {
+      return new Date(stringValue + '+0000');
+    });
+
+    const pgPool = new Pool(serverCfg[0]);
+
+    pgPool.on("connect", (client) => {
       client.on("notice", (msg) => {
         callback(msg);
       });
@@ -20,7 +32,7 @@ class QueryRepository {
     //   // }
     //   console.log('err>>>>> ',err);
     //   console.log('result>>>>> ',result);
-      
+
     // })
     // return pgPool.query(sql)
     return pgPool.query({
@@ -37,8 +49,8 @@ class QueryRepository {
         DROP TABLE IF EXISTS z_temp;
         CREATE TEMPORARY TABLE z_temp AS
         ${runSql};
-        SELECT column_name, data_type 
-        FROM information_schema.columns 
+        SELECT column_name, data_type
+        FROM information_schema.columns
         WHERE table_name = 'z_temp';
         -- DROP TABLE IF EXISTS z_temp;
       `;

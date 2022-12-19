@@ -3,8 +3,11 @@ const { responseHttp } = require("../utils/http.utils");
 
 class UserController {
   async getAll(request, reply) {
-    const { offset, limit, sort, search, type } = request.query;
-
+    let { offset, limit, sort, search, type } = request.query;
+    const userId = request.user.uid;
+    if (type == 6) {
+      search = userId;
+    }
     const data = await UserService.getAll(offset, limit, sort, search, type);
     responseHttp(reply, 200, "Ok", { data: data });
   }

@@ -56,7 +56,7 @@ CREATE TABLE profile (
     ssl integer,
     title text,
     content text,
-    type integer, -- 1=serverconn, 2=dbconn, 3=queryhistory, 4=querybookmark, 5=usersetting
+    type integer, -- 1=serverconn, 2=dbconn, 3=queryhistory, 4=querybookmark, 5=usersetting, 6=share_to
     user_id integer,
     seq integer,
     created_at timestamp DATE DEFAULT (datetime('now','localtime')),

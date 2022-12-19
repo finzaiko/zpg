@@ -1167,3 +1167,7 @@ background-size: cover;
   font-weight:bold;
   /* color: #1CA1C1 !important; */
 }
+
+.z_usershare_table .webix_ss_header{
+  /* height:0px !important; */
+}

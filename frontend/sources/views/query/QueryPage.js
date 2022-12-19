@@ -7,6 +7,7 @@ import { url as urlDb } from "../../models/Db";
 import { url as urlViewData } from "../../models/ViewData";
 import { state as stateBase } from "../../models/Base";
 import { url as urlProfile } from "../../models/Profile";
+import { url as urlShare } from "../../models/Share";
 import { url, state, searchHistoryStore } from "../../models/Query";
 import { QueryDatabase } from "./QueryDatabase";
 import { QueryHelp } from "./QueryHelp";
@@ -605,7 +606,7 @@ export function QueryPage(prefix, selectedDb) {
           openSearchDetach();
         },
       },
-      /*
+
       {
         view: "icon",
         icon: "mdi mdi-share-variant-outline",
@@ -617,7 +618,7 @@ export function QueryPage(prefix, selectedDb) {
           openShareUser();
         },
       },
-      */
+
       {},
       {
         view: "icon",
@@ -1013,16 +1014,17 @@ export function QueryPage(prefix, selectedDb) {
                 hidden: true,
                 click: function () {
                   // console.log("show user history");
-                  webix.message({text: "Not implement yet", type: "debug"});
+                  webix.message({ text: "Not implement yet", type: "debug" });
                 },
               },
               {
                 view: "icon",
                 icon: "mdi mdi-delete-sweep-outline",
-                tooltip: "Clear all History<br>(history auto clear after 30 days)",
+                tooltip:
+                  "Clear all History<br>(history auto clear after 30 days)",
                 click: function () {
                   // console.log("clear");
-                  webix.message({text: "Not implement yet", type: "debug"});
+                  webix.message({ text: "Not implement yet", type: "debug" });
                 },
               },
             ],
@@ -1046,7 +1048,9 @@ export function QueryPage(prefix, selectedDb) {
             on: {
               onBeforeLoad: function () {
                 webix.extend(this, webix.OverlayBox);
-                this.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
+                this.showOverlay(
+                  "<div style='margin-top: 20px'>Loading...</div>"
+                );
               },
               onAfterLoad: function () {
                 this.hideOverlay();
@@ -1126,7 +1130,6 @@ export function QueryPage(prefix, selectedDb) {
     ],
   };
 
-
   const openShareUser = () => {
     webix
       .ui({
@@ -1154,72 +1157,49 @@ export function QueryPage(prefix, selectedDb) {
         },
         body: {
           rows: [
-           {
-            cols: [
-              {
-                view: "text",
-                css: "search_suggest",
-                id: prefix + "_user_sharelist",
-                placeholder: "Type name..",
-                width: 300,
-                suggest: {
-                  keyPressTimeout: 500,
-                  body: {
-                    dataFeed: function (filtervalue, filter) {
-                      if (filtervalue.length < 2) {
-                        this.clearAll();
-                        return;
-                      }
-                      this.clearAll();
-                      this.load(
-                        `${urlUser}/users?type=2&search=${filtervalue}`
-                      );
-                    },
-                    on: {
-                      onBeforeLoad: function () {
-                      },
-                      onAfterLoad: function () {
-                      },
-                    },
-                  },
-                  on: {
-                    onValueSuggest: function (node) {
-                      // loadSchemaContent(0, node.id);
-                      addShareUser();
-                    },
-                  },
-                },
-                on: {
-                  onKeyPress: function (code, e) {
-                    // if (code == 9) {
-                    // }
-                    // console.log('code',code);
-
-                  },
+            {
+              id: prefix + "_usershare_table",
+              view: "datatable",
+              css: "z_usershare_table",
+              columns: [{ id: "fullname", header: "Name", fillspace: true }],
+              select: "row",
+              multiselect: true,
+              on: {
+                onSelectChange: function () {
+                  var text = $$("table").getSelectedId(true).join();
+                  webix.message("Selected: " + text);
                 },
               },
-              {
-                view: "button", type: "icon", icon: "mdi mdi-plus", autowidth:true,
-                css: "zmdi_padding",
-              },
-            ]
-           },
-           {
-            view:"list",
-            template:"#title#",
-            select:true,
-            data:[
-              { id:1, title:"Item 1"},
-              { id:2, title:"Item 2"},
-              { id:3, title:"Item 3"}
-            ]
-          },
+              url: `${urlUser}/users?type=6`,
+            },
+            {
+              view: "toolbar",
+              cols: [
+                {},
+                {
+                  view: "button",
+                  value: "Share",
+                  autowidth: true,
+                  css: "webix_primary",
+                  click: function () {
+                    const userListId = $$(prefix + "_usershare_table")
+                      .getSelectedId(true)
+                      .join();
+                    if(userListId.length>0){
+                      const sqlContent = $$(prefix + "_sql_editor").getValue();
+                      addShareUser(userListId, sqlContent);
+                    }else{
+                      webix.message({text: "Please select user", type: "error"});
+                    }
+                  },
+                },
+              ],
+            },
           ],
         },
       })
       .show();
   };
-
 
   const runViewData = (profileId, tableOid, type) => {
     webix
@@ -1238,12 +1218,17 @@ export function QueryPage(prefix, selectedDb) {
       });
   };
 
-  const addShareUser = (userId) => {
+  const addShareUser = (userListId, sql_content) => {
+    const data = {
+      share_to: userListId,
+      content: sql_content,
+    };
     webix
       .ajax()
       .headers(defaultHeader())
-      .get(`${url}/table_name?id=${profileId}&&oid=${tableOid}`)
-      .then((r) => {
+      .post(`${urlShare}`, data, function (r) {
+        webix.message({ text: "Share success", type: "success" });
+        $$(prefix + "_win_share_user").close();
       });
   };
 
@@ -1439,7 +1424,6 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const openSearchDetach = () => {
-
     const winWidth = 500,
       sidemenuWidth = 180;
     if ($$(prefix + "_search_detach_win")) {
@@ -1484,7 +1468,7 @@ export function QueryPage(prefix, selectedDb) {
             this.load(
               `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=` +
                 filtervalue
-            ).then(data=>{
+            ).then((data) => {
               setTimeout(() => {
                 searchHistoryStore.clearAll();
                 searchHistoryStore.parse(data.json().data);
@@ -1527,10 +1511,14 @@ export function QueryPage(prefix, selectedDb) {
         onKeyPress: function (code, e) {
           if (code == 9) {
             $$(prefix + "_sql_editor")
-            .getEditor(true)
-            .then((editor) => editor.focus());
+              .getEditor(true)
+              .then((editor) => editor.focus());
           }
-          if(code==13 && this.getValue()=="" && searchHistoryStore.count()){
+          if (
+            code == 13 &&
+            this.getValue() == "" &&
+            searchHistoryStore.count()
+          ) {
             const listId = $$(prefix + "_search_detach_history");
             listId.show();
             // webix.html.triggerEvent(listId.$view, "MouseEvents", "click");
@@ -1543,7 +1531,7 @@ export function QueryPage(prefix, selectedDb) {
 
     let sidebarSize = 0;
     if ($$("app:sidebar").config.collapsed) {
-      sidebarSize = $$("app:sidebar").$width+100; // estimate centered position
+      sidebarSize = $$("app:sidebar").$width + 100; // estimate centered position
     }
     webix
       .ui({
@@ -1552,33 +1540,37 @@ export function QueryPage(prefix, selectedDb) {
         modal: true,
         body: {
           padding: 2,
-          rows: [search,
+          rows: [
+            search,
             {
-              view:"list",
-              height:300,
+              view: "list",
+              height: 300,
               id: prefix + "_search_detach_history",
               hidden: true,
-              template:"#value#",
-              select:true,
-              data:searchHistoryStore,
+              template: "#value#",
+              select: true,
+              data: searchHistoryStore,
               on: {
                 onItemClick: function (sel) {
                   loadSchemaContent(0, sel, panelId);
                 },
                 onKeyPress: function (code, e) {
-                  if(code==13){
+                  if (code == 13) {
                     loadSchemaContent(0, this.getSelectedId(), panelId);
                   }
-                }
-              }
-            }
+                },
+              },
+            },
           ],
         },
         id: prefix + "_search_detach_win",
         move: true,
         padding: 10,
         top: 100,
-        left: $$(prefix + "_page_panel").$width / 2 - sidemenuWidth / 2 - sidebarSize,
+        left:
+          $$(prefix + "_page_panel").$width / 2 -
+          sidemenuWidth / 2 -
+          sidebarSize,
         on: {
           onShow: function () {
             $$(prefix + "_database_search_detach").focus();
@@ -1728,7 +1720,6 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const openDetailCell = (type, content) => {
-
     const allowType = ["json", "jsonb", "text", "varchar"];
     if (allowType.indexOf(type) !== -1) {
       if (type == "json" || type == "jsonb") {
@@ -1737,13 +1728,15 @@ export function QueryPage(prefix, selectedDb) {
         openWinCell(type, content);
       }
 
-      if(content){
-        console.log('content',content);
-        console.log('type',type);
-
+      if (content) {
+        console.log("content", content);
+        console.log("type", type);
 
         const ctn = content.match(/\n/gm); // get number of break line row results
-        if ((type == "text" || type == "varchar") && ((ctn && ctn.length > 0) || content.length>50)) {
+        if (
+          (type == "text" || type == "varchar") &&
+          ((ctn && ctn.length > 0) || content.length > 50)
+        ) {
           console.log("xxx");
 
           openWinCell(type, content);
@@ -1751,7 +1744,6 @@ export function QueryPage(prefix, selectedDb) {
       }
 
       function openWinCell(type, content) {
-
         webix
           .ui({
             view: "window",
@@ -1790,7 +1782,7 @@ export function QueryPage(prefix, selectedDb) {
                   view: "template",
                   autowidth: true,
                   hidden: true,
-                  css: {"padding-top":"3px"},
+                  css: { "padding-top": "3px" },
                   borderless: true,
                   id: prefix + "_copy_detail_cell_done",
                   template:
@@ -1817,18 +1809,22 @@ export function QueryPage(prefix, selectedDb) {
               view: "template",
               css: "z_query_detail_cell",
               // template: `<pre style='height:100%;overflow: auto;'>${content}</pre>`,
-              template: `<pre id='${prefix+"_detail_cell_content"}' style='height:100%;overflow: auto;'></pre>`,
+              template: `<pre id='${
+                prefix + "_detail_cell_content"
+              }' style='height:100%;overflow: auto;'></pre>`,
             },
             on: {
-              onShow: function(){
-                const s = document.querySelector("#"+prefix+"_detail_cell_content");
-                if(type=="json" || type=="jsonb"){
+              onShow: function () {
+                const s = document.querySelector(
+                  "#" + prefix + "_detail_cell_content"
+                );
+                if (type == "json" || type == "jsonb") {
                   s.innerHTML = syntaxHighlight(content);
-                }else{
+                } else {
                   s.innerText = content;
                 }
-              }
-            }
+              },
+            },
           })
           .show();
       }
@@ -2017,11 +2013,15 @@ export function QueryPage(prefix, selectedDb) {
                           $$(prefix + "_addrow_result_spacer").hide();
                           $$(prefix + "_removerow_result").hide();
                           $$(prefix + "_removerow_result_spacer").hide();
-                          $$(prefix + "_console").getEditor(true).then((editor) => {
-                            editor.revealLineInCenter(editor.getModel().getLineCount());
-                          });
+                          $$(prefix + "_console")
+                            .getEditor(true)
+                            .then((editor) => {
+                              editor.revealLineInCenter(
+                                editor.getModel().getLineCount()
+                              );
+                            });
                         } else {
-                          if(isTableCanSave){
+                          if (isTableCanSave) {
                             $$(prefix + "_save_result").show();
                             $$(prefix + "_addrow_result").show();
                             $$(prefix + "_addrow_result_spacer").show();
@@ -2035,7 +2035,7 @@ export function QueryPage(prefix, selectedDb) {
                       },
                     },
                   },
-                  {width: 10},
+                  { width: 10 },
                   {
                     view: "icon",
                     // icon: "mdi mdi-table-arrow-up",
@@ -2049,61 +2049,74 @@ export function QueryPage(prefix, selectedDb) {
                       const grid = $$(prefix + "_result");
                       grid.editStop();
                       let cache = grid.$values_cache;
-                      if(typeof cache!="undefined"){
-                        if(cache.length>0){
-                          cache.forEach((o)=>{
-                            $$(prefix + "_result").removeCellCss(o.id, o.column, "z_changes_cell_result", false);
+                      if (typeof cache != "undefined") {
+                        if (cache.length > 0) {
+                          cache.forEach((o) => {
+                            $$(prefix + "_result").removeCellCss(
+                              o.id,
+                              o.column,
+                              "z_changes_cell_result",
+                              false
+                            );
                           });
                         }
 
-                        const strQry = input.sql.toLowerCase().split('from')
-                        const tableName = strQry.pop().trim().split(' ');
+                        const strQry = input.sql.toLowerCase().split("from");
+                        const tableName = strQry.pop().trim().split(" ");
 
-                        const uniqueAddedArr = Array.from(new Set(cache.map(a => a.id)))
-                              .map(id => {
-                                return cache.find(a => a.id === id)
-                              }).filter(o=>o.id<1)
+                        const uniqueAddedArr = Array.from(
+                          new Set(cache.map((a) => a.id))
+                        )
+                          .map((id) => {
+                            return cache.find((a) => a.id === id);
+                          })
+                          .filter((o) => o.id < 1);
 
                         // console.log('uniqueAddedArr',uniqueAddedArr);
                         let createdCache = [];
-                        uniqueAddedArr.forEach(o=>{
-                          createdCache.push(grid.getItem(o.id))
-                        })
+                        uniqueAddedArr.forEach((o) => {
+                          createdCache.push(grid.getItem(o.id));
+                        });
 
-                        let editedCache = cache.filter(o=>o.id>0);
+                        let editedCache = cache.filter((o) => o.id > 0);
                         const dataSave = [...createdCache, ...editedCache];
                         // console.log('dataSave',dataSave);
-
 
                         console.log(JSON.stringify(dataSave));
 
                         // return webix.message({text: 'Not implement yet!', type: "debug"});
-                        if(cache.length>0){
+                        if (cache.length > 0) {
                           const inputData = {
                             source_id: input.source_id,
                             table_name: tableName[0],
-                            data: JSON.stringify(dataSave)
-                          }
+                            data: JSON.stringify(dataSave),
+                          };
                           webix
                             .ajax()
-                            .post(
-                              `${urlViewData}/save_result`, inputData
-                            )
+                            .post(`${urlViewData}/save_result`, inputData)
                             .then(function (data) {
                               // console.log('data',data);
-                              webix.message({text: 'Data saved', type: "success"});
+                              webix.message({
+                                text: "Data saved",
+                                type: "success",
+                              });
                             });
-                            grid.$values_cache = [];
-                        }else{
-                          webix.message({text: 'No data to save', type: "error"});
+                          grid.$values_cache = [];
+                        } else {
+                          webix.message({
+                            text: "No data to save",
+                            type: "error",
+                          });
                         }
-                      }else{
-                        webix.message({text: 'Update first, no data to save', type: "error"});
+                      } else {
+                        webix.message({
+                          text: "Update first, no data to save",
+                          type: "error",
+                        });
                       }
-
-                    }
+                    },
                   },
-                  {width: 10,id: prefix + "_addrow_result_spacer",},
+                  { width: 10, id: prefix + "_addrow_result_spacer" },
                   {
                     view: "icon",
                     icon: "mdi mdi-table-row-plus-after",
@@ -2114,9 +2127,9 @@ export function QueryPage(prefix, selectedDb) {
                     css: "z_icon_color_primary z_icon_size_18",
                     click: function () {
                       $$(prefix + "_result").add({ id: -webix.uid() }, 0);
-                    }
+                    },
                   },
-                  {width: 10,id: prefix + "_removerow_result_spacer",},
+                  { width: 10, id: prefix + "_removerow_result_spacer" },
                   {
                     view: "icon",
                     icon: "mdi mdi-table-row-remove",
@@ -2126,8 +2139,11 @@ export function QueryPage(prefix, selectedDb) {
                     tooltip: "Remove selected row",
                     css: "z_icon_color_primary z_icon_size_18",
                     click: function () {
-                      webix.message({text: "Not implement yet", type: "debug"});
-                    }
+                      webix.message({
+                        text: "Not implement yet",
+                        type: "debug",
+                      });
+                    },
                   },
                   // {width: 10},
                   // space
@@ -2164,13 +2180,13 @@ export function QueryPage(prefix, selectedDb) {
                     autowidth: true,
                     hidden: true,
                     width: 31,
-                    css: {"padding-top":"3px"},
+                    css: { "padding-top": "3px" },
                     borderless: true,
                     id: prefix + "_copy_result_clipboard_done",
                     template:
                       '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
                   },
-                  {width: 10},
+                  { width: 10 },
                   {
                     view: "icon",
                     icon: "mdi mdi-arrow-collapse-down",
@@ -2180,12 +2196,16 @@ export function QueryPage(prefix, selectedDb) {
                     tooltip: "Scroll to bottom",
                     css: "z_icon_color_primary z_icon_size_16",
                     click: function () {
-                      $$(prefix + "_console").getEditor(true).then((editor) => {
-                        editor.revealLineInCenter(editor.getModel().getLineCount());
-                      });
-                    }
+                      $$(prefix + "_console")
+                        .getEditor(true)
+                        .then((editor) => {
+                          editor.revealLineInCenter(
+                            editor.getModel().getLineCount()
+                          );
+                        });
+                    },
                   },
-                  {width: 10},
+                  { width: 10 },
                   {
                     view: "icon",
                     icon: "mdi mdi-arrow-collapse-up",
@@ -2195,10 +2215,12 @@ export function QueryPage(prefix, selectedDb) {
                     tooltip: "Scroll to top",
                     css: "z_icon_color_primary z_icon_size_16",
                     click: function () {
-                      $$(prefix + "_console").getEditor(true).then((editor) => {
-                        editor.revealLineInCenter(1);
-                      });
-                    }
+                      $$(prefix + "_console")
+                        .getEditor(true)
+                        .then((editor) => {
+                          editor.revealLineInCenter(1);
+                        });
+                    },
                   },
                   pagerRow(prefix + "_result_row_pager"),
                   { width: 10 },
@@ -2230,7 +2252,7 @@ export function QueryPage(prefix, selectedDb) {
                     data: rData.data,
                     // data: newArr,
                     // maxColumnWidth:200,
-                    resizeRow:true,
+                    resizeRow: true,
                     pager: prefix + "_result_row_pager",
                     on: {
                       onAfterLoad: function () {
@@ -2251,7 +2273,7 @@ export function QueryPage(prefix, selectedDb) {
                         const sel = this.getItem(id);
                         openDetailCell(type, sel[id.column]);
                       },
-                      onAfterEditStop:function(state, editor){
+                      onAfterEditStop: function (state, editor) {
                         // console.log('editor',editor);
                         if (state.old == state.value) return true;
                         if (!this.$values_cache) this.$values_cache = [];
@@ -2259,11 +2281,21 @@ export function QueryPage(prefix, selectedDb) {
                         const r = this.getItem(editor.row);
                         let idRow = editor.row;
                         let idDb = -1;
-                        if(typeof r['id_0']!="undefined"){
-                          idDb = r['id_0'];
+                        if (typeof r["id_0"] != "undefined") {
+                          idDb = r["id_0"];
                         }
-                        this.$values_cache.push({id: idRow, id_db: idDb, column: editor.column, value:state.value});
-                        $$(this).addCellCss(editor.row, editor.column, "z_changes_cell_result", true);
+                        this.$values_cache.push({
+                          id: idRow,
+                          id_db: idDb,
+                          column: editor.column,
+                          value: state.value,
+                        });
+                        $$(this).addCellCss(
+                          editor.row,
+                          editor.column,
+                          "z_changes_cell_result",
+                          true
+                        );
                         // $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
                       },
                     },
@@ -2324,26 +2356,26 @@ export function QueryPage(prefix, selectedDb) {
 
             lineNo = 0;
 
-            isCanSave($$(prefix + "_source_combo").getValue(),input.sql).then((d)=>{
-              const data = d.json();
-              if(data.data){
+            isCanSave($$(prefix + "_source_combo").getValue(), input.sql).then(
+              (d) => {
+                const data = d.json();
+                if (data.data) {
                   isTableCanSave = true;
                   $$(prefix + "_save_result").show();
                   $$(prefix + "_addrow_result").show();
                   $$(prefix + "_addrow_result_spacer").show();
                   $$(prefix + "_removerow_result").show();
                   $$(prefix + "_removerow_result_spacer").show();
-                }else{
+                } else {
                   isTableCanSave = false;
                   $$(prefix + "_save_result").hide();
                   $$(prefix + "_addrow_result").hide();
                   $$(prefix + "_removerow_result").hide();
                   $$(prefix + "_addrow_result_spacer").hide();
                   $$(prefix + "_removerow_result_spacer").hide();
+                }
               }
-
-            })
-
+            );
           } else {
             $$(prefix + "_scrollview_body").addView(newView);
             let output = rData.error;
@@ -2418,7 +2450,6 @@ export function QueryPage(prefix, selectedDb) {
           $$(prefix + "_page_panel").hideOverlay();
           loadHistory();
           copyFieldName();
-
         });
     } else {
       webix.message({
@@ -2434,33 +2465,35 @@ export function QueryPage(prefix, selectedDb) {
     $$(prefix + "_sql_editor").show();
   };
 
-  function loadHistory(search='') {
+  function loadHistory(search = "") {
     let listId = $$(prefix + "_history_list");
     listId.clearAll();
-    let qs = '';
-    if(search){
-      qs = `&search=${search}`
+    let qs = "";
+    if (search) {
+      qs = `&search=${search}`;
     }
     listId.load(`${urlProfile}/content?type=3${qs}`);
   }
 
   function copyFieldName() {
     const resultTblId = $$(`${prefix}_result`);
-    webix.event(resultTblId.$view, "contextmenu", function(e, node){
-      const hasHeader = e.srcElement.classList.contains('webix_hcell');
-      if(hasHeader){
+    webix.event(resultTblId.$view, "contextmenu", function (e, node) {
+      const hasHeader = e.srcElement.classList.contains("webix_hcell");
+      if (hasHeader) {
         webix.html.preventEvent(e);
         const pos = resultTblId.locate(e);
         if (pos && !pos.row) {
-          webix.ui({
-            view:"contextmenu",
-            data:["Copy Field Name"],
-            click:function(id, context){
-            const temp = pos.column.split("_");
-            temp.pop();
-            copyToClipboard(temp.join("_"))
-            }
-          }).show(e);
+          webix
+            .ui({
+              view: "contextmenu",
+              data: ["Copy Field Name"],
+              click: function (id, context) {
+                const temp = pos.column.split("_");
+                temp.pop();
+                copyToClipboard(temp.join("_"));
+              },
+            })
+            .show(e);
         }
       }
     });
@@ -2551,28 +2584,28 @@ export function QueryPage(prefix, selectedDb) {
             autoFormat();
             return null;
           },
-        })
-        editor.addAction({
-          id: "search-focus",
-          label: "Focus Quick Search",
-          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Semicolon],
-          precondition: null,
-          keybindingContext: null,
-          contextMenuGroupId: "navigation",
-          contextMenuOrder: 1.5,
-          run: function (ed) {
-            if (state.isSearchDetach) {
-              openSearchDetach();
-            } else {
-              $$(prefix + "_database_search").focus();
-              $$(prefix + "_database_search")
-                .getInputNode()
-                .select();
-            }
+        });
+      editor.addAction({
+        id: "search-focus",
+        label: "Focus Quick Search",
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Semicolon],
+        precondition: null,
+        keybindingContext: null,
+        contextMenuGroupId: "navigation",
+        contextMenuOrder: 1.5,
+        run: function (ed) {
+          if (state.isSearchDetach) {
+            openSearchDetach();
+          } else {
+            $$(prefix + "_database_search").focus();
+            $$(prefix + "_database_search")
+              .getInputNode()
+              .select();
+          }
 
-            return null;
-          },
-        }),
+          return null;
+        },
+      }),
         editor.addAction({
           id: "open-new-query-ed",
           label: "Open New Query",
@@ -2585,8 +2618,7 @@ export function QueryPage(prefix, selectedDb) {
             newQueryTab();
             return null;
           },
-        })
-        ;
+        });
     });
   };
 
@@ -2599,9 +2631,9 @@ export function QueryPage(prefix, selectedDb) {
 
       webix.UIManager.addHotKey("Esc", function () {
         if ($$(prefix + "_search_detach_win")) {
-          const boxes = document.querySelectorAll('body > div.webix_modal');
-          boxes.forEach(box => {
-            box.style.backgroundColor = '#000';
+          const boxes = document.querySelectorAll("body > div.webix_modal");
+          boxes.forEach((box) => {
+            box.style.backgroundColor = "#000";
           });
           $$(prefix + "_search_detach_win").hide();
         }
@@ -2612,7 +2644,6 @@ export function QueryPage(prefix, selectedDb) {
       $$(prefix + "_search_more_btn").show();
       $$(prefix + "_search_detach_btn").hide();
     }
-
   };
 
   const setMinimap = () => {
@@ -2624,15 +2655,18 @@ export function QueryPage(prefix, selectedDb) {
           enabled: state.isMinimap,
           // enabl   ed: true
         },
-      }); 6
+      });
+      6;
     });
   };
 
-  const isCanSave = (profileId,sqlString)=>{
-    const strQry = sqlString.toLowerCase().split('from')
-    const tableName = strQry.pop().trim().split(' ');
-    return webix.ajax().get(`${url}/is_table?id=${profileId}&table=${tableName}`);
-  }
+  const isCanSave = (profileId, sqlString) => {
+    const strQry = sqlString.toLowerCase().split("from");
+    const tableName = strQry.pop().trim().split(" ");
+    return webix
+      .ajax()
+      .get(`${url}/is_table?id=${profileId}&table=${tableName}`);
+  };
 
   const loadSchemaContent = (itemRootId, oid, panelId) => {
     searchOidSelected = oid;
@@ -2653,11 +2687,11 @@ export function QueryPage(prefix, selectedDb) {
         .then(function (data) {
           viewId.hideProgress();
           viewId.setValue(data.json().data);
-            const boxes = document.querySelectorAll('body > div.webix_modal');
-            boxes.forEach(box => {
-              box.style.backgroundColor = '#000';
-            });
-              $$(prefix + "_search_detach_win").close();
+          const boxes = document.querySelectorAll("body > div.webix_modal");
+          boxes.forEach((box) => {
+            box.style.backgroundColor = "#000";
+          });
+          $$(prefix + "_search_detach_win").close();
         });
     }
     if (typ == "u") {
@@ -2749,7 +2783,7 @@ export function QueryPage(prefix, selectedDb) {
           }
         }
 
-        if(userProfile.userLevel==1){
+        if (userProfile.userLevel == 1) {
           $$(prefix + "_all_history").show();
         }
 

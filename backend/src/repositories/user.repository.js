@@ -15,6 +15,9 @@ class UserRepository {
     if(type==2) { // list suggest
       sql += ` AND username like '%${search}%' or fullname like '%${search}%' `;
     }
+    if(type==6) { // list suggest
+      sql += ` AND username!=${search} `;
+    }
     sql += " ORDER BY id DESC";
 
     let params = [];

@@ -1164,12 +1164,6 @@ export function QueryPage(prefix, selectedDb) {
               columns: [{ id: "fullname", header: "Name", fillspace: true }],
               select: "row",
               multiselect: true,
-              on: {
-                onSelectChange: function () {
-                  var text = $$("table").getSelectedId(true).join();
-                  webix.message("Selected: " + text);
-                },
-              },
               url: `${urlUser}/users?type=6`,
             },
             {

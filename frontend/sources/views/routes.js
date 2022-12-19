@@ -8,6 +8,7 @@ import { QueryPage } from "./query/QueryPage";
 import { state as stateQuery } from "../models/Query";
 import { state as stateViewData } from "../models/ViewData";
 import { ViewDataPage } from './viewdata/ViewDataPage';
+import ShareIndex from "./share";
 
 export const routeName = {
   task: "task",
@@ -75,6 +76,6 @@ export const routes = [
     id: routeName.shared,
     type: "clean",
     borderless: true,
-    rows: [{template: "shared page"}],
+    rows: [ShareIndex],
   },
 ];

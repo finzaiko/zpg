@@ -1168,6 +1168,14 @@ background-size: cover;
   /* color: #1CA1C1 !important; */
 }
 
-.z_usershare_table .webix_ss_header{
-  /* height:0px !important; */
+.z_sent_share{
+  color: #31d931;
+}
+
+.z_receive_share{
+  color: #ff4848;
+}
+
+.z_primary_color{
+  color: #1CA1C1 !important;
 }

@@ -3,10 +3,12 @@ const { db } = require("../core/database");
 
 class ShareRepository {
   async getAll(filter, offset, limit, sort, userId) {
-    let sql = `SELECT * FROM profile WHERE type=6 AND createdby=${userId} AND share_to=${filter} ORDER BY id DESC`;
-    let params = [userId];
+    let sql = `SELECT id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content,
+      CASE WHEN share_to =${userId} THEN 'arrow-bottom-left z_receive_share' ELSE 'arrow-top-right z_sent_share' END as icon -- r=receive, s=sent
+      FROM profile WHERE type=6 AND user_id=${userId} OR share_to=${userId} ORDER BY id DESC`;
+    // console.log('sql>>>> ',sql);
     const res = await new Promise((resolve, reject) => {
-      db.all(sql, params, (err, row) => {
+      db.all(sql, (err, row) => {
         if (err) reject(err);
         resolve(row);
       });

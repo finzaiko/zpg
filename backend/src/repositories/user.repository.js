@@ -16,7 +16,7 @@ class UserRepository {
       sql += ` AND username like '%${search}%' or fullname like '%${search}%' `;
     }
     if(type==6) { // list suggest
-      sql += ` AND username!=${search} `;
+      sql += ` AND id!=${search} `;
     }
     sql += " ORDER BY id DESC";
 

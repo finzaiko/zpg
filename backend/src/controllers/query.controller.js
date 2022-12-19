@@ -235,7 +235,7 @@ class QueryController {
         const _sql = data.sql;
         const errLine =
           (_sql.substring(0, e.position).match(/\n/g) || []).length + 1;
-        // console.log('>>>>>>>>>>line: %s', errLine);
+        // console.log('>>>>>>>>>>error: %s', e);
         let errDetail = "",
           errHint = "",
           errQuery = "",
@@ -260,10 +260,10 @@ class QueryController {
           errDetail = e.detail;
         }
         if (typeof e.hint != "undefined") {
-          errHint = e.hint;
+          errHint = `HINT: ${e.hint}`;
         }
         if (typeof e.internalQuery != "undefined") {
-          errQuery = e.internalQuery;
+          errQuery = `${errQueryLabel}${e.internalQuery}`;
 
           const str = '^^',
           len = str.length,
@@ -271,7 +271,7 @@ class QueryController {
           errLinePos = str.padStart(len + space, ' ');
         }
         if (typeof e.where != "undefined") {
-          errWhere = e.where;
+          errWhere = `CONTEXT: ${e.where}`;
         }
 
         const errStack = e.stack.split("\n");
@@ -279,7 +279,7 @@ class QueryController {
           // error: `${aa}\n\n${errStack[0]}\n${errStack[1]}\n${errStack[2]} \n${errDetail} \n${errHint} \nerrline:${errLine}`,
           error: `${zErrorMsg}\n${errStack[0]}\n\nLINE: ${errLine}${
             errDetail ? "\n" + errDetail : ""
-          } \nHINT: ${errHint}\nQUERY: ${errQuery}\n${errLinePos}\nCONTEXT: ${errWhere}`,
+          } \n${errHint}\n${errQuery}\n${errLinePos}\n${errWhere}`,
         });
       });
   }

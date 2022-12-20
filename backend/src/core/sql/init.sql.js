@@ -59,6 +59,8 @@ CREATE TABLE profile (
     type integer, -- 1=serverconn, 2=dbconn, 3=queryhistory, 4=querybookmark, 5=usersetting, 6=share_to
     user_id integer,
     seq integer,
+    share_to integer,
+    share_status integer, -- 0=shared ok, 1=creator deleted, 2=target deleted, 3=both deleted
     created_at timestamp DATE DEFAULT (datetime('now','localtime')),
     modified_at TIMESTAMP
 );

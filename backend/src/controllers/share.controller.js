@@ -13,10 +13,14 @@ class TaskController {
   async create(request, reply) {
     const userId = request.user.uid;
     const data = await ShareService.create(request.body, userId);
-    // responseHttp(reply, 201, "Created");
     responseHttp(reply, 201, "Ok", { data: data });
   }
 
+  async remove(request, reply) {
+    const { id, status } = request.params;
+    await ShareService.delete(id, status);
+    responseHttp(reply, 204, "Removed");
+  }
 }
 
 module.exports = new TaskController();

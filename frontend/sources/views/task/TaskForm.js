@@ -39,11 +39,11 @@ function reloadAvailableFiltered(id, selId) {
       const tbl = $$(prefix + "_avalaible_table");
       tbl.clearAll();
       tbl.parse(avFiltered);
-      
+
       const tblSel = $$(prefix + "_selected_table");
       tblSel.clearAll();
       tblSel.parse(sel);
-      
+
       panelId.hideProgress();
       panelId.enable();
     });
@@ -369,7 +369,7 @@ const availableList = {
     {
       id: "name",
       header: ["Name", { content: "textFilter" }],
-      fillspace: true, sort:"string" 
+      fillspace: true, sort:"string"
     },
     { id: "type", header: ["Type", { content: "textFilter" }], adjust: true },
   ],
@@ -399,7 +399,7 @@ const selectedList = {
     {
       id: "name",
       header: ["Name", { content: "textFilter" }],
-      fillspace: true, sort:"string" 
+      fillspace: true, sort:"string"
     },
     { id: "type", header: "Type", adjust: true },
   ],

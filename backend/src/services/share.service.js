@@ -9,7 +9,7 @@ const path = require("path");
 const async = require("async");
 
 class ShareService {
-  async getAll(filter="", offset = 0, limit = 10, sort = "desc", userId) {
+  async getAll(filter = "", offset = 0, limit = 10, sort = "desc", userId) {
     return await ShareRepository.getAll(filter, offset, limit, sort, userId);
   }
 
@@ -23,6 +23,9 @@ class ShareService {
     return await ShareRepository.create(taskDto);
   }
 
+  async delete(id, status) {
+    if (status) return await ShareRepository.delete(id, status);
+  }
 }
 
 module.exports = new ShareService();

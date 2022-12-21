@@ -14,10 +14,7 @@ const toolbar = {
       icon: "mdi mdi-sync z_primary_color",
       autowidth: true,
       click: function () {
-        $$(prefix+"_share_list").clearAll();
-        $$(prefix+"_share_list").load(url);
-        $$(prefix + "_copy_share_clipboard").hide();
-        $$(prefix + "_share_sql").setValue();
+        reload();
       },
     },
     {
@@ -57,6 +54,13 @@ const toolbar = {
   ],
 };
 
+function reload() {
+  $$(prefix+"_share_list").clearAll();
+  $$(prefix+"_share_list").load(url);
+  $$(prefix + "_copy_share_clipboard").hide();
+  $$(prefix + "_share_sql").setValue();
+}
+
 export default class SharePage extends JetView {
   config() {
     return {
@@ -69,10 +73,41 @@ export default class SharePage extends JetView {
               view: "list",
               id: prefix+"_share_list",
               width: 250,
-              template: "<span class='mdi mdi-#icon#'></span> #title#",
+              template: "<span class='mdi mdi-#icon#'></span> #title# <span class='webix_icon mdi mdi-close z_share_remove_icon' title='Remove'></span>",
               select: true,
-              css: "z_generator_list",
+              tooltip:"at: #created_at#",
+              css: "z_share_list",
               url: url,
+              onClick:{
+                "z_share_remove_icon":function(ev, id){
+                  const _this = this;
+                  webix.confirm({
+                    ok: "Yes",
+                    cancel: "No",
+                    text: "Are you sure to delete ?",
+                    callback: function (result) {
+                      const item = _this.getItem(id);
+                      if (result) {
+                        // -- 0=shared ok, 1=creator deleted, 2=target deleted, 3=both deleted
+                        let shareStatus = item.is_me==1 ? 1 : 2;
+                        if(item.is_me==1 && item.share_status==2){
+                          shareStatus = 3;
+                        }
+                        if(item.is_me==0 && item.share_status==1){
+                          shareStatus = 3;
+                        }
+                        webix
+                          .ajax()
+                          .del(`${url}/${shareStatus}/${id}`,function (res) {
+                            webix.message({text:`Share deleted`, type: "success"});
+                            reload();
+                          });
+                      }
+                    },
+                  });
+                  return false;
+                }
+              },
               on: {
                 onItemClick: function (sel) {
                   const item = this.getItem(sel);

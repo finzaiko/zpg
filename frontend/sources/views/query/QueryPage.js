@@ -2074,9 +2074,7 @@ export function QueryPage(prefix, selectedDb) {
 
                         let editedCache = cache.filter((o) => o.id > 0);
                         const dataSave = [...createdCache, ...editedCache];
-                        // console.log('dataSave',dataSave);
-
-                        console.log(JSON.stringify(dataSave));
+                        // console.log(JSON.stringify(dataSave));
 
                         // return webix.message({text: 'Not implement yet!', type: "debug"});
                         if (cache.length > 0) {

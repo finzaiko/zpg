@@ -1179,3 +1179,17 @@ background-size: cover;
 .z_primary_color{
   color: #1CA1C1 !important;
 }
+
+.z_share_remove_icon{
+  color: rgb(236, 236, 236);
+  float: right;
+  margin-top: 2px;
+}
+.z_share_remove_icon:hover{
+  color: red !important;
+  cursor: pointer;
+}
+
+.z_share_list .webix_list_item  {
+  cursor:default;
+}

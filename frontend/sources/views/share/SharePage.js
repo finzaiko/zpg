@@ -27,7 +27,7 @@ const toolbar = {
       css: "z_icon_color_primary z_icon_size_17",
       click: function () {
         const val = $$(prefix + "_share_sql").getValue();
-        if(val.length>0){
+        if (val.length > 0) {
           this.hide();
           const ck = $$(prefix + "_copy_share_clipboard_done");
           ck.show();
@@ -55,8 +55,8 @@ const toolbar = {
 };
 
 function reload() {
-  $$(prefix+"_share_list").clearAll();
-  $$(prefix+"_share_list").load(url);
+  $$(prefix + "_share_list").clearAll();
+  $$(prefix + "_share_list").load(url);
   $$(prefix + "_copy_share_clipboard").hide();
   $$(prefix + "_share_sql").setValue();
 }
@@ -71,15 +71,16 @@ export default class SharePage extends JetView {
           cols: [
             {
               view: "list",
-              id: prefix+"_share_list",
+              id: prefix + "_share_list",
               width: 250,
-              template: "<span class='mdi mdi-#icon#'></span> #title# <span class='webix_icon mdi mdi-close z_share_remove_icon' title='Remove'></span>",
+              template:
+                "<span class='mdi mdi-#icon#'></span> #title# <span class='webix_icon mdi mdi-close z_share_remove_icon' title='Remove'></span>",
               select: true,
-              tooltip:"at: #created_at#",
+              tooltip: "#share_user_label#",
               css: "z_share_list",
               url: url,
-              onClick:{
-                "z_share_remove_icon":function(ev, id){
+              onClick: {
+                z_share_remove_icon: function (ev, id) {
                   const _this = this;
                   webix.confirm({
                     ok: "Yes",
@@ -89,24 +90,27 @@ export default class SharePage extends JetView {
                       const item = _this.getItem(id);
                       if (result) {
                         // -- 0=shared ok, 1=creator deleted, 2=target deleted, 3=both deleted
-                        let shareStatus = item.is_me==1 ? 1 : 2;
-                        if(item.is_me==1 && item.share_status==2){
+                        let shareStatus = item.is_me == 1 ? 1 : 2;
+                        if (item.is_me == 1 && item.share_status == 2) {
                           shareStatus = 3;
                         }
-                        if(item.is_me==0 && item.share_status==1){
+                        if (item.is_me == 0 && item.share_status == 1) {
                           shareStatus = 3;
                         }
                         webix
                           .ajax()
-                          .del(`${url}/${shareStatus}/${id}`,function (res) {
-                            webix.message({text:`Share deleted`, type: "success"});
+                          .del(`${url}/${shareStatus}/${id}`, function (res) {
+                            webix.message({
+                              text: `Share deleted`,
+                              type: "success",
+                            });
                             reload();
                           });
                       }
                     },
                   });
                   return false;
-                }
+                },
               },
               on: {
                 onItemClick: function (sel) {
@@ -134,4 +138,12 @@ export default class SharePage extends JetView {
     };
   }
   init() {}
+  ready() {
+    const edId = $$(prefix + "_share_sql");
+    edId.getEditor(true).then((editor) => {
+      editor.updateOptions({
+        readOnly: true,
+      });
+    });
+  }
 }

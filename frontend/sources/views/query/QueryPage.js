@@ -1213,6 +1213,11 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const addShareUser = (userListId, sql_content) => {
+    const usr = userListId.split(",")
+    if(usr.length>1){
+      webix.message({text: "Not support multiple user selection yet", type:  "error"});
+      return;
+    }
     const data = {
       share_to: userListId,
       content: sql_content,

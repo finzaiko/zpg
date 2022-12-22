@@ -1034,6 +1034,7 @@ export function QueryPage(prefix, selectedDb) {
                 view: "icon",
                 icon: "mdi mdi-refresh",
                 css: "z_primary_color z_fontsize_18",
+                tooltip: "Refresh",
                 click: function () {
                 },
               },
@@ -1041,6 +1042,7 @@ export function QueryPage(prefix, selectedDb) {
                 view: "icon",
                 icon: "mdi mdi-chevron-left",
                 css: "z_primary_color z_fontsize_18",
+                tooltip: "Previous page",
                 click: function () {
                   $$(prefix+"_pager_history").select("prev");
                 },
@@ -1048,6 +1050,7 @@ export function QueryPage(prefix, selectedDb) {
               {
                 view: "icon",
                 icon: "mdi mdi-chevron-right",
+                tooltip: "Next page",
                 css: "z_primary_color z_fontsize_18",
                 click: function () {
                   $$(prefix+"_pager_history").select("next");

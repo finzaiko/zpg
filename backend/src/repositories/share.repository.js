@@ -17,7 +17,7 @@ class ShareRepository {
          )
       ORDER BY profile.id DESC
       `;
-    console.log('sql>>>> ',sql);
+    console.log("sql>>>> ", sql);
     const res = await new Promise((resolve, reject) => {
       db.all(sql, (err, row) => {
         if (err) reject(err);
@@ -29,15 +29,27 @@ class ShareRepository {
 
   async create(data) {
     const sql = `INSERT INTO profile (content, type, user_id, share_to) VALUES (?,?,?,?)`;
-    let params = [
-      data.content,
-      data.type,
-      data.user_id,
-      data.share_to,
-    ];
+    let params = [data.content, data.type, data.user_id, data.share_to];
 
     const res = await new Promise((resolve, reject) => {
       db.run(sql, params, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
+  async update(id, title, content) {
+    console.log('content',content);
+
+    let contentSql = "";
+    if (content) {
+      contentSql = `, content='${content}'`;
+    }
+    const sql = `UPDATE profile SET title='${title}' ${contentSql} WHERE id=${id}`;
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, (err, row) => {
         if (err) reject(err);
         resolve(row);
       });
@@ -56,7 +68,6 @@ class ShareRepository {
     });
     return res;
   }
-
 }
 
 module.exports = new ShareRepository();

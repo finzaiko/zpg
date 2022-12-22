@@ -23,6 +23,10 @@ class ShareService {
     return await ShareRepository.create(taskDto);
   }
 
+  async update(id, title, content) {
+    return await ShareRepository.update(id, title, content);
+  }
+
   async delete(id, status) {
     if (status) return await ShareRepository.delete(id, status);
   }

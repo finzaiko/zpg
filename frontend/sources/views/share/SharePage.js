@@ -1,4 +1,5 @@
 import { JetView } from "webix-jet";
+import { defaultHeader } from "../../helpers/api";
 import { copyToClipboard } from "../../helpers/copy";
 import { state, url } from "../../models/Share";
 
@@ -8,15 +9,80 @@ const toolbar = {
   view: "toolbar",
   elements: [
     {
-      view: "icon",
+      view: "button",
+      type: "icon",
       id: prefix + "_refresh_btn",
       tooltip: "Refresh",
+      css: "zmdi_padding",
       icon: "mdi mdi-sync z_primary_color",
       autowidth: true,
       click: function () {
         reload();
       },
     },
+    {
+      view: "text",
+      id: prefix + "_edit_title",
+      hidden: true,
+    },
+    {
+      view: "button",
+      type: "icon",
+      css: "zmdi_padding",
+      id: prefix + "_edit_btn",
+      hidden: true,
+      tooltip: "Edit",
+      icon: "mdi mdi-pencil-box-outline z_primary_color",
+      autowidth: true,
+      click: function () {
+        this.hide();
+        $$(prefix + "_save_btn").show();
+        $$(prefix + "_cancel_btn").show();
+        $$(prefix + "_edit_title").show();
+        setTimeout(() => $$(prefix + "_edit_title").focus(), 500);
+      },
+    },
+    {
+      view: "button",
+      type: "icon",
+      css: "zmdi_padding",
+      id: prefix + "_save_btn",
+      hidden: true,
+      tooltip: "Edit",
+      icon: "mdi mdi-content-save-outline z_primary_color",
+      autowidth: true,
+      click: function () {
+        // webix.message({ text: "Not implement yet!", type: "debug" });
+        update();
+      },
+    },
+    {
+      view: "button",
+      type: "icon",
+      css: "zmdi_padding",
+      id: prefix + "_cancel_btn",
+      hidden: true,
+      tooltip: "Cancel Edit",
+      icon: "mdi mdi-close z_primary_color",
+      autowidth: true,
+      click: function () {
+        defaultBtn();
+      },
+    },
+    {
+      view: "button",
+      type: "icon",
+      css: "zmdi_padding",
+      id: prefix + "_delete_btn",
+      hidden: true,
+      tooltip: "Delete",
+      icon: "mdi mdi-delete-outline z_primary_color",
+      autowidth: true,
+      click: function () {
+        remove();
+      },
+    },
+    { width: 10 },
     {
       view: "icon",
       icon: "mdi mdi-content-copy",
@@ -54,11 +120,67 @@ const toolbar = {
   ],
 };
 
+function update() {
+  const tblId = $$(prefix + "_share_list");
+  const item = tblId.getItem(tblId.getSelectedId());
+  const data = {
+    title: $$(prefix + "_edit_title").getValue(),
+  };
+  webix
+    .ajax()
+    .headers(defaultHeader())
+    .put(`${url}/${item.id}`, data, function (res) {
+      webix.message({ text: "Title updated", type: "success" });
+      reload();
+    })
+    .fail(function (err) {
+      showError(err);
+    });
+}
+
+function remove() {
+  webix.confirm({
+    ok: "Yes",
+    cancel: "No",
+    text: "Are you sure to delete ?",
+    callback: function (result) {
+      const tblId = $$(prefix + "_share_list");
+      const item = tblId.getItem(tblId.getSelectedId());
+      if (result) {
+        // -- 0=shared ok, 1=creator deleted, 2=target deleted, 3=both deleted
+        let shareStatus = item.is_me == 1 ? 1 : 2;
+        if (item.is_me == 1 && item.share_status == 2) {
+          shareStatus = 3;
+        }
+        if (item.is_me == 0 && item.share_status == 1) {
+          shareStatus = 3;
+        }
+        webix.ajax().del(`${url}/${shareStatus}/${id}`, function (res) {
+          webix.message({
+            text: `Share deleted`,
+            type: "success",
+          });
+          reload();
+        });
+      }
+    },
+  });
+}
 function reload() {
   $$(prefix + "_share_list").clearAll();
   $$(prefix + "_share_list").load(url);
-  $$(prefix + "_copy_share_clipboard").hide();
   $$(prefix + "_share_sql").setValue();
+  defaultBtn();
+}
+
+function defaultBtn() {
+  $$(prefix + "_save_btn").hide();
+  $$(prefix + "_edit_btn").hide();
+  $$(prefix + "_delete_btn").hide();
+  $$(prefix + "_edit_title").hide();
+  $$(prefix + "_cancel_btn").hide();
+  $$(prefix + "_edit_title").setValue();
+  $$(prefix + "_copy_share_clipboard").hide();
 }
 
 export default class SharePage extends JetView {
@@ -70,7 +192,7 @@ export default class SharePage extends JetView {
         {
           cols: [
             {
-              view: "list",
+              view: "datatable",
               id: prefix + "_share_list",
               width: 250,
               template:
@@ -78,45 +200,25 @@ export default class SharePage extends JetView {
               select: true,
               tooltip: "#share_user_label#",
               css: "z_share_list",
-              url: url,
-              onClick: {
-                z_share_remove_icon: function (ev, id) {
-                  const _this = this;
-                  webix.confirm({
-                    ok: "Yes",
-                    cancel: "No",
-                    text: "Are you sure to delete ?",
-                    callback: function (result) {
-                      const item = _this.getItem(id);
-                      if (result) {
-                        // -- 0=shared ok, 1=creator deleted, 2=target deleted, 3=both deleted
-                        let shareStatus = item.is_me == 1 ? 1 : 2;
-                        if (item.is_me == 1 && item.share_status == 2) {
-                          shareStatus = 3;
-                        }
-                        if (item.is_me == 0 && item.share_status == 1) {
-                          shareStatus = 3;
-                        }
-                        webix
-                          .ajax()
-                          .del(`${url}/${shareStatus}/${id}`, function (res) {
-                            webix.message({
-                              text: `Share deleted`,
-                              type: "success",
-                            });
-                            reload();
-                          });
-                      }
-                    },
-                  });
-                  return false;
+              headerRowHeight: -1,
+              columns: [
+                {
+                  fillspace: true,
+                  template: function (obj, common, value, column, index) {
+                    return `<span class='mdi mdi-${obj.icon}'></span> ${obj.title}`;
+                  },
                 },
-              },
+              ],
+              url: url,
               on: {
                 onItemClick: function (sel) {
                   const item = this.getItem(sel);
                   $$(prefix + "_share_sql").setValue(item.content);
                   $$(prefix + "_copy_share_clipboard").show();
+                  $$(prefix + "_save_btn").hide();
+                  $$(prefix + "_edit_btn").show();
+                  $$(prefix + "_delete_btn").show();
+                  $$(prefix + "_edit_title").setValue(item.title);
                 },
               },
             },

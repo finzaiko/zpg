@@ -1008,42 +1008,97 @@ export function QueryPage(prefix, selectedDb) {
               },
               {
                 view: "icon",
+                icon: "mdi mdi-chevron-down",
+                tooltip:
+                  "Other options",
+                click: function () {
+                  if(!$$(prefix+"_history_tb_more").isVisible()){
+                    $$(prefix+"_history_tb_more").show()
+                    this.config.icon = "mdi mdi-chevron-up";
+                  }else{
+                    $$(prefix+"_history_tb_more").hide()
+                    this.config.icon = "mdi mdi-chevron-down";
+                  }
+                  this.refresh();
+                },
+              },
+            ],
+          },
+          {
+            view: "toolbar",
+            id: prefix+"_history_tb_more",
+            hidden: true,
+            height: 32,
+            cols: [
+              {
+                view: "icon",
+                icon: "mdi mdi-refresh",
+                css: "z_primary_color z_fontsize_18",
+                click: function () {
+                },
+              },
+              {
+                view: "icon",
+                icon: "mdi mdi-chevron-left",
+                css: "z_primary_color z_fontsize_18",
+                click: function () {
+                  $$(prefix+"_pager_history").select("prev");
+                },
+              },
+              {
+                view: "icon",
+                icon: "mdi mdi-chevron-right",
+                css: "z_primary_color z_fontsize_18",
+                click: function () {
+                  $$(prefix+"_pager_history").select("next");
+                },
+              },
+              {},
+              {
+                view: "icon",
                 icon: "mdi mdi-format-list-group",
                 tooltip: "Admin: Show all users history",
+                css: "z_primary_color z_fontsize_18",
                 id: prefix + "_all_history",
-                hidden: true,
                 click: function () {
-                  // console.log("show user history");
                   webix.message({ text: "Not implement yet", type: "debug" });
                 },
               },
               {
                 view: "icon",
                 icon: "mdi mdi-delete-sweep-outline",
+                css: "z_primary_color z_fontsize_18",
                 tooltip:
                   "Clear all History<br>(history auto clear after 30 days)",
                 click: function () {
-                  // console.log("clear");
                   webix.message({ text: "Not implement yet", type: "debug" });
                 },
               },
-            ],
+            ]
           },
           {
-            view: "list",
+            view: "datatable",
             id: prefix + "_history_list",
             css: "z_fade_list z_list_cursor_pointer",
-            template: function (obj) {
-              if (obj.content) {
-                return `${truncateString(
-                  obj.title,
-                  38
-                )} <span style='color: grey;font-style:italic;font-size:13;float:right;'>
-                ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
-              }
+            columns: [
+              { id: "title", header: "", fillspace:true },
+              {
+                adjust:true,
+                template:function(obj, common, value, column, index){
+                  if (obj.content) {
+                    return `<span style='color: grey;font-style:italic;font-size:13;float:right;'>
+                    ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
+                  }
+                }
+              },
+            ],
+            pager:{
+              id:prefix+"_pager_history",
+              apiOnly:true,
+              size:100,
             },
             select: true,
-            headerRowHeight: 0,
+            headerRowHeight: -1,
             url: `${urlProfile}/content?type=3`,
             on: {
               onBeforeLoad: function () {

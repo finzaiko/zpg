@@ -1074,7 +1074,7 @@ background-size: cover;
   font-size: 14px;
 }
 
-.z_list_cursor_pointer .webix_list_item{
+.z_list_cursor_pointer{
   cursor: pointer;
 }
 
@@ -1176,8 +1176,12 @@ background-size: cover;
   color: #ff4848;
 }
 
-.z_primary_color{
+.z_primary_color, .z_primary_color .webix_icon{
   color: #1CA1C1 !important;
+}
+
+.z_fontsize_18{
+  font-size: 18px !important;
 }
 
 .z_share_remove_icon{

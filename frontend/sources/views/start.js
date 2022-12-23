@@ -27,16 +27,13 @@ export default {
 		<p>
 			<ul>
 				<li>Query not have cancel/stop, alternatively set timeout on setting menu (to be improve should do)</li>
-				<li>Tables and function scripts only</li>
+				<li>Not show detail tables defenition</li>
 			</ul>
 		</p>
 		<section>
 			<h4>Todo:</h4>
 			<ul>
-				<li>query: direct show data</li>
-				<li>query: result direct save change</li>
 				<li>query: change reload on user setting</li>
-				<li>viewdata: action on save</li>
 				<li>compare by profile </li>
 				<li>execute query in compare</li>
 				<li>check compatible version</li>
@@ -46,6 +43,18 @@ export default {
 
 		<section>
 			<h4>Change log:</h4>
+			<p>
+				<h4>1.0.15-dev (23-12-2022)</h4>
+				<ul>
+					<li>upd direct save on query result</li>
+					<li>feature able share query to other users</li>
+					<li>improve json/long text formatter result</li>
+					<li>fix timezone</li>
+					<li>upd animate copy clipboard</li>
+					<li>upd more detail query history</li>
+					<li>add view, trigger defenition</li>
+				</ul>
+			</p>
 			<p>
 				<h4>1.0.14-dev (24-10-2022)</h4>
 				<ul>

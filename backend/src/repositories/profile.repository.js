@@ -31,6 +31,7 @@ class ProfileRepository {
       sql += " LIMIT "+ limit;
     }
     // console.log('sql>>>>',sql);
+    // console.log('type, userId',type, userId);
 
     let params = [type, userId];
     if(showAll!=0){

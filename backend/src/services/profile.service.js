@@ -7,6 +7,9 @@ class ProfileService {
     if(typeof limit=="undefined"){
       limit = 100;
     }
+    if(typeof showAll=="undefined"){
+      showAll = 0;
+    }
     return await ProfileRepository.findAll(type, userId, isList, showAll, limit, offset, search);
   }
 

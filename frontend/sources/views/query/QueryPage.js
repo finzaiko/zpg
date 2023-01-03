@@ -1081,6 +1081,7 @@ export function QueryPage(prefix, selectedDb) {
                 tooltip: "Admin: Show all users history",
                 css: "z_primary_color z_fontsize_18",
                 id: prefix + "_all_history",
+                hidden: true,
                 click: function () {
                   if(historyAdminMode){
                     this.config.icon = "mdi mdi-text";

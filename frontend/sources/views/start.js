@@ -33,6 +33,8 @@ export default {
 		<section>
 			<h4>Todo:</h4>
 			<ul>
+				<li>all: load user setting from json profile</li>
+				<li>share: reconstruct to separate table and notify socket.io</li>
 				<li>query: change reload on user setting</li>
 				<li>compare by profile </li>
 				<li>execute query in compare</li>

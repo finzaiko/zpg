@@ -216,9 +216,15 @@ export default class SharePage extends JetView {
                   $$(prefix + "_share_sql").setValue(item.content);
                   $$(prefix + "_copy_share_clipboard").show();
                   $$(prefix + "_save_btn").hide();
-                  $$(prefix + "_edit_btn").show();
-                  $$(prefix + "_delete_btn").show();
                   $$(prefix + "_edit_title").setValue(item.title);
+
+                  if(item.is_me==1){
+                    $$(prefix + "_edit_btn").show();
+                    $$(prefix + "_delete_btn").show();
+                  }else{
+                    $$(prefix + "_edit_btn").hide();
+                    $$(prefix + "_delete_btn").hide();
+                  }
                 },
               },
             },

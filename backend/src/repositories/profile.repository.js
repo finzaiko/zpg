@@ -2,33 +2,40 @@ const { db } = require("../core/database");
 const { Pool } = require("pg");
 
 class ProfileRepository {
-  async findAll(type, userId, isList, limit, offset, search) {
+  async findAll(type, userId, isList, showAll, limit, offset, search) {
     // console.log(`type, userId, isList////////`, type, userId, isList);
-    let fields = "*";
+    let fields = "*", andWhere = "";
     if (type == 1 || type == 2) {
-      fields = `id, conn_name, host, port, database, user, password, ssl`;
+      fields = `profile.id, conn_name, host, port, database, user, password, ssl`;
     }
-    if (type == 3 || type == 4) {
+    if (type == 3 || type == 4 || type == 5) {
       // fields = `id, title, content, created_at`;
-      fields = `id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content, created_at`;
+      fields = `profile.id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content, profile.created_at`;
     }
-    let sql = `SELECT ${fields} FROM profile WHERE type=? AND user_id=?`;
+
+    if(showAll==0){
+      andWhere = `AND user_id=?`;
+    }
+    let sql = `SELECT ${fields}, user.fullname FROM profile JOIN user ON user.id=profile.user_id WHERE type=? ${andWhere}`;
     if (isList) {
       sql =
-        "SELECT id, conn_name  as value, host, database, ssl FROM profile WHERE type=? AND user_id=?";
+        "SELECT profile.id, conn_name  as value, host, database, ssl FROM profile WHERE type=? AND user_id=?";
     }
 
     if(search){
       sql += ` AND content LIKE '%${search}%'`;
     }
-    sql += " ORDER BY id DESC";
+    sql += " ORDER BY profile.id DESC";
 
     if(limit){
       sql += " LIMIT "+ limit;
     }
-    //  console.log('sql',sql);
+    // console.log('sql>>>>',sql);
 
     let params = [type, userId];
+    if(showAll!=0){
+      params.pop();
+    }
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
         if (err) reject(err);
@@ -238,7 +245,7 @@ class ProfileRepository {
   }
 
   async getUserProfile(userId) {
-    let sql = `select type, content from profile where type in (5,6) and user_id=?`;
+    let sql = `select type, content from profile where type in (5) and user_id=?`;
     // console.log(`sql`, sql);
     let params = [userId];
     const res = await new Promise((resolve, reject) => {

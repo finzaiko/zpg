@@ -569,7 +569,6 @@ export function QueryPage(prefix, selectedDb) {
             select: true,
             on: {
               onItemClick: function (id) {
-                searchState = id;
                 this.getParentView().hide();
                 const popBtn = $$(prefix + "_search_more_btn");
                 const sel = this.getItem(id);
@@ -943,6 +942,24 @@ export function QueryPage(prefix, selectedDb) {
     ],
   };
 
+  let historyAdminMode = false;
+
+  function historyCols(isAdmin) {
+    const title = [{ id: "title", header: "", fillspace:true }];
+    const fname = [{ id: "fullname", header: "", width:100 }];
+    const tm = [{
+      adjust:true,
+      template:function(obj, common, value, column, index){
+        if (obj.content) {
+          return `<span style='color: grey;font-style:italic;font-size:13;float:right;'>
+          ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
+        }
+      }
+    }];
+
+    return isAdmin ? [...title, ...fname, ...tm] : [...title, ...tm];
+  }
+
   let QuerySidemenuRight = {
     id: prefix + "_sidemenu_right",
     css: "z_query_sidemenu_right",
@@ -996,7 +1013,7 @@ export function QueryPage(prefix, selectedDb) {
                 keyPressTimeout: 800,
                 on: {
                   onTimedKeyPress: function () {
-                    loadHistory(this.getValue());
+                    loadHistory(historyAdminMode ? 1: 0, this.getValue());
                     /*
                     const value = this.getValue().toLowerCase();
                     $$(prefix + "_history_list").filter(function (obj) {
@@ -1036,6 +1053,7 @@ export function QueryPage(prefix, selectedDb) {
                 css: "z_primary_color z_fontsize_18",
                 tooltip: "Refresh",
                 click: function () {
+                  loadHistory(historyAdminMode ? 1 : 0);
                 },
               },
               {
@@ -1059,12 +1077,22 @@ export function QueryPage(prefix, selectedDb) {
               {},
               {
                 view: "icon",
-                icon: "mdi mdi-format-list-group",
+                icon: "mdi mdi-text",
                 tooltip: "Admin: Show all users history",
                 css: "z_primary_color z_fontsize_18",
                 id: prefix + "_all_history",
                 click: function () {
-                  webix.message({ text: "Not implement yet", type: "debug" });
+                  if(historyAdminMode){
+                    this.config.icon = "mdi mdi-text";
+                  }else{
+                    this.config.icon = "mdi mdi-text-long";
+                  }
+                  this.refresh();
+                  historyAdminMode = !historyAdminMode;
+                  const tbl = $$(prefix + "_history_list");
+                  tbl.config.columns = historyCols(historyAdminMode);
+                  tbl.refreshColumns();
+                  loadHistory(historyAdminMode ? 1: 0);
                 },
               },
               {
@@ -1094,6 +1122,7 @@ export function QueryPage(prefix, selectedDb) {
                   }
                 }
               },
+
             ],
             pager:{
               id:prefix+"_pager_history",
@@ -2520,14 +2549,14 @@ export function QueryPage(prefix, selectedDb) {
     $$(prefix + "_sql_editor").show();
   };
 
-  function loadHistory(search = "") {
+  function loadHistory(showAll = 0, search = "") {
     let listId = $$(prefix + "_history_list");
     listId.clearAll();
     let qs = "";
     if (search) {
       qs = `&search=${search}`;
     }
-    listId.load(`${urlProfile}/content?type=3${qs}`);
+    listId.load(`${urlProfile}/content?type=3&sa=${showAll}${qs}`);
   }
 
   function copyFieldName() {

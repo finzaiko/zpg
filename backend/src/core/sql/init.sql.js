@@ -16,6 +16,23 @@ CREATE TABLE user (
 );
 `;
 
+/*
+  [
+    {"m_key": "system_menu"                   , "m_val": "{}",       ,"d_type": "json",     "note": "Menu config",              "u_type": 0  },
+    {"m_key": "system_allow_register"         , "m_val": true,       ,"d_type": "boolean",  "note": "Enable self registration", "u_type": 1  },
+    {"m_key": "app_sidebar_state"             , "m_val": "expand",   ,"d_type": "text",     "note": "",                         "u_type": 3  },
+    {"m_key": "app_theme"                     , "m_val": "default",  ,"d_type": "text",     "note": "Theme",                    "u_type": 3  },
+    {"m_key": "query_editor_font_size"        , "m_val": 12,         ,"d_type": "integer",  "note": "Editor font size (in px)", "u_type": 3  },
+    {"m_key": "query_data_type"               , "m_val": true,       ,"d_type": "boolean",  "note": "",                         "u_type": 3  },
+    {"m_key": "query_quick_search"            , "m_val": false,      ,"d_type": "boolean",  "note": "",                         "u_type": 3  },
+    {"m_key": "query_minimap"                 , "m_val": false,      ,"d_type": "boolean",  "note": "",                         "u_type": 3  },
+    {"m_key": "query_enable_history"          , "m_val": true,       ,"d_type": "boolean",  "note": "",                         "u_type": 3  },
+    {"m_key": "task_confirm_drop_replace"     , "m_val": false,      ,"d_type": "boolean",  "note": "",                         "u_type": 3  },
+    {"m_key": "task_confirm_direct_execute"   , "m_val": false,      ,"d_type": "boolean",  "note": "",                         "u_type": 3  }
+  ]
+
+*/
+
 const settingTable = `
 CREATE TABLE setting (
     m_key text PRIMARY KEY,

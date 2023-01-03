@@ -3,9 +3,9 @@ const { responseOk, responseHttp } = require("../utils/http.utils");
 
 class ProfileController {
   async findAll(request, reply) {
-    const { type, ls, limit, offset, search } = request.query;
+    const { type, ls, sa, limit, offset, search } = request.query; // sa= show all
     const userId = request.user.uid;
-    const data = await ProfileService.findAll(type, userId, ls, limit, offset, search);
+    const data = await ProfileService.findAll(type, userId, ls, sa, limit, offset, search);
     responseHttp(reply, 200, "Ok", {
       data: data,
       pos: 0,

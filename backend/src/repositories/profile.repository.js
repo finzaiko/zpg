@@ -30,8 +30,43 @@ class ProfileRepository {
     if(limit){
       sql += " LIMIT "+ limit;
     }
+    if(offset){
+      sql += " OFFSET "+ offset;
+    }
+
     // console.log('sql>>>>',sql);
     // console.log('type, userId',type, userId);
+
+    let params = [type, userId];
+    if(showAll!=0){
+      params.pop();
+    }
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, params, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
+  async countAll(type, userId, isList, showAll, limit, offset, search) {
+    let andWhere = "";
+
+    if(showAll==0){
+      andWhere = `AND user_id=?`;
+    }
+    let sql = `SELECT count(*) as total_count FROM profile JOIN user ON user.id=profile.user_id WHERE type=? ${andWhere}`;
+    if (isList) {
+      sql =
+        "SELECT count(*) as total_count FROM profile WHERE type=? AND user_id=?";
+    }
+
+    if(search){
+      sql += ` AND content LIKE '%${search}%'`;
+    }
+
+    // console.log('sql-count>>>>',sql);
 
     let params = [type, userId];
     if(showAll!=0){

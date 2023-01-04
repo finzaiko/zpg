@@ -166,11 +166,16 @@ function remove() {
     },
   });
 }
-function reload() {
+function reload(isLoadOnly) {
+  if (typeof isLoadOnly == "undefined") {
+    isLoadOnly = false;
+  }
   $$(prefix + "_share_list").clearAll();
   $$(prefix + "_share_list").load(url);
-  $$(prefix + "_share_sql").setValue();
-  defaultBtn();
+  if (!isLoadOnly) {
+    $$(prefix + "_share_sql").setValue();
+    defaultBtn();
+  }
 }
 
 function defaultBtn() {
@@ -218,10 +223,10 @@ export default class SharePage extends JetView {
                   $$(prefix + "_save_btn").hide();
                   $$(prefix + "_edit_title").setValue(item.title);
 
-                  if(item.is_me==1){
+                  if (item.is_me == 1) {
                     $$(prefix + "_edit_btn").show();
                     $$(prefix + "_delete_btn").show();
-                  }else{
+                  } else {
                     $$(prefix + "_edit_btn").hide();
                     $$(prefix + "_delete_btn").hide();
                   }
@@ -243,6 +248,11 @@ export default class SharePage extends JetView {
           ],
         },
       ],
+      on: {
+        onViewShow: function () {
+          reload(true);
+        },
+      },
     };
   }
   init() {}

@@ -3,13 +3,15 @@ const { responseOk, responseHttp } = require("../utils/http.utils");
 
 class ProfileController {
   async findAll(request, reply) {
-    const { type, ls, sa, limit, offset, search } = request.query; // sa= show all
+    const { type, ls, sa, limit, start, search } = request.query; // sa= show all
     const userId = request.user.uid;
-    const data = await ProfileService.findAll(type, userId, ls, sa, limit, offset, search);
+    const data = await ProfileService.findAll(type, userId, ls, sa, limit, start, search);
+    const dataCount = await ProfileService.countAll(type, userId, ls, sa, limit, start, search);
+
     responseHttp(reply, 200, "Ok", {
       data: data,
-      pos: 0,
-      total_count: data.rowCount,
+      pos: parseInt(start) || 0,
+      total_count: dataCount[0].total_count || 0,
     });
   }
 

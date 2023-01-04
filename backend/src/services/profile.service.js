@@ -7,10 +7,26 @@ class ProfileService {
     if(typeof limit=="undefined"){
       limit = 100;
     }
+    if(typeof offset=="undefined"){
+      offset = 0;
+    }
     if(typeof showAll=="undefined"){
       showAll = 0;
     }
     return await ProfileRepository.findAll(type, userId, isList, showAll, limit, offset, search);
+  }
+
+  async countAll(type, userId, isList, showAll, limit, offset, search) {
+    if(typeof limit=="undefined"){
+      limit = 100;
+    }
+    if(typeof offset=="undefined"){
+      offset = 0;
+    }
+    if(typeof showAll=="undefined"){
+      showAll = 0;
+    }
+    return await ProfileRepository.countAll(type, userId, isList, showAll, limit, offset, search);
   }
 
   async getById(id, type, userId) {

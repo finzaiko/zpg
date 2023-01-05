@@ -120,8 +120,12 @@ CREATE TABLE task_item (
 const shareTable = `
 CREATE TABLE share (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    profile_id integer not null,
+    content text,
     user_id integer not null,
+    share_to integer,
+    share_status integer,
+    is_deleted integer,
+    is_read integer,
     created_at timestamp DATE DEFAULT (datetime('now','localtime')),
     FOREIGN KEY (profile_id) REFERENCES profile (id),
     FOREIGN KEY (user_id) REFERENCES user (id)

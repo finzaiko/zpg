@@ -202,6 +202,12 @@ if (!BUILD_AS_MODULE) {
 
       initSession();
 
+      app.attachEvent("app:guard", function(url, view, nav){
+        if (url.indexOf("/blocked") !== -1){
+              nav.redirect = "/index";
+          }
+      });
+
       app.render();
 
     }, laodingDelay);

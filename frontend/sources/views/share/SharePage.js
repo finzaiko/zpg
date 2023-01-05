@@ -264,4 +264,10 @@ export default class SharePage extends JetView {
       });
     });
   }
+  urlChange(view, url) {
+    const urlHash = window.location.hash;
+    if (urlHash == "#!/share") {
+      this.show("/index")
+    }
+  }
 }

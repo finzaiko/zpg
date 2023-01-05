@@ -15,9 +15,11 @@ import { userProfile } from "../../models/UserProfile";
 import {
   LAST_DATATYPE,
   LAST_DB_CONN_QUERY,
-  LAST_HISTORY,
+  STORE_HISTORY,
   LAST_MINIMAP,
   LAST_SEARCHTYPE,
+  LAST_HISTORY,
+  LAST_MULTICONN,
 } from "../../config/setting";
 import { userId } from "../../../../backend/src/test/user-profile.test";
 import { FONT_SIZE_EDITOR } from "../../../../backend/src/config/contant";
@@ -186,44 +188,12 @@ export function QueryPage(prefix, selectedDb) {
         autowidth: true,
         css: "zmdi_padding",
         tooltip: "Show multi Connection",
-        // icon: "mdi mdi-wrap-disabled",
-        // icon: "mdi mdi-page-next-outline",
-        // icon: "mdi mdi-card-text-outline",
+        id: prefix + "_multiconn_toggle",
         icon: "mdi mdi-playlist-play",
         on: {
           onChange: function (v) {
-            if ($$(prefix + "_search_content_right").isVisible()) {
-              $$(prefix + "_search_content_right").hide();
-            }
-
-            if ($$(prefix + "_sidemenu_right").isVisible()) {
-              if (v) {
-                $$(prefix + "_list_multi").show();
-              } else {
-                $$(prefix + "_list_multi").hide();
-                if (!$$(prefix + "_history").isVisible()) {
-                  $$(prefix + "_sidemenu_right").hide();
-                }
-              }
-            } else {
-              $$(prefix + "_sidemenu_right").show();
-              if (v) {
-                $$(prefix + "_list_multi").show();
-              } else {
-                $$(prefix + "_list_multi").hide();
-                if (!$$(prefix + "_history").isVisible()) {
-                  $$(prefix + "_sidemenu_right").hide();
-                }
-              }
-            }
-            if (
-              $$(prefix + "_list_multi").isVisible() &&
-              $$(prefix + "_history").isVisible()
-            ) {
-              $$(prefix + "_right_resizer").show();
-            } else {
-              $$(prefix + "_right_resizer").hide();
-            }
+            showhideMulticonn(v);
+            webix.storage.local.put(LAST_MULTICONN, v);
           },
         },
       },
@@ -363,40 +333,8 @@ export function QueryPage(prefix, selectedDb) {
         autowidth: true,
         on: {
           onChange: function (v) {
-            if ($$(prefix + "_search_content_right").isVisible()) {
-              $$(prefix + "_search_content_right").hide();
-            }
-
-            if ($$(prefix + "_sidemenu_right").isVisible()) {
-              if (v) {
-                $$(prefix + "_history").show();
-                loadHistory();
-              } else {
-                $$(prefix + "_history").hide();
-                if (!$$(prefix + "_list_multi").isVisible()) {
-                  $$(prefix + "_sidemenu_right").hide();
-                }
-              }
-            } else {
-              $$(prefix + "_sidemenu_right").show();
-              if (v) {
-                $$(prefix + "_history").show();
-                loadHistory();
-              } else {
-                $$(prefix + "_history").hide();
-                if (!$$(prefix + "_list_multi").isVisible()) {
-                  $$(prefix + "_sidemenu_right").hide();
-                }
-              }
-            }
-            if (
-              $$(prefix + "_list_multi").isVisible() &&
-              $$(prefix + "_history").isVisible()
-            ) {
-              $$(prefix + "_right_resizer").show();
-            } else {
-              $$(prefix + "_right_resizer").hide();
-            }
+            showhideHistory(v);
+            webix.storage.local.put(LAST_HISTORY, v);
           },
         },
       },
@@ -1218,6 +1156,80 @@ export function QueryPage(prefix, selectedDb) {
     ],
   };
 
+  function showhideHistory(v) {
+    if ($$(prefix + "_search_content_right").isVisible()) {
+      $$(prefix + "_search_content_right").hide();
+    }
+
+    if ($$(prefix + "_sidemenu_right").isVisible()) {
+      if (v) {
+        $$(prefix + "_history").show();
+        loadHistory();
+      } else {
+        $$(prefix + "_history").hide();
+        if (!$$(prefix + "_list_multi").isVisible()) {
+          $$(prefix + "_sidemenu_right").hide();
+        }
+      }
+    } else {
+      $$(prefix + "_sidemenu_right").show();
+      if (v) {
+        $$(prefix + "_history").show();
+        loadHistory();
+      } else {
+        $$(prefix + "_history").hide();
+        if (!$$(prefix + "_list_multi").isVisible()) {
+          $$(prefix + "_sidemenu_right").hide();
+        }
+      }
+    }
+    if (
+      $$(prefix + "_list_multi").isVisible() &&
+      $$(prefix + "_history").isVisible()
+    ) {
+      $$(prefix + "_right_resizer").show();
+    } else {
+      $$(prefix + "_right_resizer").hide();
+    }
+    $$(prefix + "_history_toggle").setValue(v);
+  }
+
+  function showhideMulticonn(v) {
+    if ($$(prefix + "_search_content_right").isVisible()) {
+      $$(prefix + "_search_content_right").hide();
+    }
+
+    if ($$(prefix + "_sidemenu_right").isVisible()) {
+      if (v) {
+        $$(prefix + "_list_multi").show();
+      } else {
+        $$(prefix + "_list_multi").hide();
+        if (!$$(prefix + "_history").isVisible()) {
+          $$(prefix + "_sidemenu_right").hide();
+        }
+      }
+    } else {
+      $$(prefix + "_sidemenu_right").show();
+      if (v) {
+        $$(prefix + "_list_multi").show();
+      } else {
+        $$(prefix + "_list_multi").hide();
+        if (!$$(prefix + "_history").isVisible()) {
+          $$(prefix + "_sidemenu_right").hide();
+        }
+      }
+    }
+    if (
+      $$(prefix + "_list_multi").isVisible() &&
+      $$(prefix + "_history").isVisible()
+    ) {
+      $$(prefix + "_right_resizer").show();
+    } else {
+      $$(prefix + "_right_resizer").hide();
+    }
+    $$(prefix + "_multiconn_toggle").setValue(v);
+  }
+
   const openShareUser = () => {
     webix
       .ui({
@@ -1765,7 +1777,7 @@ export function QueryPage(prefix, selectedDb) {
                 onChange: function (newVal, oldVal) {
                   state.isDisableHistory = newVal;
                   // setMinimap();
-                  webix.storage.local.put(LAST_HISTORY, newVal);
+                  webix.storage.local.put(STORE_HISTORY, newVal);
                 },
               },
             },
@@ -1789,7 +1801,7 @@ export function QueryPage(prefix, selectedDb) {
             if (mn) {
               $$(prefix + "_show_minimap").setValue(mn);
             }
-            const hs = webix.storage.local.get(LAST_HISTORY);
+            const hs = webix.storage.local.get(STORE_HISTORY);
             if (hs) {
               $$(prefix + "_disable_history").setValue(hs);
             }
@@ -2870,6 +2882,15 @@ export function QueryPage(prefix, selectedDb) {
 
         if (userProfile.userLevel == 1) {
           $$(prefix + "_all_history").show();
+        }
+
+        const lhs = webix.storage.local.get(LAST_HISTORY);
+        if (lhs) {
+          showhideHistory(lhs);
+        }
+        const lmt = webix.storage.local.get(LAST_MULTICONN);
+        if (lmt) {
+          showhideMulticonn(lmt);
         }
 
         setSearchType();

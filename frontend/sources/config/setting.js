@@ -22,8 +22,10 @@ export const LAST_DB_CONN_VIEWDATA = "lvdbconn";
 export const LAST_DATATYPE = "ldtype";
 export const LAST_SEARCHTYPE = "lstype";
 export const LAST_MINIMAP = "lsmnmap";
-export const LAST_HISTORY = "lshistory";
 export const LAST_SIDEBAR = "lssdbar";
+export const LAST_MULTICONN = "lsmconn";
+export const LAST_HISTORY = "lshistory";
+export const STORE_HISTORY = "sthistory";
 export const CONFIRM_DROP_REPLACE = "dropreplace";
 export const CONFIRM_EXECUTE = "confirmexec";
 

@@ -251,3 +251,14 @@ export function isJSONString(str) {
   return true;
 }
 
+export function showProgressLoading(viewId, iconTopPosition, text) {
+	text = text || "";
+	iconTopPosition = iconTopPosition || 20;
+	webix.extend(viewId, webix.OverlayBox);
+		viewId.showOverlay(`<div class="z_overlay_progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" tabindex="0">
+				<div class="z_overlay_progress_state" style="top: ${iconTopPosition}%;">
+					<div class="z_loading_spinner"></div>
+					${text}
+				</div>
+			</div>`);
+}

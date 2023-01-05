@@ -10,6 +10,14 @@ class TaskController {
     responseHttp(reply, 200, "Ok", { data: data });
   }
 
+  async getByField(request, reply) {
+    const { field, value } = request.query;
+    const userId = request.user.uid;
+
+    const data = await ShareService.getByField(field, value, userId);
+    responseHttp(reply, 200, "Ok", { data: data });
+  }
+
   async create(request, reply) {
     const userId = request.user.uid;
     const data = await ShareService.create(request.body, userId);

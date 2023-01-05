@@ -2,6 +2,7 @@ import { JetView } from "webix-jet";
 import { defaultHeader } from "../../helpers/api";
 import { copyToClipboard } from "../../helpers/copy";
 import { state, url } from "../../models/Share";
+import { FRONTEND_URL } from "../../config/setting";
 
 const prefix = state.prefix;
 
@@ -117,6 +118,36 @@ const toolbar = {
       template:
         '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
     },
+    {},
+    {
+      view: "icon",
+      icon: "mdi mdi-link-variant z_primary_color",
+      tooltip: "Copy link",
+      id: prefix + "_copy_link_btn",
+      hidden: true,
+      click: function () {
+        const tblId = $$(prefix + "_share_list");
+        const item = tblId.getItem(tblId.getSelectedId());
+        if (item) {
+          copyToClipboard(`${FRONTEND_URL}/#!/shareview?x=${item.ukey}`);
+        }
+      },
+    },
+    {
+      view: "icon",
+      icon: "mdi mdi-open-in-new z_primary_color",
+      tooltip: "Open in new window",
+      id: prefix + "_open_newin_btn",
+      hidden: true,
+      click: function () {
+        const tblId = $$(prefix + "_share_list");
+        const item = tblId.getItem(tblId.getSelectedId());
+        if (item) {
+          window.open(`${FRONTEND_URL}/#!/shareview?x=${item.ukey}`, "_blank");
+        }
+      },
+    },
+    { width: 10 },
   ],
 };
 
@@ -184,6 +215,8 @@ function defaultBtn() {
   $$(prefix + "_delete_btn").hide();
   $$(prefix + "_edit_title").hide();
   $$(prefix + "_cancel_btn").hide();
+  $$(prefix + "_copy_link_btn").hide();
+  $$(prefix + "_open_newin_btn").hide();
   $$(prefix + "_edit_title").setValue();
   $$(prefix + "_copy_share_clipboard").hide();
 }
@@ -222,7 +255,8 @@ export default class SharePage extends JetView {
                   $$(prefix + "_copy_share_clipboard").show();
                   $$(prefix + "_save_btn").hide();
                   $$(prefix + "_edit_title").setValue(item.title);
-
+                  $$(prefix + "_copy_link_btn").show();
+                  $$(prefix + "_open_newin_btn").show();
                   if (item.is_me == 1) {
                     $$(prefix + "_edit_btn").show();
                     $$(prefix + "_delete_btn").show();
@@ -267,7 +301,7 @@ export default class SharePage extends JetView {
   urlChange(view, url) {
     const urlHash = window.location.hash;
     if (urlHash == "#!/share") {
-      this.show("/index")
+      this.show("/index");
     }
   }
 }

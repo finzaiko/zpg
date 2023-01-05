@@ -1,7 +1,7 @@
 import { JetView } from "webix-jet";
 import { copyToClipboard } from "../helpers/copy";
-import { showProgressLoading } from "../helpers/ui";
-import { state, url } from "../models/Share";
+import { getTextWith, showProgressLoading } from "../helpers/ui";
+import { state, url as urlShare } from "../models/Share";
 
 const prefix = state.prefix + "_view";
 
@@ -19,6 +19,14 @@ export default class ShareView extends JetView {
           width: 80,
         },
         {
+          view: "label",
+          label: "",
+          id: prefix + "_title",
+          css: "title_width z_label_normal",
+          width: 200,
+          // autowidth: true
+        },
+        {
           view: "icon",
           icon: "mdi mdi-content-copy",
           width: 30,
@@ -34,7 +42,7 @@ export default class ShareView extends JetView {
               ck.hide();
             }, 1500);
 
-            copyToClipboard("content");
+            copyToClipboard($$(prefix + "_shareview_ed").getValue());
           },
         },
         {
@@ -51,6 +59,7 @@ export default class ShareView extends JetView {
         {
           view: "label",
           label: "from: user123",
+          id: prefix + "_from_user",
           width: 200,
           align: "right",
           css: "z_label_normal",
@@ -58,6 +67,7 @@ export default class ShareView extends JetView {
         {
           view: "label",
           label: "at: 01-01-2023 10:10:10",
+          id: prefix + "_at_time",
           width: 140,
           css: "z_label_normal",
         },
@@ -89,11 +99,29 @@ export default class ShareView extends JetView {
     const edId = this.$$(prefix + "_shareview_ed");
     showProgressLoading(edId, 50);
     webix
-      .ajax("https://jsonplaceholder.typicode.com/posts/" + id)
+      .ajax(`${urlShare}/by?field=ukey&value=${id}`)
       .then((data) => {
-        const d = data.json();
-        edId.setValue(d.body);
+        const rData = data.json().data[0];
+        this.$$(prefix + "_from_user").setValue("from: " + rData.from_user);
+        this.$$(prefix + "_at_time").setValue("at: " + rData.created_at);
+        this.$$(prefix + "_title").setValue("&#8212; " + rData.title);
+
+        const textWidth = getTextWith(rData.title);
+        let t = this.$$(prefix + "_title");
+        t.config.width = textWidth;
+        t.resize();
+
+        edId.setValue(rData.content);
         edId.hideOverlay();
+      })
+      .fail(function (err) {
+        setTimeout(() => {
+          edId.hideOverlay();
+          webix.message({
+            text: err.status == 404 ? "Share not found" : err.responseText,
+            type: "error",
+          });
+        }, 2000);
       });
   }
 }

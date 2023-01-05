@@ -205,7 +205,7 @@ export function copyComponent(callback) {
         tooltip: "Copy to clipboard",
         autowidth: true,
         click: function () {
-          callback()
+          callback();
 
           this.hide();
           const ck = this.getParentView().getChildViews()[1];
@@ -227,7 +227,6 @@ export function copyComponent(callback) {
   };
 }
 
-
 export function isUserNameValid(username) {
   /*
   	https://stackoverflow.com/questions/12018245/regular-expression-to-validate-username
@@ -237,28 +236,39 @@ export function isUserNameValid(username) {
     - Underscore or dot can't be used multiple times in a row (e.g user__name / user..name).
     - Number of characters must be between 4 to 20
   */
-  const res = /^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/.exec(username);
+  const res = /^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/.exec(
+    username
+  );
   const valid = !!res;
   return valid;
 }
 
 export function isJSONString(str) {
   try {
-      JSON.parse(str);
+    JSON.parse(str);
   } catch (e) {
-      return false;
+    return false;
   }
   return true;
 }
 
 export function showProgressLoading(viewId, iconTopPosition, text) {
-	text = text || "";
-	iconTopPosition = iconTopPosition || 20;
-	webix.extend(viewId, webix.OverlayBox);
-		viewId.showOverlay(`<div class="z_overlay_progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" tabindex="0">
+  text = text || "";
+  iconTopPosition = iconTopPosition || 20;
+  webix.extend(viewId, webix.OverlayBox);
+  viewId.showOverlay(`<div class="z_overlay_progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" tabindex="0">
 				<div class="z_overlay_progress_state" style="top: ${iconTopPosition}%;">
 					<div class="z_loading_spinner"></div>
 					${text}
 				</div>
 			</div>`);
+}
+
+export function getTextWith(txt, font) {
+  //https://stackoverflow.com/questions/31305071/measuring-text-width-height-without-rendering
+  const el = document.createElement("canvas");
+  const ctx = el.getContext("2d");
+  ctx.font = "14px Roboto,sans-serif";
+  const text = ctx.measureText(txt);
+  return Math.ceil(text.width) + 10;
 }

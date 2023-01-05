@@ -2,6 +2,7 @@ const ShareController = require("../../controllers/share.controller");
 
 module.exports = async (fastify) => {
   fastify.get(`/`, ShareController.getAll);
+  fastify.get(`/by`, ShareController.getByField);
   fastify.post(`/`, ShareController.create);
   fastify.put(`/:id`, ShareController.update);
   fastify.delete(`/:status/:id`, ShareController.remove);

@@ -120,6 +120,14 @@ const toolbar = {
     },
     {},
     {
+      view: "label",
+      label: "",
+      id: prefix + "_by_user",
+      width: 200,
+      align: "right",
+      css: "z_label_normal",
+    },
+    {
       view: "icon",
       icon: "mdi mdi-link-variant z_primary_color",
       tooltip: "Copy link",
@@ -138,6 +146,7 @@ const toolbar = {
       icon: "mdi mdi-open-in-new z_primary_color",
       tooltip: "Open in new window",
       id: prefix + "_open_newin_btn",
+      css: "z_icon_size_17",
       hidden: true,
       click: function () {
         const tblId = $$(prefix + "_share_list");
@@ -219,6 +228,7 @@ function defaultBtn() {
   $$(prefix + "_open_newin_btn").hide();
   $$(prefix + "_edit_title").setValue();
   $$(prefix + "_copy_share_clipboard").hide();
+  $$(prefix + "_by_user").setValue("");
 }
 
 export default class SharePage extends JetView {
@@ -257,6 +267,8 @@ export default class SharePage extends JetView {
                   $$(prefix + "_edit_title").setValue(item.title);
                   $$(prefix + "_copy_link_btn").show();
                   $$(prefix + "_open_newin_btn").show();
+                $$(prefix + "_by_user").setValue(item.share_user_label_flat);
+
                   if (item.is_me == 1) {
                     $$(prefix + "_edit_btn").show();
                     $$(prefix + "_delete_btn").show();

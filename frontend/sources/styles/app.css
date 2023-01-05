@@ -1398,8 +1398,13 @@ background-size: cover;
   color: rgb(221, 170, 136) !important;
 }
 
-.z_label_normal div.webix_el_box{
+.z_label_normal_white div.webix_el_box{
   font-weight: normal !important;
   font-size: 12px !important;
   color: #fff !important;
+}
+
+.z_label_normal div.webix_el_box{
+  font-weight: normal !important;
+  font-size: 12px !important;
 }

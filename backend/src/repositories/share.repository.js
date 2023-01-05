@@ -33,7 +33,8 @@ class ShareRepository {
     let sql = `SELECT share.id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content, ukey,
       CASE WHEN share_to =${userId} THEN 'arrow-bottom-left z_receive_share' ELSE 'arrow-top-right z_sent_share' END as icon, -- r=receive, s=sent
       CASE WHEN share_to !=${userId} THEN 1 ELSE 0 END is_me, COALESCE(share_status,0) as share_status,
-      CASE WHEN share_to !=${userId} THEN 'to: ' || usr2.fullname || '<br>at: ' || share.created_at ELSE 'from: ' || usr1.fullname  || '<br>at: ' || share.created_at  END share_user_label
+      CASE WHEN share_to !=${userId} THEN 'to: ' || usr2.fullname || '<br>at: ' || share.created_at ELSE 'from: ' || usr1.fullname  || '<br>at: ' || share.created_at  END share_user_label,
+      CASE WHEN share_to !=${userId} THEN 'to: ' || usr2.fullname || ' at: ' || share.created_at ELSE 'from: ' || usr1.fullname  || ' at: ' || share.created_at  END share_user_label_flat
       FROM share
       LEFT JOIN user usr1 ON usr1.id=share.user_id
       LEFT JOIN user usr2 ON usr2.id=share.share_to
@@ -62,7 +63,7 @@ class ShareRepository {
       usr1.fullname AS from_user,
       usr2.fullname AS to_user,
       share.created_at,
-      CASE WHEN share_to !=${userId} THEN 'to: ' || usr2.fullname || '<br>at: ' || share.created_at ELSE 'from: ' || usr1.fullname  || '<br>at: ' || share.created_at  END share_user_label
+      CASE WHEN share_to !=${userId} THEN 'to: ' || usr2.fullname || ' at: ' || share.created_at ELSE 'from: ' || usr1.fullname  || ' at: ' || share.created_at  END share_user_label_flat
       FROM share
       LEFT JOIN user usr1 ON usr1.id=share.user_id
       LEFT JOIN user usr2 ON usr2.id=share.share_to

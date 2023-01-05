@@ -22,7 +22,7 @@ export default class ShareView extends JetView {
           view: "label",
           label: "",
           id: prefix + "_title",
-          css: "title_width z_label_normal",
+          css: "title_width z_label_normal_white",
           width: 200,
           // autowidth: true
         },
@@ -58,19 +58,13 @@ export default class ShareView extends JetView {
         {},
         {
           view: "label",
-          label: "from: user123",
-          id: prefix + "_from_user",
-          width: 200,
+          label: "",
+          id: prefix + "_by_user",
+          width: 300,
           align: "right",
-          css: "z_label_normal",
+          css: "z_label_normal_white",
         },
-        {
-          view: "label",
-          label: "at: 01-01-2023 10:10:10",
-          id: prefix + "_at_time",
-          width: 140,
-          css: "z_label_normal",
-        },
+        {width: 10}
       ],
     };
 
@@ -102,8 +96,7 @@ export default class ShareView extends JetView {
       .ajax(`${urlShare}/by?field=ukey&value=${id}`)
       .then((data) => {
         const rData = data.json().data[0];
-        this.$$(prefix + "_from_user").setValue("from: " + rData.from_user);
-        this.$$(prefix + "_at_time").setValue("at: " + rData.created_at);
+        this.$$(prefix + "_by_user").setValue(rData.share_user_label_flat);
         this.$$(prefix + "_title").setValue("&#8212; " + rData.title);
 
         const textWidth = getTextWith(rData.title);

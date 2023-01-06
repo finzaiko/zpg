@@ -9,6 +9,8 @@ export const BASE_URL = process.env.SERVER_URL;
 export const FRONTEND_URL = `http://${HOST}:${location.port}`;
 export const BACKEND_URL = BASE_URL;
 export const API_URL = `${BACKEND_URL}/api/v1`;
+export const LINK_URL =
+  process.env.NODE_ENV == "development" ? FRONTEND_URL : BACKEND_URL;
 
 export const COOKIE_NAME = "zpgtool";
 export const COOKIE_APP = COOKIE_NAME + "_app";

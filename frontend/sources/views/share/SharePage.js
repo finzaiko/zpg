@@ -2,7 +2,7 @@ import { JetView } from "webix-jet";
 import { defaultHeader } from "../../helpers/api";
 import { copyToClipboard } from "../../helpers/copy";
 import { state, url } from "../../models/Share";
-import { FRONTEND_URL } from "../../config/setting";
+import { LINK_URL } from "../../config/setting";
 
 const prefix = state.prefix;
 
@@ -80,7 +80,7 @@ const toolbar = {
       icon: "mdi mdi-delete-outline z_primary_color",
       autowidth: true,
       click: function () {
-        remove();
+        confirmRemove();
       },
     },
     { width: 10 },
@@ -137,7 +137,7 @@ const toolbar = {
         const tblId = $$(prefix + "_share_list");
         const item = tblId.getItem(tblId.getSelectedId());
         if (item) {
-          copyToClipboard(`${FRONTEND_URL}/#!/shareview?x=${item.ukey}`);
+          copyToClipboard(`${LINK_URL}/#!/shareview?x=${item.ukey}`);
         }
       },
     },
@@ -152,7 +152,7 @@ const toolbar = {
         const tblId = $$(prefix + "_share_list");
         const item = tblId.getItem(tblId.getSelectedId());
         if (item) {
-          window.open(`${FRONTEND_URL}/#!/shareview?x=${item.ukey}`, "_blank");
+          window.open(`${LINK_URL}/#!/shareview?x=${item.ukey}`, "_blank");
         }
       },
     },
@@ -178,34 +178,84 @@ function update() {
     });
 }
 
-function remove() {
-  webix.confirm({
-    ok: "Yes",
-    cancel: "No",
-    text: "Are you sure to delete ?",
-    callback: function (result) {
-      const tblId = $$(prefix + "_share_list");
-      const item = tblId.getItem(tblId.getSelectedId());
-      if (result) {
-        // -- 0=shared ok, 1=creator deleted, 2=target deleted, 3=both deleted
-        let shareStatus = item.is_me == 1 ? 1 : 2;
-        if (item.is_me == 1 && item.share_status == 2) {
-          shareStatus = 3;
-        }
-        if (item.is_me == 0 && item.share_status == 1) {
-          shareStatus = 3;
-        }
-        webix.ajax().del(`${url}/${shareStatus}/${id}`, function (res) {
-          webix.message({
-            text: `Share deleted`,
-            type: "success",
-          });
-          reload();
-        });
-      }
-    },
+function confirmRemove() {
+  webix
+    .ui({
+      view: "window",
+      id: prefix + "_del_confirm",
+      head: { height: 4 },
+      css: "z_confirm_del_head",
+      modal: true,
+      position: "center",
+      body: {
+        padding: 10,
+
+        rows: [
+          {
+            view: "label",
+            label: "Are you sure to delete ?",
+            align: "center",
+          },
+          {
+            cols: [
+              {},
+              {
+                view: "button",
+                value: "Delete for me",
+                css: "webix_primary",
+                autowidth: true,
+                click: function () {
+                  remove();
+                  $$(prefix + "_del_confirm").close();
+                },
+              },
+              {
+                view: "button",
+                value: "Delete for other user",
+                autowidth: true,
+                click: function () {
+                  remove(true);
+                  $$(prefix + "_del_confirm").close();
+                },
+              },
+              {
+                view: "button",
+                value: "Cancel",
+                autowidth: true,
+                click: function () {
+                  $$(prefix + "_del_confirm").close();
+                },
+              },
+              {},
+            ],
+          },
+        ],
+      },
+    })
+    .show();
+}
+
+function remove(isDelAll) {
+  const tblId = $$(prefix + "_share_list");
+  const item = tblId.getItem(tblId.getSelectedId());
+  // -- 0=shared ok, 1=creator deleted, 2=target deleted, 3=both deleted
+  let shareStatus = item.is_me == 1 ? 1 : 2;
+  if (item.is_me == 1 && item.share_status == 2) {
+    shareStatus = 3;
+  }
+  if ((item.is_me == 0 && item.share_status == 1) || isDelAll) {
+    shareStatus = 3;
+  }
+
+  webix.ajax().del(`${url}/${shareStatus}/${item.id}`, function (res) {
+    webix.message({
+      text: `Share deleted`,
+      type: "success",
+    });
+    reload();
   });
 }
+
 function reload(isLoadOnly) {
   if (typeof isLoadOnly == "undefined") {
     isLoadOnly = false;
@@ -267,7 +317,7 @@ export default class SharePage extends JetView {
                   $$(prefix + "_edit_title").setValue(item.title);
                   $$(prefix + "_copy_link_btn").show();
                   $$(prefix + "_open_newin_btn").show();
-                $$(prefix + "_by_user").setValue(item.share_user_label_flat);
+                  $$(prefix + "_by_user").setValue(item.share_user_label_flat);
 
                   if (item.is_me == 1) {
                     $$(prefix + "_edit_btn").show();

@@ -45,11 +45,9 @@ export const menuData = [
     id: routeName.compare,
     icon: "mdi mdi-swap-horizontal-bold",
   },
-  // { value: "View Data", id: routeName.viewdata, icon: "mdi mdi-view-module" },
   { value: "View Data", id: routeName.viewdata, icon: "mdi mdi-view-grid" },
   { value: "Copy Data", id: routeName.copydata, icon: "mdi mdi-layers" },
   { value: "Generator", id: routeName.generator, icon: "mdi mdi-atom-variant" },
-  { value: "Query Share", id: routeName.shared, icon: "mdi mdi-vector-link" },
+  { value: "Query Share", id: routeName.shared, icon: "mdi mdi-vector-combine" }, // vector-link, vector-intersection
   { value: "Setting", id: routeName.setting, icon: "mdi mdi-cog" },
-  // { value: "User", id: routeName.user, icon: "mdi mdi-account" },
 ];

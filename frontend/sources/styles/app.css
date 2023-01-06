@@ -1408,3 +1408,9 @@ background-size: cover;
   font-weight: normal !important;
   font-size: 12px !important;
 }
+
+.z_confirm_del_head .webix_win_head{
+  border-bottom:none;
+  background:#fdbf4c;
+}
+

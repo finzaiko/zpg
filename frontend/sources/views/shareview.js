@@ -75,6 +75,7 @@ export default class ShareView extends JetView {
           view: "monaco-editor",
           id: prefix + "_shareview_ed",
           language: "sql",
+          fontSize: "12px",
         },
       ],
     };

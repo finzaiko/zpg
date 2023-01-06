@@ -178,6 +178,30 @@ function update() {
     });
 }
 
+function setRead(isRead) {
+  const tblId = $$(prefix + "_share_list");
+  let selId = tblId.getSelectedId();
+  const item = tblId.getItem(selId);
+  if (item.is_read == isRead) return;
+  const data = {
+    is_read: isRead,
+  };
+  webix
+    .ajax()
+    .headers(defaultHeader())
+    .put(`${url}/read/${item.id}`, data, function (res) {
+      $$(prefix + "_share_list").clearAll();
+      $$(prefix + "_share_list")
+        .load(url)
+        .then((_) => {
+          tblId.select(selId);
+        });
+    })
+    .fail(function (err) {
+      showError(err);
+    });
+}
+
 function confirmRemove() {
   webix
     .ui({
@@ -211,7 +235,7 @@ function confirmRemove() {
               },
               {
                 view: "button",
-                value: "Delete for other user",
+                value: "Delete for everyone",
                 autowidth: true,
                 click: function () {
                   remove(true);
@@ -299,6 +323,12 @@ export default class SharePage extends JetView {
               tooltip: "#share_user_label#",
               css: "z_share_list",
               headerRowHeight: -1,
+              scheme: {
+                $change: function (item) {
+                  if (item.is_read == 0 && item.is_me == 0)
+                    item.$css = "z_read_bold";
+                },
+              },
               columns: [
                 {
                   fillspace: true,
@@ -326,6 +356,7 @@ export default class SharePage extends JetView {
                     $$(prefix + "_edit_btn").hide();
                     $$(prefix + "_delete_btn").hide();
                   }
+                  setRead(1);
                 },
               },
             },

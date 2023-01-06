@@ -264,9 +264,9 @@ div.webix_list_item:hover .hoverButton {
   background: #dddddd !important;
 }
 
-.z_out_template div.webix_template {
-  /* padding: 0; */
-}
+/* .z_out_template div.webix_template {
+   padding: 0;
+} */
 
 /* Query loading-------------- */
 .wait,
@@ -1368,49 +1368,53 @@ background-size: cover;
 
 /* END: Loading spinner overlay --------*/
 
-.z_navbar_brand .webix_el_box{
+.z_navbar_brand .webix_el_box {
   color: #fff !important;
 }
+
 .z_navbar_viewshare {
   background: rgb(221, 170, 136);
   background: linear-gradient(90deg, rgba(221, 170, 136, 1) 21%, rgba(238, 187, 153, 1) 93%);
 }
 
-.copied_done{
+.copied_done {
   background: transparent;
 }
 
-.copied_done .webix_template{
+.copied_done .webix_template {
   padding: 8px;
   color: #fff !important;
 }
-.copied_done .webix_template .animated-check{
+
+.copied_done .webix_template .animated-check {
   color: #fff !important;
 }
 
-.z_icon_white .webix_icon{
+.z_icon_white .webix_icon {
   color: #fff !important;
 }
 
 .z_icon_white .webix_icon:hover,
-.z_icon_white .webix_icon_button:hover
-{
+.z_icon_white .webix_icon_button:hover {
   color: rgb(221, 170, 136) !important;
 }
 
-.z_label_normal_white div.webix_el_box{
+.z_label_normal_white div.webix_el_box {
   font-weight: normal !important;
   font-size: 12px !important;
   color: #fff !important;
 }
 
-.z_label_normal div.webix_el_box{
+.z_label_normal div.webix_el_box {
   font-weight: normal !important;
   font-size: 12px !important;
 }
 
-.z_confirm_del_head .webix_win_head{
-  border-bottom:none;
-  background:#fdbf4c;
+.z_confirm_del_head .webix_win_head {
+  border-bottom: none;
+  background: #fdbf4c;
 }
 
+.z_read_bold {
+  font-weight: bold;
+}

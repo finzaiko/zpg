@@ -5,5 +5,6 @@ module.exports = async (fastify) => {
   fastify.get(`/by`, ShareController.getByField);
   fastify.post(`/`, ShareController.create);
   fastify.put(`/:id`, ShareController.update);
+  fastify.put(`/read/:id`, ShareController.updateRead);
   fastify.delete(`/:status/:id`, ShareController.remove);
 };

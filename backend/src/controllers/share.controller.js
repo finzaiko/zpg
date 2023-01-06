@@ -30,6 +30,12 @@ class TaskController {
     responseHttp(reply, 204, "Updated");
   }
 
+  async updateRead(request, reply) {
+    const { is_read } = request.body;
+    await ShareService.updateRead(request.params.id, is_read);
+    responseHttp(reply, 204, "Updated readed");
+  }
+
   async remove(request, reply) {
     const { id, status } = request.params;
     await ShareService.delete(id, status);

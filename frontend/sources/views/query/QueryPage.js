@@ -1279,10 +1279,13 @@ export function QueryPage(prefix, selectedDb) {
                     const userListId = $$(prefix + "_usershare_table")
                       .getSelectedId(true)
                       .join();
-                    if(userListId.length>0){
-                      const sqlContent = $$(prefix + "_sql_editor").getValue();
+                    const sqlContent = $$(prefix + "_sql_editor").getValue();
+                    if(userListId.length>0 && sqlContent!=""){
                       addShareUser(userListId, sqlContent);
                     }else{
+                      if(sqlContent.trim()==""){
+                        return webix.message({text: "Opss, Nothing to share !", type: "error"});
+                      }
                       webix.message({text: "Please select user", type: "error"});
                     }
                   },

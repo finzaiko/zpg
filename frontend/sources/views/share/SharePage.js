@@ -137,7 +137,17 @@ const toolbar = {
         const tblId = $$(prefix + "_share_list");
         const item = tblId.getItem(tblId.getSelectedId());
         if (item) {
+          webix.html.addCss(
+            $$(prefix + "_copy_link_btn").getNode(),
+            "blink_me"
+          );
           copyToClipboard(`${LINK_URL}/#!/shareview?x=${item.ukey}`);
+          setTimeout(() => {
+            webix.html.removeCss(
+              $$(prefix + "_copy_link_btn").$view,
+              "blink_me"
+            );
+          }, 2000);
         }
       },
     },
@@ -284,8 +294,16 @@ function reload(isLoadOnly) {
   if (typeof isLoadOnly == "undefined") {
     isLoadOnly = false;
   }
-  $$(prefix + "_share_list").clearAll();
-  $$(prefix + "_share_list").load(url);
+
+  const tblId = $$(prefix + "_share_list");
+  const selId = tblId.getSelectedId();
+  const item = tblId.getItem(selId);
+  tblId.clearAll();
+  tblId.load(url).then((_) => {
+    if (item) {
+      tblId.select(selId);
+    }
+  });
   if (!isLoadOnly) {
     $$(prefix + "_share_sql").setValue();
     defaultBtn();

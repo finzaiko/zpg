@@ -1418,3 +1418,13 @@ background-size: cover;
 .z_read_bold {
   font-weight: bold;
 }
+
+.blink_me {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}

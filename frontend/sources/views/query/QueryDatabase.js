@@ -99,7 +99,6 @@ const WindowForm = () => {
       database: webix.rules.isNotEmpty,
       host: webix.rules.isNotEmpty,
       port: webix.rules.isNotEmpty,
-      password: webix.rules.isNotEmpty,
     },
     on: {
       onAfterValidation: function (result, value) {
@@ -110,7 +109,6 @@ const WindowForm = () => {
             if (key == "database") text.push("Database can't be empty");
             if (key == "host") text.push("Host can't be empty");
             if (key == "port") text.push("Port can't be empty");
-            if (key == "password") text.push("Password can't be empty");
           }
           webix.message({ type: "error", text: text.join("<br>") });
         }
@@ -442,7 +440,6 @@ function reloadServerCombo() {
   cmbList.load(urlProfile + "/conn?type=1&ls=true");
 }
 
-
 function save(isDuplicate) {
   if ($$(prefix + "_form").validate()) {
     if (typeof isDuplicate == "undefined") {
@@ -463,6 +460,14 @@ function save(isDuplicate) {
         }
         // data.conn_name = data.conn_name + "_copy" + Math.floor(Math.random()*(999-100+1)+100);
       }
+
+      if (data.password == "") {
+        return webix.message({
+          text: "Password can't be empty",
+          type: "error",
+        });
+      }
+
       webix
         .ajax()
         .headers(defaultHeader())

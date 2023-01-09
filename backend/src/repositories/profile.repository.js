@@ -6,7 +6,7 @@ class ProfileRepository {
     // console.log(`type, userId, isList////////`, type, userId, isList);
     let fields = "*", andWhere = "";
     if (type == 1 || type == 2) {
-      fields = `profile.id, conn_name, host, port, database, user, password, ssl`;
+      fields = `profile.id, conn_name, host, port, database, user, profile.password, ssl`;
     }
     if (type == 3 || type == 4 || type == 5) {
       // fields = `id, title, content, created_at`;

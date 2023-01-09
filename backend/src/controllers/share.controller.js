@@ -18,6 +18,14 @@ class TaskController {
     responseHttp(reply, 200, "Ok", { data: data });
   }
 
+  async checkViewRole(request, reply) {
+    const { ukey } = request.query;
+    const userId = request.user.uid;
+    const data = await ShareService.checkViewRole(userId, ukey);
+    const result = data[0].data;
+    responseHttp(reply, 200, "Ok", { data: result});
+  }
+
   async create(request, reply) {
     const userId = request.user.uid;
     const data = await ShareService.create(request.body, userId);

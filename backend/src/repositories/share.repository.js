@@ -52,6 +52,19 @@ class ShareRepository {
     return res;
   }
 
+  async checkViewRole(userId, ukey) {
+    // let sql = `SELECT EXISTS(SELECT 1 FROM share WHERE user_id=${userId} OR share_to=${userId});`;
+    let sql = `SELECT count(*) AS data FROM share WHERE ukey='${ukey}' AND (user_id=${userId} OR share_to=${userId})`;
+    console.log("sql>>>> ", sql);
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
   async create(data) {
     const ukey = randomString(8);
     const sql = `INSERT INTO share (content, ukey, user_id, share_to) VALUES (?,?,?,?)`;

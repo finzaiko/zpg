@@ -17,6 +17,10 @@ class ShareService {
     return await ShareRepository.getByField(field, value, userId);
   }
 
+  async checkViewRole(userId, ukey) {
+    return await ShareRepository.checkViewRole(userId, ukey);
+  }
+
   async create(data, userId) {
     let taskDto = new ShareDto();
     taskDto.content = data.content;

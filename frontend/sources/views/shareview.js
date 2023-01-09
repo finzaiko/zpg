@@ -64,18 +64,35 @@ export default class ShareView extends JetView {
           align: "right",
           css: "z_label_normal_white",
         },
-        {width: 10}
+        { width: 10 },
       ],
     };
 
     return {
       rows: [
-        navbar,
         {
-          view: "monaco-editor",
-          id: prefix + "_shareview_ed",
-          language: "sql",
-          fontSize: "12px",
+          view: "template",
+          id: prefix + "_empty_panel",
+          template: "<div style='text-align:center;margin-top:37%;font-size: 18px;color:#ddaa88;'>ZPG share</div>",
+        },
+        {
+          view: "template",
+          id: prefix + "_un_authorized",
+          template: "<div style='color:red;padding: 10px;'>ZPG share: Unauthorized user</div>",
+          hidden: true,
+        },
+        {
+          id: prefix + "_authorized",
+          hidden: true,
+          rows: [
+            navbar,
+            {
+              view: "monaco-editor",
+              id: prefix + "_shareview_ed",
+              language: "sql",
+              fontSize: "12px",
+            },
+          ]
         },
       ],
     };
@@ -88,35 +105,58 @@ export default class ShareView extends JetView {
         readOnly: true,
       });
     });
-    document.title = 'ZPG share'
+    document.title = "ZPG share";
   }
   urlChange(view, url) {
     const id = this.getParam("x");
     const edId = this.$$(prefix + "_shareview_ed");
     showProgressLoading(edId, 50);
-    webix
-      .ajax(`${urlShare}/by?field=ukey&value=${id}`)
-      .then((data) => {
-        const rData = data.json().data[0];
-        this.$$(prefix + "_by_user").setValue(rData.share_user_label_flat);
-        this.$$(prefix + "_title").setValue("&#8212; " + rData.title);
+    this.checkRole(id).then((r) => {
+      this.$$(prefix + "_empty_panel").hide();
+      this.$$(prefix + "_un_authorized").hide();
+      this.$$(prefix + "_authorized").show();
+      if (r > 0) {
+        webix
+          .ajax(`${urlShare}/by?field=ukey&value=${id}`)
+          .then((data) => {
+            const rData = data.json().data[0];
+            this.$$(prefix + "_by_user").setValue(rData.share_user_label_flat);
+            this.$$(prefix + "_title").setValue("&#8212; " + rData.title);
 
-        const textWidth = getTextWith(rData.title);
-        let t = this.$$(prefix + "_title");
-        t.config.width = textWidth;
-        t.resize();
+            const textWidth = getTextWith(rData.title);
+            let t = this.$$(prefix + "_title");
+            t.config.width = textWidth;
+            t.resize();
 
-        edId.setValue(rData.content);
+            edId.setValue(rData.content);
+            edId.hideOverlay();
+          })
+          .fail(function (err) {
+            setTimeout(() => {
+              edId.hideOverlay();
+              webix.message({
+                text: err.status == 404 ? "Share not found" : err.responseText,
+                type: "error",
+              });
+            }, 2000);
+          });
+      } else {
         edId.hideOverlay();
+        this.$$(prefix + "_empty_panel").hide();
+        this.$$(prefix + "_authorized").hide();
+        this.$$(prefix + "_un_authorized").show();
+      }
+    });
+  }
+
+  checkRole(ukey) {
+    return webix
+      .ajax(`${urlShare}/viewverify?ukey=${ukey}`)
+      .then((data) => {
+        return data.json().data;
       })
       .fail(function (err) {
-        setTimeout(() => {
-          edId.hideOverlay();
-          webix.message({
-            text: err.status == 404 ? "Share not found" : err.responseText,
-            type: "error",
-          });
-        }, 2000);
+        return 0;
       });
   }
 }

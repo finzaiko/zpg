@@ -427,7 +427,7 @@ function save() {
     if (!state.isEdit) {
       webix
         .ajax()
-        .headers(defaultHeader())
+        // .headers(defaultHeader())
         .post(url, data, function (res) {
           const dataRes = JSON.parse(res);
           console.log(`dataRes`, dataRes);
@@ -447,7 +447,7 @@ function save() {
     } else {
       webix
         .ajax()
-        .headers(defaultHeader())
+        // .headers(defaultHeader())
         .put(`${url}/${data.id}`, data, function (res) {
           webix.message({ text: "<strong>" + msgName + "</strong> updated." });
           // reloadDbConfig();
@@ -468,7 +468,7 @@ function updateTask() {
   const id = $$(prefix + "_task_id").getValue();
   webix
     .ajax()
-    .headers(defaultHeader())
+    // .headers(defaultHeader())
     .put(url + "/" + id, data, function (res) {
       // console.log('res', res);
     })
@@ -488,7 +488,7 @@ function saveItem() {
   console.log("data", data);
   webix
     .ajax()
-    .headers(defaultHeader())
+    // .headers(defaultHeader())
     .post(urlItem + "/selected", data, function (res) {
       // console.log('res', res);
       reloadTaskItem($$(prefix + "_selected_table"), data.task_id);

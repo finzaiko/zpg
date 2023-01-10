@@ -17,7 +17,7 @@ function generate() {
 
   webix
     .ajax()
-    .headers(defaultHeader())
+    // .headers(defaultHeader())
     .post(`${url}/outparams`, data, function (res) {
       let rData = JSON.parse(res);
       if (typeof rData.data != "undefined") {

@@ -304,7 +304,7 @@ export function QueryPage(prefix, selectedDb) {
                 };
                 webix
                   .ajax()
-                  .headers(defaultHeader())
+                  // .headers(defaultHeader())
                   .post(urlProfile + "/content", data, (r) => {
                     webix.message({ text: "Bookmark added.", type: "success" });
                   });
@@ -431,7 +431,7 @@ export function QueryPage(prefix, selectedDb) {
 
               webix
                 .ajax()
-                .headers(defaultHeader())
+                // .headers(defaultHeader())
                 .get(
                   `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=${filtervalue}&type=content`
                 )
@@ -883,17 +883,19 @@ export function QueryPage(prefix, selectedDb) {
   let historyAdminMode = false;
 
   function historyCols(isAdmin) {
-    const title = [{ id: "title", header: "", fillspace:true }];
-    const fname = [{ id: "fullname", header: "", width:100 }];
-    const tm = [{
-      adjust:true,
-      template:function(obj, common, value, column, index){
-        if (obj.content) {
-          return `<span style='color: grey;font-style:italic;font-size:13;float:right;'>
+    const title = [{ id: "title", header: "", fillspace: true }];
+    const fname = [{ id: "fullname", header: "", width: 100 }];
+    const tm = [
+      {
+        adjust: true,
+        template: function (obj, common, value, column, index) {
+          if (obj.content) {
+            return `<span style='color: grey;font-style:italic;font-size:13;float:right;'>
           ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
-        }
-      }
-    }];
+          }
+        },
+      },
+    ];
 
     return isAdmin ? [...title, ...fname, ...tm] : [...title, ...tm];
   }
@@ -951,7 +953,7 @@ export function QueryPage(prefix, selectedDb) {
                 keyPressTimeout: 800,
                 on: {
                   onTimedKeyPress: function () {
-                    loadHistory(historyAdminMode ? 1: 0, this.getValue());
+                    loadHistory(historyAdminMode ? 1 : 0, this.getValue());
                     /*
                     const value = this.getValue().toLowerCase();
                     $$(prefix + "_history_list").filter(function (obj) {
@@ -964,14 +966,13 @@ export function QueryPage(prefix, selectedDb) {
               {
                 view: "icon",
                 icon: "mdi mdi-chevron-down",
-                tooltip:
-                  "Other options",
+                tooltip: "Other options",
                 click: function () {
-                  if(!$$(prefix+"_history_tb_more").isVisible()){
-                    $$(prefix+"_history_tb_more").show()
+                  if (!$$(prefix + "_history_tb_more").isVisible()) {
+                    $$(prefix + "_history_tb_more").show();
                     this.config.icon = "mdi mdi-chevron-up";
-                  }else{
-                    $$(prefix+"_history_tb_more").hide()
+                  } else {
+                    $$(prefix + "_history_tb_more").hide();
                     this.config.icon = "mdi mdi-chevron-down";
                   }
                   this.refresh();
@@ -981,7 +982,7 @@ export function QueryPage(prefix, selectedDb) {
           },
           {
             view: "toolbar",
-            id: prefix+"_history_tb_more",
+            id: prefix + "_history_tb_more",
             hidden: true,
             height: 32,
             cols: [
@@ -1000,7 +1001,7 @@ export function QueryPage(prefix, selectedDb) {
                 css: "z_primary_color z_fontsize_18",
                 tooltip: "Previous page",
                 click: function () {
-                  $$(prefix+"_pager_history").select("prev");
+                  $$(prefix + "_pager_history").select("prev");
                 },
               },
               {
@@ -1009,7 +1010,7 @@ export function QueryPage(prefix, selectedDb) {
                 tooltip: "Next page",
                 css: "z_primary_color z_fontsize_18",
                 click: function () {
-                  $$(prefix+"_pager_history").select("next");
+                  $$(prefix + "_pager_history").select("next");
                 },
               },
               {},
@@ -1021,9 +1022,9 @@ export function QueryPage(prefix, selectedDb) {
                 id: prefix + "_all_history",
                 hidden: true,
                 click: function () {
-                  if(historyAdminMode){
+                  if (historyAdminMode) {
                     this.config.icon = "mdi mdi-text";
-                  }else{
+                  } else {
                     this.config.icon = "mdi mdi-text-long";
                   }
                   this.refresh();
@@ -1031,7 +1032,7 @@ export function QueryPage(prefix, selectedDb) {
                   const tbl = $$(prefix + "_history_list");
                   tbl.config.columns = historyCols(historyAdminMode);
                   tbl.refreshColumns();
-                  loadHistory(historyAdminMode ? 1: 0);
+                  loadHistory(historyAdminMode ? 1 : 0);
                 },
               },
               {
@@ -1044,29 +1045,28 @@ export function QueryPage(prefix, selectedDb) {
                   webix.message({ text: "Not implement yet", type: "debug" });
                 },
               },
-            ]
+            ],
           },
           {
             view: "datatable",
             id: prefix + "_history_list",
             css: "z_fade_list z_list_cursor_pointer",
             columns: [
-              { id: "title", header: "", fillspace:true },
+              { id: "title", header: "", fillspace: true },
               {
-                adjust:true,
-                template:function(obj, common, value, column, index){
+                adjust: true,
+                template: function (obj, common, value, column, index) {
                   if (obj.content) {
                     return `<span style='color: grey;font-style:italic;font-size:13;float:right;'>
                     ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
                   }
-                }
+                },
               },
-
             ],
-            pager:{
-              id:prefix+"_pager_history",
-              apiOnly:true,
-              size:100,
+            pager: {
+              id: prefix + "_pager_history",
+              apiOnly: true,
+              size: 100,
             },
             select: true,
             headerRowHeight: -1,
@@ -1280,13 +1280,19 @@ export function QueryPage(prefix, selectedDb) {
                       .getSelectedId(true)
                       .join();
                     const sqlContent = $$(prefix + "_sql_editor").getValue();
-                    if(userListId.length>0 && sqlContent!=""){
+                    if (userListId.length > 0 && sqlContent != "") {
                       addShareUser(userListId, sqlContent);
-                    }else{
-                      if(sqlContent.trim()==""){
-                        return webix.message({text: "Opss, Nothing to share !", type: "error"});
+                    } else {
+                      if (sqlContent.trim() == "") {
+                        return webix.message({
+                          text: "Opss, Nothing to share !",
+                          type: "error",
+                        });
                       }
-                      webix.message({text: "Please select user", type: "error"});
+                      webix.message({
+                        text: "Please select user",
+                        type: "error",
+                      });
                     }
                   },
                 },
@@ -1301,7 +1307,7 @@ export function QueryPage(prefix, selectedDb) {
   const runViewData = (profileId, tableOid, type) => {
     webix
       .ajax()
-      .headers(defaultHeader())
+      // .headers(defaultHeader())
       .get(`${url}/table_name?id=${profileId}&&oid=${tableOid}`)
       .then((r) => {
         const rData = r.json();
@@ -1316,9 +1322,12 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const addShareUser = (userListId, sql_content) => {
-    const usr = userListId.split(",")
-    if(usr.length>1){
-      webix.message({text: "Not support multiple user selection yet", type:  "error"});
+    const usr = userListId.split(",");
+    if (usr.length > 1) {
+      webix.message({
+        text: "Not support multiple user selection yet",
+        type: "error",
+      });
       return;
     }
     const data = {
@@ -1327,7 +1336,7 @@ export function QueryPage(prefix, selectedDb) {
     };
     webix
       .ajax()
-      .headers(defaultHeader())
+      // .headers(defaultHeader())
       .post(`${urlShare}`, data, function (r) {
         webix.message({ text: "Share success", type: "success" });
         $$(prefix + "_win_share_user").close();
@@ -1440,7 +1449,7 @@ export function QueryPage(prefix, selectedDb) {
 
                         webix
                           .ajax()
-                          .headers(defaultHeader())
+                          // .headers(defaultHeader())
                           .put(
                             urlProfile + "/content/" + id,
                             data,
@@ -1475,7 +1484,7 @@ export function QueryPage(prefix, selectedDb) {
                         const sel = listId.getItem(id);
                         webix
                           .ajax()
-                          .headers(defaultHeader())
+                          // .headers(defaultHeader())
                           .del(urlProfile + "/content/" + id, function (res) {
                             listId.clearAll();
                             listId.load(
@@ -2048,7 +2057,7 @@ export function QueryPage(prefix, selectedDb) {
         };
       webix
         .ajax()
-        .headers(defaultHeader())
+        // .headers(defaultHeader())
         .post(url + "/run", input)
         .then((r) => {
           let rData = r.json();

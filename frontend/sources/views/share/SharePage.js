@@ -178,7 +178,7 @@ function update() {
   };
   webix
     .ajax()
-    .headers(defaultHeader())
+    // .headers(defaultHeader())
     .put(`${url}/${item.id}`, data, function (res) {
       webix.message({ text: "Title updated", type: "success" });
       reload();
@@ -198,7 +198,7 @@ function setRead(isRead) {
   };
   webix
     .ajax()
-    .headers(defaultHeader())
+    // .headers(defaultHeader())
     .put(`${url}/read/${item.id}`, data, function (res) {
       $$(prefix + "_share_list").clearAll();
       $$(prefix + "_share_list")

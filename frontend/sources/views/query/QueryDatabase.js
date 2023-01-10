@@ -264,7 +264,7 @@ const WindowForm = () => {
               };
               webix
                 .ajax()
-                .headers(defaultHeader())
+                // .headers(defaultHeader())
                 .post(url + "/copyconn", data, function (res) {
                   webix.message({
                     text: `Connection <strong>${
@@ -470,7 +470,7 @@ function save(isDuplicate) {
 
       webix
         .ajax()
-        .headers(defaultHeader())
+        // .headers(defaultHeader())
         .post(url + "/conn", data, function (res) {
           webix.message({
             text: "<strong>" + msgName + "</strong> saved.",
@@ -484,7 +484,7 @@ function save(isDuplicate) {
     } else {
       webix
         .ajax()
-        .headers(defaultHeader())
+        // .headers(defaultHeader())
         .put(url + "/conn/" + data.id, data, function (res) {
           webix.message({
             text: "<strong>" + msgName + "</strong> updated.",

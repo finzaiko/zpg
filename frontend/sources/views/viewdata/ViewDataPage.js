@@ -135,7 +135,7 @@ export function ViewDataPage(prefix, selectedDb) {
         if (result) {
           webix
             .ajax()
-            .headers(defaultHeader())
+            // .headers(defaultHeader())
             .del(`${url}/remove`, null, function (res) {
               $$(prefix + "_table").remove(sel);
               webix.message({

@@ -420,7 +420,7 @@ function saveTaskNew() {
     };
     webix
       .ajax()
-      .headers(defaultHeader())
+      // .headers(defaultHeader())
       .post(urlTask, data, function (res) {
         const dataRes = JSON.parse(res);
         saveTaskItem(dataRes.data.last_id);
@@ -441,7 +441,7 @@ function saveTaskItem(id) {
 
   webix
     .ajax()
-    .headers(defaultHeader())
+    // .headers(defaultHeader())
     .post(urlTaskItem + "/selected", data, function (res) {
       webix.message({
         text: "Task success saved, please to Task to see detail",
@@ -716,7 +716,7 @@ function doExecQuery(tranferTo) {
   return;
   webix
     .ajax()
-    .headers(defaultHeader())
+    // .headers(defaultHeader())
     .post(urlQuery + "/run", input)
     .then((r) => {
       let rData = r.json();

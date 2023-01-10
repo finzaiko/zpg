@@ -30,7 +30,7 @@ class ShareRepository {
   }
 
   async getByField(field, value, userId) {
-    let sql = `SELECT share.id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content, ukey,
+    let sql = `SELECT share.id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content, ukey, is_read,
       CASE WHEN share_to =${userId} THEN 'arrow-bottom-left z_receive_share' ELSE 'arrow-top-right z_sent_share' END as icon, -- r=receive, s=sent
       CASE WHEN share_to !=${userId} THEN 1 ELSE 0 END is_me, COALESCE(share_status,0) as share_status,
       usr1.fullname AS from_user,

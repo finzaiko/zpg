@@ -73,12 +73,14 @@ export default class ShareView extends JetView {
         {
           view: "template",
           id: prefix + "_empty_panel",
-          template: "<div style='text-align:center;margin-top:37%;font-size: 18px;color:#ddaa88;'>ZPG share</div>",
+          template:
+            "<div style='text-align:center;margin-top:37%;font-size: 18px;color:#ddaa88;'>ZPG share</div>",
         },
         {
           view: "template",
           id: prefix + "_un_authorized",
-          template: "<div style='color:red;padding: 10px;'>ZPG share: Unauthorized user</div>",
+          template:
+            "<div style='color:red;padding: 10px;'>ZPG share: Unauthorized user</div>",
           hidden: true,
         },
         {
@@ -92,7 +94,7 @@ export default class ShareView extends JetView {
               language: "sql",
               fontSize: "12px",
             },
-          ]
+          ],
         },
       ],
     };
@@ -128,6 +130,10 @@ export default class ShareView extends JetView {
             t.config.width = textWidth;
             t.resize();
 
+            if (rData.is_read != 1 && rData.is_me == 0) {
+              this.setReadView(rData.id);
+            }
+
             edId.setValue(rData.content);
             edId.hideOverlay();
           })
@@ -157,6 +163,19 @@ export default class ShareView extends JetView {
       })
       .fail(function (err) {
         return 0;
+      });
+  }
+
+  setReadView(id) {
+    const data = {
+      is_read: 1,
+    };
+    webix
+      .ajax()
+      // .headers(defaultHeader())
+      .put(`${url}/read/${id}`, data, function (res) {})
+      .fail(function (err) {
+        showError(err);
       });
   }
 }

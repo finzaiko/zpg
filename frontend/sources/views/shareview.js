@@ -172,8 +172,7 @@ export default class ShareView extends JetView {
     };
     webix
       .ajax()
-      // .headers(defaultHeader())
-      .put(`${url}/read/${id}`, data, function (res) {})
+      .put(`${url}/read/${id}`, data)
       .fail(function (err) {
         showError(err);
       });

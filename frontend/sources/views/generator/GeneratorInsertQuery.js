@@ -16,10 +16,9 @@ function generate() {
 
   webix
     .ajax()
-    // .headers(defaultHeader())
+
     .post(`${url}/outparams`, data, function (res) {
       let rData = JSON.parse(res);
-      // console.log(`rData`, rData.data);
       if (typeof rData.data != "undefined") {
         $$(prefixThis + "_result").setHTML(
           "<pre id='insert_query_result'>" + rData.data + "</pre>"

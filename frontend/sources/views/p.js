@@ -87,12 +87,12 @@ export default class TopView extends JetView {
         // { type: "wide", paddingY: 10, paddingX: 5, rows: [{ $subview: true }] },
         // { type: "wide", rows: [{ $subview: true }] },
         {
-          css: "z_layout_p", 
-          // type: "wide", 
+          css: "z_layout_p",
+          // type: "wide",
           padding:{
             left:4
           },
-          rows: [{ $subview: true }] 
+          rows: [{ $subview: true }]
         },
       ],
     };
@@ -115,18 +115,12 @@ export default class TopView extends JetView {
   }
 
   urlChange(view, url) {
-    console.log("url", url);
     // this.app.show("/p/start");
-    console.log("this.app", this.app);
-
     this.app.on("app:guard", function (a, b, nav) {
       // first++;
       // if(first==2){
       //   nav.redirect = "/top/data";
       // }
-      // console.log('a', a);
-      // console.log('b', b);
-      // console.log('nav', nav)
       // nav.redirect = "/p/query";
     });
   }

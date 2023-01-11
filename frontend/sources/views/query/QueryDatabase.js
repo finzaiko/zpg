@@ -236,12 +236,8 @@ const WindowForm = () => {
             },
             on: {
               onChange: function (id, val) {
-                console.log("this", this);
                 const getItem = this.getPopup().getList();
                 // .getItem(id);
-                console.log("getItem", getItem);
-                console.log("getItem", getItem.data.serialize());
-
                 loadDb(id);
               },
             },
@@ -264,7 +260,7 @@ const WindowForm = () => {
               };
               webix
                 .ajax()
-                // .headers(defaultHeader())
+
                 .post(url + "/copyconn", data, function (res) {
                   webix.message({
                     text: `Connection <strong>${
@@ -355,7 +351,6 @@ const WindowForm = () => {
         $$(prefix + "_password").setValue();
         isEdit = true;
         const item = this.getItem(sel);
-        console.log("item", item);
         oldConnName = item.conn_name;
       },
       onItemDblClick: function () {},
@@ -470,7 +465,7 @@ function save(isDuplicate) {
 
       webix
         .ajax()
-        // .headers(defaultHeader())
+
         .post(url + "/conn", data, function (res) {
           webix.message({
             text: "<strong>" + msgName + "</strong> saved.",
@@ -484,7 +479,7 @@ function save(isDuplicate) {
     } else {
       webix
         .ajax()
-        // .headers(defaultHeader())
+
         .put(url + "/conn/" + data.id, data, function (res) {
           webix.message({
             text: "<strong>" + msgName + "</strong> updated.",

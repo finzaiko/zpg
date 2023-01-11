@@ -163,7 +163,6 @@ export default class MainView extends JetView {
                     edId = `z_query_sql_editor`;
                   }
                   const a = $$(edId);
-                  // console.log(`a`, a);
                   if (typeof a != "undefined") {
                     if (a.getValue().length > 0) {
                       webix.confirm("Are you sure?").then((result) => {
@@ -210,7 +209,6 @@ export default class MainView extends JetView {
         // webix.message({text:"focust tab check", type: "error"})
         webix.UIManager.setFocus($$("$tabbar1")); //to set focus
         $$("$tabbar1").attachEvent("onEnter", function (ev) {
-          console.log("onenter");
         });
       }
     });

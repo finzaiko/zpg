@@ -107,12 +107,6 @@ export function ViewDataPage(prefix, selectedDb) {
           },
         };
 
-        // var processor = webix.dp($$(prefix + "_table"));
-        // console.log(`dp`, processor)
-        // dp.attachEvent("onBeforeDataSend", function(send){
-        //   send.data.some = 123;
-        // });
-
         $$(prefix + "_table_panel").addView(newView);
         $$(prefix + "_refresh").show();
         $$(prefix + "_add_row").show();
@@ -135,7 +129,7 @@ export function ViewDataPage(prefix, selectedDb) {
         if (result) {
           webix
             .ajax()
-            // .headers(defaultHeader())
+
             .del(`${url}/remove`, null, function (res) {
               $$(prefix + "_table").remove(sel);
               webix.message({

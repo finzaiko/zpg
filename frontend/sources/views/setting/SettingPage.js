@@ -77,7 +77,6 @@ export default class SettingPage extends JetView {
           id:"z_userlist_btn",
           tooltip: "Users",
           click: function () {
-            console.log("test")
             this.$scope.ui(UserForm).show();
           }
         },
@@ -114,7 +113,7 @@ export default class SettingPage extends JetView {
         logout
       ],
     };
-    
+
     const table = {
       view: "datatable",
       select: "row",

@@ -90,7 +90,6 @@ function newQueryTab() {
 }
 
 export function QueryPage(prefix, selectedDb) {
-  // console.log(`prefix`, prefix);
   state.countPage = parseInt(prefix.split("_")[2]) || 0;
 
   let searchOidSelected;
@@ -155,7 +154,6 @@ export function QueryPage(prefix, selectedDb) {
         },
         on: {
           onChange: function (id, val) {
-            // console.log(`prefix>>>`, prefix);
             webix.storage.local.put(LAST_DB_CONN_QUERY, id);
             if (id) {
               $$(prefix + "_run_btn").enable();
@@ -304,7 +302,7 @@ export function QueryPage(prefix, selectedDb) {
                 };
                 webix
                   .ajax()
-                  // .headers(defaultHeader())
+
                   .post(urlProfile + "/content", data, (r) => {
                     webix.message({ text: "Bookmark added.", type: "success" });
                   });
@@ -431,7 +429,7 @@ export function QueryPage(prefix, selectedDb) {
 
               webix
                 .ajax()
-                // .headers(defaultHeader())
+
                 .get(
                   `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=${filtervalue}&type=content`
                 )
@@ -1148,7 +1146,6 @@ export function QueryPage(prefix, selectedDb) {
         ],
         on: {
           onItemClick: function (sel) {
-            // console.log(`sel`, sel.row);
             loadSchemaContent(0, sel.row);
           },
         },
@@ -1307,7 +1304,7 @@ export function QueryPage(prefix, selectedDb) {
   const runViewData = (profileId, tableOid, type) => {
     webix
       .ajax()
-      // .headers(defaultHeader())
+
       .get(`${url}/table_name?id=${profileId}&&oid=${tableOid}`)
       .then((r) => {
         const rData = r.json();
@@ -1336,7 +1333,7 @@ export function QueryPage(prefix, selectedDb) {
     };
     webix
       .ajax()
-      // .headers(defaultHeader())
+
       .post(`${urlShare}`, data, function (r) {
         webix.message({ text: "Share success", type: "success" });
         $$(prefix + "_win_share_user").close();
@@ -1449,7 +1446,7 @@ export function QueryPage(prefix, selectedDb) {
 
                         webix
                           .ajax()
-                          // .headers(defaultHeader())
+
                           .put(
                             urlProfile + "/content/" + id,
                             data,
@@ -1484,7 +1481,7 @@ export function QueryPage(prefix, selectedDb) {
                         const sel = listId.getItem(id);
                         webix
                           .ajax()
-                          // .headers(defaultHeader())
+
                           .del(urlProfile + "/content/" + id, function (res) {
                             listId.clearAll();
                             listId.load(
@@ -1840,16 +1837,11 @@ export function QueryPage(prefix, selectedDb) {
       }
 
       if (content) {
-        console.log("content", content);
-        console.log("type", type);
-
         const ctn = content.match(/\n/gm); // get number of break line row results
         if (
           (type == "text" || type == "varchar") &&
           ((ctn && ctn.length > 0) || content.length > 50)
         ) {
-          console.log("xxx");
-
           openWinCell(type, content);
         }
       }
@@ -1983,12 +1975,10 @@ export function QueryPage(prefix, selectedDb) {
     viewId.parse(
       webix
         .ajax()
-        // .headers(defaultHeader())
+
         .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}`)
         .then(function (data) {
-          // console.log("tree", tree);
-          var item = tree.getItem(id);
-          // console.log("item///////////////////", item);
+          const item = tree.getItem(id);
           setTimeout(() => {
             if (item.$count <= 0) {
               item.open = false;
@@ -2057,7 +2047,7 @@ export function QueryPage(prefix, selectedDb) {
         };
       webix
         .ajax()
-        // .headers(defaultHeader())
+
         .post(url + "/run", input)
         .then((r) => {
           let rData = r.json();
@@ -2183,7 +2173,6 @@ export function QueryPage(prefix, selectedDb) {
                           })
                           .filter((o) => o.id < 1);
 
-                        // console.log('uniqueAddedArr',uniqueAddedArr);
                         let createdCache = [];
                         uniqueAddedArr.forEach((o) => {
                           createdCache.push(grid.getItem(o.id));
@@ -2191,8 +2180,6 @@ export function QueryPage(prefix, selectedDb) {
 
                         let editedCache = cache.filter((o) => o.id > 0);
                         const dataSave = [...createdCache, ...editedCache];
-                        // console.log(JSON.stringify(dataSave));
-
                         // return webix.message({text: 'Not implement yet!', type: "debug"});
                         if (cache.length > 0) {
                           const inputData = {
@@ -2204,7 +2191,6 @@ export function QueryPage(prefix, selectedDb) {
                             .ajax()
                             .post(`${urlViewData}/save_result`, inputData)
                             .then(function (data) {
-                              // console.log('data',data);
                               webix.message({
                                 text: "Data saved",
                                 type: "success",
@@ -2383,7 +2369,6 @@ export function QueryPage(prefix, selectedDb) {
                         openDetailCell(type, sel[id.column]);
                       },
                       onAfterEditStop: function (state, editor) {
-                        // console.log('editor',editor);
                         if (state.old == state.value) return true;
                         if (!this.$values_cache) this.$values_cache = [];
 
@@ -2411,7 +2396,6 @@ export function QueryPage(prefix, selectedDb) {
                     /*
                     scheme:{
                       $change:function(item){
-                        // console.log('item',item);
                       }
                     }
                     */
@@ -2445,7 +2429,6 @@ export function QueryPage(prefix, selectedDb) {
           let lineNo;
 
           if (!rData.error) {
-            // console.log(`onerror>>>>>>>>>>>>>>>>>>>>>>>>>`);
             $$(prefix + "_scrollview_body").addView(newView);
             if (typeof rData.message != "undefined") {
               // $$(prefix + "_console").setHTML(

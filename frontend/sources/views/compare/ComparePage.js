@@ -261,8 +261,6 @@ const toolbar = {
         },
         on: {
           onMenuItemClick: function (id) {
-            console.log("id", id);
-
             $$("griddiff").define("multiselect", "touch");
             $$("griddiff").detachEvent(tableDragEvent);
             tableDragEvent = $$("griddiff").attachEvent(
@@ -420,7 +418,7 @@ function saveTaskNew() {
     };
     webix
       .ajax()
-      // .headers(defaultHeader())
+
       .post(urlTask, data, function (res) {
         const dataRes = JSON.parse(res);
         saveTaskItem(dataRes.data.last_id);
@@ -441,7 +439,7 @@ function saveTaskItem(id) {
 
   webix
     .ajax()
-    // .headers(defaultHeader())
+
     .post(urlTaskItem + "/selected", data, function (res) {
       webix.message({
         text: "Task success saved, please to Task to see detail",
@@ -525,8 +523,6 @@ function compare() {
       const _url2 = `${url}/result`;
       webix.ajax(_url2).then((rc) => {
         const res = rc.json();
-        console.log('res.data',res.data);
-
         if (typeof res.data == "undefined") {
           webix.alert({
             type: "alert-error",
@@ -558,8 +554,6 @@ function compare() {
       });
     })
     .fail(function (err) {
-      console.log("err.responseText", err.responseText);
-
       webix.message({ text: err.responseText, type: "error" });
       diffPanelId.hideOverlay();
       pageId.hideProgress();
@@ -569,8 +563,6 @@ function compare() {
 
 function showCompareDetail(_this, sel) {
   const item = _this.getItem(sel);
-  console.log('item',item);
-
   const srcId = $$("diffsourcecombo").getValue();
   const tarId = $$("difftargetcombo").getValue();
   const diffPanelId = $$("diff_detail_panel");
@@ -710,20 +702,17 @@ function doExecQuery(tranferTo) {
     dropreplace: isDropReplace,
   };
 
-  console.log("input", input);
   webix.message({ text: "Not implement yet", type: "warning" });
 
   return;
   webix
     .ajax()
-    // .headers(defaultHeader())
+
     .post(urlQuery + "/run", input)
     .then((r) => {
       let rData = r.json();
-      console.log("rData", rData);
     })
     .fail(function (err) {
-      console.log("err", err);
     });
 }
 export default class ComparePage extends JetView {

@@ -233,8 +233,6 @@ function loadBranch(viewId, id, isContext) {
         .ajax()
         .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}&t=0`)
         .then(function (data) {
-          console.log('data',data.json());
-
           setTimeout(() => {
             if (item.$count <= 0) {
               item.open = false;
@@ -271,7 +269,7 @@ function loadSchemaContent(itemRootId, oid) {
     viewId.showOverlay(`Loading...`);
     webix
       .ajax()
-      // .headers(defaultHeader())
+
       .get(
         `${urlDb}/schema_content?id=${profileId}&root=${itemRootId}&oid=${oid}`
       )
@@ -412,15 +410,11 @@ export default class DatabasePage extends JetView {
                     "{common.icon()} {common.my_folder()} <span>#value#</span>",
                   on: {
                     onAfterSelect: function (id) {
-                      // console.log(`id`, id);
-                      const a = this.getItem(id);
-                      // console.log(`a`, a);
                       baseRootId = id;
                       while (this.getParentId(baseRootId)) {
                         baseRootId = this.getParentId(baseRootId);
                       }
                       baseDbName = this.getItem(baseRootId).value;
-                      // console.log(`baseDbName`, baseDbName)
                       $$(prefix + "_database_search").show();
                       loadSchemaContent(baseRootId, id);
                     },
@@ -428,7 +422,6 @@ export default class DatabasePage extends JetView {
                       let itemRootId = id;
                       let itemx = this.getItem(id);
                       stateBase.currentDBSelected = itemx.value;
-                      // console.log("itemx", itemx);
                       while (this.getParentId(itemRootId)) {
                         itemRootId = this.getParentId(itemRootId);
                       }

@@ -292,7 +292,6 @@ class WindowView extends JetView {
         form.showProgress();
         register(data)
           .then((r) => {
-            console.log(`r`, r);
             form.hideProgress();
             form.enable();
             webix.message({

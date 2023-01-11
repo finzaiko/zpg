@@ -178,7 +178,7 @@ function update() {
   };
   webix
     .ajax()
-    // .headers(defaultHeader())
+
     .put(`${url}/${item.id}`, data, function (res) {
       webix.message({ text: "Title updated", type: "success" });
       reload();
@@ -198,7 +198,7 @@ function setRead(isRead) {
   };
   webix
     .ajax()
-    // .headers(defaultHeader())
+
     .put(`${url}/read/${item.id}`, data, function (res) {
       $$(prefix + "_share_list").clearAll();
       $$(prefix + "_share_list")
@@ -213,60 +213,76 @@ function setRead(isRead) {
 }
 
 function confirmRemove() {
-  webix
-    .ui({
-      view: "window",
-      id: prefix + "_del_confirm",
-      head: { height: 4 },
-      css: "z_confirm_del_head",
-      modal: true,
-      position: "center",
-      body: {
-        padding: 10,
+  const tblId = $$(prefix + "_share_list");
+  const item = tblId.getItem(tblId.getSelectedId());
+  if (item.is_me == 1) {
+    webix
+      .ui({
+        view: "window",
+        id: prefix + "_del_confirm",
+        head: { height: 4 },
+        css: "z_confirm_del_head",
+        modal: true,
+        position: "center",
+        body: {
+          padding: 10,
 
-        rows: [
-          {
-            view: "label",
-            label: "Are you sure to delete ?",
-            align: "center",
-          },
-          {
-            cols: [
-              {},
-              {
-                view: "button",
-                value: "Delete for me",
-                css: "webix_primary",
-                autowidth: true,
-                click: function () {
-                  remove();
-                  $$(prefix + "_del_confirm").close();
+          rows: [
+            {
+              view: "label",
+              label: "Are you sure to delete ?",
+              align: "center",
+            },
+            {
+              cols: [
+                {},
+                {
+                  view: "button",
+                  value: "Cancel",
+                  autowidth: true,
+                  click: function () {
+                    $$(prefix + "_del_confirm").close();
+                  },
                 },
-              },
-              {
-                view: "button",
-                value: "Delete for everyone",
-                autowidth: true,
-                click: function () {
-                  remove(true);
-                  $$(prefix + "_del_confirm").close();
+                {
+                  view: "button",
+                  value: "Delete for everyone",
+                  autowidth: true,
+                  click: function () {
+                    remove(true);
+                    $$(prefix + "_del_confirm").close();
+                  },
                 },
-              },
-              {
-                view: "button",
-                value: "Cancel",
-                autowidth: true,
-                click: function () {
-                  $$(prefix + "_del_confirm").close();
+                {
+                  view: "button",
+                  value: "Delete for me",
+                  css: "webix_primary",
+                  autowidth: true,
+                  click: function () {
+                    remove();
+                    $$(prefix + "_del_confirm").close();
+                  },
                 },
-              },
-              {},
-            ],
-          },
-        ],
+                {},
+              ],
+            },
+          ],
+        },
+      })
+      .show();
+  } else {
+    webix.confirm({
+      ok: "Yes",
+      cancel: "No",
+      type:"confirm-warning",
+      text: "Are you sure to delete ?",
+      callback: function (result) {
+        if (result) {
+          remove();
+        }
       },
-    })
-    .show();
+    });
+  }
 }
 
 function remove(isDelAll) {
@@ -286,22 +302,28 @@ function remove(isDelAll) {
       text: `Share deleted`,
       type: "success",
     });
-    reload();
+    reload(false,true);
   });
 }
 
-function reload(isLoadOnly) {
+function reload(isLoadOnly, isAfterDelete) {
   if (typeof isLoadOnly == "undefined") {
     isLoadOnly = false;
   }
-
+  if (typeof isAfterDelete== "undefined") {
+    isAfterDelete = false;
+  }
   const tblId = $$(prefix + "_share_list");
   const selId = tblId.getSelectedId();
   const item = tblId.getItem(selId);
   tblId.clearAll();
   tblId.load(url).then((_) => {
-    if (item) {
-      tblId.select(selId);
+
+    console.log('selId',selId);
+    console.log('item',item);
+
+    if (item && !isAfterDelete) {
+      tblId.select(selId.id);
     }
   });
   if (!isLoadOnly) {
@@ -366,13 +388,11 @@ export default class SharePage extends JetView {
                   $$(prefix + "_copy_link_btn").show();
                   $$(prefix + "_open_newin_btn").show();
                   $$(prefix + "_by_user").setValue(item.share_user_label_flat);
-
+                  $$(prefix + "_delete_btn").show();
                   if (item.is_me == 1) {
                     $$(prefix + "_edit_btn").show();
-                    $$(prefix + "_delete_btn").show();
                   } else {
                     $$(prefix + "_edit_btn").hide();
-                    $$(prefix + "_delete_btn").hide();
                   }
                   setRead(1);
                 },

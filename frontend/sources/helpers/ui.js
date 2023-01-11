@@ -122,7 +122,6 @@ export function showErrorResponse(errResponse) {
   const obj = JSON.parse(errResponse);
   let msg = "";
   Object.keys(obj).forEach(function (key) {
-    console.log(key, obj[key]);
     msg += `<b>${key}:</b> ${obj[key]}<br>`;
   });
   webix.message({ text: msg, type: "error" });

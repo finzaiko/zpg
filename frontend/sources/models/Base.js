@@ -19,7 +19,6 @@ export let state = {
 //       .get(`${BACKEND_URL}/app/config`)
 //       .then(r => {
 //         const app = r.json().app_name;
-//         // console.log('app', app)
 //         document.title = app;
 //         webix.storage.cookie.put(COOKIE_APP, app);
 //         return r.json();

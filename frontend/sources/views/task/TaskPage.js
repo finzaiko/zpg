@@ -278,18 +278,4 @@ export default class TaskPage extends JetView {
       ],
     };
   }
-
-  // urlChange(view, url) {
-  //   console.log(`url`, url);
-  //   console.log(`url[0].page`, url[0].page);
-  //   console.log(`url[0].params`, url[0].params);
-  // }
-
-  // init(_$view: IBaseView, _$: IJetURL): void;
-  // ready(_$view: IBaseView, _$url: IJetURL): void;
-
-  // init(view, url){
-  //   console.log(`view`, view);
-  //   console.log(`url`, url);
-  // }
 }

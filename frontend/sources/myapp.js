@@ -4,13 +4,12 @@ import { APP_NAME, COOKIE_NAME, PING_SERVER, API_URL } from "./config/setting";
 import Session from "./models/Session";
 import { state } from "./models/Base";
 import { state as stateQuery } from "./models/Query";
-import { setAppHeader } from "./helpers/api";
+import { setAppHeader, setDefaultHeader } from "./helpers/api";
 import { initSession, userProfile } from "./models/UserProfile";
 import { showExpiredMsg } from "./helpers/ui";
 
 // getAppMeta() {
 //   webix.ajax(`${API_URL}/meta`).then((ra) => {
-//     console.log(`ra`, ra);
 //     state.allowRegister = ra;
 //   });
 // }
@@ -117,14 +116,7 @@ if (!BUILD_AS_MODULE) {
       };
 
       //   if (window.history && window.history.pushState) {
-      //     console.log("asdfasdf");
       //     window.addEventListener("popstate", (event) => {
-      //       console.log(
-      //         "location: " +
-      //           document.location +
-      //           ", state: " +
-      //           JSON.stringify(event.state)
-      //       );
       //       // webix.confirm("Are you sure?").then((result) => {
       //       //   if (result) {
       //       //     history.back();
@@ -183,9 +175,9 @@ if (!BUILD_AS_MODULE) {
             userProfile.token = "";
           }
 
-          // });
           if (!webix.storage.cookie.get(COOKIE_NAME)) {
             // window.location.reload();
+            setDefaultHeader(headers);
           } else {
             setAppHeader(headers);
           }
@@ -194,10 +186,8 @@ if (!BUILD_AS_MODULE) {
 
       // webix.ajax(`${API_URL}/app`).then((ra) => {
       //   const data = ra.json();
-      //   console.log(`profile-ra`, data);
       //   // state.meta = ra.json();
       //   state.appProfile = JSON.parse(data.data.find((m)=>m.type==5).content);
-      //   console.log(`d`, state.appProfile);
       // });
 
       initSession();

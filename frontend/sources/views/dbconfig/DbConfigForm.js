@@ -140,7 +140,7 @@ function save() {
 	if (!state.isEdit) {
 		webix
 			.ajax()
-			// .headers(defaultHeader())
+
 			.post(url, data, function(res) {
 				webix.message({ text: "<strong>" + msgName + "</strong> saved." });
 				reloadDbConfig();
@@ -151,7 +151,7 @@ function save() {
 	} else {
 		webix
 			.ajax()
-			// .headers(defaultHeader())
+
 			.put(`${url}/${data.id}`, data, function(res) {
 				webix.message({ text: "<strong>" + msgName + "</strong> updated." });
 				reloadDbConfig();

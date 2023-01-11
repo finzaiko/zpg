@@ -33,6 +33,7 @@ export default {
 		<section>
 			<h4>Todo:</h4>
 			<ul>
+				<li>hide shareview if desktop mode</li>
 				<li>all: load user setting from json profile</li>
 				<li>share: reconstruct to separate table and notify socket.io</li>
 				<li>query: change reload on user setting</li>
@@ -46,7 +47,7 @@ export default {
 		<section>
 			<h4>Change log:</h4>
 			<p>
-				<h4>1.0.15-dev (23-12-2022)</h4>
+				<h4>0.0.15-dev (23-12-2022)</h4>
 				<ul>
 					<li>upd direct save on query result</li>
 					<li>feature able share query to other users</li>
@@ -58,7 +59,7 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.14-dev (24-10-2022)</h4>
+				<h4>0.0.14-dev (24-10-2022)</h4>
 				<ul>
 					<li>add func triggers defenition</li>
 					<li>add views defenition</li>
@@ -68,7 +69,7 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.13-dev (26-09-2022)</h4>
+				<h4>0.0.13-dev (26-09-2022)</h4>
 				<ul>
 					<li>improve query result change to array mode, show type</li>
 					<li>smart cell show detail base on type/text length</li>
@@ -76,7 +77,7 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.12-dev (08-09-2022)</h4>
+				<h4>0.0.12-dev (08-09-2022)</h4>
 				<ul>
 					<li>update console editor </li>
 					<li>fix copy clipboard</li>
@@ -84,7 +85,7 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.11-dev (10-08-2022)</h4>
+				<h4>0.0.11-dev (10-08-2022)</h4>
 				<ul>
 					<li>fix compare duplicate, remove out params </li>
 					<li>fix overlap search</li>
@@ -97,7 +98,7 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.10-dev (28-06-2022)</h4>
+				<h4>0.0.10-dev (28-06-2022)</h4>
 				<ul>
 					<li>improve deep compare, using db left right joining </li>
 					<li>compare table row content</li>
@@ -105,14 +106,14 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.9-dev (22-04-2022)</h4>
+				<h4>0.0.9-dev (22-04-2022)</h4>
 				<ul>
 					<li>improve show table defenition</li>
 					<li>add cascade generate out</li>
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.8-dev (11-03-2022)</h4>
+				<h4>0.0.8-dev (11-03-2022)</h4>
 				<ul>
 					<li>fix copy paste action</li>
 					<li>snippet raise notice</li>
@@ -121,14 +122,14 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.7-dev (23-01-2022)</h4>
+				<h4>0.0.7-dev (23-01-2022)</h4>
 				<ul>
 					<li>editor loading async</li>
 					<li>query search auto focus selected</li>
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.6-dev (17-11-2021)</h4>
+				<h4>0.0.6-dev (17-11-2021)</h4>
 				<ul>
 					<li>last state datatype</li>
 					<li>show data type query run</li>
@@ -136,20 +137,20 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.5-dev (15-11-2021)</h4>
+				<h4>0.0.5-dev (15-11-2021)</h4>
 				<ul>
 					<li>enable ssl mode option</li>
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.4-dev (12-11-2021)</h4>
+				<h4>0.0.4-dev (12-11-2021)</h4>
 				<ul>
 					<li>set temporary ignore sslmode</li>
 					<li>enh: set editor font size by profile</li>
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.3-dev (10-11-2021)</h4>
+				<h4>0.0.3-dev (10-11-2021)</h4>
 				<ul>
 					<li>new: out params generator</li>
 					<li>new: layout insert query</li>
@@ -158,7 +159,7 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.2-dev (21-10-2021)</h4>
+				<h4>0.0.2-dev (21-10-2021)</h4>
 				<ul>
 					<li>fix: handle catch error table permission</li>
 					<li>fix: handle table not using primary key</li>
@@ -168,7 +169,7 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.1-dev (12-10-2021)</h4>
+				<h4>0.0.1-dev (12-10-2021)</h4>
 				<ul>
 					<li>db: load table content</li>
 					<li>query: switch multi db conn</li>
@@ -180,7 +181,7 @@ export default {
 				</ul>
 			</p>
 			<p>
-				<h4>1.0.0-dev (05-05-2021)</h4>
+				<h4>0.0.0-dev (05-05-2021)</h4>
 				<ul>
 					<li>add: db, query, conn config</li>
 					<li>fix: query response</li>

@@ -13,6 +13,10 @@ export function setAppHeader(headers) {
   headers["Authorization"] = "Bearer " + getToken();
 }
 
+export function setDefaultHeader(headers) {
+  headers["Content-type"] = "application/json";
+}
+
 // export const parseJwt = (token) => {
 //   try {
 //     return JSON.parse(atob(token.split(".")[1]));

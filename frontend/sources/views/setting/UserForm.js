@@ -241,7 +241,7 @@ function save() {
 	if (!isEdit) {
 		webix
 			.ajax()
-			// .headers(defaultHeader())
+
 			.post(url + "/register", data, function(res) {
 				webix.message({ text: "<strong>" + msgName + "</strong> saved.", type:"success" });
 				reload();
@@ -252,7 +252,7 @@ function save() {
 	} else {
 		webix
 			.ajax()
-			// .headers(defaultHeader())
+
 			.put(url + "/users/" + data.id, data, function(res) {
 				webix.message({ text: "<strong>" + msgName + "</strong> updated.", type:"success" });
 				reload();

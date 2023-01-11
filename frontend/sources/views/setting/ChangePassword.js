@@ -114,7 +114,7 @@ function saveChange() {
   var data = $$(formId).getValues();
   webix
     .ajax()
-    // .headers(defaultHeader())
+
     .put(`${url}/users/${userProfile.userId}/changepass`, data, function(res) {
       webix.message({ type: "success", text: "Password changed" });
       cancel();

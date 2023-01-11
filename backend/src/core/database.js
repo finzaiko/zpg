@@ -6,6 +6,7 @@ const {
   taskTable,
   settingTable,
   userTable,
+  shareTable,
   dbConnTable,
   compareTable,
   defaultSetting,
@@ -42,6 +43,7 @@ function createTable(db) {
   runQuery(db, dbConnTable);
   runQuery(db, taskTable);
   runQuery(db, taskItemTable);
+  runQuery(db, shareTable);
 }
 
 const pgConfig = async (userConfigId) => {

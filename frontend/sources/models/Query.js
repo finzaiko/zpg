@@ -15,9 +15,6 @@ export let state = {
 export const url = API_URL + "/" + path;
 
 function changeCommandKeybinding(editor, id, keybinding) {
-  console.log('editor', editor);
-  console.log('id', id);
-  console.log('keybinding', keybinding)
   editor._standaloneKeybindingService.addDynamicKeybinding('-' + id);
   editor._standaloneKeybindingService.addDynamicKeybinding(id, keybinding);
 }
@@ -87,14 +84,12 @@ export let initQueryEditor = () => {
         // Method that will be executed when the action is triggered.
         // @param editor The editor instance is passed in as a convinience
         run: function (ed) {
-          // console.log("ed", ed);
           // alert("test2 => " + ed.getPosition());
           autoFormat();
           return null;
         },
       });
 
-    // console.log("editor", editor);
   });
 };
 

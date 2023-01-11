@@ -220,7 +220,6 @@ const selectedToolbar = {
                   null,
                   function (res) {
                     const { data } = JSON.parse(res);
-                    console.log(`data`, data);
                     let mType = "",
                       mText = "All Ok, no broken files";
                     if (!data.status) {
@@ -257,7 +256,6 @@ const selectedToolbar = {
     //         null,
     //         function (res) {
     //           const { data } = JSON.parse(res);
-    //           console.log(`data`, data);
     //           let mType = "",
     //             mText = "All Ok, no broken files";
     //           if (!data.status) {
@@ -427,10 +425,9 @@ function save() {
     if (!state.isEdit) {
       webix
         .ajax()
-        // .headers(defaultHeader())
+
         .post(url, data, function (res) {
           const dataRes = JSON.parse(res);
-          console.log(`dataRes`, dataRes);
           $$(prefix + "_task_id").setValue(dataRes.data.last_id);
           if (dataRes.data.last_id) {
             $$(prefix + "_panel_form_item").show();
@@ -447,7 +444,7 @@ function save() {
     } else {
       webix
         .ajax()
-        // .headers(defaultHeader())
+
         .put(`${url}/${data.id}`, data, function (res) {
           webix.message({ text: "<strong>" + msgName + "</strong> updated." });
           // reloadDbConfig();
@@ -464,13 +461,11 @@ function updateTask() {
   const data = $$(prefix + "_form").getValues();
   data.source_db_id = $$(prefix + "_source_db_id").getValue();
   data.target_db_id = $$(prefix + "_target_db_id").getValue();
-  console.log("data", data);
   const id = $$(prefix + "_task_id").getValue();
   webix
     .ajax()
-    // .headers(defaultHeader())
+
     .put(url + "/" + id, data, function (res) {
-      // console.log('res', res);
     })
     .fail(function (err) {
       showError(err);
@@ -485,12 +480,10 @@ function saveItem() {
     oid_arr: itemData.map((v) => v.id).join(","),
   };
 
-  console.log("data", data);
   webix
     .ajax()
-    // .headers(defaultHeader())
+
     .post(urlItem + "/selected", data, function (res) {
-      // console.log('res', res);
       reloadTaskItem($$(prefix + "_selected_table"), data.task_id);
     })
     .fail(function (err) {
@@ -585,9 +578,6 @@ export default class TaskForm extends JetView {
     };
   }
   init(view, url) {
-    console.log(`INIT-url[0].page`, url[0].page);
-    console.log(`INIT-url[0].params`, url[0].params);
-
     if (!state.isEdit) {
       this.$$(prefix + "_add_btn").show();
     } else {
@@ -597,21 +587,9 @@ export default class TaskForm extends JetView {
       // reloadTaskItem($$(prefix + "_selected_table"), dataSel.id);
       $$(prefix + "_panel_form_item").show();
       $$(prefix + "_panel_form_item_empty").hide();
-      console.log("dataSel", dataSel);
       this.$$(prefix + "_source_db_id").setValue(dataSel.source_db_id);
       this.$$(prefix + "_target_db_id").setValue(dataSel.target_db_id);
     }
   }
-  urlChange(view, url) {
-    console.log(`CHANGE-url[0].page`, url[0].page);
-    console.log(`CHANGE-url[0].params`, url[0].params);
-  }
 }
 
-// init(_$view: IBaseView, _$: IJetURL): void;
-// ready(_$view: IBaseView, _$url: IJetURL): void;
-
-// init(view, url){
-//   console.log(`view`, view);
-//   console.log(`url`, url);
-// }

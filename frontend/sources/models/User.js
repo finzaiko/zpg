@@ -12,10 +12,8 @@ export let state = {
 export const url = API_URL;
 
 export function register(inputData) {
-  console.log(`inputData`, inputData);
   return webix
     .ajax()
-    .headers(defaultHeader())
     .post(`${API_URL}/register`, inputData)
     .then((r) => {
       const cred = r.json();

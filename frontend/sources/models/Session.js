@@ -5,7 +5,6 @@ import { setUserProfile } from "./UserProfile";
 function status() {
   return webix
     .ajax()
-    .headers(defaultHeader())
     .post(`${API_URL}/ping`, { t: Date.now() })
     .then((r) => r.json().status);
 }
@@ -13,7 +12,6 @@ function status() {
 function login(username, password) {
   return webix
     .ajax()
-    .headers(defaultHeader())
     .post(`${API_URL}/auth/login`, {
       username,
       password,

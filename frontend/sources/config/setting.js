@@ -5,6 +5,7 @@ export const CODE_PREFIX = "z_";
 
 const HOST = `localhost`;
 export const DEV_MODE = location.port ? true : false;
+export const BUILD_MODE = process.env.BUILD_MODE ? "desktop" : "web";
 export const BASE_URL = process.env.SERVER_URL;
 export const FRONTEND_URL = `http://${HOST}:${location.port}`;
 export const BACKEND_URL = BASE_URL;

@@ -1,5 +1,5 @@
 import { JetView, plugins } from "webix-jet";
-import { API_URL, LAST_SIDEBAR } from "../config/setting";
+import { API_URL, BUILD_MODE, LAST_SIDEBAR } from "../config/setting";
 import { showError } from "../helpers/ui";
 import { menuData, state } from "../models/Base";
 import { routeName, routes } from "./routes";
@@ -20,6 +20,7 @@ export default class MainView extends JetView {
   }
   config() {
     const _this = this;
+    let menuDataFiltered = BUILD_MODE=='desktop' ? menuData.filter(e => e.id !== 'shared') : menuData;
     const header = {
       type: "header",
       borderless: true,
@@ -50,7 +51,7 @@ export default class MainView extends JetView {
       layout: "y",
       select: true,
       template: "<span class='webix_icon #icon#'></span> #value# ",
-      data: menuData,
+      data: menuDataFiltered,
       on: {
         onMenuItemClick: function (id) {
           // https://snippet.webix.com/9f70z3kn
@@ -118,7 +119,7 @@ export default class MainView extends JetView {
               view: "sidebar",
               id: "app:sidebar",
               css: "z_app_sidebar",
-              data: menuData,
+              data: menuDataFiltered,
               width: 180,
               collapsed: true,
               on: {

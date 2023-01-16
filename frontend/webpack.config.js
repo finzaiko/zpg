@@ -1,6 +1,7 @@
-var path = require("path");
-var webpack = require("webpack");
+const path = require("path");
+const webpack = require("webpack");
 const CopyPlugin = require("copy-webpack-plugin");
+const replace = require("replace");
 
 module.exports = function (env) {
   var pack = require("./package.json");
@@ -14,11 +15,6 @@ module.exports = function (env) {
     extends: path.join(__dirname, "/.babelrc"),
   };
 
-  //var sourcePath = path.join(__dirname, "codebase");
-  //var prodPath = path.join(__dirname, "../backend/public/assets/");
-  //console.log(`sourcepath>>`, sourcePath)
-  //console.log(`prodPath>>`, prodPath)
-  
   var config = {
     mode: production ? "production" : "development",
     entry: {
@@ -65,21 +61,10 @@ module.exports = function (env) {
         PRODUCTION: production,
         BUILD_AS_MODULE: asmodule || standalone,
         "process.env": {
-          SERVER_URL: JSON.stringify(env.server_url)
+          SERVER_URL: JSON.stringify(env.server_url),
+          BUILD_MODE: JSON.stringify(env.buildmode),
         },
       }),
-      new CopyPlugin([
-				{
-            from: path.join(__dirname, "codebase/myapp.css"), 
-            to: path.join(__dirname, "../backend/public/assets/"),
-            force:true 
-          },
-				{
-            from: path.join(__dirname, "codebase/myapp.js"), 
-            to: path.join(__dirname, "../backend/public/assets/"),
-            force:true 
-          },
-      ]),
     ],
     devServer: {
       stats: "errors-only",
@@ -103,6 +88,41 @@ module.exports = function (env) {
     out.libraryTarget = "umd";
     out.path = path.join(__dirname, "dist", sub);
     out.publicPath = "/dist/" + sub + "/";
+  }
+
+  if(production){
+    console.log("Production build...");
+
+    new CopyPlugin([
+      {
+          from: path.join(__dirname, "codebase/myapp.css"),
+          to: path.join(__dirname, "../backend/public/assets/"),
+          force:true
+        },
+      {
+          from: path.join(__dirname, "codebase/myapp.js"),
+          to: path.join(__dirname, "../backend/public/assets/"),
+          force:true
+        },
+    ]);
+
+		replace({
+			regex: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.18.0/min/",
+			replacement: `${env.server_url}/assets/monaco-editor/`,
+			paths: ["../backend/public/assets/monaco.js"],
+			recursive: true,
+			silent: true
+		});
+
+    const build = new Date() * 1;
+		replace({
+			regex: /[?][0-9]+/g,
+			replacement: `?${build}`,
+			paths: ["../backend/public/index.html"],
+			recursive: true,
+			silent: true
+		});
+
   }
 
   return config;

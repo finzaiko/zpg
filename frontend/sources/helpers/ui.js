@@ -1,5 +1,6 @@
 import { state as stateBase } from "../models/Base";
-import { copyToClipboard } from "./copy";
+import Toastify from "toastify-js";
+import "toastify-js/src/toastify.css";
 
 export const pageSize = 10000;
 export const defaultDateFormat = "%d/%m/%Y";
@@ -270,4 +271,21 @@ export function getTextWith(txt, font) {
   ctx.font = "14px Roboto,sans-serif";
   const text = ctx.measureText(txt);
   return Math.ceil(text.width) + 10;
+}
+
+export function showToast(msg,type) {
+  let typeMsg = "toasify_success";
+  if(typeof type!="undefined"){
+    typeMsg = type;
+  }
+  Toastify({
+    text: msg,
+    duration: 3000,
+    newWindow: true,
+    close: false,
+    gravity: "bottom", // `top` or `bottom`
+    position: "right", // `left`, `center` or `right`
+    stopOnFocus: true, // Prevents dismissing of toast on hover
+    className: typeMsg,
+  }).showToast();
 }

@@ -146,6 +146,8 @@ if (!BUILD_AS_MODULE) {
       webix.attachEvent(
         "onBeforeAjax",
         function (mode, reqUrl, data, request, headers, files, promise) {
+          // request.timeout = 3000;
+          // request.ontimeout = function(){ /*do something*/ };
           promise.then((a) => {
             const status = a.json().status;
             const _appUrl = appUrl.url[0].page;

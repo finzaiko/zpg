@@ -1428,3 +1428,20 @@ background-size: cover;
     opacity: 0;
   }
 }
+
+.toasify_error {
+  background: #ffdedb;
+  border: 1px solid #ff8d82;
+  color: #313131;
+  font-family: Roboto,sans-serif;
+  font-size: 12px;
+}
+
+.toasify_success {
+  background: #ddf5ea !important;
+  border: 1px solid #88dcb6;
+  color: #313131 !important;
+  margin-right: 10px;
+  font-family: Roboto,sans-serif;
+  font-size: 12px;
+}

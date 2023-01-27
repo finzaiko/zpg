@@ -1,7 +1,7 @@
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 
-import { pagerRow, pageSize } from "../../helpers/ui";
+import { pagerRow, pageSize, showToast } from "../../helpers/ui";
 import { defaultHeader } from "../../helpers/api";
 import { url as urlDb } from "../../models/Db";
 import { url as urlViewData } from "../../models/ViewData";
@@ -2468,6 +2468,7 @@ export function QueryPage(prefix, selectedDb) {
                 }
               }
             );
+            showToast(rData.message.replace(/(\r\n|\n|\r)/gm, "").trim())
           } else {
             $$(prefix + "_scrollview_body").addView(newView);
             let output = rData.error;
@@ -2542,6 +2543,8 @@ export function QueryPage(prefix, selectedDb) {
           $$(prefix + "_page_panel").hideOverlay();
           loadHistory();
           copyFieldName();
+        }).fail(err=>{
+          setTimeout(() => $$(prefix + "_page_panel").hideOverlay(), 1000);
         });
     } else {
       webix.message({

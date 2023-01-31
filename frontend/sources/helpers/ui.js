@@ -273,7 +273,7 @@ export function getTextWith(txt, font) {
   return Math.ceil(text.width) + 10;
 }
 
-export function showToast(msg,type) {
+export function showToast(msg, type) {
   let typeMsg = "toasify_success";
   if(typeof type!="undefined"){
     typeMsg = type;

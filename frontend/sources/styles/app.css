@@ -1430,9 +1430,9 @@ background-size: cover;
 }
 
 .toasify_error {
-  background: #ffdedb;
+  background: #ffdedb !important;
   border: 1px solid #ff8d82;
-  color: #313131;
+  color: #313131 !important;
   font-family: Roboto,sans-serif;
   font-size: 12px;
 }

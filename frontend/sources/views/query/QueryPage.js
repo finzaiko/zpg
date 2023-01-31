@@ -429,7 +429,6 @@ export function QueryPage(prefix, selectedDb) {
 
               webix
                 .ajax()
-
                 .get(
                   `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=${filtervalue}&type=content`
                 )
@@ -442,7 +441,9 @@ export function QueryPage(prefix, selectedDb) {
                     }
                     if ($$(prefix + "_history_preview").isVisible()) {
                       $$(prefix + "_history_preview").hide();
+                      $$(prefix + "_sql_editor").show();
                     }
+
                     $$(prefix + "_history_toggle").setValue(false);
                     $$(prefix + "_dbconn_toggle").setValue(false);
                     $$(prefix + "_search_content_right").show();
@@ -2468,8 +2469,9 @@ export function QueryPage(prefix, selectedDb) {
                 }
               }
             );
-            showToast(rData.message.replace(/(\r\n|\n|\r)/gm, "").trim())
+            showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
           } else {
+            showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
             $$(prefix + "_scrollview_body").addView(newView);
             let output = rData.error;
             const arr = output.match(/errline:(.*)/);
@@ -2544,7 +2546,13 @@ export function QueryPage(prefix, selectedDb) {
           loadHistory();
           copyFieldName();
         }).fail(err=>{
-          setTimeout(() => $$(prefix + "_page_panel").hideOverlay(), 1000);
+          setTimeout(() => {
+            webix.message({
+              text: err.responseText,
+              type: "error",
+            });
+            $$(prefix + "_page_panel").hideOverlay();
+          }, 1000);
         });
     } else {
       webix.message({

@@ -199,11 +199,13 @@ class QueryController {
         Object.assign(rd, {
           total_count: rc,
           message: `${noticeResult}\nQuery successfully in ${et} ms.${effected}\n`,
+          message_toas: `Query successfully in ${et} ms. ${rc} rows effected.`,
+          type_toas: 'success',
         });
 
         if(!data.history){ // is disable history
           const hsData = {
-            title: "",
+            // title: "",
             content: data.sql,
             type: 3,
             user_id: userId,
@@ -280,6 +282,8 @@ class QueryController {
           error: `${zErrorMsg}\n${errStack[0]}\n\nLINE: ${errLine}${
             errDetail ? "\n" + errDetail : ""
           } \n${errHint}\n${errQuery}\n${errLinePos}\n${errWhere}`,
+          message_toas: `Query failed.`,
+          type_toas: 'error',
         });
       });
   }

@@ -32,6 +32,7 @@ class QueryController {
       sqltype: request.body.sqltype,
       dropreplace: request.body.dropreplace,
       history: request.body.history,
+      adjustcol: request.body.adjustcol,
     };
 
     let rcb = [];
@@ -78,6 +79,7 @@ class QueryController {
                 editor: "text",
                 sort: "string",
                 ztype: obj.colType,
+                adjust: data.adjustcol,
                 header: [
                   {
                     text: `${obj.colHeader}<span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span>`,
@@ -97,6 +99,7 @@ class QueryController {
                 editor: "text",
                 sort: "string",
                 ztype: obj.colType,
+                adjust: data.adjustcol,
                 header: [
                   { text: `${obj.colHeader}` },
                   { content: "textFilter" },
@@ -151,6 +154,7 @@ class QueryController {
               id: obj.colName,
               editor: "text",
               ztype: obj.colType,
+              adjust: data.adjustcol,
               header: [
                 { text: `${obj.colHeader}` },
                 { content: "textFilter" },

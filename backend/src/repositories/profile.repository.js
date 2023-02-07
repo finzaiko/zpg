@@ -19,7 +19,7 @@ class ProfileRepository {
     let sql = `SELECT ${fields}, user.fullname FROM profile JOIN user ON user.id=profile.user_id WHERE type=? ${andWhere}`;
     if (isList) {
       sql =
-        "SELECT profile.id, conn_name  as value, host, database, ssl FROM profile WHERE type=? AND user_id=?";
+        "SELECT profile.id, substr(conn_name,0,30) as value, conn_name, host, database, ssl FROM profile WHERE type=? AND user_id=?";
     }
 
     if(search){
@@ -243,7 +243,6 @@ class ProfileRepository {
   }
 
   async createContent(data) {
-    // console.log(`dataaaaaaaaaaaaaaaaaaaaaaaaaaaa`, data);
     const sql =
       "INSERT INTO profile (title, content, type, user_id) VALUES (NULLIF(?,''),?,?,?)";
     const params = [data.title, data.content, data.type, data.user_id];

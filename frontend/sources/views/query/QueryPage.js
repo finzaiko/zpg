@@ -20,6 +20,7 @@ import {
   LAST_SEARCHTYPE,
   LAST_HISTORY,
   LAST_MULTICONN,
+  LAST_ADJUSTCOLS,
 } from "../../config/setting";
 import { userId } from "../../../../backend/src/test/user-profile.test";
 import { FONT_SIZE_EDITOR } from "../../../../backend/src/config/contant";
@@ -922,6 +923,7 @@ export function QueryPage(prefix, selectedDb) {
               height: "auto",
             },
             url: `${urlProfile}/content?type=2&ls=true`,
+            tooltip:webix.template("#conn_name#"),
             template:
               "#value# <span style='float:right;width:50px;line-height:1.3' class='run_button z_multi_conn_icon webix_button webix_icon mdi mdi-play hover_only'></span>",
             onClick: {
@@ -1791,6 +1793,22 @@ export function QueryPage(prefix, selectedDb) {
                 },
               },
             },
+            {
+              view: "checkbox",
+              id: prefix + "_adjust_cols",
+              labelRight: "AutoFit Columns",
+              tooltip: "Auto adjust column size",
+              name: "ck_adjust_cols",
+              labelWidth: 8,
+              value: state.isAdjustCols,
+              on: {
+                onChange: function (newVal, oldVal) {
+                  state.isAdjustCols = newVal;
+                  // setMinimap();
+                  webix.storage.local.put(LAST_ADJUSTCOLS, newVal);
+                },
+              },
+            },
             { template: "" },
           ],
         },
@@ -1815,10 +1833,15 @@ export function QueryPage(prefix, selectedDb) {
             if (hs) {
               $$(prefix + "_disable_history").setValue(hs);
             }
+            const ac = webix.storage.local.get(LAST_ADJUSTCOLS);
+            if (ac) {
+              $$(prefix + "_adjust_cols").setValue(ac);
+            }
             $$(prefix + "_show_data_type").unblockEvent();
             $$(prefix + "_detach_quick_search").unblockEvent();
             $$(prefix + "_show_minimap").unblockEvent();
             $$(prefix + "_disable_history").unblockEvent();
+            $$(prefix + "_adjust_cols").unblockEvent();
           },
           onHide: function () {
             this.close();
@@ -2021,6 +2044,7 @@ export function QueryPage(prefix, selectedDb) {
       sql: sqlInput,
       dtype: state.isDataType,
       history: state.isDisableHistory, // is store history
+      adjustcol: state.isAdjustCols
     };
     const sourceCmb = $$(prefix + "_source_combo").getValue();
 
@@ -2347,7 +2371,7 @@ export function QueryPage(prefix, selectedDb) {
                     resizeColumn: true,
                     data: rData.data,
                     // data: newArr,
-                    // maxColumnWidth:200,
+                    maxColumnWidth:260,
                     resizeRow: true,
                     pager: prefix + "_result_row_pager",
                     on: {
@@ -2394,6 +2418,14 @@ export function QueryPage(prefix, selectedDb) {
                         // $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
                       },
                     },
+                    ready: function(){
+                      console.log("ready>>>>>>>>>>>>>>>");
+                      const cols = this.config.columns;
+                      cols.forEach(o=>{
+                        this.getColumnConfig(o.id).maxWidth = Number.MAX_SAFE_INTEGER;
+                      })
+
+                    }
                     /*
                     scheme:{
                       $change:function(item){

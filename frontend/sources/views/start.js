@@ -3,7 +3,7 @@ export default {
   template: `
   <div class='z_about_content'>
 		<h3>About:</h3>
-		<p><strong>ZPGTOOL</strong> an experimental side project written with <a href='https://nodejs.org' target='_blank'>NodeJS</a> and <a href='https://webix.com' target='_blank'>Webix</a> (<a href='https://www.npmjs.com/package/webix' target='_blank'>GPL license</a>), inspired by Jenkins and PgAdmin to improve unavailable features to make it simple and easy.<br>
+		<p><strong>ZPG</strong> an experimental side project written with <a href='https://nodejs.org' target='_blank'>NodeJS</a> and <a href='https://webix.com' target='_blank'>Webix</a> (<a href='https://www.npmjs.com/package/webix' target='_blank'>GPL license</a>), inspired by Jenkins and PgAdmin to improve unavailable features to make it simple and easy.<br>
 		For more other functionality of Postgres please use PgAdmin</p>
 		<p>Features idea:
 			<ul>
@@ -46,6 +46,13 @@ export default {
 
 		<section>
 			<h4>Change log:</h4>
+			<p>
+				<h4>0.0.16-dev (07-02-2023)</h4>
+				<ul>
+					<li>feat toast query result</li>
+					<li>feat auto resize column</li>
+				</ul>
+			</p>
 			<p>
 				<h4>0.0.15-dev (23-12-2022)</h4>
 				<ul>

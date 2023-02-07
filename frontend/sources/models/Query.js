@@ -10,6 +10,7 @@ export let state = {
   isSearchDetach: 0,
   isMinimap: 0,
   isDisableHistory: 0,
+  isAdjustCols: 1,
 };
 
 export const url = API_URL + "/" + path;

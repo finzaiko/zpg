@@ -1445,3 +1445,15 @@ background-size: cover;
   font-family: Roboto,sans-serif;
   font-size: 12px;
 }
+
+.copydata_scrollview .webix_overlay {
+  padding: 0;
+}
+
+.z_center_middle {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}

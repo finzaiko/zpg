@@ -1449,7 +1449,6 @@ export function QueryPage(prefix, selectedDb) {
 
                         webix
                           .ajax()
-
                           .put(
                             urlProfile + "/content/" + id,
                             data,

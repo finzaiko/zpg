@@ -1,6 +1,7 @@
 import { JetView } from "webix-jet";
 import { alphabetArr } from "../../helpers/alphabet";
 import { url, state } from "../../models/CopyData";
+import { url as urlQuery } from "../../models/Query";
 import { url as urlProfile } from "../../models/Profile";
 
 const prefix = state + "_page";
@@ -9,7 +10,7 @@ function generateEmptyRow() {
   let columnsName = [],
     dataEmpty = [];
 
-  const panelId = $$(prefix + "_source_scrollview");
+  const panelId = $$(prefix + "_type_source_sheet");
   webix.extend(panelId, webix.OverlayBox);
   panelId.showOverlay(
     `<div class='z_center_middle' style='background:rgba(255,255,255, 0.5); font-size: 14px;'>
@@ -44,6 +45,11 @@ function generateEmptyRow() {
     resizeRow: true,
     columns: columnsName,
     data: dataEmpty,
+    scheme: {
+      $init: function (obj) {
+        obj.index = this.count();
+      },
+    },
   };
 
   const vbodyId = $$(prefix + "_scrollview_body");
@@ -56,7 +62,56 @@ function generateEmptyRow() {
 }
 
 function execQueryType() {
-  webix.message({ text: "Not implemented yet", type: "error" });
+  const bodyData = $$(prefix + "_source_query_result").serialize();
+  console.log("data", bodyData);
+
+  const targetDbId = $$(prefix + "_target_db");
+  const sourceDbId = $$(prefix + "_source_db");
+  const schemaTblId = $$(prefix + "_schema_table");
+  const firstRowId = $$(prefix + "_first_row_column");
+  const typeCopy = $$(prefix + "_source_type").getValue();
+
+  const inputData = {
+    type_copy: typeCopy,
+    source_id: sourceDbId.getValue(),
+    target_id: targetDbId.getValue(),
+    table_name: schemaTblId.getValue(),
+    data: JSON.stringify(bodyData),
+    first_row: firstRowId.getValue(),
+  };
+
+  if (inputData.source_id.length <= 0) {
+    webix.html.addCss(sourceDbId.getNode(), "webix_invalid");
+    return webix.message({ text: "Source DB required", type: "error" });
+  } else {
+    webix.html.removeCss(sourceDbId.$view, "webix_invalid");
+  }
+
+  if (inputData.target_id.length <= 0) {
+    webix.html.addCss(targetDbId.getNode(), "webix_invalid");
+    return webix.message({ text: "Target DB required", type: "error" });
+  } else {
+    webix.html.removeCss(targetDbId.$view, "webix_invalid");
+  }
+
+  if (inputData.table_name.length <= 0) {
+    webix.html.addCss(schemaTblId.getNode(), "webix_invalid");
+    return webix.message({ text: "Table name required", type: "error" });
+  } else {
+    webix.html.removeCss(schemaTblId.$view, "webix_invalid");
+  }
+
+  webix
+    .ajax()
+    .post(`${url}/runcopy`, inputData)
+    .then(function (data) {
+      console.log("data", data.json());
+
+      webix.message({
+        text: "Data copied",
+        type: "success",
+      });
+    });
 }
 
 function execSpreadsheetType() {
@@ -72,7 +127,7 @@ function execSpreadsheetType() {
   });
 
   // Filter data by key filtered
-  const inputData = data
+  const bodyData = data
     .map((jsonData) =>
       Object.fromEntries(
         Object.entries(jsonData).filter(([key, value]) =>
@@ -81,30 +136,154 @@ function execSpreadsheetType() {
       )
     )
     .filter((e) => Object.values(e).join(""));
-  if (inputData.length > 0) {
-    console.log("newData: ", inputData);
+  if (bodyData.length > 0) {
+    console.log("newData: ", bodyData);
   } else {
     webix.message({ text: "Nothing to copy !", type: "error" });
   }
 
+  const targetDbId = $$(prefix + "_target_db");
+  const sourceDbId = $$(prefix + "_source_db");
+  const schemaTblId = $$(prefix + "_schema_table");
+  const firstRowId = $$(prefix + "_first_row_column");
+  const typeCopy = $$(prefix + "_source_type").getValue();
+
+  const inputData = {
+    type_copy: typeCopy,
+    source_id: sourceDbId.getValue(),
+    target_id: targetDbId.getValue(),
+    table_name: schemaTblId.getValue(),
+    data: JSON.stringify(bodyData),
+    first_row: firstRowId.getValue(),
+  };
+
+  if (inputData.source_id.length <= 0) {
+    webix.html.addCss(sourceDbId.getNode(), "webix_invalid");
+    return webix.message({ text: "Source DB required", type: "error" });
+  } else {
+    webix.html.removeCss(sourceDbId.$view, "webix_invalid");
+  }
+
+  if (inputData.target_id.length <= 0) {
+    webix.html.addCss(targetDbId.getNode(), "webix_invalid");
+    return webix.message({ text: "Target DB required", type: "error" });
+  } else {
+    webix.html.removeCss(targetDbId.$view, "webix_invalid");
+  }
+
+  if (inputData.table_name.length <= 0) {
+    webix.html.addCss(schemaTblId.getNode(), "webix_invalid");
+    return webix.message({ text: "Table name required", type: "error" });
+  } else {
+    webix.html.removeCss(schemaTblId.$view, "webix_invalid");
+  }
+
   webix
-  .ajax()
-  .post(`${url}/save_result`, inputData)
-  .then(function (data) {
-    webix.message({
-      text: "Data saved",
-      type: "success",
+    .ajax()
+    .post(`${url}/runcopy`, inputData)
+    .then(function (data) {
+      console.log("data", data.json());
+
+      webix.message({
+        text: "Data copied",
+        type: "success",
+      });
     });
-  });
 }
 
 function applyCopy() {
-  const st = $$(prefix + "_source_type").getValue();
-  if (st == "query") {
-    execQueryType();
-  } else {
-    execSpreadsheetType();
+  webix.confirm({
+    ok: "Yes",
+    cancel: "No",
+    text: "Are you sure to execute this action ?",
+    callback: function (result) {
+      if (result) {
+        const st = $$(prefix + "_source_type").getValue();
+        if (st == "query") {
+          execQueryType();
+        } else {
+          execSpreadsheetType();
+        }
+      }
+    },
+  });
+}
+
+function runQuery(
+  panelId,
+  scrollBodyId,
+  inputSourceId,
+  sqlInputId,
+  dynamicTableId,
+  checkLimit
+) {
+  const inputSourceVal = inputSourceId.getValue();
+  const sqlInputVal = sqlInputId.getValue();
+
+  if (inputSourceVal.trim().length == 0 || sqlInputVal.trim().length == 0) {
+    return webix.message({
+      text: `${inputSourceId.config.placeholder} or SQL query required`,
+      type: "error",
+    });
   }
+
+  if (checkLimit && !sqlInputVal.toLowerCase().includes("limit")) {
+    return webix.message({
+      text: "For performance reason, you must LIMIT your query,<br>eg: SELECT * FROM user LIMIT 1",
+      type: "error",
+    });
+  }
+
+  let input = {
+    source_id: inputSourceVal,
+    sql: sqlInputVal,
+    dtype: 0,
+    history: 1,
+    adjustcol: 0,
+    filter: 0,
+  };
+
+  webix.extend(panelId, webix.ProgressBar);
+  panelId.showProgress({
+    type: "icon",
+    icon: "mdi mdi-loading z_mdi_loader",
+  });
+  panelId.disable();
+
+  webix
+    .ajax()
+    .post(urlQuery + "/run", input)
+    .then((r) => {
+      let rData = r.json();
+
+      if (typeof rData.error != "undefined") {
+        webix.message({ text: rData.error, type: "error" });
+        panelId.hideProgress();
+        panelId.enable();
+        return;
+      }
+      const newView = {
+        view: "datatable",
+        id: dynamicTableId,
+        select: "row",
+        css: "z_query_result_grid",
+        columns: rData.config,
+        resizeColumn: true,
+        data: rData.data,
+        resizeRow: true,
+      };
+
+      let views = scrollBodyId.getChildViews();
+      if (views[0]) {
+        scrollBodyId.removeView(views[0]);
+      }
+      scrollBodyId.addView(newView);
+      panelId.hideProgress();
+      panelId.enable();
+    })
+    .fail((e) => {
+      webix.message({ text: e, type: "error" });
+    });
 }
 
 export default class CopyDataPage extends JetView {
@@ -128,18 +307,16 @@ export default class CopyDataPage extends JetView {
           on: {
             onChange: function (id, val) {
               if (id == "query") {
-                $$("copysourcecombo").show();
-                $$(prefix + "_source_editor").show();
-                $$(prefix + "_source_scrollview").hide();
-                $$(prefix + "_schema_table").hide();
-                $$(prefix + "_first_row_header").hide();
+                $$(prefix + "_source_db").show();
+                $$(prefix + "_type_source_query").show();
+                $$(prefix + "_type_source_sheet").hide();
+                $$(prefix + "_first_row_column").hide();
                 $$(prefix + "_row_count").hide();
               } else {
-                $$("copysourcecombo").hide();
-                $$(prefix + "_source_editor").hide();
-                $$(prefix + "_source_scrollview").show();
-                $$(prefix + "_schema_table").show();
-                $$(prefix + "_first_row_header").show();
+                $$(prefix + "_source_db").hide();
+                $$(prefix + "_type_source_query").hide();
+                $$(prefix + "_type_source_sheet").show();
+                $$(prefix + "_first_row_column").show();
                 $$(prefix + "_row_count").show();
                 generateEmptyRow();
               }
@@ -148,7 +325,7 @@ export default class CopyDataPage extends JetView {
         },
         {
           view: "combo",
-          id: "copysourcecombo",
+          id: prefix + "_source_db",
           placeholder: "Source DB",
           width: 200,
           options: {
@@ -162,26 +339,23 @@ export default class CopyDataPage extends JetView {
           },
         },
         {
-          view: "combo",
-          id: "copytargetcombo",
-          width: 200,
-          placeholder: "Target DB",
-          options: {
-            url: `${urlProfile}/content?type=2&ls=true`,
-            on: {
-              onBeforeShow: function () {},
-            },
+          view: "button",
+          type: "icon",
+          css: "zmdi_padding",
+          icon: "mdi mdi-play",
+          id: prefix + "_run_source_btn",
+          tooltip: "Run source query",
+          autowidth: true,
+          click: function () {
+            runQuery(
+              $$(prefix + "_source_panel"),
+              $$(prefix + "_scrollview_source"),
+              $$(prefix + "_source_db"),
+              $$(prefix + "_source_editor"),
+              prefix + "_source_query_result",
+              false
+            );
           },
-          on: {
-            onChange: function (id, val) {},
-          },
-        },
-        {
-          view: "text",
-          width: 150,
-          placeholder: "schema.table",
-          id: prefix + "_schema_table",
-          hidden: true,
         },
         {
           view: "combo",
@@ -200,21 +374,13 @@ export default class CopyDataPage extends JetView {
         },
         {
           view: "checkbox",
-          labelRight: "First row as Header",
-          id: prefix + "_first_row_header",
+          labelRight: "First row as Column",
+          id: prefix + "_first_row_column",
           hidden: true,
           tooltip: "First row as Header",
           labelWidth: 8,
           width: 150,
           value: 0,
-        },
-        {
-          view: "button",
-          autowidth: true,
-          value: "Apply copy",
-          click: function () {
-            applyCopy();
-          },
         },
       ],
     };
@@ -224,18 +390,31 @@ export default class CopyDataPage extends JetView {
       rows: [
         toolbar,
         {
+          id: prefix + "_source_panel",
           cols: [
             {
-              view: "monaco-editor",
-              id: prefix + "_source_editor",
-              language: "sql",
-              minimap: {
-                enabled: false,
-              },
+              id: prefix + "_type_source_query",
+              cols: [
+                {
+                  view: "monaco-editor",
+                  id: prefix + "_source_editor",
+                  language: "sql",
+                  minimap: {
+                    enabled: false,
+                  },
+                },
+                {
+                  view: "resizer",
+                },
+                {
+                  id: prefix + "_scrollview_source",
+                  rows: [],
+                },
+              ],
             },
             {
               view: "scrollview",
-              id: prefix + "_source_scrollview",
+              id: prefix + "_type_source_sheet",
               hidden: true,
               css: "copydata_scrollview",
               scroll: false,
@@ -247,7 +426,93 @@ export default class CopyDataPage extends JetView {
           ],
         },
         {
-          template: "Target: Result datatable",
+          view: "resizer",
+        },
+        {
+          id: prefix + "_target_panel",
+          rows: [
+            {
+              view: "toolbar",
+              elements: [
+                {
+                  view: "label",
+                  label: "To",
+                  width: 30,
+                  css: "z_label_size_9pt",
+                },
+                {
+                  view: "combo",
+                  id: prefix + "_target_db",
+                  width: 200,
+                  placeholder: "Target DB",
+                  options: {
+                    url: `${urlProfile}/content?type=2&ls=true`,
+                    on: {
+                      onBeforeShow: function () {},
+                    },
+                  },
+                  on: {
+                    onChange: function (id, val) {},
+                  },
+                },
+                {
+                  view: "text",
+                  width: 150,
+                  placeholder: "schema.table",
+                  id: prefix + "_schema_table",
+                },
+                {
+                  view: "button",
+                  type: "icon",
+                  css: "zmdi_padding",
+                  icon: "mdi mdi-play",
+                  id: prefix + "_run_target_btn",
+                  tooltip: "Run target query",
+                  autowidth: true,
+                  click: function () {
+                    runQuery(
+                      $$(prefix + "_target_panel"),
+                      $$(prefix + "_scrollview_target"),
+                      $$(prefix + "_target_db"),
+                      $$(prefix + "_target_editor"),
+                      prefix + "_target_query_result",
+                      true
+                    );
+                  },
+                },
+                { width: 20 },
+                {
+                  view: "button",
+                  type: "icon",
+                  icon: "mdi mdi-check-bold",
+                  autowidth: true,
+                  label: "Apply Copy",
+                  click: function () {
+                    applyCopy();
+                  },
+                },
+              ],
+            },
+            {
+              cols: [
+                {
+                  view: "monaco-editor",
+                  id: prefix + "_target_editor",
+                  language: "sql",
+                  minimap: {
+                    enabled: false,
+                  },
+                },
+                {
+                  view: "resizer",
+                },
+                {
+                  id: prefix + "_scrollview_target",
+                  rows: [],
+                },
+              ],
+            },
+          ],
         },
       ],
     };

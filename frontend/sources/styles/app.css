@@ -984,6 +984,10 @@ div.webix_list_item:hover .hoverButton {
   padding-top: 2px;
 }
 
+.zmdi_padding_lbl_icon .webix_icon_btn {
+  padding-top: 2px;
+}
+
 /* PAGER */
 .webix_pager.z-pager-aligned {
   text-align: right;
@@ -1456,4 +1460,9 @@ background-size: cover;
   justify-content: center;
   flex-direction: column;
   align-items: center;
+}
+
+
+.z_label_size_9pt .webix_el_box{
+  font-size: 9pt !important;
 }

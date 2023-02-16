@@ -1449,6 +1449,7 @@ export function QueryPage(prefix, selectedDb) {
 
                         webix
                           .ajax()
+
                           .put(
                             urlProfile + "/content/" + id,
                             data,
@@ -2418,7 +2419,7 @@ export function QueryPage(prefix, selectedDb) {
                       },
                     },
                     ready: function(){
-                      console.log("ready>>>>>>>>>>>>>>>");
+                      // console.log("ready>>>>>>>>>>>>>>>");
                       const cols = this.config.columns;
                       cols.forEach(o=>{
                         this.getColumnConfig(o.id).maxWidth = Number.MAX_SAFE_INTEGER;

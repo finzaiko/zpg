@@ -67,17 +67,23 @@ function execQueryType() {
 
   const targetDbId = $$(prefix + "_target_db");
   const sourceDbId = $$(prefix + "_source_db");
+  const sourceQueryId = $$(prefix + "_source_editor");
+  const targetQueryId = $$(prefix + "_target_editor");
   const schemaTblId = $$(prefix + "_schema_table");
   const firstRowId = $$(prefix + "_first_row_column");
   const typeCopy = $$(prefix + "_source_type").getValue();
+  const tableExist = $$(prefix + "_table_exist").getValue();
 
   const inputData = {
     type_copy: typeCopy,
     source_id: sourceDbId.getValue(),
     target_id: targetDbId.getValue(),
+    source_query: sourceQueryId.getValue(),
+    target_target: targetQueryId.getValue(),
     table_name: schemaTblId.getValue(),
-    data: JSON.stringify(bodyData),
+    data_source: JSON.stringify(bodyData),
     first_row: firstRowId.getValue(),
+    table_exist: tableExist,
   };
 
   if (inputData.source_id.length <= 0) {
@@ -456,6 +462,27 @@ export default class CopyDataPage extends JetView {
                   },
                 },
                 {
+                  view: "combo",
+                  id: prefix + "_table_exist",
+                  width: 120,
+                  placeholder: "select..",
+                  options: [
+                    {id: 1, value: "table exist"},
+                    {id: 2, value: "table not exist"},
+                  ],
+                  on: {
+                    onChange: function (id, val) {
+                      if(id==1){
+                        $$(prefix + "_target_editor").setValue($$(prefix + "_source_editor").getValue());
+                        $$(prefix + "_target_editor").enable();
+                      }else{
+                        $$(prefix + "_target_editor").setValue("")
+                        $$(prefix + "_target_editor").disable();
+                      }
+                    },
+                  },
+                },
+                {
                   view: "text",
                   width: 150,
                   placeholder: "schema.table",
@@ -486,6 +513,7 @@ export default class CopyDataPage extends JetView {
                   type: "icon",
                   icon: "mdi mdi-check-bold",
                   autowidth: true,
+                  // disabled: true,
                   label: "Apply Copy",
                   click: function () {
                     applyCopy();

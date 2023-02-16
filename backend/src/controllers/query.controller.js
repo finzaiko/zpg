@@ -25,11 +25,6 @@ class QueryController {
     if (!request.body.sql) {
       errors.push("No Conn Name specified");
     }
-    let isFilter = 1;
-    if(typeof request.body.filter!="undefined"){
-      isFilter = request.body.filter;
-    }
-
     let data = {
       source_id: request.body.source_id,
       sql: request.body.sql,
@@ -38,7 +33,6 @@ class QueryController {
       dropreplace: request.body.dropreplace,
       history: request.body.history,
       adjustcol: request.body.adjustcol,
-      filter: isFilter
     };
 
     let rcb = [];
@@ -80,48 +74,36 @@ class QueryController {
           // if (r.dType) {
           if (data.dtype==1) {
             tableConfig = columnDef.map((obj) => {
-
-              let headerDef = [
-                {
-                  text: `${obj.colHeader}<span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span>`,
-                  height: 42,
-                  css: "z_multiline_header",
-                },
-                {
-                  content: "textFilter",
-                },
-              ];
-
-              if(data.filter==0){
-                headerDef = [{
-                  text: `${obj.colHeader}<span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span>`,
-                }];
-              }
-
               return {
                 id: obj.colName,
                 editor: "text",
                 sort: "string",
                 ztype: obj.colType,
                 adjust: data.adjustcol,
-                header: headerDef,
+                header: [
+                  {
+                    text: `${obj.colHeader}<span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span>`,
+                    height: 42,
+                    css: "z_multiline_header",
+                  },
+                  {
+                    content: "textFilter",
+                  },
+                ],
               };
             });
           } else {
             tableConfig = columnDef.map((obj) => {
-
               return {
                 id: obj.colName,
                 editor: "text",
                 sort: "string",
                 ztype: obj.colType,
                 adjust: data.adjustcol,
-                header: data.filter==1 ? [
-                  { text: `${obj.colHeader}`},
+                header: [
+                  { text: `${obj.colHeader}` },
                   { content: "textFilter" },
-                ] :
-                [{ text: `${obj.colHeader}`}]
-                ,
+                ],
               };
             });
           }
@@ -173,16 +155,10 @@ class QueryController {
               editor: "text",
               ztype: obj.colType,
               adjust: data.adjustcol,
-              // header: [
-              //   { text: `${obj.colHeader}` },
-              //   { content: "textFilter" },
-              // ],
-              header: data.filter==1 ? [
-                { text: `${obj.colHeader}`},
+              header: [
+                { text: `${obj.colHeader}` },
                 { content: "textFilter" },
-              ] :
-              [{ text: `${obj.colHeader}`}]
-              ,
+              ],
             };
           });
 

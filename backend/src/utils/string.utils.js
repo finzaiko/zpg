@@ -10,4 +10,68 @@ const randomString = (length) => {
   return result;
 };
 
-module.exports = { randomString };
+const getObjectKeyName = (obj) => {
+  let field = [];
+  Object.entries(obj).forEach((entry) => {
+    const [key, value] = entry;
+    field.push(key);
+  });
+  // return field.join(",");
+  return field;
+};
+
+const getSqlStringTypeFromArray = (
+  data,
+  schema,
+  table,
+  first_row,
+  typeField
+) => {
+  console.log("data", data);
+
+  // let parsedData = JSON.parse(data);
+  let parsedData = data;
+  let frName;
+  if (first_row) {
+    frName = Object.values(parsedData[0]);
+    parsedData.shift();
+  }
+  let sqlAll = [];
+  parsedData.forEach((o) => {
+    let field = [],
+      val = [];
+    Object.entries(o).forEach((entry) => {
+      const [key, value] = entry;
+      if (typeof typeField != "undefined") {
+        field.push(`"${key}"`);
+        const tt = typeField.find((tp) => tp.column_name == key);
+        switch (tt.data_type) {
+          case "integer":
+          case "boolean":
+            val.push(`${value}`);
+            break;
+          default:
+            val.push(`'${value}'`);
+            break;
+        }
+
+      } else {
+        field.push(`"${key}"`);
+        val.push(`'${value}'`);
+      }
+    });
+
+    let sqlField = field.join(",");
+    if (first_row) {
+      sqlField = frName.join(",");
+    }
+
+    const sqlValue = val.join(",");
+    const oneSql = `INSERT INTO ${schema}.${table} (${sqlField}) VALUES (${sqlValue});`;
+    sqlAll.push(oneSql);
+  });
+
+  return sqlAll;
+};
+
+module.exports = { randomString, getObjectKeyName, getSqlStringTypeFromArray };

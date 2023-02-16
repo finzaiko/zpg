@@ -4,7 +4,16 @@ const { Pool } = require("pg");
 const async = require("async");
 
 class CopydataRepository {
-  async runCopy(type_copy, profileId, userId, table_name, first_row, data, table_exist) {
+
+  async runCopy(
+    type_copy,
+    profileId,
+    userId,
+    table_name,
+    first_row,
+    data,
+    table_exist
+  ) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
@@ -18,9 +27,7 @@ class CopydataRepository {
 
         let sqlAll = "";
         if (type_copy == "query") {
-
-          if(table_exist==1){
-
+          if (table_exist == 1) {
           }
           // TODO:
 
@@ -47,15 +54,9 @@ class CopydataRepository {
             const oneSql = `INSERT INTO ${schema}.${table} (${sqlField}) VALUES (${sqlValue});`;
             sqlAll.push(oneSql);
           });
-          console.log('sqlAll',sqlAll);
-
+          console.log("sqlAll", sqlAll);
         } else {
-          sqlAll = this.getSqlSpreadsheetType(
-            data,
-            schema,
-            table,
-            first_row
-          );
+          sqlAll = this.getSqlSpreadsheetType(data, schema, table, first_row);
         }
 
         console.log("sqlAll", sqlAll);

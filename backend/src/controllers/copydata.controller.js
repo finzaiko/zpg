@@ -6,7 +6,7 @@ class CopydataController {
     const r = await CopydataService.runCopy(userId, request.body);
     console.log("r", r);
 
-    reply.send({ status: "ok" });
+    reply.send(r);
   }
 }
 

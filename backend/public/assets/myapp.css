@@ -215,9 +215,9 @@ div.webix_list_item:hover .hoverButton {
 .z_multi_conn_icon:hover {
   background: #dddddd !important;
 }
-.z_out_template div.webix_template {
-  /* padding: 0; */
-}
+/* .z_out_template div.webix_template {
+   padding: 0;
+} */
 /* Query loading-------------- */
 .wait,
 .wait * {
@@ -433,6 +433,23 @@ div.webix_list_item:hover .hoverButton {
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
+@keyframes spin_mdi_right {
+  from {
+    transform: rotate(-360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+.spin_mdi_right {
+  animation-name: spin_mdi_right;
+  animation-duration: 3000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+.z_mdi_splin_color {
+  color: orange !important;
+}
 .z_tree_d_open,
 .z_db_tree .webix_selected {
   color: #ac9230 !important;
@@ -446,10 +463,22 @@ div.webix_list_item:hover .hoverButton {
 .z_db_tree .webix_selected {
   color: #89c4ed !important;
 }
+.z_tree_r_open,
+.z_tree_w_open,
+.z_db_tree .webix_selected {
+  color: #109afc !important;
+}
 .z_tree_t_open,
 .z_tree_u_open,
 .z_db_tree .webix_selected {
   color: #82940b !important;
+  /* #834EC7 */
+  /* #B0D73D */
+}
+.z_tree_v_open,
+.z_tree_y_open,
+.z_db_tree .webix_selected {
+  color: #d3cf07 !important;
   /* #834EC7 */
   /* #B0D73D */
 }
@@ -816,5 +845,331 @@ div.webix_list_item:hover .hoverButton {
 }
 .z_generator_list .webix_list_item {
   cursor: pointer;
+}
+.z_tab_about .webix_template {
+  overflow: hidden;
+}
+.z_tab_about .webix_template:hover {
+  overflow-y: scroll;
+}
+.zheader .app_button button span {
+  margin-left: 5px !important;
+}
+/* https://bg.siteorigin.com/?color=%232AA062&pattern=arches&blend=4&intensity=10&noise=0&invert=0&2x=0 */
+/* https://bggenerator.com/index.php */
+/*
+.z_app_tabview .webix_el_tabbar{
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: black url("http://localhost:8000/assets/tabbar-bg5.png") !important;
+  background-repeat:repeat;
+  background-position: center center;
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+}
+
+.webix_item_tab.z_tabview_item{
+  background-color: rgba(255,255,255,0.3) ;
+  color: white;
+}
+.z_app_tabview div.webix_item_tab.webix_selected{
+  background-color: rgba(255,255,255,0.6);
+  color: white;
+}
+.z_app_tabview div.webix_item_tab.webix_selected:hover{
+  background-color: rgba(255,255,255,0.6);
+  color: white;
+}
+.z_app_tabview.webix_layout_line div.webix_item_tab.webix_selected{
+  color: white;
+}
+.z_app_tabview .webix_item_tab:hover{
+  background-color: rgba(255,255,255,0.6);
+}
+.z_app_tabview .webix_item_tab{
+  background-color: rgba(255,255,255,0.3);
+  color: white;
+}
+.webix_item_tab.z_tabview_item.webix_selected:hover {
+  background-color: rgba(255,255,255,0.5);
+}
+.webix_item_tab.z_tabview_item.webix_selected{
+  background-color: rgba(255,255,255,0.6);
+}
+
+.zheader.webix_layout_toolbar{
+  background:url("http://localhost:8000/assets/tabbar-bg5.png") rgba(0, 0, 0, 0.3);
+}
+
+.zheader.webix_layout_toolbar .app_header{
+  background-color: transparent;
+  color: white !important;
+}
+*/
+.search_suggest_detach input {
+  font-size: 16px;
+  /* text-align: center !important; */
+}
+.search_suggest_detach_item .webix_list .webix_list_item {
+  /* height: 38px !important; */
+  font-size: 14px;
+  line-height: 2.3;
+  /* line-height: 1; */
+}
+.webix_list .webix_list_item.webix_selected {
+  background-color: #f4f5f9 !important;
+  color: #1ca1c1;
+}
+.myGlyphMarginClass {
+  background: green !important;
+}
+.myContentClass {
+  background: #ebf1dc !important;
+}
+.breakpointStyle {
+  background: #ff5c4c !important;
+}
+/*
+.rightLineDecoration {
+	background: red !important;
+}
+*/
+.z_tabbar_result .webix_layout_line {
+  border-bottom-width: 1px !important;
+}
+.z_console_editor_panel {
+  border: 1px solid #dadee0;
+}
+.z_query_sidemenu_right {
+  margin-left: 0 !important;
+}
+.z_query_detail_cell textarea {
+  font-family: Courier New, sans-serif;
+  font-size: 14px;
+}
+.z_list_cursor_pointer {
+  cursor: pointer;
+}
+.z_db_tree_filter input {
+  border: none !important;
+}
+.animated-check {
+  height: 1.2em;
+  width: 1.2em;
+}
+.animated-check path {
+  fill: none;
+  stroke: #1CA1C1;
+  stroke-width: 4;
+  stroke-dasharray: 23;
+  stroke-dashoffset: 23;
+  animation: draw 500ms linear forwards;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.animated-check-white {
+  height: 1.2em;
+  width: 1.2em;
+}
+.animated-check-white path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 4;
+  stroke-dasharray: 23;
+  stroke-dashoffset: 23;
+  animation: draw 500ms linear forwards;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.z_icon_color_primary .webix_icon {
+  color: #1CA1C1;
+}
+.z_icon_color_primary .webix_icon:hover {
+  color: #0a8dad;
+}
+.z_icon_size_16 .webix_icon {
+  font-size: 16px;
+  line-height: 19px;
+}
+.z_icon_size_17 .webix_icon {
+  font-size: 17px;
+}
+.z_icon_size_18 .webix_icon {
+  font-size: 18px;
+}
+/* Syntax highlighted */
+.z_query_detail_cell pre {
+  font-size: 14px;
+  margin: 0;
+}
+.string {
+  color: green;
+}
+.number {
+  color: darkorange;
+}
+.boolean {
+  color: blue;
+}
+.null {
+  color: magenta;
+}
+.key {
+  color: red;
+}
+.z_app_sidebar .webix_template:hover {
+  cursor: pointer;
+  color: #1CA1C1;
+}
+.z_red_row {
+  background-color: #FFAAAA;
+  /* #ffeeee */
+}
+.z_orange_row {
+  background-color: #ffe08a;
+}
+.z_cell_null::before {
+  /* .z_cell_null { */
+  content: "[null]";
+  color: #b6b6b6;
+  /* background-color: yellow; */
+}
+.z_query_result_grid .webix_hcell {
+  border-right: 1px solid #e1e1e1 !important;
+}
+.z_changes_cell_result {
+  font-weight: bold;
+  /* color: #1CA1C1 !important; */
+}
+.z_sent_share {
+  color: #31d931;
+}
+.z_receive_share {
+  color: #ff4848;
+}
+.z_primary_color,
+.z_primary_color .webix_icon {
+  color: #1CA1C1 !important;
+}
+.z_fontsize_18 {
+  font-size: 18px !important;
+}
+.z_share_remove_icon {
+  color: #ececec;
+  float: right;
+  margin-top: 2px;
+}
+.z_share_remove_icon:hover {
+  color: red !important;
+  cursor: pointer;
+}
+.z_share_list .webix_list_item {
+  cursor: default;
+}
+/* Loading spinner overlay --------*/
+.z_overlay_progress {
+  background-color: #fff;
+  opacity: 0.6;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 95;
+}
+.z_overlay_progress .z_overlay_progress_state {
+  font-size: 18px;
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  margin-left: auto;
+  margin-top: auto;
+  display: inline-block;
+  left: 0;
+  right: 0;
+  color: #898d93;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.z_overlay_progress .z_overlay_progress_state .z_loading_spinner {
+  pointer-events: none;
+  margin-right: 6px;
+  width: 25px;
+  height: 25px;
+  border: 5px solid transparent;
+  border-color: #e3e3e3;
+  border-top-color: #ddaa88;
+  border-radius: 50%;
+  -webkit-animation: loadingspin 1s linear infinite;
+  animation: loadingspin 1s linear infinite;
+}
+@-webkit-keyframes loadingspin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes loadingspin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+/* END: Loading spinner overlay --------*/
+.z_navbar_brand .webix_el_box {
+  color: #fff !important;
+}
+.z_navbar_viewshare {
+  background: #ddaa88;
+  background: linear-gradient(90deg, #ddaa88 21%, #eebb99 93%);
+}
+.copied_done {
+  background: transparent;
+}
+.copied_done .webix_template {
+  padding: 8px;
+  color: #fff !important;
+}
+.copied_done .webix_template .animated-check {
+  color: #fff !important;
+}
+.z_icon_white .webix_icon {
+  color: #fff !important;
+}
+.z_icon_white .webix_icon:hover,
+.z_icon_white .webix_icon_button:hover {
+  color: #ddaa88 !important;
+}
+.z_label_normal_white div.webix_el_box {
+  font-weight: normal !important;
+  font-size: 12px !important;
+  color: #fff !important;
+}
+.z_label_normal div.webix_el_box {
+  font-weight: normal !important;
+  font-size: 12px !important;
+}
+.z_confirm_del_head .webix_win_head {
+  border-bottom: none;
+  background: #fdbf4c;
+}
+.z_read_bold {
+  font-weight: bold;
+}
+.blink_me {
+  animation: blinker 1s linear infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
 }
 

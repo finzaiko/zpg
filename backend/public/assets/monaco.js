@@ -5,7 +5,7 @@ webix.protoUI({
 		language:"sql",
 		// theme: "vs-dark",
 		renderLineHighlight: "none",
-		fontSize: "12px",
+		fontSize: "14px",
 		// lineNumbers: "off",
 		roundedSelection: false,
 		scrollBeyondLastLine: false,
@@ -21,7 +21,7 @@ webix.protoUI({
 		hideCursorInOverviewRuler: true,
 
 		scrollbar: {
-			// vertical: "hidden",
+		vertical: "hidden",
 		},
 		minimap: {
 		enabled: false,
@@ -38,11 +38,11 @@ webix.protoUI({
 			return;
 		};
 
-		var cdn = this.config.cdn || "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.18.0/min/";
+		var cdn = this.config.cdn || "http://localhost:9000/assets/monaco-editor/";
 
 		webix.require(cdn + "vs/loader.js")
 		.then(webix.bind(function(){
-			require.config({ paths: { 'vs': cdn+"vs/" }});
+			require.config({ paths: { 'vs': cdn+"vs" }});
 			window.MonacoEnvironment = {
 				getWorkerUrl: function(workerId, label) {
 				  return "data:text/javascript;charset=utf-8,"+
@@ -79,7 +79,7 @@ webix.protoUI({
 
 			this._waitEditor.resolve(this._editor);
 		}, this));
-
+		
 		if (this._focus_await)
 			this._editor.focus();
 	},

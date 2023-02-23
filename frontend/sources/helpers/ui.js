@@ -275,7 +275,7 @@ export function getTextWith(txt, font) {
 
 export function showToast(msg, type) {
   let typeMsg = "toasify_success";
-  if(typeof type!="undefined"){
+  if (typeof type != "undefined") {
     typeMsg = type;
   }
   Toastify({
@@ -288,4 +288,59 @@ export function showToast(msg, type) {
     stopOnFocus: true, // Prevents dismissing of toast on hover
     className: typeMsg,
   }).showToast();
+}
+
+export function showLoadingText(viewId, text) {
+  webix.html.addCss(viewId.$view, "padding_overlay_zero");
+  webix.extend(viewId, webix.OverlayBox);
+  viewId.showOverlay(
+    `<div class='z_loading_panel'>
+        <div class="laoder-spinner-container">
+            <div class="loader-spinner"></div>
+        </div>
+        <div class='z_loading_text'>${text}</div>
+    </div>
+`
+  );
+}
+
+export function stripHtml(dirtyString) {
+  const doc = new DOMParser().parseFromString(dirtyString, "text/html");
+  return (doc.body.textContent || "").replace(/(\r\n|\n|\r|\s\s+)/gm, " ");
+}
+
+export function showAlert(msg) {
+  webix.alert({
+    type: "alert-error",
+    title: "ERROR",
+    text: msg,
+  });
+}
+
+export function csvToArray(str, delimiter = ",") {
+  // SOURCE: https://sebhastian.com/read-csv-javascript/
+  // slice from start of text to the first \n index
+  // use split to create an array from string by delimiter
+  const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+
+  // slice from \n index + 1 to the end of the text
+  // use split to create an array of each csv value row
+  const rows = str.slice(str.indexOf("\n") + 1).split("\n");
+
+  // Map the rows
+  // split values from each row into an array
+  // use headers.reduce to create an object
+  // object properties derived from headers:values
+  // the object passed as an element of the array
+  const arr = rows.map(function (row) {
+    const values = row.split(delimiter);
+    const el = headers.reduce(function (object, header, index) {
+      object[header] = values[index];
+      return object;
+    }, {});
+    return el;
+  });
+
+  // return the array
+  return { col_name: headers, data: arr };
 }

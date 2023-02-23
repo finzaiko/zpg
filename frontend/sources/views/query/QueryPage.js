@@ -1,8 +1,7 @@
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 
-import { pagerRow, pageSize, showToast } from "../../helpers/ui";
-import { defaultHeader } from "../../helpers/api";
+import { pagerRow, pageSize, showToast, stripHtml } from "../../helpers/ui";
 import { url as urlDb } from "../../models/Db";
 import { url as urlViewData } from "../../models/ViewData";
 import { state as stateBase } from "../../models/Base";
@@ -26,7 +25,6 @@ import { userId } from "../../../../backend/src/test/user-profile.test";
 import { FONT_SIZE_EDITOR } from "../../../../backend/src/config/contant";
 import { copyToClipboard } from "../../helpers/copy";
 import { url as urlUser } from "../../models/User";
-// import copy from 'copy-text-to-clipboard';
 
 TimeAgo.addDefaultLocale(en);
 let timeAgo = new TimeAgo("en-US");
@@ -446,7 +444,7 @@ export function QueryPage(prefix, selectedDb) {
                     }
 
                     $$(prefix + "_history_toggle").setValue(false);
-                    $$(prefix + "_dbconn_toggle").setValue(false);
+                    $$(prefix + "_multiconn_toggle").setValue(false);
                     $$(prefix + "_search_content_right").show();
 
                     const resultContent = $$(prefix + "_result_content");
@@ -1053,7 +1051,10 @@ export function QueryPage(prefix, selectedDb) {
             id: prefix + "_history_list",
             css: "z_fade_list z_list_cursor_pointer",
             columns: [
-              { id: "title", header: "", fillspace: true },
+              // { id: "title", header: "", fillspace: true },
+              { fillspace: true, template: function (obj) {
+                return obj.title.match(/(.+)/)[0];
+              }},
               {
                 adjust: true,
                 template: function (obj, common, value, column, index) {
@@ -1796,8 +1797,9 @@ export function QueryPage(prefix, selectedDb) {
             {
               view: "checkbox",
               id: prefix + "_adjust_cols",
-              labelRight: "AutoFit Columns",
+              labelRight: "AutoFit Columns \n<span style='font-style:italic;'>(Query result a bit slower)</span>",
               tooltip: "Auto adjust column size",
+              css: "multiline_label_checkbox",
               name: "ck_adjust_cols",
               labelWidth: 8,
               value: state.isAdjustCols,
@@ -2419,12 +2421,12 @@ export function QueryPage(prefix, selectedDb) {
                       },
                     },
                     ready: function(){
-                      // console.log("ready>>>>>>>>>>>>>>>");
-                      const cols = this.config.columns;
-                      cols.forEach(o=>{
-                        this.getColumnConfig(o.id).maxWidth = Number.MAX_SAFE_INTEGER;
-                      })
-
+                      if(state.isAdjustCols){
+                        const cols = this.config.columns;
+                        cols.forEach(o=>{
+                          this.getColumnConfig(o.id).maxWidth = Number.MAX_SAFE_INTEGER;
+                        })
+                      }
                     }
                     /*
                     scheme:{

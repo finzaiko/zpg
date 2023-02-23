@@ -54,7 +54,6 @@ const getSqlStringTypeFromArray = (
             val.push(`'${value}'`);
             break;
         }
-
       } else {
         field.push(`"${key}"`);
         val.push(`'${value}'`);
@@ -74,4 +73,47 @@ const getSqlStringTypeFromArray = (
   return sqlAll;
 };
 
-module.exports = { randomString, getObjectKeyName, getSqlStringTypeFromArray };
+const getTableName = (schemaTable) => {
+  let schema = "public",
+    table = "";
+  if (schemaTable.includes(".")) {
+    const ts = schemaTable.split(".");
+    schema = ts[0];
+    table = ts[1];
+  } else {
+    table = schemaTable;
+  }
+  return { schema, table };
+};
+
+const isJSONString = (str) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
+function JSONToListText(data) {
+  if (typeof data == "object") {
+    let result = [];
+    for (const [key, value] of Object.entries(data)) {
+      result.push(
+        `${key
+          .replace(/_/g, " ")
+          .replace(/\b\S/g, (t) => t.toUpperCase())}: ${value}<br>`
+      );
+    }
+    return result.join("");
+  }
+}
+
+module.exports = {
+  randomString,
+  getObjectKeyName,
+  getSqlStringTypeFromArray,
+  getTableName,
+  isJSONString,
+  JSONToListText
+};

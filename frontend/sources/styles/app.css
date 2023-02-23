@@ -1437,7 +1437,7 @@ background-size: cover;
   background: #ffdedb !important;
   border: 1px solid #ff8d82;
   color: #313131 !important;
-  font-family: Roboto,sans-serif;
+  font-family: Roboto, sans-serif;
   font-size: 12px;
 }
 
@@ -1446,7 +1446,7 @@ background-size: cover;
   border: 1px solid #88dcb6;
   color: #313131 !important;
   margin-right: 10px;
-  font-family: Roboto,sans-serif;
+  font-family: Roboto, sans-serif;
   font-size: 12px;
 }
 
@@ -1463,6 +1463,123 @@ background-size: cover;
 }
 
 
-.z_label_size_9pt .webix_el_box{
+.z_label_size_9pt .webix_el_box {
   font-size: 9pt !important;
+  color: #313131;
+  font-weight: 500;
+}
+
+
+.z_loading_panel {
+  background: rgba(255, 255, 255, .5);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.padding_overlay_zero .webix_overlay {
+  padding: 0 !important;
+}
+
+.laoder-spinner-container {
+  text-align: center;
+}
+
+.loader-spinner {
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  -webkit-animation: rotation .6s infinite linear;
+  -moz-animation: rotation .6s infinite linear;
+  -o-animation: rotation .6s infinite linear;
+  animation: rotation .6s infinite linear;
+  border: 4px solid rgba(28, 161, 193, .15);
+  border-top: 4px solid rgba(28, 161, 193, .8);
+  border-radius: 100%;
+}
+
+.z_loading_text {
+  font-size: 14px;
+}
+
+.font_size14 {
+  font-size: 14px;
+}
+
+
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+@-moz-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+
+  to {
+    -moz-transform: rotate(359deg);
+  }
+}
+
+@-ms-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+
+  to {
+    -moz-transform: rotate(359deg);
+  }
+}
+
+@-o-keyframes rotation {
+  from {
+    -o-transform: rotate(0deg);
+  }
+
+  to {
+    -o-transform: rotate(359deg);
+  }
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+.copy_tabbar_bottom {
+  border-width: 1px 0px 1px !important;
+}
+
+.multiline_label_checkbox .webix_label_right {
+  white-space: pre-wrap;
+  line-height: normal;
+  display: table-cell;
+}
+
+.copydata_spreadsheet .webix_cell_select {
+  border: 1px solid #8cd9ff !important;
+}
+
+.boxline_shadow{
+  border-top-width: 0 !important;
+}
+
+.boxline_shadow .webix_header{
+  box-shadow: inset 0 4px #1CA1C1;
+}
+.copydata_scrollview div.webix_overlay{
+  cursor: pointer;
 }

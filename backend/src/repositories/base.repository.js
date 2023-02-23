@@ -7,7 +7,7 @@ class BaseRepository {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
 
     if (serverCfg.length == 0) {
-      return "No source connection";
+      return { error: true, message: "No source connection" };
     }
     const pgPoolSource = new Pool(serverCfg[0]);
     return pgPoolSource.query(sql);
@@ -36,6 +36,7 @@ class BaseRepository {
     if (serverCfgTarget.length > 0) {
       const pgPool = new Pool(serverCfgTarget[0]);
       const client = await pgPool.connect();
+      let result = { error: false, message: "Copy success" };
       try {
         async.eachSeries(
           sql,
@@ -44,6 +45,7 @@ class BaseRepository {
             client.query(query, (err, results) => {
               if (err) {
                 console.log("ERROR: ", err);
+                result = { error: true, message: ""+err };
               }
             });
             next();
@@ -53,16 +55,20 @@ class BaseRepository {
           }
         );
 
-        await client.query("COMMIT");
+        const commit = await client.query("COMMIT");
+        // console.log('commit>>>>>> ',commit);
+
       } catch (e) {
+
         await client.query("ROLLBACK");
-        throw e;
+        // throw e;
+        result =  { error: true, message: "Copy fail" };
       } finally {
         client.release();
-        return "Ok, all inserted";
+        return result;
       }
     } else {
-      return "No connection batch query";
+      return { error: false, message: "No connection batch query" };
     }
   }
 }

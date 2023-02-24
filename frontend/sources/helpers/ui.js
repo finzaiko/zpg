@@ -344,3 +344,17 @@ export function csvToArray(str, delimiter = ",") {
   // return the array
   return { col_name: headers, data: arr };
 }
+
+export function JSONToListText(data) {
+  if (typeof data == "object") {
+    let result = [];
+    for (const [key, value] of Object.entries(data)) {
+      result.push(
+        `${key
+          .replace(/_/g, " ")
+          .replace(/\b\S/g, (t) => t.toUpperCase())}: ${value}<br>`
+      );
+    }
+    return result.join("");
+  }
+}

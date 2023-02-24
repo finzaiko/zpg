@@ -1,4 +1,4 @@
-import { showLoadingText } from "../../helpers/ui";
+import { showLoadingText, JSONToListText } from "../../helpers/ui";
 import {
   checkTableExist,
   runCopyData,
@@ -163,10 +163,10 @@ export function applyCopyAction() {
             } else {
               confirmCopyData(inputData);
             }
-          } else {
-            // TODO:
-            const sheetData = getSpreadsheetField();
-            console.log("sheetData>>>>>>>", sheetData);
+          } else if (inputData.type_copy == "spreadsheet") {
+            const sheetData = getSpreadsheetField(
+              $$(prefix + "_source_spredsheet")
+            );
 
             if (!table.exists) {
               confirmTableField(
@@ -180,6 +180,23 @@ export function applyCopyAction() {
               inputData.table_exist = true;
               confirmCopyData(inputData);
             }
+          } else if (inputData.type_copy == "uploadcsv") {
+            const sheetData = getSpreadsheetField($$(prefix + "_csv_data"));
+
+            if (!table.exists) {
+              confirmTableField(
+                inputData,
+                sheetData.table_field,
+                sheetData.source_data
+              );
+            } else {
+              inputData.table_field = JSON.stringify(sheetData.table_field);
+              inputData.source_data = JSON.stringify(sheetData.source_data);
+              inputData.table_exist = true;
+              confirmCopyData(inputData);
+            }
+          } else {
+            webix.message({ text: "No type selected", type: "error" });
           }
         }, 1000);
       })
@@ -191,8 +208,8 @@ export function applyCopyAction() {
   }
 }
 
-function getSpreadsheetField() {
-  const data = $$(prefix + "_source_spredsheet").serialize();
+function getSpreadsheetField(sheetSource) {
+  const data = sheetSource.serialize();
   const isFirstRow = $$(prefix + "_first_row_column").getValue();
 
   // Filter only first row has valid key name

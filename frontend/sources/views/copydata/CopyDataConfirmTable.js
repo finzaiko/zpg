@@ -1,6 +1,6 @@
 import { state } from "../../models/CopyData";
-import { getInputData } from "./CopyDataAction";
-import { confirmCreateTableAndCopyData } from "./CopyDataPage";
+import { confirmCreateTableAndCopyData, getInputData } from "./CopyDataAction";
+// import { confirmCreateTableAndCopyData } from "./CopyDataPage";
 const prefix = state + "_page";
 
 export function confirmTableField(inputData, fieldData, spreadsheetData) {

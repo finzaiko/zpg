@@ -243,7 +243,7 @@ function generateEmptyRow() {
   const rowCountSel = parseInt($$(prefix + "_row_count").getValue());
   const rowLength = rowCountSel || 100;
   alphabetArr.forEach((o, i) => {
-    columnsName.push({ id: "col_" + i, header: o });
+    columnsName.push({ id: "col_" + i, header: o, editor: "text" });
   });
 
   let colsName = [];
@@ -261,6 +261,7 @@ function generateEmptyRow() {
     select: "cell",
     multiselect: true,
     blockselect: true,
+    editable: true,
     clipboard: "block",
     css: "webix_data_border webix_header_border copydata_spreadsheet",
     resizeColumn: true,

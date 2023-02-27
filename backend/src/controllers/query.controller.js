@@ -1,6 +1,7 @@
 const profileService = require("../services/profile.service");
 const QueryService = require(`../services/query.service`);
 const { pgType } = require("../utils/pg.util");
+const { msToTime } = require("../utils/string.utils");
 
 class QueryController {
   duplidateFieldId(originalArray) {
@@ -202,8 +203,8 @@ class QueryController {
         let effected = `\n${rc} rows effected.`;
         Object.assign(rd, {
           total_count: rc,
-          message: `${noticeResult}\nQuery successfully in ${et} ms.${effected}\n`,
-          message_toas: `Query successfully in ${et} ms. ${rc} rows effected.`,
+          message: `${noticeResult}\nQuery successfully in ${msToTime(et)}.${effected}\n`,
+          message_toas: `Query successfully in ${msToTime(et)}. ${rc} rows effected.`,
           type_toas: 'success',
         });
 

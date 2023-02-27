@@ -95,10 +95,38 @@ const isJSONString = (str) => {
   return true;
 };
 
+function msToTime(ms) {
+  if (!Number.isInteger(ms)) {
+    return null;
+  }
+  const allocate = (msUnit) => {
+    const units = Math.trunc(ms / msUnit);
+    ms -= units * msUnit;
+    return units;
+  };
+  const tObj = {
+    // weeks: allocate(604800000), // Uncomment for weeks
+    day: allocate(86400000),
+    hour: allocate(3600000),
+    min: allocate(60000),
+    sec: allocate(1000),
+    ms: ms, // remainder
+  };
+
+  let tt = [];
+  Object.entries(tObj).filter(([key, value]) => {
+    if (value > 0) {
+      tt.push(`${value} ${key}`);
+    }
+  });
+  return tt.join(" ");
+}
+
 module.exports = {
   randomString,
   getObjectKeyName,
   getSqlStringTypeFromArray,
   getTableName,
   isJSONString,
+  msToTime,
 };

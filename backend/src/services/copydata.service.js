@@ -4,6 +4,7 @@ const {
   getObjectKeyName,
   getSqlStringTypeFromArray,
   getTableName,
+  msToTime,
 } = require("../utils/string.utils");
 
 class CopydataService {
@@ -130,7 +131,7 @@ class CopydataService {
       const dataCount = sourceData.rows.length;
       const et = new Date().getTime() - startTime;
       result.data_count = dataCount;
-      result.elapsed_time = et;
+      result.elapsed_time = msToTime(et);
       return result;
     } else {
       const sqlSpreadsheet = this.getSqlSpreadsheet(
@@ -149,7 +150,7 @@ class CopydataService {
       const dataCount = JSON.parse(source_data).length;
       const et = new Date().getTime() - startTime;
       result.data_count = dataCount;
-      result.elapsed_time = et;
+      result.elapsed_time = msToTime(et);
       return result;
     }
   }
@@ -215,7 +216,6 @@ class CopydataService {
     }
 
     parsedData.forEach((o) => {
-
       let val = [];
       Object.entries(o).forEach((entry) => {
         const [_, value] = entry;
@@ -254,7 +254,6 @@ class CopydataService {
     let sqlAll = [];
 
     parsedData.forEach((o) => {
-
       let val = [];
       Object.entries(o).forEach((entry) => {
         const [key, value] = entry;

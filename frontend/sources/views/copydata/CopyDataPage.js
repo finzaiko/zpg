@@ -27,10 +27,6 @@ export default class CopyDataPage extends JetView {
                         enabled: false,
                       },
                     },
-                    {
-                      id: prefix + "_scrollview_source",
-                      rows: [],
-                    },
                   ],
                 },
                 // Spreadsheet panel ----------------
@@ -62,7 +58,7 @@ export default class CopyDataPage extends JetView {
                     },
                     {
                       id: prefix + "_uploadcsv_empty",
-                      template: `<div class='z_center_middle font_size14'>Please choose file, first row as field name</div>`,
+                      template: `<div class='z_center_middle font_size14'><div>Please choose file, <span style='text-decoration:underline;'>first row as field name</span></div></div>`,
                     },
                   ],
                 },

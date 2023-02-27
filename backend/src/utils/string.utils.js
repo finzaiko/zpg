@@ -95,25 +95,10 @@ const isJSONString = (str) => {
   return true;
 };
 
-function JSONToListText(data) {
-  if (typeof data == "object") {
-    let result = [];
-    for (const [key, value] of Object.entries(data)) {
-      result.push(
-        `${key
-          .replace(/_/g, " ")
-          .replace(/\b\S/g, (t) => t.toUpperCase())}: ${value}<br>`
-      );
-    }
-    return result.join("");
-  }
-}
-
 module.exports = {
   randomString,
   getObjectKeyName,
   getSqlStringTypeFromArray,
   getTableName,
   isJSONString,
-  JSONToListText
 };

@@ -1,7 +1,6 @@
 import { state } from "../../models/CopyData";
 import { url as urlProfile } from "../../models/Profile";
-import { alphabetArr } from "../../helpers/alphabet";
-import { applyCopyAction } from "./CopyDataAction";
+import { applyCopyAction, sourceTypeChanges } from "./CopyDataAction";
 import { csvToArray } from "../../helpers/ui";
 const prefix = state + "_page";
 
@@ -18,41 +17,13 @@ export default toolbar = {
       labelWidth: 40,
       value: "query",
       options: [
-        { id: "query", value: "Query" },
-        { id: "spreadsheet", value: "Spreadsheet" },
-        { id: "uploadcsv", value: "Upload CSV" },
+        { id: "query", value: "query" },
+        { id: "spreadsheet", value: "spreadsheet" },
+        { id: "csv", value: "csv" },
       ],
       on: {
         onChange: function (id, val) {
-          if (id == "query") {
-            $$(prefix + "_source_db").show();
-            $$(prefix + "_type_source_query").show();
-            $$(prefix + "_type_source_sheet").hide();
-            $$(prefix + "_type_uploadcsv").hide();
-            $$(prefix + "_first_row_column").hide();
-            $$(prefix + "_row_count").hide();
-            $$(prefix + "_uploadcsv_btn").hide();
-            $$(prefix + "_uploadcsv_delimeter").hide();
-          } else if (id == "spreadsheet") {
-            $$(prefix + "_source_db").hide();
-            $$(prefix + "_type_source_query").hide();
-            $$(prefix + "_type_uploadcsv").hide();
-            $$(prefix + "_type_source_sheet").show();
-            $$(prefix + "_first_row_column").show();
-            $$(prefix + "_row_count").show();
-            $$(prefix + "_uploadcsv_btn").hide();
-            $$(prefix + "_uploadcsv_delimeter").hide();
-            generateEmptyRow();
-          } else {
-            $$(prefix + "_type_uploadcsv").show();
-            $$(prefix + "_uploadcsv_btn").show();
-            $$(prefix + "_uploadcsv_delimeter").show();
-            $$(prefix + "_source_db").hide();
-            $$(prefix + "_type_source_sheet").hide();
-            $$(prefix + "_type_source_query").hide();
-            $$(prefix + "_first_row_column").hide();
-            $$(prefix + "_row_count").hide();
-          }
+          sourceTypeChanges(id);
         },
       },
     },
@@ -226,69 +197,6 @@ export default toolbar = {
     },
   ],
 };
-
-function generateEmptyRow() {
-  $$(prefix + "_cancel_action").show();
-  let columnsName = [],
-    dataEmpty = [];
-
-  const panelId = $$(prefix + "_type_source_sheet");
-  webix.extend(panelId, webix.OverlayBox);
-  panelId.showOverlay(
-    `<div class='z_center_middle' style='background:rgba(255,255,255, 0.5); font-size: 14px;'>
-        <div><span style='text-decoration: line-through;'>Copy</span> Paste from Spreadsheet here</div>
-      </div>`
-  );
-
-  const rowCountSel = parseInt($$(prefix + "_row_count").getValue());
-  const rowLength = rowCountSel || 100;
-  alphabetArr.forEach((o, i) => {
-    columnsName.push({ id: "col_" + i, header: o, editor: "text" });
-  });
-
-  let colsName = [];
-  columnsName.forEach((o, i) => {
-    colsName.push([o.id, ""]);
-  });
-
-  for (let i = 1; i <= rowLength; i++) {
-    dataEmpty.push(Object.assign({ id: i }, Object.fromEntries(colsName)));
-  }
-
-  const newView = {
-    view: "datatable",
-    id: prefix + "_source_spredsheet",
-    select: "cell",
-    multiselect: true,
-    blockselect: true,
-    editable: true,
-    clipboard: "block",
-    css: "webix_data_border webix_header_border copydata_spreadsheet",
-    resizeColumn: true,
-    resizeRow: true,
-    columns: columnsName,
-    data: dataEmpty,
-    scheme: {
-      $init: function (obj) {
-        obj.index = this.count();
-      },
-    },
-  };
-
-  const vbodyId = $$(prefix + "_scrollview_body");
-  const views = vbodyId.getChildViews();
-  if (views[0]) {
-    vbodyId.removeView(views[0]);
-  }
-  vbodyId.addView(newView);
-  // setTimeout(() => panelId.hideOverlay(), 1000);
-
-  // const _this = this;
-  const modal = document.querySelector(".copydata_scrollview div.webix_overlay");
-  modal.addEventListener("click", function (e) {
-    panelId.hideOverlay()
-  });
-}
 
 function viewCSVFile(colName, data) {
   $$(prefix + "_uploadcsv_viewer").show();

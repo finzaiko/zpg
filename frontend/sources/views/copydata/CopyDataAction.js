@@ -6,6 +6,7 @@ import {
 } from "../../models/CopyData";
 import { state } from "../../models/CopyData";
 import { confirmTableField } from "./CopyDataConfirmTable";
+import { alphabetArr } from "../../helpers/alphabet";
 
 const prefix = state + "_page";
 
@@ -164,7 +165,7 @@ export function applyCopyAction() {
               confirmCopyData(inputData);
             }
           } else if (inputData.type_copy == "spreadsheet") {
-            const sheetData = getSpreadsheetField(
+            const sheetData = getDataFromDatatable(
               $$(prefix + "_source_spredsheet")
             );
 
@@ -180,8 +181,11 @@ export function applyCopyAction() {
               inputData.table_exist = true;
               confirmCopyData(inputData);
             }
-          } else if (inputData.type_copy == "uploadcsv") {
-            const sheetData = getSpreadsheetField($$(prefix + "_csv_data"));
+          } else if (inputData.type_copy == "csv") {
+            const sheetData = getDataFromDatatable(
+              $$(prefix + "_csv_data"),
+              true
+            );
 
             if (!table.exists) {
               confirmTableField(
@@ -208,9 +212,13 @@ export function applyCopyAction() {
   }
 }
 
-function getSpreadsheetField(sheetSource) {
+function getDataFromDatatable(sheetSource, skipFirstRow) {
   const data = sheetSource.serialize();
-  const isFirstRow = $$(prefix + "_first_row_column").getValue();
+  let isFirstRow = $$(prefix + "_first_row_column").getValue();
+
+  if (skipFirstRow) {
+    isFirstRow = 0;
+  }
 
   // Filter only first row has valid key name
   const obj = data[0];
@@ -250,7 +258,6 @@ function getSpreadsheetField(sheetSource) {
     if (isFirstRow) {
       bodyData.shift();
     }
-    console.log("newField", newField);
 
     return { source_data: bodyData, table_field: newField };
   } else {
@@ -286,3 +293,101 @@ function execSpreadsheetType() {
     webix.message({ text: "Nothing to copy !", type: "error" });
   }
 }
+
+export function sourceTypeChanges(id) {
+  if (id == "query") {
+    $$(prefix + "_source_db").show();
+    $$(prefix + "_type_source_query").show();
+    $$(prefix + "_type_source_sheet").hide();
+    $$(prefix + "_type_uploadcsv").hide();
+    $$(prefix + "_first_row_column").hide();
+    $$(prefix + "_row_count").hide();
+    $$(prefix + "_uploadcsv_btn").hide();
+    $$(prefix + "_uploadcsv_delimeter").hide();
+    $$(prefix + "_first_row_column").setValue(0);
+  } else if (id == "spreadsheet") {
+    $$(prefix + "_source_db").hide();
+    $$(prefix + "_type_source_query").hide();
+    $$(prefix + "_type_uploadcsv").hide();
+    $$(prefix + "_type_source_sheet").show();
+    $$(prefix + "_first_row_column").show();
+    $$(prefix + "_row_count").show();
+    $$(prefix + "_uploadcsv_btn").hide();
+    $$(prefix + "_uploadcsv_delimeter").hide();
+    generateEmptyRow();
+  } else {
+    $$(prefix + "_type_uploadcsv").show();
+    $$(prefix + "_uploadcsv_btn").show();
+    $$(prefix + "_uploadcsv_delimeter").show();
+    $$(prefix + "_source_db").hide();
+    $$(prefix + "_type_source_sheet").hide();
+    $$(prefix + "_type_source_query").hide();
+    $$(prefix + "_first_row_column").setValue(0);
+    $$(prefix + "_first_row_column").hide();
+    $$(prefix + "_row_count").hide();
+  }
+}
+
+function generateEmptyRow() {
+  $$(prefix + "_cancel_action").show();
+  let columnsName = [],
+    dataEmpty = [];
+
+  const panelId = $$(prefix + "_type_source_sheet");
+  webix.extend(panelId, webix.OverlayBox);
+  panelId.showOverlay(
+    `<div class='z_center_middle' style='background:rgba(255,255,255, 0.5); font-size: 14px;'>
+        <div><span style='text-decoration: line-through;'>Copy</span> Paste from Spreadsheet here</div>
+      </div>`
+  );
+
+  const rowCountSel = parseInt($$(prefix + "_row_count").getValue());
+  const rowLength = rowCountSel || 100;
+  alphabetArr.forEach((o, i) => {
+    columnsName.push({ id: "col_" + i, header: o, editor: "text" });
+  });
+
+  let colsName = [];
+  columnsName.forEach((o, i) => {
+    colsName.push([o.id, ""]);
+  });
+
+  for (let i = 1; i <= rowLength; i++) {
+    dataEmpty.push(Object.assign({ id: i }, Object.fromEntries(colsName)));
+  }
+
+  const newView = {
+    view: "datatable",
+    id: prefix + "_source_spredsheet",
+    select: "cell",
+    multiselect: true,
+    blockselect: true,
+    editable: true,
+    clipboard: "block",
+    css: "webix_data_border webix_header_border copydata_spreadsheet",
+    resizeColumn: true,
+    resizeRow: true,
+    columns: columnsName,
+    data: dataEmpty,
+    scheme: {
+      $init: function (obj) {
+        obj.index = this.count();
+      },
+    },
+  };
+
+  const vbodyId = $$(prefix + "_scrollview_body");
+  const views = vbodyId.getChildViews();
+  if (views[0]) {
+    vbodyId.removeView(views[0]);
+  }
+  vbodyId.addView(newView);
+  // setTimeout(() => panelId.hideOverlay(), 1000);
+
+  // const _this = this;
+  const modal = document.querySelector(".copydata_scrollview div.webix_overlay");
+  modal.addEventListener("click", function (e) {
+    panelId.hideOverlay()
+  });
+}
+

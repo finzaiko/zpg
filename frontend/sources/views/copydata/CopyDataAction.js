@@ -17,14 +17,13 @@ export function confirmCreateTableAndCopyData(inputData) {
     text: "Are you sure to execute this action ?",
     callback: function (result) {
       if (result) {
-        showLoadingText($$("z_copydata_page"), "Creating new table...");
-        runCreateTable(inputData).then((isCreate) => {
           $$(prefix + "confirm_table").close();
           showLoadingText(
             $$("z_copydata_page"),
             "Copying data, please wait..."
           );
-          runCopyData(inputData)
+          inputData.create_table = true;
+        runCopyData(inputData)
             .then((r) => {
               setTimeout(() => {
                 const msg = JSONToListText(r);
@@ -41,7 +40,7 @@ export function confirmCreateTableAndCopyData(inputData) {
               setConsoleMessage(rError.message);
               $$("z_copydata_page").hideOverlay();
             });
-        });
+
       }
     },
   });
@@ -328,7 +327,7 @@ export function sourceTypeChanges(id) {
   }
 }
 
-function generateEmptyRow() {
+export function generateEmptyRow() {
   $$(prefix + "_cancel_action").show();
   let columnsName = [],
     dataEmpty = [];
@@ -344,7 +343,7 @@ function generateEmptyRow() {
   const rowCountSel = parseInt($$(prefix + "_row_count").getValue());
   const rowLength = rowCountSel || 100;
   alphabetArr.forEach((o, i) => {
-    columnsName.push({ id: "col_" + i, header: o, editor: "text" });
+    columnsName.push({ id: "col_" + i, header: o});
   });
 
   let colsName = [];
@@ -362,7 +361,6 @@ function generateEmptyRow() {
     select: "cell",
     multiselect: true,
     blockselect: true,
-    editable: true,
     clipboard: "block",
     css: "webix_data_border webix_header_border copydata_spreadsheet",
     resizeColumn: true,

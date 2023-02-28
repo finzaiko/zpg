@@ -38,13 +38,14 @@ class BaseRepository {
       const client = await pgPool.connect();
       let result = { error: false, message: "Copy success" };
       try {
+        await client.query('BEGIN')
         async.eachSeries(
           sql,
           (query, next) => {
             //console.log(`Running query: ${query}`);
             client.query(query, (err, results) => {
               if (err) {
-                console.log("ERROR: ", err);
+                // console.log("ERROR: ", err);
                 result = { error: true, message: ""+err };
               }
             });
@@ -54,10 +55,7 @@ class BaseRepository {
             console.log("Done..");
           }
         );
-
-        const commit = await client.query("COMMIT");
-        // console.log('commit>>>>>> ',commit);
-
+        await client.query("COMMIT");
       } catch (e) {
 
         await client.query("ROLLBACK");

@@ -62,7 +62,7 @@ class CopydataService {
 
     const createSql = `CREATE TABLE "${schema}"."${table}" (
       ${sqlNewField}
-    )`;
+    );`;
     return createSql;
   }
 
@@ -76,7 +76,7 @@ class CopydataService {
       userId,
       sqlCreate
     );
-    console.log("sourceData", sourceData);
+    // console.log("sourceData", sourceData);
 
     return Array.isArray(sourceData.rows);
   }
@@ -99,6 +99,7 @@ class CopydataService {
     const { schema, table } = getTableName(table_name);
 
     const startTime = new Date().getTime();
+    let sqlAll = [];
     if (type_copy == "query") {
       const tblType = await BaseRepository.getTableType(
         source_id,
@@ -116,17 +117,25 @@ class CopydataService {
       const fieldTypes = tblType.rows.filter((ob) =>
         sqlField.includes(ob.column_name)
       );
-      const sqlQuery = getSqlStringTypeFromArray(
+
+      let sqlInsert = getSqlStringTypeFromArray(
         sourceData.rows,
         schema,
         table,
         false,
         fieldTypes
       );
+
+        if(create_table){
+          const sqlCreate = this.getCreateTableSql(schema, table, table_field);
+          sqlAll = [sqlCreate].concat(sqlInsert);
+        }else{
+          sqlAll.concat(sqlInsert);
+        }
       const result = await BaseRepository.runBatchQuery(
         target_id,
         userId,
-        sqlQuery
+        sqlAll
       );
       const dataCount = sourceData.rows.length;
       const et = new Date().getTime() - startTime;
@@ -134,7 +143,7 @@ class CopydataService {
       result.elapsed_time = msToTime(et);
       return result;
     } else {
-      const sqlSpreadsheet = this.getSqlSpreadsheet(
+      const sqlInsert = this.getSqlSpreadsheet(
         source_data,
         schema,
         table,
@@ -142,10 +151,21 @@ class CopydataService {
         table_exist
       );
 
+      // console.log('sqlInsert############# ',sqlInsert);
+
+      if(create_table){
+        const sqlCreate = this.getCreateTableSql(schema, table, table_field);
+        sqlAll = [sqlCreate].concat(sqlInsert);
+      }else{
+        sqlAll.concat(sqlInsert);
+      }
+
+      // console.log('sqlAll>>>>>>>>',sqlAll);
+
       const result = await BaseRepository.runBatchQuery(
         target_id,
         userId,
-        sqlSpreadsheet
+        sqlAll
       );
       const dataCount = JSON.parse(source_data).length;
       const et = new Date().getTime() - startTime;
@@ -194,7 +214,7 @@ class CopydataService {
 
     const createSql = `CREATE TABLE ${schema}.${table} (
       ${sqlNewField}
-    )`;
+    );`;
     return createSql;
   }
 

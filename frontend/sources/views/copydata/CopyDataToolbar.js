@@ -1,6 +1,6 @@
 import { state } from "../../models/CopyData";
 import { url as urlProfile } from "../../models/Profile";
-import { applyCopyAction, sourceTypeChanges } from "./CopyDataAction";
+import { applyCopyAction, generateEmptyRow, sourceTypeChanges } from "./CopyDataAction";
 import { csvToArray } from "../../helpers/ui";
 const prefix = state + "_page";
 

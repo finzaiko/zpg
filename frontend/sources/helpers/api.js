@@ -24,3 +24,7 @@ export function setDefaultHeader(headers) {
 //     return null;
 //   }
 // };
+
+export function getErrorMessage(e) {
+  return JSON.parse(e.response).message;
+}

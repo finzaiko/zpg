@@ -25,6 +25,7 @@ import { userId } from "../../../../backend/src/test/user-profile.test";
 import { FONT_SIZE_EDITOR } from "../../../../backend/src/config/contant";
 import { copyToClipboard } from "../../helpers/copy";
 import { url as urlUser } from "../../models/User";
+import { getErrorMessage } from "../../helpers/api";
 
 TimeAgo.addDefaultLocale(en);
 let timeAgo = new TimeAgo("en-US");
@@ -467,10 +468,15 @@ export function QueryPage(prefix, selectedDb) {
                     if (resultContent) {
                       resultContent.clearAll();
                     }
-                    webix.message("No record found");
+                    webix.message({ text: "No record found", type: "error" });
                   }
                   pageId.hideProgress();
                   pageId.enable();
+                })
+                .fail((e) => {
+                  pageId.hideProgress();
+                  pageId.enable();
+                  webix.message({ text: getErrorMessage(e), type: "error" });
                 });
             }
           },
@@ -921,7 +927,7 @@ export function QueryPage(prefix, selectedDb) {
               height: "auto",
             },
             url: `${urlProfile}/content?type=2&ls=true`,
-            tooltip:webix.template("#conn_name#"),
+            tooltip: webix.template("#conn_name#"),
             template:
               "#value# <span style='float:right;width:50px;line-height:1.3' class='run_button z_multi_conn_icon webix_button webix_icon mdi mdi-play hover_only'></span>",
             onClick: {
@@ -1052,9 +1058,12 @@ export function QueryPage(prefix, selectedDb) {
             css: "z_fade_list z_list_cursor_pointer",
             columns: [
               // { id: "title", header: "", fillspace: true },
-              { fillspace: true, template: function (obj) {
-                return obj.title.match(/(.+)/)[0];
-              }},
+              {
+                fillspace: true,
+                template: function (obj) {
+                  return obj.title.match(/(.+)/)[0];
+                },
+              },
               {
                 adjust: true,
                 template: function (obj, common, value, column, index) {
@@ -1797,7 +1806,8 @@ export function QueryPage(prefix, selectedDb) {
             {
               view: "checkbox",
               id: prefix + "_adjust_cols",
-              labelRight: "AutoFit Columns \n<span style='font-style:italic;'>(Query result a bit slower)</span>",
+              labelRight:
+                "AutoFit Columns \n<span style='font-style:italic;'>(Query result a bit slower)</span>",
               tooltip: "Auto adjust column size",
               css: "multiline_label_checkbox",
               name: "ck_adjust_cols",
@@ -2046,7 +2056,7 @@ export function QueryPage(prefix, selectedDb) {
       sql: sqlInput,
       dtype: state.isDataType,
       history: state.isDisableHistory, // is store history
-      adjustcol: state.isAdjustCols
+      adjustcol: state.isAdjustCols,
     };
     const sourceCmb = $$(prefix + "_source_combo").getValue();
 
@@ -2373,7 +2383,7 @@ export function QueryPage(prefix, selectedDb) {
                     resizeColumn: true,
                     data: rData.data,
                     // data: newArr,
-                    maxColumnWidth:260,
+                    maxColumnWidth: 260,
                     resizeRow: true,
                     pager: prefix + "_result_row_pager",
                     on: {
@@ -2420,14 +2430,15 @@ export function QueryPage(prefix, selectedDb) {
                         // $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
                       },
                     },
-                    ready: function(){
-                      if(state.isAdjustCols){
+                    ready: function () {
+                      if (state.isAdjustCols) {
                         const cols = this.config.columns;
-                        cols.forEach(o=>{
-                          this.getColumnConfig(o.id).maxWidth = Number.MAX_SAFE_INTEGER;
-                        })
+                        cols.forEach((o) => {
+                          this.getColumnConfig(o.id).maxWidth =
+                            Number.MAX_SAFE_INTEGER;
+                        });
                       }
-                    }
+                    },
                     /*
                     scheme:{
                       $change:function(item){
@@ -2579,7 +2590,8 @@ export function QueryPage(prefix, selectedDb) {
           $$(prefix + "_page_panel").hideOverlay();
           loadHistory();
           copyFieldName();
-        }).fail(err=>{
+        })
+        .fail((err) => {
           setTimeout(() => {
             webix.message({
               text: err.responseText,

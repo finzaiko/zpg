@@ -13,7 +13,7 @@ Features idea:
 - Task SQL continues integration
 - Comparing between SQL function direct correction
 - Simple query editor
-- Copy content between database (under development)
+- Copy content between database
 - Easy view table content
 - Generator
 - and more..
@@ -33,7 +33,12 @@ This is an experiment personal project, found some bug and under development, yo
 git clone `https://github.com/finzaiko/zpg.git`
 ```
 
+```
+make install
+```
+
 or manual install
+
 ```
 npm install
 cd backend && npm install
@@ -51,6 +56,10 @@ cd backend && cp .env.example .env
 
 ```
 npm run dev
+```
+or
+```
+make start-dev-server
 ```
 
 #### Open

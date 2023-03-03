@@ -1,13 +1,12 @@
 const { app: server } = require("./server");
-const env = process.env
-const dotenv = require('dotenv')
+const env = process.env;
+const dotenv = require("dotenv");
 
-dotenv.config()
+dotenv.config({ path: __dirname + "/.env" });
 
 server()
   .then((app) => {
-
-    env
+    env;
     app
       .listen(env.APP_PORT, "0.0.0.0")
       // .then((_) => {})

@@ -1,6 +1,6 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
-const server = require("./backend");
+const server = require("../backend");
 
 let mainWindow;
 

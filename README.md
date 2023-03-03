@@ -62,6 +62,12 @@ or
 make start-dev-server
 ```
 
+or try desktop
+
+```
+make start-dev-desktop
+```
+
 #### Open
 
 ```

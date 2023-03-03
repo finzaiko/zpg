@@ -811,6 +811,9 @@ div.webix_list_item:hover .hoverButton {
 .zmdi_padding button span {
   padding-top: 2px;
 }
+.zmdi_padding_lbl_icon .webix_icon_btn {
+  padding-top: 2px;
+}
 /* PAGER */
 .webix_pager.z-pager-aligned {
   text-align: right;
@@ -1170,6 +1173,204 @@ background-size: cover;
 @keyframes blinker {
   50% {
     opacity: 0;
+  }
+}
+.toasify_error {
+  background: #ffdedb !important;
+  border: 1px solid #ff8d82;
+  color: #313131 !important;
+  font-family: Roboto, sans-serif;
+  font-size: 12px;
+}
+.toasify_success {
+  background: #ddf5ea !important;
+  border: 1px solid #88dcb6;
+  color: #313131 !important;
+  margin-right: 10px;
+  font-family: Roboto, sans-serif;
+  font-size: 12px;
+}
+.copydata_scrollview .webix_overlay {
+  padding: 0;
+}
+.z_center_middle {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.z_label_size_9pt .webix_el_box {
+  font-size: 9pt !important;
+  color: #313131;
+  font-weight: 500;
+}
+.z_loading_panel {
+  background: rgba(255, 255, 255, 0.5);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.padding_overlay_zero .webix_overlay {
+  padding: 0 !important;
+}
+.laoder-spinner-container {
+  text-align: center;
+}
+.loader-spinner {
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  -webkit-animation: rotation .6s infinite linear;
+  -moz-animation: rotation .6s infinite linear;
+  -o-animation: rotation .6s infinite linear;
+  animation: rotation .6s infinite linear;
+  border: 4px solid rgba(28, 161, 193, 0.15);
+  border-top: 4px solid rgba(28, 161, 193, 0.8);
+  border-radius: 100%;
+}
+.z_loading_text {
+  font-size: 14px;
+}
+.font_size14 {
+  font-size: 14px;
+}
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+@-moz-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(359deg);
+  }
+}
+@-ms-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(359deg);
+  }
+}
+@-o-keyframes rotation {
+  from {
+    -o-transform: rotate(0deg);
+  }
+  to {
+    -o-transform: rotate(359deg);
+  }
+}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+.copy_tabbar_bottom {
+  border-width: 1px 0px 1px !important;
+}
+.multiline_label_checkbox .webix_label_right {
+  white-space: pre-wrap;
+  line-height: normal;
+  display: table-cell;
+}
+.copydata_spreadsheet .webix_cell_select {
+  border: 1px solid #8cd9ff !important;
+}
+.boxline_shadow {
+  border-top-width: 0 !important;
+}
+.boxline_shadow .webix_header {
+  box-shadow: inset 0 4px #1CA1C1;
+}
+.copydata_scrollview div.webix_overlay {
+  cursor: pointer;
+}
+
+/*!
+ * Toastify js 1.12.0
+ * https://github.com/apvarun/toastify-js
+ * @license MIT licensed
+ *
+ * Copyright (C) 2018 Varun A P
+ */
+.toastify {
+  padding: 12px 20px;
+  color: #ffffff;
+  display: inline-block;
+  box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(77, 96, 232, 0.3);
+  background: -webkit-linear-gradient(315deg, #73a5ff, #5477f5);
+  background: linear-gradient(135deg, #73a5ff, #5477f5);
+  position: fixed;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  max-width: calc(30%);
+  z-index: 2147483647;
+}
+.toastify.on {
+  opacity: 1;
+}
+.toast-close {
+  background: transparent;
+  border: 0;
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1em;
+  opacity: 0.4;
+  padding: 0 5px;
+}
+.toastify-right {
+  right: 15px;
+}
+.toastify-left {
+  left: 15px;
+}
+.toastify-top {
+  top: -150px;
+}
+.toastify-bottom {
+  bottom: -150px;
+}
+.toastify-rounded {
+  border-radius: 25px;
+}
+.toastify-avatar {
+  width: 1.5em;
+  height: 1.5em;
+  margin: -7px 5px;
+  border-radius: 2px;
+}
+.toastify-center {
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  max-width: fit-content;
+  max-width: -moz-fit-content;
+}
+@media only screen and (max-width: 360px) {
+  .toastify-right,
+  .toastify-left {
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    max-width: fit-content;
   }
 }
 

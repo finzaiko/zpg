@@ -93,6 +93,13 @@ module.exports = function (env) {
   if(production){
     console.log("Production build...");
 
+    // IGNORE SIZE ASSET LIMIT WARNING
+    config.performance = {
+      hints: false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
+    };
+
     new CopyPlugin([
       {
           from: path.join(__dirname, "codebase/myapp.css"),

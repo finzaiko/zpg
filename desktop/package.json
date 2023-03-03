@@ -1,6 +1,6 @@
 {
   "name": "zpg",
-  "version": "0.0.15-dev",
+  "version": "0.0.17-dev",
   "windowtitle": "ZPG",
   "description": "Simple Easy Postgres Dev Tool",
   "main": "main.js",
@@ -9,7 +9,7 @@
     "start": "node app.js",
     "start-electron": "electron main.js",
     "start-electron-test": "electron main.js --env.build_mode $npm_config_buildmode",
-    "build": "electron-builder",
+    "build": "electron-builder --x64 -p never",
     "build-linux": "electron-builder build --linux --x64 -p never",
     "dev": "concurrently \"cd backend && npm start\" \"cd frontend && npm start\" ",
     "backend": "cd backend && npm start",

@@ -4,3 +4,5 @@ backend/db.sqlite
 .vscode
 design.ods
 package-lock.json
+desktop/dist
+desktop/compare.sqlite

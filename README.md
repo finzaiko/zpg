@@ -18,9 +18,11 @@ Features idea:
 - Generator
 - and more..
 
-### WARNING !
+### Documentation
 
-This is an experiment personal project, found some bug and under development, you can submit the issue.
+>Coming soon...
+
+You can try to [Quick Start](#quick_start)
 
 ### Requirement
 
@@ -80,6 +82,20 @@ http://localhost:8000
 username: admin
 password: admin123
 ```
+
+
+### <span id="quick_start">Quick Start<span>
+
+1. Create Server connection
+![query](assets-demo/zpg_db_server_conn.png)
+
+2. Add DB Connection
+![query](assets-demo/zpg_query_db_conn.png)
+
+
+### WARNING !
+
+This is an experiment personal project, found some bug and under development, you can submit the issue.
 
 #### Some Screenshot
 

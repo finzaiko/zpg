@@ -1,6 +1,6 @@
 {
-  "name": "hello",
-  "version": "1.0.0",
+  "name": "zpg-backend",
+  "version": "0.0.17-dev",
   "description": "",
   "main": "index.js",
   "scripts": {

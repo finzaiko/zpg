@@ -47,6 +47,13 @@ export default {
 		<section>
 			<h4>Change log:</h4>
 			<p>
+				<h4>0.0.17-dev (03-03-2023)</h4>
+				<ul>
+					<li>add copydata feature</li>
+					<li>fix auto resize setting</li>
+				</ul>
+			</p>
+			<p>
 				<h4>0.0.16-dev (07-02-2023)</h4>
 				<ul>
 					<li>feat toast query result</li>

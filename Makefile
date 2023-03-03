@@ -11,4 +11,4 @@ install:
 	npm i
 	cd backend && npm i
 	cd frontend && npm i
-	cd backend && mv .env.example .env
+	cd backend && cp .env.example .env

@@ -29,7 +29,13 @@ You can try to [Quick Start](#quick_start)
 - Node
 - Postgres version 9.6 or above
 
+
 ### Install
+
+Download [here](https://github.com/finzaiko/zpg/releases/tag/0.0.17-dev) and install
+
+
+or manual install
 
 ```
 git clone `https://github.com/finzaiko/zpg.git`
@@ -38,8 +44,6 @@ git clone `https://github.com/finzaiko/zpg.git`
 ```
 make install
 ```
-
-or manual install
 
 ```
 npm install
@@ -97,7 +101,7 @@ password: admin123
 
 This is an experiment personal project, found some bug and under development, you can submit the issue.
 
-#### Some Screenshot
+#### One Screenshot
 
 Query
 

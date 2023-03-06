@@ -2029,7 +2029,6 @@ export function QueryPage(prefix, selectedDb) {
   };
 
   const runQuery = (inputSourceId) => {
-    // let url = `${urlDb}_query`;
     const editorId = $$(prefix + "_sql_editor");
 
     const getEditor = editorId.getEditor();
@@ -2039,7 +2038,6 @@ export function QueryPage(prefix, selectedDb) {
     let selectionLineNo = 0;
     let isSelection = false;
 
-    // return;
     let sqlInput = "";
     if (ed.length > 0) {
       isSelection = true;
@@ -2049,8 +2047,6 @@ export function QueryPage(prefix, selectedDb) {
       sqlInput = editorId.getValue();
     }
 
-    // const dType = state.isDataType || webix.storage.local.get(LAST_DATATYPE);
-
     let input = {
       source_id: inputSourceId,
       sql: sqlInput,
@@ -2058,10 +2054,8 @@ export function QueryPage(prefix, selectedDb) {
       history: state.isDisableHistory, // is store history
       adjustcol: state.isAdjustCols,
     };
-    const sourceCmb = $$(prefix + "_source_combo").getValue();
 
-    if (input.sql != "" && sourceCmb) {
-      let start_time = new Date().getTime();
+    if (input.sql != "" && inputSourceId) {
       webix.extend($$(prefix + "_page_panel"), webix.OverlayBox);
       $$(prefix + "_page_panel").showOverlay(
         `<div class="loading-content"><div class="loading-ico no-border"></div>
@@ -2454,9 +2448,6 @@ export function QueryPage(prefix, selectedDb) {
                     lineNumbers: "off",
                     fontSize: "12px",
                     borderless: true,
-                    // css: {
-                    //   "padding-top":"10px"
-                    // },
                     renderLineHighlight: "none",
                     // readOnly: true,
                   },
@@ -2477,21 +2468,9 @@ export function QueryPage(prefix, selectedDb) {
           if (!rData.error) {
             $$(prefix + "_scrollview_body").addView(newView);
             if (typeof rData.message != "undefined") {
-              // $$(prefix + "_console").setHTML(
-              //   "<pre id='query_result_message'>" + rData.message + "</pre>"
-              // );
-              // $$(prefix + "_result_console").setValue(rData.message);
               $$(prefix + "_console").setValue(rData.message);
             }
             $$(prefix + "_tabbar").setValue(prefix + "_result");
-            /*
-            if (rData.total_count > 0 || rData.data.length > 0) {
-              $$(prefix + "_tabbar").setValue(prefix + "_result");
-            } else {
-              $$(prefix + "_tabbar").setValue(prefix + "_console");
-            }
-            */
-
             lineNo = 0;
 
             isCanSave($$(prefix + "_source_combo").getValue(), input.sql).then(
@@ -2570,7 +2549,6 @@ export function QueryPage(prefix, selectedDb) {
             $$(prefix + "_sql_editor")
               .getEditor(true)
               .then((ed) => {
-                // const targetId = decorations[0];
                 decorations.forEach((el, i) => {
                   const targetId = decorations[i];
                   ed.deltaDecorations([targetId], []);

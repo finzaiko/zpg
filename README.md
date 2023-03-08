@@ -20,7 +20,9 @@ Features idea:
 
 ### Documentation
 
->Coming soon...
+https://finzaiko.github.io/zpg
+
+>On progress...
 
 You can try to [Quick Start](#quick_start)
 

@@ -1212,16 +1212,22 @@ background-size: cover;
   color: #0a8dad;
 }
 
-.z_icon_size_16 .webix_icon {
+.z_icon_size_16 .webix_icon,
+.z_icon_size_16 .webix_icon_btn
+{
   font-size: 16px;
   line-height: 19px;
 }
 
-.z_icon_size_17 .webix_icon {
+.z_icon_size_17 .webix_icon,
+.z_icon_size_17 .webix_icon_btn
+ {
   font-size: 17px;
 }
 
-.z_icon_size_18 .webix_icon {
+.z_icon_size_18 .webix_icon,
+.z_icon_size_18 .webix_icon_btn
+ {
   font-size: 18px;
 }
 

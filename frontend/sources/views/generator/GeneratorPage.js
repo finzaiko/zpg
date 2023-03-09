@@ -36,7 +36,7 @@ export default class GeneratorPage extends JetView {
                   css: "z_generator_list",
                   data: [
                     { id: "generator.outparams", title: "Out params" },
-                    { id: "generator.insertquery", title: "Insert Query" },
+                    // { id: "generator.insertquery", title: "Insert Query" },
                   ],
                   on: {
                     onItemClick: function (sel) {

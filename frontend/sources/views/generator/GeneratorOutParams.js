@@ -3,21 +3,30 @@ import { state, url } from "../../models/Generator";
 import { defaultHeader } from "../../helpers/api";
 import { url as urlProfile } from "../../models/Profile";
 import { LAST_DB_CONN_VIEWDATA } from "../../config/setting";
-import { setEditorFontSize, showErrorResponse } from "../../helpers/ui";
+import { setEditorFontSize, showErrorResponse, showLoadingText } from "../../helpers/ui";
 import { copyToClipboard } from "../../helpers/copy";
 
 const prefixThis = state.prefix + "_outprms";
 
 function generate() {
   const editorId = $$(prefixThis + "_outparams_ed");
+  const sql = editorId.getValue();
+  const sourceDb = $$(prefixThis + "_source_combo").getValue();
+  if (sql.length == 0 || sourceDb.length == 0) {
+    return webix.message({
+      text: "Please select source DB and type your Query",
+      type: "error",
+    });
+  }
   const data = {
-    id: $$(prefixThis + "_source_combo").getValue(),
-    querysql: editorId.getValue(),
+    id: sourceDb,
+    querysql: sql.replace(/'/g, "''"),
   };
 
+  const panelId = $$("z_generator_content");
+  showLoadingText(panelId, "Generate...");
   webix
     .ajax()
-
     .post(`${url}/outparams`, data, function (res) {
       let rData = JSON.parse(res);
       if (typeof rData.data != "undefined") {
@@ -25,12 +34,13 @@ function generate() {
           "<pre id='generator_result'>" + rData.data + "</pre>"
         );
       }
+      panelId.hideOverlay();
     })
     .fail(function (err) {
+      panelId.hideOverlay();
       showErrorResponse(err.response);
     });
 }
-
 
 const clearAll = () => {
   const editorId = $$(prefixThis + "_outparams_ed");
@@ -66,32 +76,59 @@ export default class GeneratorOutParamsContent extends JetView {
               },
             },
             {
-              view: "icon",
-              // icon: "mdi mdi-motion-play-outline",
-              icon: "mdi mdi-play-box-outline",
+              view: "button",
+              type: "icon",
+              css: "zmdi_padding",
+              icon: "mdi mdi-play",
               tooltip: "Generate",
+              id: prefixThis + "_refresh_btn",
               autowidth: true,
               click: function () {
                 generate();
               },
             },
+
             { width: 10 },
             {
-              view: "icon",
-              icon: "mdi mdi-content-copy",
-              tooltip: "Copy result content",
-              css: "z_mdi_icon_smaller",
-              autowidth: true,
-              click: function () {
-                const val = document.getElementById("generator_result");
-                if (val) {
-                  copyToClipboard(val.innerHTML);
-                }
-              },
+              cols: [
+                {
+                  view: "button",
+                  type: "icon",
+                  icon: "mdi mdi-content-copy",
+                  css: "zmdi_padding z_icon_color_primary z_icon_size_17",
+                  autowidth: true,
+                  id: prefixThis + "_copy_clipboard",
+                  tooltip: "Copy result to clipboard",
+                  click: function () {
+                    this.hide();
+                    const ck = $$(prefixThis + "_copy_clipboard_done");
+                    ck.show();
+                    setTimeout(() => {
+                      this.show();
+                      ck.hide();
+                    }, 1500);
+
+                    const val = document.getElementById("generator_result");
+                    if (val) {
+                      copyToClipboard(val.innerHTML);
+                    }
+                  },
+                },
+                {
+                  view: "button",
+                  width: 55,
+                  hidden: true,
+                  id: prefixThis + "_copy_clipboard_done",
+                  label:
+                    '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                },
+              ],
             },
             {
-              view: "icon",
-              icon: "mdi mdi-close-box-outline",
+              view: "button",
+              type: "icon",
+              css: "zmdi_padding",
+              icon: "mdi mdi-close",
               tooltip: "Reset",
               autowidth: true,
               click: function () {

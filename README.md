@@ -36,13 +36,13 @@ Download [here](https://github.com/finzaiko/zpg/releases/tag/0.0.17-dev) and ins
 
 #### Ubuntu/Debian
 ```shell
-https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/zpg_0.0.17-dev_amd64.deb
+wget https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/zpg_0.0.17-dev_amd64.deb
 sudo apt-get install zpg_0.0.17-dev_amd64.deb
 ```
 
 #### Fedora/RHEL
 ```shell
-https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/zpg-0.0.17-dev.x86_64.rpm
+wget https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/zpg-0.0.17-dev.x86_64.rpm
 sudo yum localinstall zpg-0.0.17-dev.x86_64.rpm
 or
 sudo rpm -i zpg-0.0.17-dev.x86_64.rpm
@@ -50,7 +50,7 @@ sudo rpm -i zpg-0.0.17-dev.x86_64.rpm
 
 #### AppImage Linux
 ```shell
-https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/ZPG-0.0.17-dev.AppImage
+wget https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/ZPG-0.0.17-dev.AppImage
 chmod a+x ZPG-0.0.17-dev.AppImage.AppImage
 ./ZPG-0.0.17-dev.AppImage
 ```
@@ -80,7 +80,6 @@ make install
 npm install
 cd backend && npm install
 cd frontend && npm install
-
 ```
 
 #### Change ENV config

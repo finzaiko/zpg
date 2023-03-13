@@ -34,8 +34,39 @@ Try to [Quick Start](#quick_start)
 
 Download [here](https://github.com/finzaiko/zpg/releases/tag/0.0.17-dev) and install
 
+#### Ubuntu/Debian
+```shell
+https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/zpg_0.0.17-dev_amd64.deb
+sudo apt-get install zpg_0.0.17-dev_amd64.deb
+```
 
-or manual install
+#### Fedora/RHEL
+```shell
+https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/zpg-0.0.17-dev.x86_64.rpm
+sudo yum localinstall zpg-0.0.17-dev.x86_64.rpm
+or
+sudo rpm -i zpg-0.0.17-dev.x86_64.rpm
+```
+
+#### AppImage Linux
+```shell
+https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/ZPG-0.0.17-dev.AppImage
+chmod a+x ZPG-0.0.17-dev.AppImage.AppImage
+./ZPG-0.0.17-dev.AppImage
+```
+
+#### AppImage Windows
+```shell
+Download and double click
+```
+
+#### Docker
+```
+docker run --rm --name zpg -p 9001:9000 -d -e "API_SERVER=http://localhost:9001" finzaiko/zpg:1.0
+```
+open in browser: http://localhost:9001
+
+### Manual Development Install
 
 ```
 git clone `https://github.com/finzaiko/zpg.git`

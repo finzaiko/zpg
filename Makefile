@@ -25,3 +25,12 @@ install:
 	cd backend && cp .env.example .env
 
 
+build-docker:
+	cd frontend && npm run build-docker
+	docker build -t finzaiko/zpg:1.0 backend/.
+
+run-docker:
+	docker run --rm --name zpg -p 9001:9000 -d -e "API_SERVER=http://localhost:9001" finzaiko/zpg:1.0
+
+push-docker-hub:
+	docker push finzaiko/zpg:1.0

@@ -34,9 +34,25 @@ export default class GeneratorPage extends JetView {
                   template: "#title#",
                   select: true,
                   css: "z_generator_list",
+                  tooltip: function (obj) {
+                    return "" + obj.detail;
+                  },
                   data: [
-                    { id: "generator.outparams", title: "Out params" },
-                    // { id: "generator.insertquery", title: "Insert Query" },
+                    {
+                      id: "generator.outparams",
+                      title: "Out params",
+                      detail: "Generate query to Out parameter",
+                    },
+                    {
+                      id: "generator.insertquery",
+                      title: "Insert Query",
+                      detail: "Generate from sheet to Insert SQL",
+                    },
+                    {
+                      id: "generator.erdiagram",
+                      title: "ER Diagram",
+                      detail: "Generate ER Diagram",
+                    },
                   ],
                   on: {
                     onItemClick: function (sel) {
@@ -46,12 +62,11 @@ export default class GeneratorPage extends JetView {
                     },
                   },
                 },
-              ]
+              ],
             },
             { $subview: true, name: prefix + "_pageview" },
-          ]
+          ],
         },
-
       ],
     };
   }

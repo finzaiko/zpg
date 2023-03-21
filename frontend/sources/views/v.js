@@ -3,7 +3,7 @@ import { API_URL, BUILD_MODE, LAST_SIDEBAR } from "../config/setting";
 import { showError } from "../helpers/ui";
 import { menuData, state } from "../models/Base";
 import { routeName, routes } from "./routes";
-import start from "./start";
+import start from "./about";
 
 function isInt(value) {
   return (
@@ -180,7 +180,30 @@ export default class MainView extends JetView {
                 } else {
                   $$("tabs").removeView(id);
                 }
+
+                let tabview = $$("tabs");
+                let tabs = tabview.getMultiview().getChildViews();
+                console.log(tabs.length );
+
+                if(tabs.length==0){
+                  $$("tabs").addView({
+                    header:"Welcome",
+                    id: "query_welcome",
+                    css: "z_tabview_item",
+                      width: 150,
+                    body: start,
+                  });
+                }
+
                 return false;
+              },
+              onChange: function (newv, oldv, cfg) {
+                let tabview = $$("tabs");
+                let tabs = tabview.getMultiview().getChildViews();
+                console.log(tabs.length );
+                  if(tabs.length>1){
+                   tabview.removeView( "start_tab");
+                 }
               },
             },
           },

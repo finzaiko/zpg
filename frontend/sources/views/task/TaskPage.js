@@ -83,24 +83,6 @@ const taskToolbar = {
       tooltip: "Download SQL script",
       hidden: true,
       click: function () {
-        // http://localhost:5000/api/task_run?id=20&download=true
-        // webix.extend($$(prefix + "_page_panel"), webix.OverlayBox);
-        // const item = state.dataSelected;
-        // $$(prefix + "_page_panel").showOverlay(
-        //   `
-        //     <div class='loading-content'>
-        //     <div class="spinner"></div>
-        //     <iframe id="downlaod_iframe" style="display: none;" onload="${closeDownloadFrame(this)}"></iframe>
-        //     </div>
-        //     `
-        // );
-        // setTimeout(() => {
-        //   const iframe = document.querySelector('#downlaod_iframe');
-        //   const url = `${API_URL}/task/download/${item.id}`;
-        //   const headers = [['Authorization', 'Bearer ' +  getToken()]];
-        //   loadIframe(iframe, url, headers);
-        // }, 800);
-
         const item = state.dataSelected;
         const url = `${API_URL}/task/download/${item.id}`;
         webix.ajax().get(url, function (res) {

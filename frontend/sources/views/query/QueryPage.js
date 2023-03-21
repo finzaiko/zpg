@@ -145,6 +145,8 @@ export function QueryPage(prefix, selectedDb) {
         placeholder: "Source DB",
         width: 200,
         options: {
+          width: 250,
+          fitMaster: false,
           url: `${urlProfile}/content?type=2&ls=true`,
           on: {
             onBeforeShow: function () {
@@ -344,7 +346,24 @@ export function QueryPage(prefix, selectedDb) {
         width: 300,
         suggest: {
           keyPressTimeout: 500,
+          template: "#value#",
           body: {
+            css: "search_suggest_list",
+            template: function (obj) {
+              let val = `<span class='source_def_item'>${obj.value}</span>`,
+                sty = "",
+                typ = "";
+              if (obj.type == "Table") {
+                typ = "tbl";
+              } else if (obj.type == "Function") {
+                typ = "fun";
+              }
+              if (typeof obj.type != "undefined") {
+                sty = `<span class='source_def_type source_def_type_${typ}'>${typ}</span>`;
+              }
+              return val + sty;
+            },
+
             dataFeed: function (filtervalue, filter) {
               const sourceId = $$(prefix + "_source_combo").getValue();
               if (!sourceId) {
@@ -1006,7 +1025,8 @@ export function QueryPage(prefix, selectedDb) {
                 css: "z_primary_color z_fontsize_18",
                 tooltip: "Previous page",
                 click: function () {
-                  $$(prefix + "_pager_history").select("prev");
+                  const pagerId = $$(prefix + "_history_list").config.pager.id;
+                  $$(pagerId).select("prev");
                 },
               },
               {
@@ -1015,7 +1035,8 @@ export function QueryPage(prefix, selectedDb) {
                 tooltip: "Next page",
                 css: "z_primary_color z_fontsize_18",
                 click: function () {
-                  $$(prefix + "_pager_history").select("next");
+                  const pagerId = $$(prefix + "_history_list").config.pager.id;
+                  $$(pagerId).select("next");
                 },
               },
               {},
@@ -1075,7 +1096,7 @@ export function QueryPage(prefix, selectedDb) {
               },
             ],
             pager: {
-              id: prefix + "_pager_history",
+              // id: prefix + "_pager_history",
               apiOnly: true,
               size: 100,
             },

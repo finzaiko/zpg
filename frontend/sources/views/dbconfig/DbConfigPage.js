@@ -2,6 +2,7 @@ import { JetView } from "webix-jet";
 import { defaultHeader, pagerToolbar } from "../../helpers/ui";
 import { DbConfigForm } from "./DbConfigForm";
 import { state, url } from '../../models/DbConfig';
+import { API_URL } from "../../config/setting";
 
 const prefix = state.prefix;
 
@@ -112,7 +113,7 @@ const grid = {
 			openForm(this.$scope, true);
 		}
   },
-  url: `http://localhost:5000/api/user_config`
+  url: `${API_URL}/user_config`
 };
 
 // FUNCTION BELOW HERE
@@ -124,7 +125,7 @@ function openForm(scope, isEdit = false) {
 
 export function reloadDbConfig() {
   $$(prefix + "_table").clearAll();
-  $$(prefix + "_table").load(`http://localhost:5000/api/user_config`);
+  $$(prefix + "_table").load(`${API_URL}/user_config`);
   defaultBtn();
 }
 

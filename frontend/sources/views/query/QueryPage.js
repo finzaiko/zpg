@@ -1,7 +1,14 @@
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 
-import { pagerRow, pageSize, showToast, stripHtml } from "../../helpers/ui";
+import {
+  colorComboDBSource,
+  isColorLight,
+  pagerRow,
+  pageSize,
+  showToast,
+  stripHtml,
+} from "../../helpers/ui";
 import { url as urlDb } from "../../models/Db";
 import { url as urlViewData } from "../../models/ViewData";
 import { state as stateBase } from "../../models/Base";
@@ -147,7 +154,27 @@ export function QueryPage(prefix, selectedDb) {
         options: {
           width: 250,
           fitMaster: false,
-          url: `${urlProfile}/content?type=2&ls=true`,
+          body: {
+            // template:
+            //   `<div style="background-color:#content#;margin:0;padding-left:4px;padding-right:4px;border-radius:3px;">#value#</div>`,
+            template: function (obj) {
+              let clr = "#475466",
+                bg = "#ffffff";
+              if (obj.content) {
+                bg = obj.content;
+              }
+              if (!isColorLight(bg)) {
+                clr = "#ffffff";
+              }
+              return `<div style="background-color:${obj.content};color:${clr};border-radius:3px;padding-left:4px;padding-right:4px;">${obj.value}</div>`;
+            },
+            url: `${urlProfile}/content?type=2&ls=true`,
+            on: {
+              onAfterLoad: function () {
+                colorComboDBSource($$(prefix + "_source_combo"));
+              },
+            },
+          },
           on: {
             onBeforeShow: function () {
               reloadDBConnCombo();
@@ -167,6 +194,7 @@ export function QueryPage(prefix, selectedDb) {
             if (treeId.isVisible()) {
               loadDb(true);
             }
+            colorComboDBSource($$(prefix + "_source_combo"));
           },
         },
       },
@@ -947,8 +975,17 @@ export function QueryPage(prefix, selectedDb) {
             },
             url: `${urlProfile}/content?type=2&ls=true`,
             tooltip: webix.template("#conn_name#"),
-            template:
-              "#value# <span style='float:right;width:50px;line-height:1.3' class='run_button z_multi_conn_icon webix_button webix_icon mdi mdi-play hover_only'></span>",
+            template: function (obj) {
+              let clr = "#475466",
+                bg = "#ffffff";
+              if (obj.content) {
+                bg = obj.content;
+              }
+              if (!isColorLight(bg)) {
+                clr = "#ffffff";
+              }
+              return `<div style='background:${bg};color:${clr};border-radius: 2px;padding-left:4px;'>${obj.value} <span style='float:right;width:50px;line-height:1.3' class='run_button z_multi_conn_icon webix_button webix_icon mdi mdi-play hover_only'></span></div>`;
+            },
             onClick: {
               run_button: function (e, id, target) {
                 runQuery(id);

@@ -66,6 +66,7 @@ class ProfileService {
     profileConnDto.type = data.type;
     profileConnDto.ssl = data.ssl;
     profileConnDto.user_id = data.user_id;
+    profileConnDto.content = data.content;
 
     return await ProfileRepository.createConn(profileConnDto);
   }
@@ -81,6 +82,7 @@ class ProfileService {
     profileConnDto.type = data.type;
     profileConnDto.ssl = data.ssl;
     profileConnDto.user_id = data.user_id;
+    profileConnDto.content = data.content;
 
     return await ProfileRepository.updateConn(id, profileConnDto);
   }

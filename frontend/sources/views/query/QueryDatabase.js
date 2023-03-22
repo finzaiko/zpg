@@ -29,10 +29,22 @@ const WindowForm = () => {
       {
         cols: [
           {
-            view: "text",
-            label: "Name",
-            name: "conn_name",
-            id: prefix + "_conn_name",
+            cols: [
+              {
+                view: "text",
+                label: "Name",
+                name: "conn_name",
+                id: prefix + "_conn_name",
+              },
+              {
+                view: "colorpicker",
+                css: "short-picker",
+                name: "content",
+                tooltip: "Color",
+                value: "#FFF",
+                width: 30,
+              },
+            ],
           },
           {
             view: "text",
@@ -297,7 +309,16 @@ const WindowForm = () => {
     select: "row",
     height: 300,
     pager: "pagerA",
+    editable: true,
     columns: [
+      {
+        id:"content",
+        header:"",
+        width: 6,
+        template: function (obj) {
+          return obj.content!==null ? `<span style='border-radius: 2px;display: inline-block;width:4px;height:20px;background:${obj.content};margin-top:4px;'></span>`: ""
+        }
+      },
       {
         id: "conn_name",
         header: "Name",

@@ -20,7 +20,10 @@ export default class MainView extends JetView {
   }
   config() {
     const _this = this;
-    let menuDataFiltered = BUILD_MODE=='desktop' ? menuData.filter(e => e.id !== 'shared') : menuData;
+    let menuDataFiltered =
+      BUILD_MODE == "desktop"
+        ? menuData.filter((e) => e.id !== "shared")
+        : menuData;
     const header = {
       type: "header",
       borderless: true,
@@ -183,14 +186,12 @@ export default class MainView extends JetView {
 
                 let tabview = $$("tabs");
                 let tabs = tabview.getMultiview().getChildViews();
-                console.log(tabs.length );
-
-                if(tabs.length==0){
+                if (tabs.length == 0) {
                   $$("tabs").addView({
-                    header:"Welcome",
+                    header: "Welcome",
                     id: "query_welcome",
                     css: "z_tabview_item",
-                      width: 150,
+                    width: 150,
                     body: start,
                   });
                 }
@@ -200,10 +201,9 @@ export default class MainView extends JetView {
               onChange: function (newv, oldv, cfg) {
                 let tabview = $$("tabs");
                 let tabs = tabview.getMultiview().getChildViews();
-                console.log(tabs.length );
-                  if(tabs.length>1){
-                   tabview.removeView( "start_tab");
-                 }
+                if (tabs.length > 1) {
+                  tabview.removeView("start_tab");
+                }
               },
             },
           },
@@ -232,11 +232,9 @@ export default class MainView extends JetView {
       if (e.keyCode == 188 && e.ctrlKey) {
         // webix.message({text:"focust tab check", type: "error"})
         webix.UIManager.setFocus($$("$tabbar1")); //to set focus
-        $$("$tabbar1").attachEvent("onEnter", function (ev) {
-        });
+        $$("$tabbar1").attachEvent("onEnter", function (ev) {});
       }
     });
-
   }
 
   menuClick(_scope, id) {

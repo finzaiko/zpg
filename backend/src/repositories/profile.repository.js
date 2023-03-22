@@ -6,7 +6,7 @@ class ProfileRepository {
     // console.log(`type, userId, isList////////`, type, userId, isList);
     let fields = "*", andWhere = "";
     if (type == 1 || type == 2) {
-      fields = `profile.id, conn_name, host, port, database, user, profile.password, ssl`;
+      fields = `profile.id, conn_name, host, port, database, user, profile.password, ssl, content`;
     }
     if (type == 3 || type == 4 || type == 5) {
       // fields = `id, title, content, created_at`;
@@ -19,7 +19,7 @@ class ProfileRepository {
     let sql = `SELECT ${fields}, user.fullname FROM profile JOIN user ON user.id=profile.user_id WHERE type=? ${andWhere}`;
     if (isList) {
       sql =
-        "SELECT profile.id, substr(conn_name,0,30) as value, conn_name, host, database, ssl FROM profile WHERE type=? AND user_id=?";
+        "SELECT profile.id, substr(conn_name,0,30) as value, conn_name, host, database, ssl, content FROM profile WHERE type=? AND user_id=?";
     }
 
     if(search){
@@ -84,7 +84,7 @@ class ProfileRepository {
   async createConn(data) {
     // 1=serverconn, 2=dbconn
     const sql =
-      "INSERT INTO profile (conn_name, host, port, database, user, password, type, ssl, user_id) VALUES (?,?,?,?,?,?,?,?,?)";
+      "INSERT INTO profile (conn_name, host, port, database, user, password, type, ssl, user_id, content) VALUES (?,?,?,?,?,?,?,?,?,?)";
 
     // console.log(`data`, data);
     const dbName = data.type == 1 ? "postgres" : data.database;
@@ -98,6 +98,7 @@ class ProfileRepository {
       data.type,
       data.ssl,
       data.user_id,
+      data.content,
     ];
 
     const res = await new Promise((resolve, reject) => {
@@ -114,7 +115,7 @@ class ProfileRepository {
     if (data.password != "") {
       passField = ", password=?";
     }
-    const sql = `UPDATE profile SET conn_name=?, host=?, port=?, database=?, user=?${passField}, type=?, ssl=?, user_id=? WHERE id=?`;
+    const sql = `UPDATE profile SET conn_name=?, host=?, port=?, database=?, user=?${passField}, type=?, ssl=?, user_id=?, content=? WHERE id=?`;
     let params = [
       data.conn_name,
       data.host,
@@ -125,6 +126,7 @@ class ProfileRepository {
       data.type,
       data.ssl,
       data.user_id,
+      data.content,
       id,
     ];
     if (data.password == "") {

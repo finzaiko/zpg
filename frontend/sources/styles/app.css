@@ -1634,3 +1634,11 @@ background-size: cover;
   -webkit-text-stroke: 1px rgb(221, 171, 137);
   -webkit-text-fill-color: #fff;
 }
+
+.short-picker .webix_inp_static {
+  padding: 0px;
+  color: transparent;
+}
+.short-picker .webix_input_icon {
+  right: 7px;
+}

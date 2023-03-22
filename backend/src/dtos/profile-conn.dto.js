@@ -70,6 +70,14 @@ class ProfileConnDto {
   set ssl(ssl) {
     this._ssl = ssl;
   }
+
+  get content() {
+    return this._content;
+  }
+
+  set content(content) {
+    this._content = content;
+  }
 }
 
 module.exports = ProfileConnDto;

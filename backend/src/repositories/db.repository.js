@@ -120,31 +120,20 @@ class DbRepository {
     let cfg = serverCfg[0];
     if(baseRootIdOid!=0){
       const pgPool = new Pool(cfg);
-      // console.log(`aaaaaaa`, dbAllByOid(baseRootIdOid.split("_")[0]));
       const pg1 = await pgPool.query(dbAllByOid(baseRootIdOid.split("_")[0]));
       cfg.database = pg1.rows[0].datname;
     }
 
     const pgPool2 = new Pool(cfg);
-    // console.log(`bbbbbbb`, dbFuncTableSearch(search, type, view));
+    // search = search.replace(/'/g, "''");
     return pgPool2.query(dbFuncTableSearch(search, type, view));
   }
 
-  // async getSqlFunc (userConfigId, oid) {
   async getSqlFunc (profileId, oid, userId) {
-    // const pg = await pgConfig(profileId);
-    // const pgPool = new Pool(pg);
 
-    // console.log(`oidddddddddddddddddd`, oid);
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     let cfg = serverCfg[0];
-
-    // console.log(`cfggggggggggggggggggggg`, cfg);
     const pgPool = new Pool(cfg);
-    // const r = await pgPool.query(dbAllFunc(null, oidArr));
-
-    // let sql = `SELECT pg_get_functiondef((SELECT oid FROM pg_proc WHERE oid = '${oid}')) AS sqlfunc`;
-
     let commentDefinition = `
     (select func_def from
       (select CONCAT(

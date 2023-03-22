@@ -358,3 +358,42 @@ export function JSONToListText(data) {
     return result.join("");
   }
 }
+
+export function colorComboDBSource(viewId) {
+  webix.delay(
+    function () {
+      const _that = viewId;
+      const id = _that.getValue();
+      const data = _that.getPopup().getList().getItem(id);
+      const item =
+        _that.$view.getElementsByClassName("webix_el_box")[0].childNodes[0];
+      let clr = "#475466",
+        bg = "#ffffff";
+      if (id && data) {
+        if (data.content) {
+          bg = data.content;
+        }
+        if (!isColorLight(bg)) {
+          clr = "#ffffff";
+        }
+        item.style.background = bg;
+        item.style.color = clr;
+      } else {
+        item.style.background = bg;
+        item.style.color = clr;
+      }
+    },
+    null,
+    null,
+    1
+  );
+}
+
+export function isColorLight(hex, alpha = 1) {
+  const [r, g, b] = hex.match(/\w\w/g).map((x) => parseInt(x, 16));
+  //return `rgba(${r},${g},${b},${alpha})`;
+  const a = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return a < 0.5;
+  // https://codepen.io/WebSeed/pen/pvgqEq
+  // https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
+}

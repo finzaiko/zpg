@@ -98,7 +98,6 @@ const dbAllViewsBySchema = (schemaOid) => {
 };
 
 const dbFuncContentByOid = (oid) => {
-  // console.log(`oid##########`, oid);
   let commentDefinition = `
       (select CONCAT(
         '-- FUNCTION: ', isr.specific_schema|| '.' ||  routine_name,'(',string_agg(isp.data_type::text,','),');',
@@ -149,7 +148,6 @@ const dbFuncContentByOid = (oid) => {
             ${commentSample}
         ) AS data;
         `;
-  // console.log(`sql++++++++++++`, sql);
   return sql;
 };
 
@@ -242,7 +240,6 @@ const dbTableContentByOid = (oid) => {
         ) as data
     FROM tabdef
   `;
-  // console.log(`sql>>>>>>>>>>`, sql);
   return sql;
 };
 
@@ -515,7 +512,6 @@ const dbTableContentByOid2 = (oid) => {
 
   select * from pg_temp.table_def(${oid}) as data;
   `;
-  // console.log(`sql>>>>>>>>>>`, sql);
   return sql;
 }
 
@@ -572,7 +568,6 @@ const dbFuncTableSearch = (search, type, view) => {
     where = `schema ILIKE '%${spl[0]}%' AND name ILIKE '%${spl.pop()}%'`;
   }
 
-  // content search
   if (type == "content") {
     fieldFunc = `,pg_get_functiondef((SELECT oid FROM pg_proc WHERE oid = prc.oid)) AS content_val, prc.proname AS content_name, isr.specific_schema AS content_schema, 'f'::text AS ttype `;
     fieldTbl = `,(SELECT string_agg(column_name,', ') FROM pg_namespace nsp
@@ -603,7 +598,6 @@ const dbFuncTableSearch = (search, type, view) => {
       WHERE isr.specific_schema NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema'])
       GROUP BY  prc.oid, prc.proname,isr.specific_schema`;
 
-  // let sqlTbl = `SELECT c.relfilenode || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css
   let sqlTbl = `SELECT c.oid || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css,
       relname as name, n.nspname as schema, 'Table' as type
       ${fieldTbl}
@@ -618,7 +612,6 @@ const dbFuncTableSearch = (search, type, view) => {
   } else {
     sql = `SELECT id, value, css, name, schema, type ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   }
-  // console.log(`sql >>>>>`, sql);
   return sql;
 };
 

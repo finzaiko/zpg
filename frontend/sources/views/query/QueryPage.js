@@ -2329,6 +2329,24 @@ export function QueryPage(prefix, selectedDb) {
                       });
                     },
                   },
+                  { width: 10},
+                  {
+                    view: "icon",
+                    icon: "mdi mdi-export",
+                    autowidth: true,
+                    hidden: true,
+                    id: prefix + "_export_result",
+                    tooltip: "Export Result",
+                    css: "z_icon_color_primary z_icon_size_18",
+                    click: function () {
+                      const format = webix.Date.dateToStr("%Y%m%d%h%m%s");
+                      const timeStamp = format(new Date());
+                      const tblId = $$(prefix + "_result");
+                      webix.toExcel(tblId, {
+                        filename: "QueryResult__" + timeStamp,
+                      });
+                    },
+                  },
                   // {width: 10},
                   // space
                   {
@@ -2550,7 +2568,9 @@ export function QueryPage(prefix, selectedDb) {
                   $$(prefix + "_removerow_result_spacer").hide();
                 }
               }
-            );
+              );
+            $$(prefix + "_export_result").show();
+
             showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
           } else {
             showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()

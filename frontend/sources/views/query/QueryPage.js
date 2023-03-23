@@ -2332,7 +2332,7 @@ export function QueryPage(prefix, selectedDb) {
                   { width: 10},
                   {
                     view: "icon",
-                    icon: "mdi mdi-export",
+                    icon: "mdi mdi-tray-arrow-down",
                     autowidth: true,
                     hidden: true,
                     id: prefix + "_export_result",
@@ -2569,7 +2569,6 @@ export function QueryPage(prefix, selectedDb) {
                 }
               }
               );
-            $$(prefix + "_export_result").show();
 
             showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
           } else {

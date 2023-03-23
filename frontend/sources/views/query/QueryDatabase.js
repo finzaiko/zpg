@@ -538,6 +538,17 @@ const remove = () => {
 const reload = () => {
   $$(prefix + "_table").clearAll();
   $$(prefix + "_table").load(`${url}/conn?type=2`);
+
+  let tabPrefix = $$("tabs").getValue();
+  if(tabPrefix.split("_")[0]!="z"){
+    tabPrefix = "z_"+tabPrefix;
+  }
+
+  if($$(tabPrefix + "_list_multi")){
+    const listMultiConn = $$(tabPrefix + "_list_multi").getChildViews()[1];
+    listMultiConn.clearAll();
+    listMultiConn.load(`${urlProfile}/content?type=2&ls=true`);
+  }
   defaultBtn();
 };
 

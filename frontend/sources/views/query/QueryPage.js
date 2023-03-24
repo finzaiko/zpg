@@ -2210,6 +2210,7 @@ export function QueryPage(prefix, selectedDb) {
                                 editor.getModel().getLineCount()
                               );
                             });
+                            $$(prefix + "_export_result").hide();
                         } else {
                           if (isTableCanSave) {
                             $$(prefix + "_save_result").show();
@@ -2221,6 +2222,12 @@ export function QueryPage(prefix, selectedDb) {
                           $$(prefix + "_copy_result_clipboard").hide();
                           $$(prefix + "_result_scrolldown").hide();
                           $$(prefix + "_result_scrollup").hide();
+
+                          if($$(prefix + "_result").count()>0){
+                            $$(prefix + "_export_result").show();
+                          }else{
+                            $$(prefix + "_export_result").hide();
+                          }
                         }
                       },
                     },
@@ -2329,7 +2336,7 @@ export function QueryPage(prefix, selectedDb) {
                       });
                     },
                   },
-                  { width: 10},
+                  { width: 10 },
                   {
                     view: "icon",
                     icon: "mdi mdi-tray-arrow-down",
@@ -2468,6 +2475,11 @@ export function QueryPage(prefix, selectedDb) {
                             setTimeout(() => resultTblId.hideOverlay(), 3000);
                         }
                         */
+                        if (this.count() > 0) {
+                          $$(prefix + "_export_result").show();
+                        } else {
+                          $$(prefix + "_export_result").hide();
+                        }
                       },
                       onItemClick: function (id, e, trg) {
                         const cols = this.config.columns;
@@ -2568,7 +2580,7 @@ export function QueryPage(prefix, selectedDb) {
                   $$(prefix + "_removerow_result_spacer").hide();
                 }
               }
-              );
+            );
 
             showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
           } else {

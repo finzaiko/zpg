@@ -75,7 +75,7 @@ git clone `https://github.com/finzaiko/zpg.git`
 ```
 make install
 ```
-
+Manual npm install
 ```
 npm install
 cd backend && npm install

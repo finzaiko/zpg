@@ -98,7 +98,7 @@ const dbAllViewsBySchema = (schemaOid) => {
 };
 
 const dbFuncContentByOid = (oid) => {
-  let commentDefinition = `
+  let commentDefinition_OLD = `
       (select CONCAT(
         '-- FUNCTION: ', isr.specific_schema|| '.' ||  routine_name,'(',string_agg(isp.data_type::text,','),');',
         e'\n\n',
@@ -110,6 +110,29 @@ const dbFuncContentByOid = (oid) => {
         INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
         where prc.oid=${oid} AND parameter_mode='IN'
         group by routine_name, isr.specific_schema)
+    `;
+
+    let commentDefinition = `
+      (WITH a AS (
+        SELECT prc.oid, isp.data_type, isr.specific_schema, isr.routine_name, isp.parameter_mode
+        FROM information_schema.routines isr
+        INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
+        INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
+        where prc.oid=${oid}
+      ), b AS (
+        SELECT coalesce(string_agg(a.data_type::text,','),'') AS in_params FROM a
+        WHERE parameter_mode='IN'
+      ), c AS (
+        SELECT DISTINCT ON (oid) * FROM a, b
+      )
+      SELECT
+      CONCAT(
+        '-- FUNCTION: ', specific_schema|| '.' ||  routine_name,'(',in_params,');',
+        e'\n\n',
+              '-- DROP FUNCTION IF EXISTS ',specific_schema|| '.' ||  routine_name,'(',in_params,');',
+        e'\n')
+        as func_def
+      FROM c)
     `;
 
   let commentSample = `

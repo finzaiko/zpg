@@ -7,14 +7,22 @@ class QueryRepository {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
 
     // stop pg from parsing dates and timestamps without timezone
-    const TIMESTAMPTZ_OID = 1184
-    const TIMESTAMP_OID = 1114
-    types.setTypeParser(TIMESTAMP_OID, function(stringValue) {
-      return new Date(stringValue + '+0000');
+    // const TIMESTAMPTZ_OID = 1184
+    // const TIMESTAMP_OID = 1114
+    // types.setTypeParser(TIMESTAMP_OID, function(stringValue) {
+    //   return new Date(stringValue + '+0000');
+    // });
+    // types.setTypeParser(TIMESTAMPTZ_OID, function(stringValue) {
+    //   return new Date(stringValue + '+0000');
+    // });
+
+    const SQLDatetimeTypes = [1082, 1083, 1114, 1184, 1182, 1266];
+    SQLDatetimeTypes.forEach(function (type) {
+      types.setTypeParser(type, function (val) { return val; });
     });
-    types.setTypeParser(TIMESTAMPTZ_OID, function(stringValue) {
-      return new Date(stringValue + '+0000');
-    });
+    // Do not do any parsing for postgreSQL interval type
+    types.setTypeParser(1186, function (val) { return val; });
+
 
     const pgPool = new Pool(serverCfg[0]);
 

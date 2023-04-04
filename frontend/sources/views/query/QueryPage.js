@@ -2582,18 +2582,16 @@ export function QueryPage(prefix, selectedDb) {
               }
             );
 
-            showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
           } else {
-            showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
             $$(prefix + "_scrollview_body").addView(newView);
             let output = rData.error;
-            const arr = output.match(/errline:(.*)/);
 
-            if (arr != null) {
-              lineNo = Number(arr[1]);
+            if (rData.err_line) {
+              lineNo = Number(rData.err_line);
 
               if (lineNo > 0) {
                 const getEditorId = $$(prefix + "_sql_editor").getEditor();
+
                 getEditorId.revealLineInCenter(lineNo);
 
                 lineNo = isSelection ? lineNo + selectionLineNo - 1 : lineNo;
@@ -2633,6 +2631,8 @@ export function QueryPage(prefix, selectedDb) {
             );
             $$(prefix + "_tabbar").setValue(prefix + "_console");
           }
+
+          showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
 
           if (lineNo == 0) {
             $$(prefix + "_sql_editor")

@@ -242,7 +242,7 @@ class QueryController {
         const _sql = data.sql;
         const errLine =
           (_sql.substring(0, e.position).match(/\n/g) || []).length + 1;
-        // console.log('>>>>>>>>>>error: %s', e);
+        console.log('>>>>>>>>>>error: %s', e);
         let errDetail = "",
           errHint = "",
           errQuery = "",
@@ -254,14 +254,6 @@ class QueryController {
         //   errDetail = e.detail;
         //   errHint = e.hint;
         // }
-
-        // ERROR:  operator does not exist: text = integer
-        // LINE 1: ...               FROM supplychain.work_order WHERE id=in_wo_id
-        //                                                               ^
-        // HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
-        // QUERY:  SELECT wo_no               FROM supplychain.work_order WHERE id=in_wo_id
-        // CONTEXT:  PL/pgSQL function dashboard.allocation_detail_get_dev_test1(integer) line 30 at SQL statement
-        // SQL state: 42883
 
         if (typeof e.detail != "undefined") {
           errDetail = e.detail;
@@ -287,6 +279,7 @@ class QueryController {
           error: `${zErrorMsg}\n${errStack[0]}\n\nLINE: ${errLine}${
             errDetail ? "\n" + errDetail : ""
           } \n${errHint}\n${errQuery}\n${errLinePos}\n${errWhere}`,
+          err_line: errLine,
           message_toas: `Query failed.`,
           type_toas: 'error',
         });

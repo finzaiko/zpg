@@ -6,14 +6,15 @@ module.exports = fastifyPlugin((fastify, options, next) => {
     try {
       // !/\/auth.*|\/v1$/.test(request.url) &&
       if (
-        !/\/assets.*$/.test(request.url) && 
-        !/\/fonts.*$/.test(request.url) && 
+        !/\/assets.*$/.test(request.url) &&
+        !/\/fonts.*$/.test(request.url) &&
         !/^\/$/.test(request.url) && // base url
         !/\/auth\/login.*|\/v1$/.test(request.url) &&
         !/\/register|\/v1$/.test(request.url) &&
         !/\/ping|\/v1$/.test(request.url) &&
         !/\/taskbundle|\/v1$/.test(request.url) &&
-        !/\/meta|\/v1$/.test(request.url)
+        !/\/meta|\/v1$/.test(request.url) &&
+        !/\/erviewer$/.test(request.url)
       ) {
         await request.jwtVerify();
       }

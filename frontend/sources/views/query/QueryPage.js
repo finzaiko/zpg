@@ -2594,15 +2594,12 @@ export function QueryPage(prefix, selectedDb) {
 
                 getEditorId.revealLineInCenter(lineNo);
 
+                const position = getEditorId.getModel().getPositionAt(rData.err_position);
+                const { lineNumber, column } = position;
+
                 lineNo = isSelection ? lineNo + selectionLineNo - 1 : lineNo;
 
                 getEditorId.setPosition({ lineNumber: lineNo, column: 1 });
-
-                // reset decoration
-                decorations.forEach((el, i) => {
-                  const targetId = decorations[i];
-                  getEditorId.deltaDecorations([targetId], []);
-                });
 
                 // https://snippet.webix.com/prqn82na
                 let deco = getEditorId.deltaDecorations(
@@ -2612,11 +2609,18 @@ export function QueryPage(prefix, selectedDb) {
                       range: new monaco.Range(lineNo, 0, lineNo, 0),
                       options: {
                         isWholeLine: true,
-                        // className: 'myContentClass',
+                        className: 'ed_line_error_decoration',
                         glyphMarginClassName: "myGlyphMarginClass",
                         linesDecorationsClassName: "breakpointStyle",
                         marginClassName: "rightLineDecoration",
                         inlineClassName: "problematicCodeLine",
+                      },
+                    },
+                    {
+                      range: new monaco.Range(lineNumber, column-2, lineNumber, column),
+                      options: {
+                        isWholeLine: false,
+                        className: 'ed_char_error_decoration',
                       },
                     },
                   ]
@@ -2634,15 +2638,17 @@ export function QueryPage(prefix, selectedDb) {
 
           showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
 
+          // Reset decoration
           if (lineNo == 0) {
             $$(prefix + "_sql_editor")
               .getEditor(true)
               .then((ed) => {
                 decorations.forEach((el, i) => {
                   const targetId = decorations[i];
-                  ed.deltaDecorations([targetId], []);
+                  targetId.forEach(ti=>{
+                    ed.deltaDecorations([ti], []);
+                  })
                 });
-
                 decorations = [];
               });
           }

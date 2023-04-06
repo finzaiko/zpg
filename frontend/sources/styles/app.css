@@ -1642,3 +1642,12 @@ background-size: cover;
 .short-picker .webix_input_icon {
   right: 7px;
 }
+
+.ed_char_error_decoration{
+  background: yellow !important;
+}
+
+.ed_line_error_decoration {
+	background: lightblue !important;
+}
+

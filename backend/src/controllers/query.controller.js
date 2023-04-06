@@ -280,6 +280,7 @@ class QueryController {
             errDetail ? "\n" + errDetail : ""
           } \n${errHint}\n${errQuery}\n${errLinePos}\n${errWhere}`,
           err_line: errLine,
+          err_position: Number(e.position),
           message_toas: `Query failed.`,
           type_toas: 'error',
         });

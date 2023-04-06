@@ -4,6 +4,45 @@ where datname not in ('postgres','template0','template1') order by datname`;
 const dbSchemaAll = `select oid || '_s' as id, nspname as value,true::boolean as webix_kids  from pg_catalog.pg_namespace
 where  nspname not in ('information_schema') and nspname not like 'pg\_%' order by nspname`;
 
+const dbGenerateRelationTable = `
+WITH a AS (
+  select distinct
+      fk_tco.table_schema || '.' || fk_tco.table_name as fk_table_name,
+      '||--|{' as rel,
+      pk_tco.table_schema || '.' || pk_tco.table_name as primary_table_name,
+      fk_tco.table_schema, fk_tco.table_name
+  from information_schema.referential_constraints rco
+  join information_schema.table_constraints fk_tco
+          on rco.constraint_name = fk_tco.constraint_name
+          and rco.constraint_schema = fk_tco.table_schema
+  join information_schema.table_constraints pk_tco
+          on rco.unique_constraint_name = pk_tco.constraint_name
+          and rco.unique_constraint_schema = pk_tco.table_schema
+  -- where
+  -- fk_tco.table_name = 'user' -- enter table name here
+  --       and
+      --   fk_tco.table_schema = 'master'
+  -- order by fk_table_name;
+  order by fk_table_name
+)
+, b as (
+  SELECT concat_ws(' ', '"'|| fk_table_name || '"', rel, '"'|| primary_table_name ||'"', ': ref') as def, table_schema, table_name FROM a
+), c as (
+  select string_agg(def, chr(10)) as def, table_schema, table_name from b group by b.table_schema, b.table_name
+), d as (
+  -- SELECT distinct
+  --   table_name, table_schema
+  --   FROM information_schema.columns
+  --   WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+  -- and table_schema='master'
+  SELECT t.table_schema, t.table_name
+  FROM information_schema.tables t
+  LEFT JOIN c on c.table_schema=t.table_schema and c.table_name=t.table_name
+  WHERE table_type = 'BASE TABLE' AND t.table_schema NOT IN ('pg_catalog', 'information_schema')
+)
+select string_agg(def, chr(10)) from c
+`;
+
 const _getAllFunc = `
     SELECT
       prc.oid AS id,
@@ -644,5 +683,6 @@ module.exports = {
   dbAllFuncTriggerBySchema,
   dbAllViewsBySchema,
   dbFuncTriggerContentByOid,
-  dbViewContentByOid
+  dbViewContentByOid,
+  dbGenerateRelationTable
 };

@@ -21,6 +21,7 @@ function generate() {
   const data = {
     id: sourceDb,
     querysql: sql.replace(/'/g, "''"),
+    type: $$(prefixThis + "_type_combo").getValue()
   };
 
   const panelId = $$("z_generator_content");
@@ -72,6 +73,22 @@ export default class GeneratorOutParamsContent extends JetView {
               on: {
                 onChange: function (id, val) {
                   webix.storage.local.put(LAST_DB_CONN_VIEWDATA, id);
+                },
+              },
+            },
+            {
+              view: "combo",
+              id: prefixThis + "_type_combo",
+              placeholder: "Type",
+              value: 1,
+              width: 160,
+              options: [
+                {id: 1, value: "Default"},
+                {id: 2, value: "Field name and type"},
+                {id: 3, value: "Field name only"},
+              ],
+              on: {
+                onChange: function (id, val) {
                 },
               },
             },

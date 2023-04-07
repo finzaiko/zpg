@@ -3,9 +3,9 @@ const { responseOk, responseValidate } = require("../utils/http.utils");
 
 class GeneratorController {
   async getOutParams(request, reply) {
-    const { id, querysql } = request.body; 
+    const { id, querysql, type } = request.body;
     const userId = request.user.uid;
-    const data = await GeneratorService.getOutParams(id, userId, querysql);
+    const data = await GeneratorService.getOutParams(id, userId, querysql, type);
     responseOk(reply, { data: data });
   }
 }

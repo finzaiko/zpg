@@ -27,6 +27,7 @@ import {
   LAST_HISTORY,
   LAST_MULTICONN,
   LAST_ADJUSTCOLS,
+  BACKEND_URL,
 } from "../../config/setting";
 import { userId } from "../../../../backend/src/test/user-profile.test";
 import { FONT_SIZE_EDITOR } from "../../../../backend/src/config/contant";
@@ -1879,6 +1880,28 @@ export function QueryPage(prefix, selectedDb) {
                 },
               },
             },
+            {height: 8},
+            /*
+            {
+              view: "combo",
+              placeholder:"Editor Theme",
+              id: prefix + "_adjust_cols",
+              options: {
+                url: `${BACKEND_URL}/assets/themes/themelist.json`,
+              },
+              on: {
+                onChange: function(newv,oldv){
+                  // https://github.com/brijeshb42/monaco-themes
+                  fetch('/themes/Monokai.json')
+                  .then(data => data.json())
+                  .then(data => {
+                    monaco.editor.defineTheme('monokai', data);
+                    monaco.editor.setTheme('monokai');
+                  })
+                }
+              }
+            },
+            */
             { template: "" },
           ],
         },

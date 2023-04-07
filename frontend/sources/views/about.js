@@ -42,6 +42,7 @@ export default {
 				<li>execute query in compare</li>
 				<li>check compatible version</li>
 				<li>dashboard: show process activity</li>
+				<li>generate: custom type ot params</li>
 			</ul>
 		</section>
 

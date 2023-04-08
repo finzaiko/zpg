@@ -2624,6 +2624,8 @@ export function QueryPage(prefix, selectedDb) {
 
                 getEditorId.setPosition({ lineNumber: lineNo, column: 1 });
 
+                const colStart = column <=2 ? 1 : column-2;
+                const colEnd = column <=2 ? 2 : column;
                 // https://snippet.webix.com/prqn82na
                 let deco = getEditorId.deltaDecorations(
                   [],
@@ -2640,7 +2642,7 @@ export function QueryPage(prefix, selectedDb) {
                       },
                     },
                     {
-                      range: new monaco.Range(lineNumber, column-2, lineNumber, column),
+                      range: new monaco.Range(lineNumber, colStart, lineNumber, colEnd),
                       options: {
                         isWholeLine: false,
                         className: 'ed_char_error_decoration',

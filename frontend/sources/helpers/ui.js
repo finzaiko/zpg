@@ -1,6 +1,7 @@
 import { state as stateBase } from "../models/Base";
 import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
+import { FONT_SIZE_EDITOR } from "../config/setting";
 
 export const pageSize = 10000;
 export const defaultDateFormat = "%d/%m/%Y";
@@ -183,7 +184,7 @@ export function showExpiredMsg(app, forceLogout) {
 
 export function setEditorFontSize(editorId) {
   editorId.getEditor(true).then((editor) => {
-    let edFontSize = "12";
+    let edFontSize = FONT_SIZE_EDITOR;
     if (stateBase.appProfile && Array.isArray(stateBase.appProfile)) {
       edFontSize = stateBase.appProfile.find(
         (o) => o.m_key == "editor_font_size"

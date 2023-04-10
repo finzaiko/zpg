@@ -133,8 +133,10 @@ export function QueryPage(prefix, selectedDb) {
         icon: "mdi mdi-forwardburger",
         click: function () {
           const treeId = $$(prefix + "_db_tree_panel");
+          // const treeResizedId = $$(prefix + "_db_tree_panel_resizer");
           if (treeId.isVisible()) {
             treeId.hide();
+            // treeResizedId.hide();
             this.config.icon = "mdi mdi-forwardburger";
             this.config.tooltip = { template: "Show database content" };
             this.refresh();
@@ -142,6 +144,7 @@ export function QueryPage(prefix, selectedDb) {
             $$(prefix + "_viewdata_btn").disable();
           } else {
             treeId.show();
+            // treeResizedId.show();
             this.config.icon = "mdi mdi-backburger";
             this.config.tooltip = { template: "Hide database content" };
             this.refresh();
@@ -2993,6 +2996,12 @@ export function QueryPage(prefix, selectedDb) {
           {
             cols: [
               QueryDBTree,
+              {
+                  view: "resizer",
+                  css: "z_resizer_hor_thin",
+                  id: prefix + "_db_tree_panel_resizer",
+                  hidden: true,
+                },
               {
                 view: "monaco-editor",
                 id: prefix + "_sql_editor",

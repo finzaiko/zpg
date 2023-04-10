@@ -28,12 +28,14 @@ import {
   LAST_MULTICONN,
   LAST_ADJUSTCOLS,
   BACKEND_URL,
+  FONT_SIZE_EDITOR,
 } from "../../config/setting";
 import { userId } from "../../../../backend/src/test/user-profile.test";
-import { FONT_SIZE_EDITOR } from "../../../../backend/src/config/contant";
+
 import { copyToClipboard } from "../../helpers/copy";
 import { url as urlUser } from "../../models/User";
 import { getErrorMessage } from "../../helpers/api";
+import { addStoreIDB, readStoreIDB, readStoreIDBByKey, updateStoreIDB, upsertStoreIDB } from "../../helpers/idb";
 
 TimeAgo.addDefaultLocale(en);
 let timeAgo = new TimeAgo("en-US");
@@ -2866,6 +2868,39 @@ export function QueryPage(prefix, selectedDb) {
             return null;
           },
         });
+
+
+        // Tester offline data
+        // const _data = {value: "test1", modified: new Date().getTime()};
+        // // addStoreIDB(_data, prefix);
+
+        // upsertStoreIDB(_data, prefix);
+        // setTimeout(() => {
+        //   console.log("readddd");
+        //   readStoreIDB().then(o=>{
+        //     console.log('o',o);
+        //   });
+
+        //   readStoreIDBByKey("z_query2").then(o=>{
+        //     console.log('o2',o);
+        //   })
+        // }, 2000);
+
+        // setTimeout(() => {
+        //   const _data = {value: "test2 updated", modified: new Date().getTime()};
+        //   updateStoreIDB(_data, "z_query")
+        // }, 3000);
+        // onChange Editor
+
+        // editor.getModel().onDidChangeContent((event)=>{
+        //   // console.log('event== ',event);
+        //   // console.log(editor.getValue());
+        //   const _data = {value: editor.getValue(), modified: new Date().getTime()};
+        //   upsertStoreIDB(_data, prefix);
+        // });
+
+        // END: Tester
+
     });
   };
 

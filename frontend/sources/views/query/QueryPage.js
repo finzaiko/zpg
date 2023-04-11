@@ -30,7 +30,6 @@ import {
   BACKEND_URL,
   FONT_SIZE_EDITOR,
 } from "../../config/setting";
-import { userId } from "../../../../backend/src/test/user-profile.test";
 
 import { copyToClipboard } from "../../helpers/copy";
 import { url as urlUser } from "../../models/User";
@@ -333,7 +332,7 @@ export function QueryPage(prefix, selectedDb) {
                 let data = {
                   title: "",
                   content: $$(prefix + "_sql_editor").getValue(),
-                  user_id: userId,
+                  user_id: userProfile.userId,
                   type: 4,
                 };
                 webix
@@ -1515,7 +1514,7 @@ export function QueryPage(prefix, selectedDb) {
                         let data = {
                           title: $$(prefix + "_bm_title").getValue(),
                           content: $$(prefix + "_bm_sql_editor").getValue(),
-                          user_id: userId,
+                          user_id: userProfile.userId,
                           type: 4,
                         };
                         const listId = $$(prefix + "_bm_list");

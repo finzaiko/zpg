@@ -344,6 +344,13 @@ div.webix_list_item:hover .hoverButton {
   width: 3px !important;
 }
 
+.z_resizer_smaller {
+  width: 2px !important;
+}
+.z_resizer_thin {
+  width: 1px !important;
+}
+
 .z_resizer_hor_thin {
   height: 1px !important;
 }

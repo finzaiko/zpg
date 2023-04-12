@@ -7,7 +7,7 @@ import { state as stateQuery } from "../../models/Query";
 import { QueryPage } from "../query/QueryPage";
 import { DatabaseServer } from "./DatabaseServer";
 import { LAST_DB_SERVER } from "../../config/setting";
-import { setEditorFontSize } from "../../helpers/ui";
+import { isInt, setEditorFontSize } from "../../helpers/ui";
 import { copyToClipboard } from "../../helpers/copy";
 
 const prefix = state.prefix;
@@ -168,10 +168,7 @@ const toolbar = {
   ],
 };
 
-function isInt(value) {
-  var x;
-  return isNaN(value) ? !1 : ((x = parseFloat(value)), (0 | x) === x);
-}
+
 
 function openQueryTab(baseDbName) {
   stateBase.currentTabQuery = parseInt(stateBase.currentTabQuery) +1;

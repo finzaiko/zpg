@@ -220,6 +220,7 @@ export default class MainView extends JetView {
   }
 
   ready() {
+    state.viewScope = this;
     const menuState = webix.storage.local.get(LAST_SIDEBAR);
     const st = $$("app:sidebar");
     if (menuState == "1") {

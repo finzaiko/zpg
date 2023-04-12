@@ -398,3 +398,9 @@ export function isColorLight(hex, alpha = 1) {
   // https://codepen.io/WebSeed/pen/pvgqEq
   // https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
 }
+
+
+export function isInt(value) {
+  var x;
+  return isNaN(value) ? !1 : ((x = parseFloat(value)), (0 | x) === x);
+}

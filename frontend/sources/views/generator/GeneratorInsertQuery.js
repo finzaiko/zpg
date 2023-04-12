@@ -79,9 +79,11 @@ export default class GeneratorInsertQueryContent extends JetView {
               },
             },
             {
-              view: "icon",
+              view: "button",
+              type: "icon",
+              css: "zmdi_padding",
               // icon: "mdi mdi-motion-play-outline",
-              icon: "mdi mdi-play-box-outline",
+              icon: "mdi mdi-play",
               tooltip: "Generate",
               autowidth: true,
               click: function () {
@@ -90,21 +92,45 @@ export default class GeneratorInsertQueryContent extends JetView {
             },
             { width: 10 },
             {
-              view: "icon",
-              icon: "mdi mdi-content-copy",
-              tooltip: "Copy result content",
-              css: "z_mdi_icon_smaller",
-              autowidth: true,
-              click: function () {
-                const val = document.getElementById("insert_query_result");
-                if (val) {
-                  copyToClipboard($$(prefixThis + "_result"), val.innerHTML);
-                }
-              },
+              cols: [
+                {
+                  view: "button",
+                  type: "icon",
+                  icon: "mdi mdi-content-copy",
+                  css: "zmdi_padding z_icon_color_primary z_icon_size_17",
+                  autowidth: true,
+                  id: prefixThis + "_copy_clipboard",
+                  tooltip: "Copy result to clipboard",
+                  click: function () {
+                    this.hide();
+                    const ck = $$(prefixThis + "_copy_clipboard_done");
+                    ck.show();
+                    setTimeout(() => {
+                      this.show();
+                      ck.hide();
+                    }, 1500);
+
+                    const val = document.getElementById("generator_result");
+                    if (val) {
+                      copyToClipboard($$(prefixThis + "_result"), val.innerHTML);
+                    }
+                  },
+                },
+                {
+                  view: "button",
+                  width: 55,
+                  hidden: true,
+                  id: prefixThis + "_copy_clipboard_done",
+                  label:
+                    '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                },
+              ],
             },
             {
-              view: "icon",
-              icon: "mdi mdi-refresh",
+              view: "button",
+              type: "icon",
+              css: "zmdi_padding",
+              icon: "mdi mdi-close",
               tooltip: "Reset",
               autowidth: true,
               click: function () {

@@ -43,6 +43,7 @@ export default {
 				<li>check compatible version</li>
 				<li>dashboard: show process activity</li>
 				<li>generate: custom type ot params</li>
+				<li>query: store latest left</li>
 			</ul>
 		</section>
 

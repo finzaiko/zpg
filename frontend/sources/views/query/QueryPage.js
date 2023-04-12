@@ -2646,7 +2646,7 @@ export function QueryPage(prefix, selectedDb) {
                       },
                     },
                     {
-                      range: new monaco.Range(lineNumber, colStart, lineNumber, colEnd),
+                      range: new monaco.Range(lineNo, colStart, lineNo, colEnd),
                       options: {
                         isWholeLine: false,
                         className: 'ed_char_error_decoration',

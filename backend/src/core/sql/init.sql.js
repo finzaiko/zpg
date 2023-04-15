@@ -53,8 +53,11 @@ CREATE TABLE db_conn (
     database text,
     user text,
     password text,
+    ssl integer,
+    seq integer,
     type integer, -- 1=serverconn, 2=dbconn,
     user_id integer,
+    color text,
     created_at timestamp DATE DEFAULT (datetime('now','localtime')),
     modified_at TIMESTAMP,
     UNIQUE(conn_name, user_id)
@@ -162,6 +165,11 @@ const defaultSetting = `
 const defaultUser = `
     INSERT INTO user (fullname, email, username, password, salt, user_level) VALUES
     ('Admin', 'admin@zpg.com', 'admin', '$2b$10$AOWgReYaPvcDqaOw1h6Gfe6IHeS0rCmSQ7ctGAfzlaWnazf35AiXC', '$2b$10$AOWgReYaPvcDqaOw1h6Gfe', 1);
+`;
+
+
+const migrateDBConn = `
+    -- TODO: Prepare to migrate db_conn
 `;
 
 module.exports = {

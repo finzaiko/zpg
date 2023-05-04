@@ -2634,11 +2634,10 @@ export function QueryPage(prefix, selectedDb) {
                 let deco = getEditorId.deltaDecorations(
                   [],
                   [
-                    /*
                     {
                       range: new monaco.Range(lineNo, 0, lineNo, 0),
                       options: {
-                        isWholeLine: true,
+                        isWholeLine: false,
                         className: 'ed_line_error_decoration',
                         glyphMarginClassName: "myGlyphMarginClass",
                         linesDecorationsClassName: "breakpointStyle",
@@ -2646,7 +2645,6 @@ export function QueryPage(prefix, selectedDb) {
                         inlineClassName: "problematicCodeLine",
                       },
                     },
-                    */
                     {
                       range: new monaco.Range(lineNo, colStart, lineNo, colEnd),
                       options: {

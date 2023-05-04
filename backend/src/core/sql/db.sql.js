@@ -166,6 +166,217 @@ const dbFuncContentByOid = (oid) => {
 };
 
 const dbTableContentByOid = (oid) => {
+  let sql = `
+  -- partner TABLE DEFINITION
+  WITH oidinfo AS (
+      select nsp.nspname as scm_name, tbl.relname AS tbl_name
+      from pg_namespace nsp join pg_class tbl on nsp.oid = tbl.relnamespace
+      where tbl.oid = '${oid}'
+  ),
+
+  attrdef AS (
+          SELECT
+              n.nspname,
+              c.relname,
+              pg_catalog.array_to_string(c.reloptions || array(select 'toast.' || x from pg_catalog.unnest(tc.reloptions) x), ', ') as relopts,
+              c.relpersistence,
+              a.attnum,
+              a.attname,
+              pg_catalog.format_type(a.atttypid, a.atttypmod) as atttype,
+              (SELECT substring(pg_catalog.pg_get_expr(d.adbin, d.adrelid, true) for 128) FROM pg_catalog.pg_attrdef d
+                  WHERE d.adrelid = a.attrelid AND d.adnum = a.attnum AND a.atthasdef) as attdefault,
+              a.attnotnull,
+              (SELECT c.collname FROM pg_catalog.pg_collation c, pg_catalog.pg_type t
+                  WHERE c.oid = a.attcollation AND t.oid = a.atttypid AND a.attcollation <> t.typcollation) as attcollation,
+              a.attidentity,
+              a.attgenerated
+          FROM pg_catalog.pg_attribute a
+          JOIN pg_catalog.pg_class c ON a.attrelid = c.oid
+          JOIN pg_catalog.pg_namespace n ON c.relnamespace = n.oid
+          LEFT JOIN pg_catalog.pg_class tc ON (c.reltoastrelid = tc.oid), oidinfo
+          -- WHERE a.attrelid = 'master.partner'::regclass
+          WHERE a.attrelid = format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)::regclass
+              AND a.attnum > 0
+              AND NOT a.attisdropped
+          ORDER BY a.attnum
+      ),
+      coldef AS (
+          SELECT
+              attrdef.nspname,
+              attrdef.relname,
+              attrdef.relopts,
+              attrdef.relpersistence,
+              pg_catalog.format(
+                  '%I %s%s%s%s%s',
+                  attrdef.attname,
+                  attrdef.atttype,
+                  case when attrdef.attcollation is null then '' else pg_catalog.format(' COLLATE %I', attrdef.attcollation) end,
+                  case when attrdef.attnotnull then ' NOT NULL' else '' end,
+                  case when attrdef.attdefault is null then ''
+                      else case when attrdef.attgenerated = 's' then pg_catalog.format(' GENERATED ALWAYS AS (%s) STORED', attrdef.attdefault)
+                          when attrdef.attgenerated <> '' then ' GENERATED AS NOT_IMPLEMENTED'
+                          else pg_catalog.format(' DEFAULT %s', attrdef.attdefault)
+                      end
+                  end,
+                  case when attrdef.attidentity<>'' then pg_catalog.format(' GENERATED %s AS IDENTITY',
+                          case attrdef.attidentity when 'd' then 'BY DEFAULT' when 'a' then 'ALWAYS' else 'NOT_IMPLEMENTED' end)
+                      else '' end
+              ) as col_create_sql
+          FROM attrdef
+          ORDER BY attrdef.attnum
+      ),
+      tblown AS (
+        SELECT format('ALTER TABLE IF EXISTS %s.%s OWNER to %s;',oidinfo.scm_name, oidinfo.tbl_name, tableowner) as ownstr
+        FROM pg_tables, oidinfo where schemaname=oidinfo.scm_name and tablename=oidinfo.tbl_name
+      ),
+      constlist AS ( -- Constraint and primary key list
+      SELECT
+        FORMAT(e'    CONSTRAINT %s %s',
+            -- conname,
+            CASE WHEN conname ~ '^(.*\s+.*)+$' THEN format('"%s"', conname) ELSE conname END, -- Check if constraint name contains SPACE char
+            pg_get_constraintdef ( c.oid )
+        ) as cfstr
+      FROM pg_constraint c
+      JOIN pg_namespace n ON n.oid = c.connamespace,
+          oidinfo
+      WHERE contype IN ('f','p','c') AND conrelid::regclass::TEXT=format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)
+      ORDER BY conrelid::regclass::TEXT, contype DESC
+      ),
+    conststr AS (
+      select string_agg(cfstr,e',\n') AS str from constlist
+    ),
+    constuniqstr AS ( -- Constraint unique
+        SELECT
+            FORMAT(e'    CONSTRAINT "%s" UNIQUE (%s)',constraint_name,column_name) as uniq_str
+        FROM information_schema.table_constraints c
+        JOIN information_schema.constraint_column_usage cc
+        USING (table_schema, table_name, constraint_name), oidinfo
+        WHERE c.constraint_type = 'UNIQUE'
+        AND table_schema=oidinfo.scm_name
+        AND table_name=oidinfo.tbl_name
+        ),pkeyidx AS ( -- Index list
+          SELECT
+            -- concat(e'\t',pg_catalog.pg_get_constraintdef(pco.oid, true)) as idx_str,
+            -- pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true) as ci_str
+            FORMAT(e'-- Index: %s\n\n-- DROP INDEX IF EXISTS %s."%s";\n\n%s',
+                pc.relname,
+                nspname,
+                pc.relname,
+                pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true)
+            ) as ci_str
+          from pg_catalog.pg_class pc
+          inner join pg_catalog.pg_namespace pn
+            on pn.oid = pc.relnamespace
+          inner join pg_catalog.pg_index pi
+            on pc.oid = pi.indrelid
+          inner join pg_catalog.pg_class pc2
+            on pi.indexrelid = pc2.oid
+          left join pg_catalog.pg_constraint pco
+            on (
+              pco.conrelid = pi.indrelid
+              and pco.conindid = pi.indexrelid
+              and pco.contype in ('p', 'u', 'x')
+            ),
+            oidinfo
+          WHERE
+            pn.nspname = oidinfo.scm_name
+            and pc.relname = tbl_name
+            and pco.contype is null
+          ORDER BY
+            pi.indisprimary desc
+            , pi.indisunique desc
+            , pc.relname
+      ), idxdef AS (
+            SELECT string_agg(ci_str, E',\n\n') AS idxstr FROM pkeyidx
+      ), commlist AS ( -- Comment list
+          SELECT
+              c.table_schema,
+              c.table_name,
+              c.column_name,
+              pgd.description
+          from pg_catalog.pg_statio_all_tables as st
+          inner join pg_catalog.pg_description pgd on (
+              pgd.objoid = st.relid
+          )
+          inner join information_schema.columns c on (
+              pgd.objsubid   = c.ordinal_position and
+              c.table_schema = st.schemaname and
+              c.table_name   = st.relname
+          ),
+          oidinfo
+          WHERE c.table_schema=oidinfo.scm_name and c.table_name=oidinfo.tbl_name
+      ), tblcomm AS (
+          SELECT FORMAT(e'COMMENT ON COLUMN %s.%s.%s\nIS %s;', table_schema, table_name, column_name, quote_literal(description)) AS commstr FROM commlist
+      ), triglist AS ( -- Trigger list
+          SELECT
+              FORMAT(e'-- Trigger: %s\n\n-- DROP TRIGGER IF EXISTS %s ON %s;\n\n%s',
+                  pt.tgname,
+                  pt.tgname,
+                  pt.tgrelid::regclass,
+                  pg_get_triggerdef(pt.oid)
+              ) AS strval
+              -- p.proname,
+              -- pg_get_functiondef(pt.tgfoid)
+              -- tgenabled
+          FROM   pg_trigger pt
+          join pg_proc p on p.oid = pt.tgfoid,
+          oidinfo
+          WHERE  tgrelid = format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)::regclass
+          and not tgisinternal
+      ), tbltrig AS (
+          SELECT string_agg(strval, e'\n\n') AS trigstr FROM triglist
+    ),
+      tabdef AS (
+          SELECT
+              coldef.nspname,
+              coldef.relname,
+              coldef.relopts,
+              coldef.relpersistence,
+              string_agg(coldef.col_create_sql, E',\n    ') as cols_create_sql
+          FROM coldef, idxdef
+          GROUP BY
+              coldef.nspname, coldef.relname, coldef.relopts, coldef.relpersistence
+      ), tbldef AS (
+          SELECT
+              format(
+                  'CREATE%s TABLE %I.%I%s%s%s;',
+                  case tabdef.relpersistence when 't' then ' TEMP' when 'u' then ' UNLOGGED' else '' end,
+                  tabdef.nspname,
+                  tabdef.relname,
+                  coalesce(
+                      (SELECT format(E'\n    PARTITION OF %I.%I %s\n', pn.nspname, pc.relname,
+                          pg_get_expr(c.relpartbound, c.oid))
+                          FROM pg_class c JOIN pg_inherits i ON c.oid = i.inhrelid
+                          JOIN pg_class pc ON pc.oid = i.inhparent
+                          JOIN pg_namespace pn ON pn.oid = pc.relnamespace
+                          WHERE c.oid = format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)::regclass),
+                        format(E' (\n    %s\n)', concat_ws(e',\n',tabdef.cols_create_sql,constuniqstr.uniq_str, conststr.str)) -- , conststr.str
+                  ),
+                  case when tabdef.relopts <> '' then format(' WITH (%s)', tabdef.relopts) else '' end,
+                  coalesce(E'\nPARTITION BY '|| pg_get_partkeydef(format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)::regclass), '')
+              ) as data
+          FROM tabdef, conststr, oidinfo
+          LEFT JOIN constuniqstr ON true
+      )
+      SELECT
+          CONCAT_WS(e'\n\n',
+          FORMAT('-- Table: %s.%s',oidinfo.scm_name, oidinfo.tbl_name),
+          FORMAT('-- DROP TABLE IF EXISTS %s.%s;',oidinfo.scm_name, oidinfo.tbl_name),
+          tbldef.data,
+          tblown.ownstr,
+          tblcomm.commstr,
+          idxdef.idxstr,
+          tbltrig.trigstr) AS data
+        FROM oidinfo, tbldef, tblown, idxdef
+        LEFT JOIN tblcomm ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
+        LEFT JOIN tbltrig ON true
+  `;
+  // console.log('sql>>>>>>>>>>>>',sql);
+
+  return sql;
+}
+
+const dbTableContentByOid3 = (oid) => {
   let regClass = `
     (select nsp.nspname || '.' || tbl.relname
     from pg_namespace nsp join pg_class tbl on nsp.oid = tbl.relnamespace
@@ -583,12 +794,13 @@ const dbFuncTableSearch = (search, type, view) => {
   }
 
   if (type == "content") {
-    fieldFunc = `,pg_get_functiondef((SELECT oid FROM pg_proc WHERE oid = prc.oid)) AS content_val, prc.proname AS content_name, isr.specific_schema AS content_schema, 'f'::text AS ttype `;
+    // fieldFunc = `,pg_get_functiondef((SELECT oid FROM pg_proc WHERE oid = prc.oid)) AS content_val, prc.proname AS content_name, isr.specific_schema AS content_schema, 'f'::text AS ttype `;
+    fieldFunc = `,pg_catalog.pg_get_functiondef(prc.oid) AS content_val, prc.proname AS content_name, prc.pronamespace::pg_catalog.regnamespace::text AS content_schema, 'f'::text AS ttype `;
     fieldTbl = `,(SELECT string_agg(column_name,', ') FROM pg_namespace nsp
           JOIN pg_class tbl on nsp.oid = tbl.relnamespace
           JOIN information_schema.columns scm on scm.table_schema=nsp.nspname and scm.table_name=tbl.relname
         WHERE tbl.oid = c.relfilenode
-      ) AS content_val, c.relname AS content_name, n.nspname AS content_schema, 't'::text AS ttype`;
+      ) AS content_val, c.relname AS content_name, n.nspname::text AS content_schema, 't'::text AS ttype`;
   }
 
   if (type == "content") {
@@ -603,6 +815,7 @@ const dbFuncTableSearch = (search, type, view) => {
     limit = `200`;
   }
 
+  /* OLD Pg Version: Deprecated
   let sqlFunc = `SELECT prc.oid || '_g' AS id, prc.proname || '(f:' || isr.specific_schema || ')' AS value, 'z_combo_item_f' AS css,
       prc.proname as name, isr.specific_schema as schema, 'Function' as type
       ${fieldFunc}
@@ -611,9 +824,17 @@ const dbFuncTableSearch = (search, type, view) => {
       LEFT JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
       WHERE isr.specific_schema NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema'])
       GROUP BY  prc.oid, prc.proname,isr.specific_schema`;
+  */
+
+  let sqlFunc = `
+        SELECT prc.oid || '_g' AS id, prc.proname || '(f:' || prc.pronamespace::pg_catalog.regnamespace || ')' AS value, 'z_combo_item_f' AS css,
+          prc.proname AS name, prc.pronamespace::pg_catalog.regnamespace::text AS schema, 'Function' AS type
+          ${fieldFunc}
+        FROM pg_catalog.pg_proc prc where prc.prokind != 'a' AND
+        prc.pronamespace::pg_catalog.regnamespace::text NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema'])`;
 
   let sqlTbl = `SELECT c.oid || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css,
-      relname as name, n.nspname as schema, 'Table' as type
+      relname as name, n.nspname::text as schema, 'Table' as type
       ${fieldTbl}
       FROM pg_catalog.pg_class c
       JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
@@ -626,6 +847,8 @@ const dbFuncTableSearch = (search, type, view) => {
   } else {
     sql = `SELECT id, value, css, name, schema, type ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   }
+  console.log('sql',sql);
+
   return sql;
 };
 

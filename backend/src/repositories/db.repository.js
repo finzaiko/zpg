@@ -104,7 +104,7 @@ class DbRepository {
     if (mode[1] == "g") {
       rsql = dbFuncContentByOid(mode[0]);
     } else if (mode[1] == "u") {
-      rsql = dbTableContentByOid2(mode[0]);
+      rsql = dbTableContentByOid(mode[0]);
     } else if (mode[1] == "w") { // func triggers
       rsql = dbFuncTriggerContentByOid(mode[0]);
     } else if (mode[1] == "y") { // views

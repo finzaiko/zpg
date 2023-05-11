@@ -69,7 +69,7 @@ open in browser: http://localhost:9001
 ### Manual Development Install
 
 ```
-git clone `https://github.com/finzaiko/zpg.git`
+git clone https://github.com/finzaiko/zpg.git
 ```
 
 ```

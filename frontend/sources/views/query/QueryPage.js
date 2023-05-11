@@ -2481,13 +2481,13 @@ export function QueryPage(prefix, selectedDb) {
                     select: "row",
                     editable: true,
                     id: prefix + "_result",
-                    css: "z_query_result_grid",
+                    css: "z_query_result_grid webix_data_border webix_dtable",
                     columns: rData.config,
                     // columns: newCfg,
                     resizeColumn: true,
                     data: rData.data,
                     // data: newArr,
-                    maxColumnWidth: 260,
+                    maxColumnWidth: state.isAdjustCols ? 260 : null,
                     resizeRow: true,
                     pager: prefix + "_result_row_pager",
                     on: {
@@ -3084,6 +3084,11 @@ export function QueryPage(prefix, selectedDb) {
         const lmt = webix.storage.local.get(LAST_MULTICONN);
         if (lmt) {
           showhideMulticonn(lmt);
+        }
+
+        const ac = webix.storage.local.get(LAST_ADJUSTCOLS);
+        if (ac) {
+          state.isAdjustCols = ac;
         }
 
         setSearchType();

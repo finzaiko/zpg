@@ -734,7 +734,7 @@ export function QueryPage(prefix, selectedDb) {
               baseRootId = this.getParentId(baseRootId);
             }
             baseDbName = this.getItem(baseRootId).value;
-            loadSchemaContent(baseRootId, id);
+            loadSchemaContent(baseRootId, id, true);
           },
           onItemClick: function (id) {
             let itemRootId = id;
@@ -920,7 +920,7 @@ export function QueryPage(prefix, selectedDb) {
                 id: prefix + "_history_content",
                 language: "sql",
                 lineNumbers: "off",
-                fontSize: "12px",
+                fontSize: "14px",
                 borderless: true,
                 renderLineHighlight: "none",
               },
@@ -1009,7 +1009,7 @@ export function QueryPage(prefix, selectedDb) {
                 id: prefix + "_dbtree_content",
                 language: "sql",
                 lineNumbers: "off",
-                fontSize: "12px",
+                fontSize: "14px",
                 borderless: true,
                 renderLineHighlight: "none",
               },
@@ -1247,13 +1247,21 @@ export function QueryPage(prefix, selectedDb) {
                 $$(prefix + "_sql_editor").hide();
                 $$(prefix + "_dbtree_preview").hide();
                 let item = this.getItem(id);
-                $$(prefix + "_history_content").setValue(item.content);
+
+                const panelHistoryId = $$(prefix + "_history_content_panel");
                 const editorHistoryId = $$(prefix + "_history_content");
+                webix.extend(panelHistoryId, webix.ProgressBar);
+                panelHistoryId.showProgress({
+                  type: "top",
+                });
+
+                editorHistoryId.setValue(item.content);
                 editorHistoryId.getEditor(true).then((editorHistory) => {
                   editorHistory.updateOptions({
                     readOnly: true,
                   });
                 });
+                panelHistoryId.hideProgress();
               },
               onItemDblClick: function (id) {
                 copyToQuery(this.getItem(id).content);
@@ -1701,7 +1709,7 @@ export function QueryPage(prefix, selectedDb) {
     if ($$(prefix + "_search_detach_win")) {
       $$(prefix + "_search_detach_win").close();
     }
-    const panelId = $$(prefix + "_page_panel");
+    // const panelId = $$(prefix + "_page_panel");
 
     const search = {
       view: "text",
@@ -1775,7 +1783,7 @@ export function QueryPage(prefix, selectedDb) {
         },
         on: {
           onValueSuggest: function (node) {
-            loadSchemaContent(0, node.id, panelId);
+            loadSchemaContent(0, node.id);
           },
         },
       },
@@ -1824,11 +1832,11 @@ export function QueryPage(prefix, selectedDb) {
               data: searchHistoryStore,
               on: {
                 onItemClick: function (sel) {
-                  loadSchemaContent(0, sel, panelId);
+                  loadSchemaContent(0, sel);
                 },
                 onKeyPress: function (code, e) {
                   if (code == 13) {
-                    loadSchemaContent(0, this.getSelectedId(), panelId);
+                    loadSchemaContent(0, this.getSelectedId());
                   }
                 },
               },
@@ -3040,32 +3048,53 @@ export function QueryPage(prefix, selectedDb) {
       .get(`${url}/is_table?id=${profileId}&table=${tableName}`);
   };
 
-  const loadSchemaContent = (itemRootId, oid, panelId) => {
+  const loadSchemaContent = (itemRootId, oid, isOnTopPanel) => {
     searchOidSelected = oid;
     const typ = oid.split("_")[1];
 
     if (typ == "g" || typ == "u" || typ == "y" || typ == "w") {
       let profileId = $$(prefix + "_source_combo").getValue();
-      // let dbTreePreviewId = $$(prefix + "_sql_editor");
+      let sqlEditorId = $$(prefix + "_sql_editor");
       const dbTreePreviewId = $$(prefix + "_dbtree_preview");
       const dbTreePanelId = $$(prefix + "_dbtree_content_panel");
-      dbTreePreviewId.show();
-      $$(prefix + "_sql_editor").hide();
-      $$(prefix + "_history_preview").hide();
 
-      webix.extend(dbTreePanelId, webix.ProgressBar);
-      dbTreePanelId.showProgress({
-        type: "top",
-      });
+      // TODO: TYPE 1= Load from suggest search, 2= Load from db tree/history
+
+      if(isOnTopPanel){
+        dbTreePreviewId.show();
+        sqlEditorId.hide();
+        $$(prefix + "_history_preview").hide();
+        // $$(prefix + "_dbtree_preview").hide();
+        webix.extend(dbTreePanelId, webix.ProgressBar);
+        dbTreePanelId.showProgress({
+          type: "top",
+        });
+      }else{
+        sqlEditorId.show();
+        $$(prefix + "_history_preview").hide();
+        $$(prefix + "_dbtree_preview").hide();
+
+        webix.extend(sqlEditorId, webix.ProgressBar);
+        sqlEditorId.showProgress({
+          type: "top",
+        });
+      }
+
       webix
         .ajax()
         .get(
           `${urlDb}/schema_content?id=${profileId}&root=${itemRootId}&oid=${oid}`
         )
         .then(function (data) {
-          dbTreePanelId.hideProgress();
-          const dbPreviewEditorId = $$(prefix+"_dbtree_content")
-          dbPreviewEditorId.setValue(data.json().data);
+
+          if(isOnTopPanel){
+            dbTreePanelId.hideProgress();
+            $$(prefix+"_dbtree_content").setValue(data.json().data);
+          }else{
+            sqlEditorId.hideProgress();
+            sqlEditorId.setValue(data.json().data);
+          }
+
           const boxes = document.querySelectorAll("body > div.webix_modal");
           boxes.forEach((box) => {
             box.style.backgroundColor = "#000";

@@ -847,27 +847,24 @@ export function QueryPage(prefix, selectedDb) {
     cols: [
       {
         width: 100,
-        css: { background: "#fff" },
+      },
+     {
         rows: [
+          {height: 50},
           {
             cols: [
               {},
               {
-                view: "button",
-                type: "icon",
-                icon: "mdi mdi-close",
-                autowidth: true,
-                tooltip: "Close",
-                click: function () {
-                  $$(prefix + "_history_preview").hide();
-                  $$(prefix + "_sql_editor").show();
-                },
+                  view: "button",
+                  type: "icon",
+                  icon: "mdi mdi-close",
+                  autowidth: true,
+                  tooltip: "Close",
+                  click: function () {
+                    $$(prefix + "_history_preview").hide();
+                    $$(prefix + "_sql_editor").show();
+                  },
               },
-            ],
-          },
-          {
-            cols: [
-              {},
               {
                 view: "button",
                 type: "icon",
@@ -875,64 +872,154 @@ export function QueryPage(prefix, selectedDb) {
                 autowidth: true,
                 tooltip: "Copy to query editor",
                 click: function () {
+                  $$(prefix + "_history_preview").hide();
                   copyToQuery($$(prefix + "_history_content").getValue());
                   let editorId = $$(prefix + "_sql_editor");
                   editorId.focus();
                 },
               },
-            ],
+              {
+                cols: [
+                  {
+                    view: "button",
+                    type: "icon",
+                    icon: "mdi mdi-content-copy",
+                    autowidth: true,
+                    id: prefix + "_copy_clipboard",
+                    tooltip: "Copy to clipboard",
+                    click: function () {
+                      this.hide();
+                      const ck = $$(prefix + "_copy_clipboard_done");
+                      ck.show();
+                      setTimeout(() => {
+                        this.show();
+                        ck.hide();
+                      }, 1500);
+                      copyToClipboard($$(prefix + "_history_content").getValue());
+                    },
+                  },
+                  {
+                    view: "button",
+                    width: 55,
+                    hidden: true,
+                    id: prefix + "_copy_clipboard_done",
+                    label:
+                      '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                  },
+                ],
+              },
+            ]
           },
           {
+            type:"form",
+            id: prefix + "_history_content_panel",
+            rows: [
+              {
+                view: "monaco-editor",
+                css: "z_console_editor",
+                id: prefix + "_history_content",
+                language: "sql",
+                lineNumbers: "off",
+                fontSize: "12px",
+                borderless: true,
+                renderLineHighlight: "none",
+              },
+            ],
+          },
+        ]
+     },
+    ],
+  };
+
+  let QueryDBTreePreview = {
+    type: "line",
+    id: prefix + "_dbtree_preview",
+    hidden: true,
+    cols: [
+     {
+        rows: [
+          {height: 50},
+          {
             cols: [
-              {},
+              {
+                  view: "button",
+                  type: "icon",
+                  icon: "mdi mdi-close",
+                  autowidth: true,
+                  tooltip: "Close",
+                  click: function () {
+                    $$(prefix + "_dbtree_preview").hide();
+                    $$(prefix + "_sql_editor").show();
+                  },
+              },
               {
                 view: "button",
                 type: "icon",
-                icon: "mdi mdi-content-copy",
+                icon: "mdi mdi-arrange-send-backward",
                 autowidth: true,
-                id: prefix + "_copy_clipboard",
-                tooltip: "Copy to clipboard",
+                tooltip: "Copy to query editor",
                 click: function () {
-                  this.hide();
-                  const ck = $$(prefix + "_copy_clipboard_done");
-                  ck.show();
-                  setTimeout(() => {
-                    this.show();
-                    ck.hide();
-                  }, 1500);
-
-                  copyToClipboard($$(prefix + "_history_content").getValue());
+                  $$(prefix + "_dbtree_preview").hide();
+                  copyToQuery($$(prefix + "_dbtree_content").getValue());
+                  let editorId = $$(prefix + "_sql_editor");
+                  editorId.focus();
                 },
               },
               {
-                view: "button",
-                // autowidth: true,
-                width: 55,
-                hidden: true,
-                id: prefix + "_copy_clipboard_done",
-                label:
-                  '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                cols: [
+                  {
+                    view: "button",
+                    type: "icon",
+                    icon: "mdi mdi-content-copy",
+                    autowidth: true,
+                    id: prefix + "_qdbtreeprv_copy_clipboard",
+                    tooltip: "Copy to clipboard",
+                    click: function () {
+                      this.hide();
+                      const ck = $$(prefix + "_qdbtreeprv_copy_clipboard_done");
+                      ck.show();
+                      setTimeout(() => {
+                        this.show();
+                        ck.hide();
+                      }, 1500);
+
+                      copyToClipboard($$(prefix + "_dbtree_content").getValue());
+                    },
+                  },
+                  {
+                    view: "button",
+                    // autowidth: true,
+                    width: 55,
+                    hidden: true,
+                    id: prefix + "_qdbtreeprv_copy_clipboard_done",
+                    label:
+                      '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                  },
+                ],
+              },
+              {}
+            ]
+          },
+          {
+            type:"form",
+            id: prefix + "_dbtree_content_panel",
+            rows: [
+              {
+                view: "monaco-editor",
+                id: prefix + "_dbtree_content",
+                language: "sql",
+                lineNumbers: "off",
+                fontSize: "12px",
+                borderless: true,
+                renderLineHighlight: "none",
               },
             ],
           },
-          {},
-        ],
-      },
-      {
-        css: "z_console_editor_panel",
-        rows: [
-          {
-            view: "monaco-editor",
-            css: "z_console_editor",
-            id: prefix + "_history_content",
-            language: "text",
-            lineNumbers: "off",
-            fontSize: "12px",
-            borderless: true,
-            renderLineHighlight: "none",
-          },
-        ],
-      },
+        ]
+     },
+     {
+      width: 100,
+     },
     ],
   };
 
@@ -1158,6 +1245,7 @@ export function QueryPage(prefix, selectedDb) {
               onItemClick: function (id) {
                 $$(prefix + "_history_preview").show();
                 $$(prefix + "_sql_editor").hide();
+                $$(prefix + "_dbtree_preview").hide();
                 let item = this.getItem(id);
                 $$(prefix + "_history_content").setValue(item.content);
                 const editorHistoryId = $$(prefix + "_history_content");
@@ -2958,9 +3046,15 @@ export function QueryPage(prefix, selectedDb) {
 
     if (typ == "g" || typ == "u" || typ == "y" || typ == "w") {
       let profileId = $$(prefix + "_source_combo").getValue();
-      let viewId = $$(prefix + "_sql_editor");
-      webix.extend(viewId, webix.ProgressBar);
-      viewId.showProgress({
+      // let dbTreePreviewId = $$(prefix + "_sql_editor");
+      const dbTreePreviewId = $$(prefix + "_dbtree_preview");
+      const dbTreePanelId = $$(prefix + "_dbtree_content_panel");
+      dbTreePreviewId.show();
+      $$(prefix + "_sql_editor").hide();
+      $$(prefix + "_history_preview").hide();
+
+      webix.extend(dbTreePanelId, webix.ProgressBar);
+      dbTreePanelId.showProgress({
         type: "top",
       });
       webix
@@ -2969,8 +3063,9 @@ export function QueryPage(prefix, selectedDb) {
           `${urlDb}/schema_content?id=${profileId}&root=${itemRootId}&oid=${oid}`
         )
         .then(function (data) {
-          viewId.hideProgress();
-          viewId.setValue(data.json().data);
+          dbTreePanelId.hideProgress();
+          const dbPreviewEditorId = $$(prefix+"_dbtree_content")
+          dbPreviewEditorId.setValue(data.json().data);
           const boxes = document.querySelectorAll("body > div.webix_modal");
           boxes.forEach((box) => {
             box.style.backgroundColor = "#000";
@@ -3001,6 +3096,7 @@ export function QueryPage(prefix, selectedDb) {
                   id: prefix + "_db_tree_panel_resizer",
                   hidden: true,
                 },
+                QueryDBTreePreview,
               {
                 view: "monaco-editor",
                 id: prefix + "_sql_editor",

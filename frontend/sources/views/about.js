@@ -50,6 +50,12 @@ export default {
 		<section>
 			<h4>Change log:</h4>
 			<p>
+				<h4>0.0.18-dev (16-05-2023)</h4>
+				<ul>
+					<li>upd db tree and history preview</li>
+				</ul>
+			</p>
+			<p>
 				<h4>0.0.17-dev (21-03-2023)</h4>
 				<ul>
 					<li>upd generator</li>

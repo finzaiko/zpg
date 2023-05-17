@@ -29,6 +29,7 @@ function createWindow() {
   mainWindow.loadURL("http://localhost:9000");
   mainWindow.on("closed", function () {
     mainWindow = null;
+    app.quit();
   });
 }
 

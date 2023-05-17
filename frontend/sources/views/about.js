@@ -34,7 +34,6 @@ export default {
 		<section>
 			<h4>Todo:</h4>
 			<ul>
-				<li>hide shareview if desktop mode</li>
 				<li>all: load user setting from json profile</li>
 				<li>share: reconstruct to separate table and notify socket.io</li>
 				<li>query: change reload on user setting</li>
@@ -42,7 +41,6 @@ export default {
 				<li>execute query in compare</li>
 				<li>check compatible version</li>
 				<li>dashboard: show process activity</li>
-				<li>generate: custom type ot params</li>
 				<li>query: store latest left</li>
 			</ul>
 		</section>

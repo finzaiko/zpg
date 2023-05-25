@@ -11,7 +11,7 @@ import {
 } from "../../helpers/ui";
 import { url as urlDb } from "../../models/Db";
 import { url as urlViewData } from "../../models/ViewData";
-import { state as stateBase } from "../../models/Base";
+import { nonSringType, state as stateBase } from "../../models/Base";
 import { url as urlProfile } from "../../models/Profile";
 import { url as urlShare } from "../../models/Share";
 import { url, state, searchHistoryStore } from "../../models/Query";
@@ -2833,11 +2833,30 @@ export function QueryPage(prefix, selectedDb) {
           webix
             .ui({
               view: "contextmenu",
-              data: ["Copy Field Name"],
+              data: [{id: 1, value: "Copy Field Name"}, {id: 2, value: "Copy Column Value"}],
               click: function (id, context) {
-                const temp = pos.column.split("_");
-                temp.pop();
-                copyToClipboard(temp.join("_"));
+                const colName = pos.column;
+                if(id==1){
+                  const temp = colName.split("_");
+                  temp.pop();
+                  copyToClipboard(temp.join("_"));
+                }else if(id==2){
+                  let x = []
+                  resultTblId.eachRow(function (row){
+                    const c = resultTblId.getText(row, pos.column)
+                    const d = resultTblId.getColumnConfig(colName)
+                      if(nonSringType.includes(d.ztype)){
+                        x.push(c);
+                      }else{
+                        x.push(`'${c}'`);
+                      }
+                    }
+                  )
+                  const colVal = x.join(",\n");
+                  copyToClipboard(colVal);
+                }else{
+                  webix.message({text: "Error context menu not define", type: "error"})
+                }
               },
             })
             .show(e);

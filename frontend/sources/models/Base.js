@@ -8,7 +8,7 @@ export let state = {
   currentTabViewData: 0,
   currentDBSelected: "",
   meta: {},
-  appProfile: {}
+  appProfile: {},
 };
 
 // export function getAppConfig() {
@@ -47,6 +47,20 @@ export const menuData = [
   { value: "View Data", id: routeName.viewdata, icon: "mdi mdi-view-grid" },
   { value: "Copy Data", id: routeName.copydata, icon: "mdi mdi-layers" },
   { value: "Generator", id: routeName.generator, icon: "mdi mdi-atom-variant" },
-  { value: "Query Share", id: routeName.shared, icon: "mdi mdi-vector-combine" }, // vector-link, vector-intersection
+  {
+    value: "Query Share",
+    id: routeName.shared,
+    icon: "mdi mdi-vector-combine",
+  }, // vector-link, vector-intersection
   { value: "Setting", id: routeName.setting, icon: "mdi mdi-cog" },
+];
+
+export const nonSringType = [
+  "bool",
+  "int8",
+  "int2",
+  "int4",
+  "numeric",
+  "float4",
+  "float8",
 ];

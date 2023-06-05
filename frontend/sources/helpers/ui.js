@@ -336,7 +336,8 @@ export function csvToArray(str, delimiter = ",") {
   const arr = rows.map(function (row) {
     const values = row.split(delimiter);
     const el = headers.reduce(function (object, header, index) {
-      object[header] = values[index];
+      // object[header] = values[index];
+      object[header] = values[index].replace(/\"/g,"\\\"").replace(/'/g, "''");
       return object;
     }, {});
     return el;
@@ -345,6 +346,45 @@ export function csvToArray(str, delimiter = ",") {
   // return the array
   return { col_name: headers, data: arr };
 }
+
+export function csvToArray3(data, fieldSep, newLine) {
+  fieldSep = fieldSep || ',';
+  newLine = newLine || '\n';
+  var nSep = '\x1D';
+  var qSep = '\x1E';
+  var cSep = '\x1F';
+  var nSepRe = new RegExp(nSep, 'g');
+  var qSepRe = new RegExp(qSep, 'g');
+  var cSepRe = new RegExp(cSep, 'g');
+  var fieldRe = new RegExp('(?<=(^|[' + fieldSep + '\\n]))"(|[\\s\\S]+?(?<![^"]"))"(?=($|[' + fieldSep + '\\n]))', 'g');
+  var grid = [];
+  data.replace(/\r/g, '').replace(/\n+$/, '').replace(fieldRe, function(match, p1, p2) {
+      return p2.replace(/\n/g, nSep).replace(/""/g, qSep).replace(/,/g, cSep);
+  }).split(/\n/).forEach(function(line) {
+      var row = line.split(fieldSep).map(function(cell) {
+          return cell.replace(nSepRe, newLine).replace(qSepRe, '"').replace(cSepRe, ',');
+      });
+      grid.push(row);
+  });
+  return grid;
+  // https://stackoverflow.com/questions/1293147/how-to-parse-csv-data
+}
+
+export function csvToArray1(text) {
+  return text.match( /\s*(\"[^"]*\"|'[^']*'|[^,]*)\s*(,|$)/g ).map( function (text) {
+    let m;
+    if (m = text.match(/^\s*,?$/)) return null; // null value
+    if (m = text.match(/^\s*\"([^"]*)\"\s*,?$/)) return m[1]; // Double Quoted Text
+    if (m = text.match(/^\s*'([^']*)'\s*,?$/)) return m[1]; // Single Quoted Text
+    if (m = text.match(/^\s*(true|false)\s*,?$/)) return m[1] === "true"; // Boolean
+    if (m = text.match(/^\s*((?:\+|\-)?\d+)\s*,?$/)) return parseInt(m[1]); // Integer Number
+    if (m = text.match(/^\s*((?:\+|\-)?\d*\.\d*)\s*,?$/)) return parseFloat(m[1]); // Floating Number
+    if (m = text.match(/^\s*(.*?)\s*,?$/)) return m[1]; // Unquoted Text
+    return text;
+  } );
+}
+
+
 
 export function JSONToListText(data) {
   if (typeof data == "object") {

@@ -8,6 +8,7 @@ import { QueryPage } from "../query/QueryPage";
 import { DatabaseServer } from "./DatabaseServer";
 import { LAST_DB_SERVER } from "../../config/setting";
 import { isInt, setEditorFontSize } from "../../helpers/ui";
+import { dbTreeType } from "../../helpers/db";
 import { copyToClipboard } from "../../helpers/copy";
 
 const prefix = state.prefix;
@@ -126,9 +127,7 @@ const toolbar = {
             ck.hide();
           }, 1500);
 
-          copyToClipboard(
-            $$("database_sql_editor").getValue()
-          );
+          copyToClipboard($$("database_sql_editor").getValue());
         }
       },
     },
@@ -168,10 +167,8 @@ const toolbar = {
   ],
 };
 
-
-
 function openQueryTab(baseDbName) {
-  stateBase.currentTabQuery = parseInt(stateBase.currentTabQuery) +1;
+  stateBase.currentTabQuery = parseInt(stateBase.currentTabQuery) + 1;
   const newViewId = parseInt(stateBase.currentTabQuery);
   let str = stateQuery.prefix;
 
@@ -192,7 +189,13 @@ function openQueryTab(baseDbName) {
   });
 
   $$("tabs").getTabbar().setValue(stateQuery.prefix);
-  setTimeout(() => $$(stateQuery.prefix + "_sql_editor").setValue( $$("database_sql_editor").getValue()), 600);
+  setTimeout(
+    () =>
+      $$(stateQuery.prefix + "_sql_editor").setValue(
+        $$("database_sql_editor").getValue()
+      ),
+    600
+  );
   // stateBase.currentTab++;
 }
 
@@ -223,25 +226,31 @@ function loadBranch(viewId, id, isContext) {
   //   type: "top",
   // });
 
-  document.body.style.cursor = 'progress';
-
-    viewId.parse(
-      webix
-        .ajax()
-        .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}&t=0`)
-        .then(function (data) {
-          setTimeout(() => {
-            if (item.$count <= 0) {
-              item.open = false;
+  document.body.style.cursor = "progress";
+  viewId.parse(
+    webix
+      .ajax()
+      .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}&t=0`)
+      .then(function (data) {
+        const rData = data.json();
+        setTimeout(() => {
+          if (item.$count <= 0) {
+            item.open = false;
+            tree.refresh(id);
+            document.body.style.cursor = "default";
+          } else {
+            const tType = dbTreeType[id.split("_")[1]];
+            if (typeof tType != "undefined") {
+              const rcd = tree.getItem(id);
+              rcd.value = `${tType} (${rData.data.length})`;
               tree.refresh(id);
-              document.body.style.cursor = 'default';
             }
-            // viewId.hideProgress();
-          }, 600);
-          return (data = data.json());
-        })
-    );
-
+          }
+          // viewId.hideProgress();
+        }, 600);
+        return (data = rData);
+      })
+  );
 }
 
 function changeComboColors(val) {
@@ -343,9 +352,9 @@ export default class DatabasePage extends JetView {
                       icon: "mdi mdi-reload",
                       click: function () {
                         loadDb($$(prefix + "_server").getValue());
-                      }
-                    }
-                  ]
+                      },
+                    },
+                  ],
                 },
                 {
                   view: "tree",
@@ -446,7 +455,9 @@ export default class DatabasePage extends JetView {
                     },
                     onBeforeLoad: function () {
                       webix.extend(this, webix.OverlayBox);
-                      this.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
+                      this.showOverlay(
+                        "<div style='margin-top: 20px'>Loading...</div>"
+                      );
                     },
                     onAfterLoad: function () {
                       this.hideOverlay();

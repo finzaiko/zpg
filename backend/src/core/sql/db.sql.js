@@ -234,7 +234,7 @@ const dbTableContentByOid = (oid) => {
         FORMAT(e'    CONSTRAINT %s %s',
             -- conname,
             CASE WHEN conname ~ '^(.*\s+.*)+$' THEN format('"%s"', conname) ELSE conname END, -- Check if constraint name contains SPACE char
-            pg_get_constraintdef ( c.oid )
+            pg_get_constraintdef ( c.oid, true )
         ) as cfstr
       FROM pg_constraint c
       JOIN pg_namespace n ON n.oid = c.connamespace,

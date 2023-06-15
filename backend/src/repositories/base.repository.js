@@ -36,13 +36,13 @@ class BaseRepository {
     if (serverCfgTarget.length > 0) {
       const pgPool = new Pool(serverCfgTarget[0]);
       const client = await pgPool.connect();
-      let result = { error: false, message: "Copy success" };
+      // let result = { error: false, message: "Copy success" };
       try {
         await client.query('BEGIN')
         async.eachSeries(
           sql,
           (query, next) => {
-            //console.log(`Running query: ${query}`);
+            // console.log(`Running query: ${query}`);
             client.query(query, (err, results) => {
               if (err) {
                 // console.log("ERROR: ", err);

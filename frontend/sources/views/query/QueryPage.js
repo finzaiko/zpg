@@ -35,6 +35,7 @@ import { copyToClipboard } from "../../helpers/copy";
 import { url as urlUser } from "../../models/User";
 import { getErrorMessage } from "../../helpers/api";
 import { addStoreIDB, readStoreIDB, readStoreIDBByKey, updateStoreIDB, upsertStoreIDB } from "../../helpers/idb";
+import { dbTreeType } from "../../helpers/db";
 
 TimeAgo.addDefaultLocale(en);
 let timeAgo = new TimeAgo("en-US");
@@ -2192,19 +2193,26 @@ export function QueryPage(prefix, selectedDb) {
     viewId.parse(
       webix
         .ajax()
-
         .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}`)
         .then(function (data) {
+          const rData = data.json();
           const item = tree.getItem(id);
           setTimeout(() => {
             if (item.$count <= 0) {
               item.open = false;
               tree.refresh(id);
+            }else{
+              const tType = dbTreeType[id.split("_")[1]];
+              if (typeof tType != "undefined") {
+                const rcd = tree.getItem(id);
+                rcd.value = `${tType} (${rData.data.length})`;
+                tree.refresh(id);
+              }
             }
             reloadIconId.config.icon = "mdi mdi-reload";
             reloadIconId.refresh();
           }, 600);
-          return (data = data.json());
+          return (data = rData);
         })
     );
   };

@@ -630,6 +630,12 @@ span.z_tree_u21_icon_f, span.z_tree_u21_icon_p{
   color: #a7a7a7 !important;
 }
 
+.z_tree_u21_icon_u,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #85b5f5 !important;
+}
+
 
 
 .z_db_tree .webix_selected {

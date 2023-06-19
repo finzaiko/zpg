@@ -123,7 +123,7 @@ const dbTableConstraintContent = (oid) => {
     SELECT
     FORMAT(e'-- Constraint: %s\n\n', con.conname) ||
     FORMAT(e'-- ALTER TABLE IF EXISTS %s."%s" DROP CONSTRAINT IF EXISTS "%s";\n\n', nsp.nspname, rel.relname, con.conname) ||
-    FORMAT('ALTER TABLE IF EXISTS %s."%s"',nsp.nspname, rel.relname) || e'\n' || pg_get_constraintdef(con.oid) as data
+    FORMAT('ALTER TABLE IF EXISTS %s."%s"',nsp.nspname, rel.relname) || e'\n' || 'ADD CONSTRAINT ' || quote_ident(con.conname) || ' ' || pg_get_constraintdef(con.oid) as data
   FROM pg_catalog.pg_constraint con
   JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid
   JOIN pg_catalog.pg_namespace nsp ON nsp.oid = connamespace

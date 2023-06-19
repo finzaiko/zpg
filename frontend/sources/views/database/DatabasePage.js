@@ -427,8 +427,17 @@ export default class DatabasePage extends JetView {
                         return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
                       if (suffix == "u2")
                         return `<span class='webix_icon mdi mdi-chart-sankey-variant z_tree_u2_icon'></span>`;
-                      if (suffix == "u21")
-                        return `<span class='webix_icon mdi mdi-key ${obj.contype=='p' ? 'z_tree_u21_icon_p' : 'z_tree_u21_icon_f'}'></span>`;
+                      if (suffix == "u21"){
+                        let cstrColor = "";
+                        if(obj.contype=='p'){
+                          cstrColor = 'z_tree_u21_icon_p'
+                        }else if(obj.contype=='f'){
+                          cstrColor = 'z_tree_u21_icon_f'
+                        }else if(obj.contype=='u'){
+                          cstrColor = 'z_tree_u21_icon_u'
+                        }
+                        return `<span class='webix_icon mdi ${obj.contype=='u' ? 'mdi-numeric-1-box ' : 'mdi-key '} ${cstrColor}'></span>`;
+                      }
                       if (suffix == "u3")
                         return `<span class='webix_icon mdi mdi-vector-triangle z_tree_u3_icon'></span>`;
                       if (suffix == "u31")

@@ -66,7 +66,8 @@ const dbAllTableBySchema = (schemaName) => {
       ELSE
         (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_name)) || '_u'
       END AS id,
-      table_name AS value
+      table_name AS value,
+      true::boolean as webix_kids
       FROM information_schema.columns
       WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
     and table_schema='${schemaName}'
@@ -97,9 +98,110 @@ const dbAllViewsBySchema = (schemaOid) => {
     `;
 };
 
-const dbFuncContentByOid = (oid) => {
+const dbTableMoreOptions = (oid) => {
+  return `select * from (values
+    ('${oid}_u2','Constraints', true),
+    ('${oid}_u3','Indexes', true),
+    ('${oid}_u4','Triggers', true)
+) t (id, value, webix_kids)
+`;
+};
 
-    const commentBase = `
+const dbTableConstraintDefenition = (oid) => {
+  return `
+    SELECT con.oid || '_u21' as id, con.conname as value, con.contype
+    FROM pg_catalog.pg_constraint con
+    JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid
+    JOIN pg_catalog.pg_namespace nsp ON nsp.oid = connamespace
+    WHERE conrelid=${oid}
+    ORDER BY con.conname
+`;
+};
+
+const dbTableConstraintContent = (oid) => {
+  return `
+    SELECT
+    FORMAT(e'-- Constraint: %s\n\n', con.conname) ||
+    FORMAT(e'-- ALTER TABLE IF EXISTS %s."%s" DROP CONSTRAINT IF EXISTS "%s";\n\n', nsp.nspname, rel.relname, con.conname) ||
+    FORMAT('ALTER TABLE IF EXISTS %s."%s"',nsp.nspname, rel.relname) || e'\n' || pg_get_constraintdef(con.oid) as data
+  FROM pg_catalog.pg_constraint con
+  JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid
+  JOIN pg_catalog.pg_namespace nsp ON nsp.oid = connamespace
+  WHERE con.oid=${oid}
+`;
+};
+
+
+const dbTableIndexDefenition = (oid) => {
+  return `SELECT
+            pi.indexrelid || '_u31' as id,
+            pc2.relname AS value
+          FROM
+            pg_catalog.pg_class pc
+            JOIN pg_catalog.pg_namespace pn ON pn.oid = pc.relnamespace
+            JOIN pg_catalog.pg_index pi ON pc.oid = pi.indrelid
+            JOIN pg_catalog.pg_class pc2 ON pi.indexrelid = pc2.oid
+            LEFT JOIN pg_catalog.pg_constraint pco ON (
+              pco.conrelid = pi.indrelid
+              AND pco.conindid = pi.indexrelid
+              AND pco.contype IN ('p', 'u', 'x')
+            )
+          WHERE
+            pco.contype IS NULL
+            AND pi.indrelid = ${oid}
+          ORDER BY
+            pi.indisprimary desc,
+            pi.indisunique desc,
+            pc.relname`;
+};
+
+const dbTableIndexContent = (oid) => {
+  return `SELECT
+            FORMAT(e'-- Index: %s\n\n-- DROP INDEX IF EXISTS %s.%s;\n\n%s',
+            pc.relname,
+            quote_ident(nspname),
+            quote_ident(pc2.relname),
+            pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true)
+          ) as data
+          FROM
+          pg_catalog.pg_class pc
+          JOIN pg_catalog.pg_namespace pn ON pn.oid = pc.relnamespace
+          JOIN pg_catalog.pg_index pi ON pc.oid = pi.indrelid
+          JOIN pg_catalog.pg_class pc2 ON pi.indexrelid = pc2.oid
+          LEFT JOIN pg_catalog.pg_constraint pco ON (
+            pco.conrelid = pi.indrelid
+            AND pco.conindid = pi.indexrelid
+            AND pco.contype IN ('p', 'u', 'x')
+          )
+          WHERE
+          pco.contype IS NULL
+          AND pi.indexrelid = ${oid}
+`;
+};
+
+
+
+const dbTableTriggerDefenition = (oid) => {
+  return `SELECT pt.oid || '_u41' as id, pt.tgname as value, true as webix_kids
+          FROM   pg_trigger pt
+          JOIN pg_proc p on p.oid = pt.tgfoid
+          WHERE  tgrelid = ${oid} AND not tgisinternal
+      `;
+};
+
+const dbTableTriggerContent = (oid) => {
+  return `SELECT
+      pt.oid || '_u42' as id,
+      p.proname || '()' as value
+      FROM   pg_trigger pt
+      JOIN pg_proc p on p.oid = pt.tgfoid
+      WHERE  pt.oid = ${oid}
+      AND not tgisinternal
+`;
+};
+
+const dbFuncContentByOid = (oid) => {
+  const commentBase = `
       WITH a AS (
         SELECT prc.oid, isp.data_type, isp.parameter_name, isr.specific_schema, isr.routine_name, isp.parameter_mode
         FROM information_schema.routines isr
@@ -117,7 +219,7 @@ const dbFuncContentByOid = (oid) => {
       )
     `;
 
-    let commentDefinition = `
+  let commentDefinition = `
       (${commentBase}
       SELECT
       CONCAT(
@@ -129,7 +231,7 @@ const dbFuncContentByOid = (oid) => {
       FROM c)
     `;
 
-    let commentSample = `
+  let commentSample = `
       (${commentBase}
         SELECT CONCAT(
         '-- PARAMS NAME: ', in_params_type , e'\n',
@@ -194,8 +296,7 @@ const dbTableContentByOid = (oid) => {
           JOIN pg_catalog.pg_class c ON a.attrelid = c.oid
           JOIN pg_catalog.pg_namespace n ON c.relnamespace = n.oid
           LEFT JOIN pg_catalog.pg_class tc ON (c.reltoastrelid = tc.oid), oidinfo
-          -- WHERE a.attrelid = 'master.partner'::regclass
-          WHERE a.attrelid = format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)::regclass
+          WHERE a.attrelid = format('"%s"."%s"',oidinfo.scm_name, oidinfo.tbl_name)::regclass
               AND a.attnum > 0
               AND NOT a.attisdropped
           ORDER BY a.attnum
@@ -260,8 +361,8 @@ const dbTableContentByOid = (oid) => {
             -- pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true) as ci_str
             FORMAT(e'-- Index: %s\n\n-- DROP INDEX IF EXISTS %s."%s";\n\n%s',
                 pc.relname,
-                nspname,
-                pc.relname,
+                quote_ident(nspname),
+                quote_ident(pc2.relname),
                 pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true)
             ) as ci_str
           from pg_catalog.pg_class pc
@@ -321,7 +422,7 @@ const dbTableContentByOid = (oid) => {
           FROM   pg_trigger pt
           join pg_proc p on p.oid = pt.tgfoid,
           oidinfo
-          WHERE  tgrelid = format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)::regclass
+          WHERE  tgrelid = format('"%s"."%s"',oidinfo.scm_name, oidinfo.tbl_name)::regclass
           and not tgisinternal
       ), tbltrig AS (
           SELECT string_agg(strval, e'\n\n') AS trigstr FROM triglist
@@ -349,11 +450,11 @@ const dbTableContentByOid = (oid) => {
                           FROM pg_class c JOIN pg_inherits i ON c.oid = i.inhrelid
                           JOIN pg_class pc ON pc.oid = i.inhparent
                           JOIN pg_namespace pn ON pn.oid = pc.relnamespace
-                          WHERE c.oid = format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)::regclass),
+                          WHERE c.oid = format('"%s"."%s"',oidinfo.scm_name, oidinfo.tbl_name)::regclass),
                         format(E' (\n    %s\n)', concat_ws(e',\n',tabdef.cols_create_sql,constuniqstr.uniq_str, conststr.str)) -- , conststr.str
                   ),
                   case when tabdef.relopts <> '' then format(' WITH (%s)', tabdef.relopts) else '' end,
-                  coalesce(E'\nPARTITION BY '|| pg_get_partkeydef(format('%s.%s',oidinfo.scm_name, oidinfo.tbl_name)::regclass), '')
+                  coalesce(E'\nPARTITION BY '|| pg_get_partkeydef(format('"%s"."%s"',oidinfo.scm_name, oidinfo.tbl_name)::regclass), '')
               ) as data
           FROM tabdef, conststr, oidinfo
           LEFT JOIN constuniqstr ON true
@@ -374,7 +475,7 @@ const dbTableContentByOid = (oid) => {
   // console.log('sql>>>>>>>>>>>>',sql);
 
   return sql;
-}
+};
 
 const dbTableContentByOid3 = (oid) => {
   let regClass = `
@@ -738,7 +839,7 @@ const dbTableContentByOid2 = (oid) => {
   select * from pg_temp.table_def(${oid}) as data;
   `;
   return sql;
-}
+};
 
 const dbFuncTriggerContentByOid = (oid) => {
   let sql = `
@@ -758,7 +859,7 @@ const dbFuncTriggerContentByOid = (oid) => {
   `;
   // sql = `SELECT '-- NOTICE: Not implement yet!' as data`; // under test trial
   return sql;
-}
+};
 
 const dbViewContentByOid = (oid) => {
   let sql = `WITH vw  AS (
@@ -778,7 +879,24 @@ const dbViewContentByOid = (oid) => {
   `;
   // sql = `SELECT '-- NOTICE: Not implement yet!' as data`; // under test trial
   return sql;
-}
+};
+
+const dbTriggerContentByOid = (oid, type) => {
+  let sql = `
+      SELECT
+        ${
+          type == "tg_def"
+            ? "pg_get_triggerdef(pt.oid, true)"
+            : "pg_get_functiondef(pt.tgfoid)"
+        } as data
+      FROM pg_trigger pt
+      JOIN pg_proc p on p.oid = pt.tgfoid
+      WHERE ${type == "tg_def" ? "pt.oid = " + oid : "pt.oid = " + oid}
+      and not tgisinternal
+  `;
+  // sql = `SELECT '-- NOTICE: Not implement yet!' as data`; // under test trial
+  return sql;
+};
 
 const dbFuncTableSearch = (search, type, view) => {
   let sql = "";
@@ -788,8 +906,8 @@ const dbFuncTableSearch = (search, type, view) => {
   let limit = "50";
   let where = ` value ILIKE '%${search}%' OR value ILIKE REPLACE('%${search}%', ' ', '_')`;
 
-  if(search.includes(".")){
-    let spl = search.split(".")
+  if (search.includes(".")) {
+    let spl = search.split(".");
     where = `schema ILIKE '%${spl[0]}%' AND name ILIKE '%${spl.pop()}%'`;
   }
 
@@ -847,7 +965,7 @@ const dbFuncTableSearch = (search, type, view) => {
   } else {
     sql = `SELECT id, value, css, name, schema, type ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   }
-  console.log('sql',sql);
+  console.log("sql", sql);
 
   return sql;
 };
@@ -867,5 +985,13 @@ module.exports = {
   dbAllFuncTriggerBySchema,
   dbAllViewsBySchema,
   dbFuncTriggerContentByOid,
-  dbViewContentByOid
+  dbViewContentByOid,
+  dbTriggerContentByOid,
+  dbTableMoreOptions,
+  dbTableTriggerDefenition,
+  dbTableTriggerContent,
+  dbTableConstraintDefenition,
+  dbTableConstraintContent,
+  dbTableIndexDefenition,
+  dbTableIndexContent
 };

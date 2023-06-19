@@ -7,7 +7,7 @@ import { state as stateQuery } from "../../models/Query";
 import { QueryPage } from "../query/QueryPage";
 import { DatabaseServer } from "./DatabaseServer";
 import { LAST_DB_SERVER } from "../../config/setting";
-import { isInt, setEditorFontSize } from "../../helpers/ui";
+import { isInt, pgAutoFormat, setEditorFontSize } from "../../helpers/ui";
 import { dbTreeType } from "../../helpers/db";
 import { copyToClipboard } from "../../helpers/copy";
 
@@ -233,6 +233,9 @@ function loadBranch(viewId, id, isContext) {
       .get(`${urlDb}/schema?id=${profileId}&root=${rootroot}&parent=${id}&t=0`)
       .then(function (data) {
         const rData = data.json();
+        if(data.length==0){
+          return;
+        }
         setTimeout(() => {
           if (item.$count <= 0) {
             item.open = false;
@@ -268,23 +271,37 @@ function changeComboColors(val) {
 
 function loadSchemaContent(itemRootId, oid) {
   const pre = oid.split("_")[1];
-  if (pre == "g" || pre == "u") {
+  if (pre == "g" || pre == "u" || pre == "u2" || pre == "u21" || pre == "u3" || pre == "u31" || pre == "u4" || pre == "u41" || pre == "u42" ) {
     const profileId = $$(prefix + "_server").getValue();
     const viewId = $$("database_sql_editor");
     webix.extend(viewId, webix.OverlayBox);
     viewId.showOverlay(`Loading...`);
     webix
       .ajax()
-
       .get(
         `${urlDb}/schema_content?id=${profileId}&root=${itemRootId}&oid=${oid}`
       )
       .then(function (data) {
         viewId.hideOverlay();
-        viewId.setValue(data.json().data);
+        const contentData = data.json().data;
+        if(pre=="u41"){
+          let options = {
+            uppercase: true,
+            language: 'postgresql',
+          };
+          viewId.setValue(
+            sqlFormatter.format(contentData, options)
+          );
+        }else{
+          viewId.setValue(contentData);
+        }
       });
     $$(prefix + "_copy_content").show();
     $$(prefix + "_send_backward").show();
+  // }if (pre == "u41") {
+  //   console.log("load offline content!!");
+  // }if (pre == "u42") {
+  //   console.log("load offline content!!");
   } else {
     $$(prefix + "_send_backward").hide();
     $$(prefix + "_copy_content").hide();
@@ -408,6 +425,20 @@ export default class DatabasePage extends JetView {
                         }'></span>`;
                       if (suffix == "g" || suffix == "w")
                         return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
+                      if (suffix == "u2")
+                        return `<span class='webix_icon mdi mdi-chart-sankey-variant z_tree_u2_icon'></span>`;
+                      if (suffix == "u21")
+                        return `<span class='webix_icon mdi mdi-key ${obj.contype=='p' ? 'z_tree_u21_icon_p' : 'z_tree_u21_icon_f'}'></span>`;
+                      if (suffix == "u3")
+                        return `<span class='webix_icon mdi mdi-vector-triangle z_tree_u3_icon'></span>`;
+                      if (suffix == "u31")
+                        return `<span class='webix_icon mdi mdi-vector-polyline z_tree_u31_icon'></span>`;
+                      if (suffix == "u4")
+                        return `<span class='webix_icon mdi mdi-flash-outline z_tree_u4_icon'></span>`;
+                      if (suffix == "u41")
+                        return `<span class='webix_icon mdi mdi-lightning-bolt-outline z_tree_u4_icon'></span>`;
+                      if (suffix == "u42")
+                        return `<span class='webix_icon mdi mdi-script-outline z_tree_u42_icon'></span>`;
                       return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
                     },
                   },
@@ -449,6 +480,9 @@ export default class DatabasePage extends JetView {
                       }
                       nodeId = id;
                     },
+                    // onAfterOpen:function(id) {
+                    //   this._feed_last = {last_id:id}
+                    // },
                     onDataRequest: function (id) {
                       loadBranch(this, id);
                       return false;

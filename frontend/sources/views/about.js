@@ -42,6 +42,9 @@ export default {
 				<li>check compatible version</li>
 				<li>dashboard: show process activity</li>
 				<li>query: store latest left</li>
+				<li>query: add note</li>
+				<li>query: enable client history</li>
+				<li>blank hints tab default</li>
 			</ul>
 		</section>
 

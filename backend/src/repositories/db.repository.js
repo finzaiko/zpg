@@ -17,16 +17,29 @@ const {
   dbAllViewsBySchema,
   dbViewContentByOid,
   dbFuncTriggerContentByOid,
+  dbTriggerContentByOid,
+  dbTableMoreOptions,
+  dbTableTriggerContent,
+  dbTableConstraintDefenition,
+  dbTableTriggerDefenition,
+  dbTableConstraintContent,
+  dbTableIndexDefenition,
+  dbTableIndexContent,
 } = require("../core/sql/db.sql");
 
 class DbRepository {
   async getAll(profileId, userId, typeLevel) {
-    const serverCfg = await ProfileRepository.getById(profileId, 1, userId, typeLevel);
-    if(serverCfg.length>0){
+    const serverCfg = await ProfileRepository.getById(
+      profileId,
+      1,
+      userId,
+      typeLevel
+    );
+    if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
-      if(typeof typeLevel !="undefined" && typeLevel==1 ){
+      if (typeof typeLevel != "undefined" && typeLevel == 1) {
         return pgPool.query(dbSchemaAll);
-      }else{
+      } else {
         return pgPool.query(dbAll);
       }
     }
@@ -35,14 +48,21 @@ class DbRepository {
 
   async getAllSchema(profileId, userId) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
-    if(serverCfg.length>0){
+    if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
       return pgPool.query(dbSchemaAll);
     }
     return [];
   }
 
-  async getSchemaContent(profileId, schema, isShowTable, isTarget, oidArr, userId) {
+  async getSchemaContent(
+    profileId,
+    schema,
+    isShowTable,
+    isTarget,
+    oidArr,
+    userId
+  ) {
     const serverCfg = await ProfileRepository.getById(profileId, 2, userId);
     const pgPool = new Pool(serverCfg[0]);
     const r = await pgPool.query(dbAllFunc(null, oidArr));
@@ -58,7 +78,7 @@ class DbRepository {
     const pgPool = new Pool(cfg);
     const pg1 = await pgPool.query(dbAllByOid(rootId.split("_")[0]));
 
-    if(typeof typeLevel !="undefined" && typeLevel==0 ){
+    if (typeof typeLevel != "undefined" && typeLevel == 0) {
       cfg.database = pg1.rows[0].datname;
     }
 
@@ -75,13 +95,36 @@ class DbRepository {
       sql = dbAllFuncBySchema(schemaName);
     } else if (dbOid.split("_")[1] == "t") {
       sql = dbAllTableBySchema(schemaName);
-    } else if (dbOid.split("_")[1] == "r") { // functions trigger
+    } else if (dbOid.split("_")[1] == "r") {
       sql = dbAllFuncTriggerBySchema(dbOid.split("_")[0]);
-    } else if (dbOid.split("_")[1] == "v") { // views
+    } else if (dbOid.split("_")[1] == "v") {
       sql = dbAllViewsBySchema(dbOid.split("_")[0]);
+    } else if (dbOid.split("_")[1] == "u") {
+      const newParent = dbOid.split("_")[0];
+      sql = dbTableMoreOptions(newParent);
+    } else if (dbOid.split("_")[1] == "u2") {
+      const oidId = dbOid.split("_")[0];
+      sql = dbTableConstraintDefenition(oidId);
+    } else if (dbOid.split("_")[1] == "u21") {
+      const oidId = dbOid.split("_")[0];
+      sql = dbTableConstraintContent(oidId);
+    } else if (dbOid.split("_")[1] == "u3") {
+      const oidId = dbOid.split("_")[0];
+      sql = dbTableIndexDefenition(oidId);
+    } else if (dbOid.split("_")[1] == "u31") {
+      const oidId = dbOid.split("_")[0];
+      sql = dbTableIndexContent(oidId);
+    } else if (dbOid.split("_")[1] == "u4") {
+      const newParent = dbOid.split("_")[0];
+      sql = dbTableTriggerDefenition(newParent);
+    } else if (dbOid.split("_")[1] == "u41") {
+      const newParent = dbOid.split("_")[0];
+      sql = dbTableTriggerContent(newParent);
     } else {
       console.log("Not handled!");
     }
+    // console.log("sql", sql);
+
     const r = await pgPool2.query(sql);
     return r.rows;
   }
@@ -90,10 +133,10 @@ class DbRepository {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     let cfg = serverCfg[0];
 
-    if(baseRootIdOid!=0){
+    if (baseRootIdOid != 0) {
       const pgPool = new Pool(cfg);
       const pg1 = await pgPool.query(dbAllByOid(baseRootIdOid.split("_")[0]));
-      if(pg1.rows.length>0){
+      if (pg1.rows.length > 0) {
         cfg.database = pg1.rows[0].datname;
       }
     }
@@ -105,20 +148,32 @@ class DbRepository {
       rsql = dbFuncContentByOid(mode[0]);
     } else if (mode[1] == "u") {
       rsql = dbTableContentByOid(mode[0]);
-    } else if (mode[1] == "w") { // func triggers
+    } else if (mode[1] == "w") {
       rsql = dbFuncTriggerContentByOid(mode[0]);
-    } else if (mode[1] == "y") { // views
+    } else if (mode[1] == "y") {
       rsql = dbViewContentByOid(mode[0]);
+    } else if (mode[1] == "u2" || mode[1] == "u3" || mode[1] == "u4") {
+      rsql = `SELECT '-- No SQL selected object' as data`;
+    } else if (mode[1] == "u21") {
+      rsql = dbTableConstraintContent(mode[0]);
+    } else if (mode[1] == "u31") {
+      rsql = dbTableIndexContent(mode[0]);
+    } else if (mode[1] == "u41") {
+      rsql = dbTriggerContentByOid(mode[0], "tg_def");
+    } else if (mode[1] == "u42") {
+      rsql = dbTriggerContentByOid(mode[0], "tg_call");
     } else {
       return "";
     }
+    // console.log('rsql',rsql);
+
     return pgPool2.query(rsql);
   }
 
   async getContentSearch(profileId, baseRootIdOid, search, userId, type, view) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     let cfg = serverCfg[0];
-    if(baseRootIdOid!=0){
+    if (baseRootIdOid != 0) {
       const pgPool = new Pool(cfg);
       const pg1 = await pgPool.query(dbAllByOid(baseRootIdOid.split("_")[0]));
       cfg.database = pg1.rows[0].datname;
@@ -129,8 +184,7 @@ class DbRepository {
     return pgPool2.query(dbFuncTableSearch(search, type, view));
   }
 
-  async getSqlFunc (profileId, oid, userId) {
-
+  async getSqlFunc(profileId, oid, userId) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     let cfg = serverCfg[0];
     const pgPool = new Pool(cfg);
@@ -160,7 +214,6 @@ class DbRepository {
         ) t order by s_no limit 1)
   `;
 
-
     let sqlPretty = `
       SELECT CONCAT_WS('',
         ${commentDefinition},
@@ -184,10 +237,9 @@ class DbRepository {
     return pgPool.query(sqlPretty);
   }
 
-
   async runSql(profileId, userId, sql) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
-    if(serverCfg.length>0){
+    if (serverCfg.length > 0) {
       // console.log(`serverCfggggggggggggggggggg>>`, serverCfg);
       const pgPool = new Pool(serverCfg[0]);
       return pgPool.query(sql);

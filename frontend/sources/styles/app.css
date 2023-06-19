@@ -586,6 +586,52 @@ div.webix_list_item:hover .hoverButton {
   /* #B0D73D */
 }
 
+.z_tree_u2_icon,
+.z_db_tree .webix_selected {
+  color: #d100ae;
+}
+
+.z_tree_u3_icon,
+.z_db_tree .webix_selected {
+  color: #3575ff !important;
+}
+
+.z_tree_u31_icon,
+.z_db_tree .webix_selected {
+  color: #5d90ff !important;
+}
+
+.z_tree_u4_icon,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #ce9e00 !important;
+}
+
+.z_tree_u42_icon,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #f3ba00 !important;
+}
+
+
+.z_tree_u21_icon_p,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #ddb224 !important;
+}
+
+span.z_tree_u21_icon_f, span.z_tree_u21_icon_p{
+  font-size: 15px;
+}
+
+.z_tree_u21_icon_f,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #a7a7a7 !important;
+}
+
+
+
 .z_db_tree .webix_selected {
   /* background-color: orange !important; */
   background-color: rgba(204, 245, 255, 0.5) !important;

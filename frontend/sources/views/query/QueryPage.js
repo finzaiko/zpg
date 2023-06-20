@@ -473,12 +473,27 @@ export function QueryPage(prefix, selectedDb) {
               const sourceId = $$(prefix + "_source_combo").getValue();
               const filtervalue = this.getValue();
               const pageId = $$(prefix + "_page_panel");
-              webix.extend(pageId, webix.ProgressBar);
-              pageId.showProgress({
-                type: "icon",
-                icon: "mdi mdi-loading z_mdi_loader",
-              });
-              pageId.disable();
+              webix.extend(pageId, webix.OverlayBox);
+              pageId.showOverlay(
+                `<div class="loading-content"><div class="loading-ico no-border"></div>
+                <span id='${prefix}_z_cancel_query' class='mdi mdi-close-circle-outline' style='
+                position: absolute;
+                bottom: 15px;
+                right: 15px;
+                z-index: 999;
+                font-size: 13px;
+                cursor:pointer;
+                color: #e15353;
+                '>&nbsp;Cancel</span>
+                <span>Searching contents...</span></div>`
+              );
+
+              document.getElementById(`${prefix}_z_cancel_query`).onclick =
+                function () {
+                  // alert("Not implemented yet");
+                  pageId.hideOverlay();
+                  webix.message({text: "Search cancelled", type: "debug"})
+                };
 
               webix
                 .ajax()
@@ -523,8 +538,7 @@ export function QueryPage(prefix, selectedDb) {
                     }
                     webix.message({ text: "No record found", type: "error" });
                   }
-                  pageId.hideProgress();
-                  pageId.enable();
+                  setTimeout(() => pageId.hideOverlay(), 1000);
                 })
                 .fail((e) => {
                   pageId.hideProgress();

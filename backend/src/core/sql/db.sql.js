@@ -131,7 +131,6 @@ const dbTableConstraintContent = (oid) => {
 `;
 };
 
-
 const dbTableIndexDefenition = (oid) => {
   return `SELECT
             pi.indexrelid || '_u31' as id,
@@ -178,8 +177,6 @@ const dbTableIndexContent = (oid) => {
           AND pi.indexrelid = ${oid}
 `;
 };
-
-
 
 const dbTableTriggerDefenition = (oid) => {
   return `SELECT pt.oid || '_u41' as id, pt.tgname as value, true as webix_kids
@@ -993,5 +990,5 @@ module.exports = {
   dbTableConstraintDefenition,
   dbTableConstraintContent,
   dbTableIndexDefenition,
-  dbTableIndexContent
+  dbTableIndexContent,
 };

@@ -708,18 +708,41 @@ export function QueryPage(prefix, selectedDb) {
               }'></span>`;
             if (suffix == "r")
               return `<span class='webix_icon mdi mdi-script-text-play-outline ${
-                obj.open ? "z_tree_r_open" : ""
+                obj.open ? "z_tree_f_open" : ""
               }'></span>`;
             if (suffix == "v")
-              return `<span class='webix_icon mdi mdi-view-grid-outline ${
-                obj.open ? "z_tree_v_open" : ""
+              return `<span class='webix_icon mdi mdi-file-table-box-multiple-outline ${
+                obj.open ? "z_tree_f_open" : ""
               }'></span>`;
             if (suffix == "y")
-              return `<span class='webix_icon mdi mdi-view-module-outline z_tree_y_open z_tree_y_open'></span>`;
-            if (suffix == "g")
+              return `<span class='webix_icon mdi mdi-file-table-box-outline ${
+                obj.open ? "z_tree_f_open" : ""
+              }'></span>`;
+            if (suffix == "g" || suffix == "w")
               return `<span class='webix_icon mdi mdi-script-outline z_tree_g_open'></span>`;
-            if (suffix == "w")
-              return `<span class='webix_icon mdi mdi-script-outline z_tree_w_open'></span>`;
+            if (suffix == "u2")
+              return `<span class='webix_icon mdi mdi-chart-sankey-variant z_tree_u2_icon'></span>`;
+            if (suffix == "u21"){
+              let cstrColor = "";
+              if(obj.contype=='p'){
+                cstrColor = 'z_tree_u21_icon_p'
+              }else if(obj.contype=='f'){
+                cstrColor = 'z_tree_u21_icon_f'
+              }else if(obj.contype=='u'){
+                cstrColor = 'z_tree_u21_icon_u'
+              }
+              return `<span class='webix_icon mdi ${obj.contype=='u' ? 'mdi-numeric-1-box ' : 'mdi-key '} ${cstrColor}'></span>`;
+            }
+            if (suffix == "u3")
+              return `<span class='webix_icon mdi mdi-vector-triangle z_tree_u3_icon'></span>`;
+            if (suffix == "u31")
+              return `<span class='webix_icon mdi mdi-vector-polyline z_tree_u31_icon'></span>`;
+            if (suffix == "u4")
+              return `<span class='webix_icon mdi mdi-flash-outline z_tree_u4_icon'></span>`;
+            if (suffix == "u41")
+              return `<span class='webix_icon mdi mdi-lightning-bolt-outline z_tree_u4_icon'></span>`;
+            if (suffix == "u42")
+              return `<span class='webix_icon mdi mdi-script-outline z_tree_u42_icon'></span>`;
             return "<span class='webix_icon mdi mdi-radiobox-blank'></span>";
           },
         },
@@ -3079,7 +3102,7 @@ export function QueryPage(prefix, selectedDb) {
     searchOidSelected = oid;
     const typ = oid.split("_")[1];
 
-    if (typ == "g" || typ == "u" || typ == "y" || typ == "w") {
+    if (typ == "g" || typ == "u" || typ == "u2" || typ == "u21" || typ == "u3" || typ == "u31" || typ == "u4" || typ == "u41" || typ == "u42" || typ == "y" || typ == "w") {
       let profileId = $$(prefix + "_source_combo").getValue();
       let sqlEditorId = $$(prefix + "_sql_editor");
       const dbTreePreviewId = $$(prefix + "_dbtree_preview");

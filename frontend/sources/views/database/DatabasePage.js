@@ -489,13 +489,10 @@ export default class DatabasePage extends JetView {
                       }
                       nodeId = id;
                     },
-                    // onBeforeOpen:function(id) {
+                    // onAfterOpen:function(id) {
                     //   this._feed_last = {last_id:id}
                     // },
                     onDataRequest: function (id) {
-                      console.log('id',id);
-                      // console.log('this._feed_last>>>',this._feed_last.last_id);
-
                       loadBranch(this, id);
                       return false;
                     },

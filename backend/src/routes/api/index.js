@@ -13,6 +13,7 @@ const apiRoutes = async (app, options) => {
   app.register(require("./viewdata.route"), { prefix: "viewdata" });
   app.register(require("./share.route"), { prefix: "share" });
   app.register(require("./copydata.route"), { prefix: "copydata" });
+  app.register(require("./administration.route"), { prefix: "administration" });
   app.register(require("./setting.route"), { prefix: "setting" });
   app.get("/", async (request, reply) => {
     return {

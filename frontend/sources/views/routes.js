@@ -9,6 +9,7 @@ import { state as stateQuery } from "../models/Query";
 import { state as stateViewData } from "../models/ViewData";
 import { ViewDataPage } from './viewdata/ViewDataPage';
 import ShareIndex from "./share";
+import AdministrationIndex from "./administration";
 
 export const routeName = {
   task: "task",
@@ -21,6 +22,7 @@ export const routeName = {
   generator: "generator",
   shared: "shared",
   setting: "setting",
+  administration: "administration",
 };
 
 export const routes = [
@@ -77,5 +79,11 @@ export const routes = [
     type: "clean",
     borderless: true,
     rows: [ShareIndex],
+  },
+  {
+    id: routeName.administration,
+    type: "clean",
+    borderless: true,
+    rows: [AdministrationIndex],
   },
 ];

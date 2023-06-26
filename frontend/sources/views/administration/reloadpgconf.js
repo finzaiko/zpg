@@ -19,12 +19,15 @@ function reloadConfigAction() {
 
         runReloadConf(inputData).then((r) => {
           const consoleId = $$(prefix + "_reload_conf_console");
+          const emptyId = $$(prefix + "_reload_conf_console_empty");
           consoleId.show();
+          emptyId.hide();
           const data = JSONToListText(r);
           consoleId.setHTML(`<pre>${data}</pre>`);
           setTimeout(() => {
             consoleId.setHTML("");
             consoleId.hide();
+            emptyId.show();
 
             let count = 60,
               timer = setInterval(function () {
@@ -49,54 +52,55 @@ function reloadConfigAction() {
 export default class ReloadConfigPanel extends JetView {
   config() {
     return {
-      view: "form",
-      elements: [
+      rows: [
         {
-          rows: [
+          view: "toolbar",
+          elements: [
             {
-              cols: [
-                {
-                  view: "combo",
-                  id: prefix + "_server",
-                  placeholder: "Source server",
-                  width: 150,
-                  options: {
-                    url: `${urlProfile}/conn?type=1&ls=true`,
-                    fitMaster: false,
-                    width: 200,
-                  },
-                  on: {
-                    onChange: function (id, val) {
-                      if (id) {
-                        $$(prefix + "_reload_conf_btn").enable();
-                      } else {
-                        $$(prefix + "_reload_conf_btn").disable();
-                      }
-                    },
-                  },
-                },
-                {
-                  view: "button",
-                  autowidth: true,
-                  value: "Reload Config",
-                  id: prefix + "_reload_conf_btn",
-                  css: "webix_primary",
-                  disabled: true,
-                  click: function () {
-                    reloadConfigAction();
-                  },
-                },
-                {},
-              ],
+              width: 10,
             },
-            { height: 10 },
             {
-              view: "template",
-              hidden: true,
-              id: prefix + "_reload_conf_console",
+              view: "combo",
+              id: prefix + "_server",
+              placeholder: "Source server",
+              width: 150,
+              options: {
+                url: `${urlProfile}/conn?type=1&ls=true`,
+                fitMaster: false,
+                width: 200,
+              },
+              on: {
+                onChange: function (id, val) {
+                  if (id) {
+                    $$(prefix + "_reload_conf_btn").enable();
+                  } else {
+                    $$(prefix + "_reload_conf_btn").disable();
+                  }
+                },
+              },
+            },
+            {
+              view: "button",
+              autowidth: true,
+              value: "Reload Config",
+              id: prefix + "_reload_conf_btn",
+              css: "webix_primary",
+              disabled: true,
+              click: function () {
+                reloadConfigAction();
+              },
             },
             {},
           ],
+        },
+        {
+          view: "template",
+          hidden: true,
+          id: prefix + "_reload_conf_console",
+        },
+        {
+          id: prefix + "_reload_conf_console_empty",
+          template: "Select Database to Reload",
         },
       ],
     };

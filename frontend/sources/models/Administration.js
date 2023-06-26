@@ -15,13 +15,17 @@ export const administrationMenuList = [
     title: "Reload PG Config",
     detail: "Reload pg_hba.conf",
   },
-  // {
-  //   id: "administration.dbsize",
-  //   title: "Show Database size",
-  //   detail: "Show all database size",
-  // },
+  {
+    id: "administration.dbsize",
+    title: "List Database Size",
+    detail: "Show all database size",
+  },
 ];
 
 export function runReloadConf(inputData) {
   return runDBQuery(url, "reloadconf", inputData);
+}
+
+export function runAction(inputData) {
+  return runDBQuery(url, 'runaction', inputData);
 }

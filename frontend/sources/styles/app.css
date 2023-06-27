@@ -1709,3 +1709,7 @@ background-size: cover;
 .ed_line_error_decoration {
 	background: lightblue !important;
 }
+
+.z_grey_tb{
+  background: #ededed !important;
+}

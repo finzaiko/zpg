@@ -1,21 +1,69 @@
 import { JetView } from "webix-jet";
-import { administrationMenuList, state } from "../../models/Administration";
+import {
+  administrationMenuList,
+  runView,
+  state,
+} from "../../models/Administration";
+import { url as urlProfile } from "../../models/Profile";
 
 const prefix = state.prefix;
 
 const toolbar = {
   view: "toolbar",
+  css: "z_grey_tb",
   elements: [
     {
-      view: "icon",
-      id: prefix + "_refresh_btn",
-      tooltip: "Refresh",
-      icon: "mdi mdi-sync",
-      autowidth: true,
-      click: function () {},
+      view: "combo",
+      id: prefix + "_server",
+      placeholder: "Source server",
+      options: {
+        url: `${urlProfile}/conn?type=1&ls=true`,
+        fitMaster: false,
+        width: 200,
+      },
+      on: {
+        onChange: function (newv, oldv) {
+          const serverSource = $$(prefix + "_server").getValue();
+          if (serverSource) {
+            if ($$(prefix + "_reload_conf_btn")) {
+              $$(prefix + "_reload_conf_btn").enable();
+            }
+          }
+        },
+      },
     },
   ],
 };
+
+function runAction() {
+  const serverSource = $$(prefix + "_server").getValue();
+  if (!serverSource) {
+    webix.message({ text: "Please select source Server", type: "error" });
+    return;
+  }
+  const inputData = {
+    source_id: serverSource,
+    action: state.dataSelected.action,
+  };
+
+  runView(inputData).then((r) => {
+    const newView = {
+      view: "datatable",
+      autoConfig: true,
+      resizeColumn: true,
+      data: r.data,
+      select: "row",
+    };
+
+    let views = $$(prefix + "_scrollview_body").getChildViews();
+    if (views[0]) {
+      $$(prefix + "_scrollview_body").removeView(views[0]);
+    }
+
+    $$(prefix + "_result_scrollview").show();
+    $$(prefix + "_scrollview_body").addView(newView);
+  });
+}
 
 export default class AdministrationPage extends JetView {
   config() {
@@ -39,9 +87,12 @@ export default class AdministrationPage extends JetView {
                   data: administrationMenuList,
                   on: {
                     onItemClick: function (sel) {
-                      this.$scope.show(sel, {
+                      const item = this.getItem(sel);
+                      state.dataSelected = item;
+                      this.$scope.show(`${item.url}?action=${item.action}`, {
                         target: prefix + "_pageview",
                       });
+                      runAction();
                     },
                   },
                 },

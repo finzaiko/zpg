@@ -14,6 +14,13 @@ class AdministrationController {
     // reply.send(r);
     responseHttp(reply, 200, "Ok", { data: r });
   }
+
+  async view(request, reply) {
+    const userId = request.user.uid;
+    const r = await AdministrationService.view(userId, request.body);
+    // reply.send(r);
+    responseHttp(reply, 200, "Ok", { data: r });
+  }
 }
 
 module.exports = new AdministrationController();

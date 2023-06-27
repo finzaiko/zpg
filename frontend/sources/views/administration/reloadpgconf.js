@@ -32,13 +32,17 @@ function reloadConfigAction() {
             let count = 60,
               timer = setInterval(function () {
                 const btnId = $$(prefix + "_reload_conf_btn");
-                btnId.setValue(`Reload Config (${count--})`);
-                btnId.disable();
-                btnId.resize();
-                if (count == 0) {
-                  btnId.setValue("Reload Config");
-                  btnId.enable();
+                if (btnId) {
+                  btnId.setValue(`Reload (${count--})`);
+                  btnId.disable();
                   btnId.resize();
+                  if (count == 0) {
+                    btnId.setValue("Reload");
+                    btnId.enable();
+                    btnId.resize();
+                    clearInterval(timer);
+                  }
+                } else {
                   clearInterval(timer);
                 }
               }, 1000);
@@ -56,33 +60,33 @@ export default class ReloadConfigPanel extends JetView {
         {
           view: "toolbar",
           elements: [
-            {
-              width: 10,
-            },
-            {
-              view: "combo",
-              id: prefix + "_server",
-              placeholder: "Source server",
-              width: 150,
-              options: {
-                url: `${urlProfile}/conn?type=1&ls=true`,
-                fitMaster: false,
-                width: 200,
-              },
-              on: {
-                onChange: function (id, val) {
-                  if (id) {
-                    $$(prefix + "_reload_conf_btn").enable();
-                  } else {
-                    $$(prefix + "_reload_conf_btn").disable();
-                  }
-                },
-              },
-            },
+            // {
+            //   width: 10,
+            // },
+            // {
+            //   view: "combo",
+            //   id: prefix + "_server",
+            //   placeholder: "Source server",
+            //   width: 150,
+            //   options: {
+            //     url: `${urlProfile}/conn?type=1&ls=true`,
+            //     fitMaster: false,
+            //     width: 200,
+            //   },
+            //   on: {
+            //     onChange: function (id, val) {
+            //       if (id) {
+            //         $$(prefix + "_reload_conf_btn").enable();
+            //       } else {
+            //         $$(prefix + "_reload_conf_btn").disable();
+            //       }
+            //     },
+            //   },
+            // },
             {
               view: "button",
               autowidth: true,
-              value: "Reload Config",
+              value: "Reload",
               id: prefix + "_reload_conf_btn",
               css: "webix_primary",
               disabled: true,
@@ -104,5 +108,19 @@ export default class ReloadConfigPanel extends JetView {
         },
       ],
     };
+  }
+  urlChange(view, url) {
+    //   state.currentView = url[0].page.split(".")[1];
+    //   console.log("state.currentView", state.currentView);
+    //   let views = $$(prefix + "_scrollview_body").getChildViews();
+    //   if (views[0]) {
+    //     $$(prefix + "_scrollview_body").removeView(views[0]);
+    //   }
+    //   $$(prefix + "_titleview_lbl").setValue(state.dataSelected.title);
+
+    const serverSource = $$(prefix + "_server").getValue();
+    if (serverSource) {
+      $$(prefix + "_reload_conf_btn").enable();
+    }
   }
 }

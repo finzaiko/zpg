@@ -38,7 +38,7 @@ const toolbar = {
 function runAction() {
   const serverSource = $$(prefix + "_server").getValue();
   if (!serverSource) {
-    webix.message({ text: "Please select source Server", type: "error" });
+    webix.message({ text: "Please select Server source", type: "error" });
     return;
   }
   const inputData = {

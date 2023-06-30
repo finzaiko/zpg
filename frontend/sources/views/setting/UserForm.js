@@ -108,7 +108,7 @@ function WindowForm() {
                 },
                 {
                   view: "switch",
-                  name: "admin_menu",
+                  name: "is_admin_menu",
                   value: 0,
                   label: "Admin Menu",
                   labelWidth: 80,
@@ -272,6 +272,7 @@ function save() {
           type: "success",
         });
         reload();
+        $$(prefix + "_form").clear();
       })
       .fail(function (err) {
         showError(err);
@@ -286,6 +287,7 @@ function save() {
           type: "success",
         });
         reload();
+        $$(prefix + "_form").clear();
       })
       .fail(function (err) {
         showError(err);

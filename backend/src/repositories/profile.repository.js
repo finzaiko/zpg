@@ -282,8 +282,7 @@ class ProfileRepository {
   }
 
   async getUserProfile(userId) {
-    let sql = `select type, content from profile where type in (5) and user_id=?`;
-    // console.log(`sql`, sql);
+    let sql = `select title as key, content as value from profile where type in (5) and user_id=?`;
     let params = [userId];
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
@@ -297,6 +296,33 @@ class ProfileRepository {
     });
     return res;
   }
+
+  async saveUserProfileSetting(userId, key, value) {
+    const sql = "select count(*) as data from profile where user_id=? and title=?";
+    let params = [userId, key];
+
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, params, (err, row) => {
+        if (err) reject(err);
+        const isRowExist = row[0].data;
+        let sqlSave = ""
+        if(!isRowExist){
+          sqlSave = "insert into profile (content, user_id, title) values (?,?,?)";
+        }else{
+          sqlSave = "update profile set content=? WHERE user_id=? and title=?";
+        }
+        let paramsSave = [value, userId, key];
+        db.all(sqlSave, paramsSave, (errSave, rowSave) => {
+          if (errSave) reject(errSave);
+          resolve(rowSave);
+        });
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
+
 
   // Clear history after last one monthh
   async getClearUserProfile() {

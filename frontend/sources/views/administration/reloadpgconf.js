@@ -81,7 +81,7 @@ export default class ReloadConfigPanel extends JetView {
         },
         {
           id: prefix + "_reload_conf_console_empty",
-          template: "Select Database to Reload",
+          template: "&nbsp;",
         },
       ],
     };

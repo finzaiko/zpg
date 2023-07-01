@@ -14,16 +14,17 @@ function isInt(value) {
   );
 }
 
+let menuDataFiltered =
+  BUILD_MODE == "desktop"
+    ? menuData.filter((e) => e.id !== "shared")
+    : menuData;
+
 export default class MainView extends JetView {
   addTab(config) {
     $$("tabs").addView(config);
   }
   config() {
     const _this = this;
-    let menuDataFiltered =
-      BUILD_MODE == "desktop"
-        ? menuData.filter((e) => e.id !== "shared")
-        : menuData;
     const header = {
       type: "header",
       borderless: true,
@@ -122,7 +123,8 @@ export default class MainView extends JetView {
               view: "sidebar",
               id: "app:sidebar",
               css: "z_app_sidebar",
-              data: menuDataFiltered,
+              // data: menuDataFiltered,
+              data: [],
               width: 180,
               collapsed: true,
               on: {
@@ -132,6 +134,8 @@ export default class MainView extends JetView {
                 onItemClick: function (id, e, node) {
                   this.$scope.menuClick(this.$scope, id);
                 },
+                onBeforeLoad: function () {},
+                onAfterLoad: function () {},
               },
             },
           ],
@@ -211,16 +215,28 @@ export default class MainView extends JetView {
       ],
     };
 
-    webix.ajax(`${API_URL}/app`).then((ra) => {
-      const data = ra.json();
-      state.appProfile = JSON.parse(data.data.find((m) => m.type == 5).content);
-    });
-
     return ui;
   }
 
   ready() {
     state.viewScope = this;
+    webix.extend($$("app:sidebar"), webix.OverlayBox);
+    $$("app:sidebar").showOverlay(
+      "<div style='margin-top: 20px'>Loading...</div>"
+    );
+
+    webix.ajax(`${API_URL}/app`).then((res) => {
+      state.appProfile = res.json().data;
+      const b = state.appProfile.find((o) => o.key == "is_admin_menu").value;
+      if (b == "1") {
+        this.$$("app:sidebar").parse(menuDataFiltered);
+      } else {
+        const f = menuDataFiltered.filter((o) => o.id !== "administration");
+        this.$$("app:sidebar").parse(f);
+      }
+      $$("app:sidebar").hideOverlay();
+    });
+
     const menuState = webix.storage.local.get(LAST_SIDEBAR);
     const st = $$("app:sidebar");
     if (menuState == "1") {

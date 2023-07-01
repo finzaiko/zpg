@@ -81,8 +81,8 @@ class UserRepository {
 
     const res = await new Promise((resolve, reject) => {
       db.run(sql, params, (err, row) => {
-        if (err) reject(err);
-        resolve(row);
+        if (err) reject({status: false, message: "Fail, error accurred"});
+        resolve({status: true, message: "Save success", data: row});
       });
     });
     return res;

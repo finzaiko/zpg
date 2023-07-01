@@ -46,6 +46,14 @@ class UserDto {
   set access_group(newAccessGroup) {
     this._access_group = newAccessGroup;
   }
+
+  get is_admin_menu() {
+    return this._is_admin_menu;
+  }
+
+  set is_admin_menu(isAdminMenu) {
+    this._is_admin_menu = isAdminMenu;
+  }
 }
 
 module.exports = UserDto;

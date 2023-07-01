@@ -298,20 +298,25 @@ class ProfileRepository {
   }
 
   async saveUserProfileSetting(userId, key, value) {
-    const sql = "select count(*) as data from profile where user_id=? and title=?";
-    let params = [userId, key];
+    console.log("saveUserProfileSetting////////////");
+    const sql = "select count(*) as data from profile where user_id=? and title=? and type=?";
+    let params = [userId, key,5];
 
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
         if (err) reject(err);
-        const isRowExist = row[0].data;
+        const isRowExist = row[0].data>0;
+        console.log('row',row);
+        console.log('isRowExist',isRowExist);
+
         let sqlSave = ""
         if(!isRowExist){
-          sqlSave = "insert into profile (content, user_id, title) values (?,?,?)";
+          sqlSave = "insert into profile (content, user_id, title, type) values (?,?,?,?)";
         }else{
-          sqlSave = "update profile set content=? WHERE user_id=? and title=?";
+          console.log("update>>>>>>>>>>>>>>>>");
+          sqlSave = "update profile set content=? WHERE user_id=? and title=? and type=?";
         }
-        let paramsSave = [value, userId, key];
+        let paramsSave = [value, userId, key, 5];
         db.all(sqlSave, paramsSave, (errSave, rowSave) => {
           if (errSave) reject(errSave);
           resolve(rowSave);

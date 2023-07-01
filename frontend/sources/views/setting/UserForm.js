@@ -28,8 +28,10 @@ function WindowForm() {
           icon: "mdi mdi-plus",
           click: function () {
             $$(prefix + "_form").show();
+            $$(prefix + "_form").clear();
             $$(prefix + "_cancel_btn").show();
             $$(prefix + "_username").focus();
+            isEdit = false;
           },
         },
         {
@@ -112,7 +114,7 @@ function WindowForm() {
                   value: 0,
                   label: "Admin Menu",
                   labelWidth: 80,
-                //   width: 80,
+                  //   width: 80,
                 },
               ],
             },
@@ -187,8 +189,9 @@ function WindowForm() {
             { id: "username", header: "Username", sort: "string", width: 150 },
             { id: "fullname", header: "Fullname", sort: "string", width: 200 },
             { id: "email", header: "Email", sort: "string", width: 200 },
-            { id: "user_level", header: "Role", width: 100 },
+            { id: "user_level_label", header: "Role", width: 100 },
             { id: "last_login", header: "Last login", width: 150 },
+            { id: "is_admin_menu_label", header: "Admin menu", width: 100 },
           ],
           url: url + "/users",
           pager: prefix + "_pagerA",
@@ -265,7 +268,6 @@ function save() {
   if (!isEdit) {
     webix
       .ajax()
-
       .post(url + "/register", data, function (res) {
         webix.message({
           text: "<strong>" + msgName + "</strong> saved.",
@@ -280,7 +282,6 @@ function save() {
   } else {
     webix
       .ajax()
-
       .put(url + "/users/" + data.id, data, function (res) {
         webix.message({
           text: "<strong>" + msgName + "</strong> updated.",

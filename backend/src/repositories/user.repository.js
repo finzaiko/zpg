@@ -5,20 +5,24 @@ const bcrypt = require("bcrypt");
 class UserRepository {
   async getAll(offset, limit, sort, search, type) {
 
-    let fields = `id, fullname, email, username, user_level, access_group, last_login`;
+    let fields = `user.id, fullname, email, username, user_level, access_group, last_login,
+      content as is_admin_menu, case when content=1 then 'yes' else 'no' end as is_admin_menu_label,
+      case when user_level=1 then 'Elephant' when user_level=2 then 'Spider' when user_level=3 then 'Turtle' else 'Not defined' end as user_level_label
+      `;
     if(type==1 || type==2){ // list
-      fields = `id, fullname as value`;
+      fields = `user.id, fullname as value`;
     }
     let sql = `SELECT ${fields} FROM user`;
+    sql += ` LEFT JOIN profile ON profile.user_id=user.id and profile.title='is_admin_menu' and type=5 `;
     sql += ` WHERE username!='admin' `;
 
     if(type==2) { // list suggest
       sql += ` AND username like '%${search}%' or fullname like '%${search}%' `;
     }
     if(type==6) { // list suggest
-      sql += ` AND id!=${search} `;
+      sql += ` AND user.id!=${search} `;
     }
-    sql += " ORDER BY id DESC";
+    sql += " ORDER BY user.id DESC";
 
     let params = [];
     const res = await new Promise((resolve, reject) => {

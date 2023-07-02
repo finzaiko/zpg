@@ -59,19 +59,33 @@ class AdministrationService {
             -- LIMIT 20
         `;
         break;
-
       case 'version':
         sql = `SELECT version()`;
         break;
-
       case 'pghbaconf':
         sql = `select * from pg_hba_file_rules;`;
+        break;
+      case 'runqueries':
+        sql = `
+          SELECT pid, age(clock_timestamp(), query_start), usename, query, state
+          FROM pg_stat_activity
+          WHERE state != 'idle' AND query NOT ILIKE '%pg_stat_activity%'
+          ORDER BY query_start desc;
+        `;
+        break;
+      case 'connopen':
+        sql = `
+          SELECT COUNT(*) as connections, backend_type
+          FROM pg_stat_activity
+          where state = 'active' OR state = 'idle'
+          GROUP BY backend_type
+          ORDER BY connections DESC;
+        `;
         break;
       default:
         break;
     }
-
-    console.log("sql>>>>>>>>>>>>>>>",sql);
+    // console.log("sql>>>>>>>>>>>>>>>",sql);
     const sourceData = await BaseRepository.runQuery(source_id, userId, sql);
     return sourceData.rows;
   }

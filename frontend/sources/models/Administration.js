@@ -37,9 +37,23 @@ export const administrationMenuList = [
   {
     id: 4,
     url: "administration.view",
-    title: "List Database Size",
-    detail: "Show all database size",
+    title: "Database Size",
+    detail: "All database size",
     action: "dbsize"
+  },
+  {
+    id: 5,
+    url: "administration.view",
+    title: "Running queries",
+    detail: "Running queries",
+    action: "runqueries"
+  },
+  {
+    id: 6,
+    url: "administration.view",
+    title: "Open connections",
+    detail: "Number of open connections",
+    action: "connopen"
   },
 ];
 

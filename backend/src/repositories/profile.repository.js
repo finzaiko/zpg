@@ -291,6 +291,20 @@ class ProfileRepository {
           this.getClearUserProfile();
           this.setLastLogin(userId);
         }, 1000);
+         const settingDefault = [
+          {
+            key: "theme",
+            value: "default",
+          },
+          {
+            key: "is_admin_menu",
+            value: "0",
+          },
+        ];
+
+        if (row.length == 0) {
+          row = settingDefault;
+        }
         resolve(row);
       });
     });

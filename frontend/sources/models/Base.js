@@ -52,7 +52,6 @@ export const menuData = [
     id: routeName.shared,
     icon: "mdi mdi-vector-combine",
   }, // vector-link, vector-intersection
-  { value: "Admin", id: routeName.administration, icon: "mdi mdi-view-dashboard-outline" },
   { value: "Setting", id: routeName.setting, icon: "mdi mdi-cog" },
 ];
 

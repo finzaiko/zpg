@@ -4,7 +4,8 @@ const { Pool } = require("pg");
 class ProfileRepository {
   async findAll(type, userId, isList, showAll, limit, offset, search) {
     // console.log(`type, userId, isList////////`, type, userId, isList);
-    let fields = "*", andWhere = "";
+    let fields = "*",
+      andWhere = "";
     if (type == 1 || type == 2) {
       fields = `profile.id, conn_name, host, port, database, user, profile.password, ssl, content`;
     }
@@ -13,7 +14,7 @@ class ProfileRepository {
       fields = `profile.id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content, profile.created_at`;
     }
 
-    if(showAll==0){
+    if (showAll == 0) {
       andWhere = `AND user_id=?`;
     }
     let sql = `SELECT ${fields}, user.fullname FROM profile JOIN user ON user.id=profile.user_id WHERE type=? ${andWhere}`;
@@ -22,23 +23,23 @@ class ProfileRepository {
         "SELECT profile.id, substr(conn_name,0,30) as value, conn_name, host, database, ssl, content FROM profile WHERE type=? AND user_id=?";
     }
 
-    if(search){
+    if (search) {
       sql += ` AND content LIKE '%${search}%'`;
     }
     sql += " ORDER BY profile.id DESC";
 
-    if(limit){
-      sql += " LIMIT "+ limit;
+    if (limit) {
+      sql += " LIMIT " + limit;
     }
-    if(offset){
-      sql += " OFFSET "+ offset;
+    if (offset) {
+      sql += " OFFSET " + offset;
     }
 
     // console.log('sql>>>>',sql);
     // console.log('type, userId',type, userId);
 
     let params = [type, userId];
-    if(showAll!=0){
+    if (showAll != 0) {
       params.pop();
     }
     const res = await new Promise((resolve, reject) => {
@@ -53,7 +54,7 @@ class ProfileRepository {
   async countAll(type, userId, isList, showAll, limit, offset, search) {
     let andWhere = "";
 
-    if(showAll==0){
+    if (showAll == 0) {
       andWhere = `AND user_id=?`;
     }
     let sql = `SELECT count(*) as total_count FROM profile JOIN user ON user.id=profile.user_id WHERE type=? ${andWhere}`;
@@ -62,14 +63,14 @@ class ProfileRepository {
         "SELECT count(*) as total_count FROM profile WHERE type=? AND user_id=?";
     }
 
-    if(search){
+    if (search) {
       sql += ` AND content LIKE '%${search}%'`;
     }
 
     // console.log('sql-count>>>>',sql);
 
     let params = [type, userId];
-    if(showAll!=0){
+    if (showAll != 0) {
       params.pop();
     }
     const res = await new Promise((resolve, reject) => {
@@ -181,9 +182,9 @@ class ProfileRepository {
         resolve(row);
       });
     });
-    if(res.length>0){
-      if(res[0].ssl==1){
-        res[0].ssl = {rejectUnauthorized: false};
+    if (res.length > 0) {
+      if (res[0].ssl == 1) {
+        res[0].ssl = { rejectUnauthorized: false };
       }
     }
     return res;
@@ -237,8 +238,8 @@ class ProfileRepository {
       password: data.password,
     };
 
-    if(data.ssl==1){
-      _data.ssl = {rejectUnauthorized: false}
+    if (data.ssl == 1) {
+      _data.ssl = { rejectUnauthorized: false };
     }
     const pgPool = new Pool(_data);
     return pgPool.query("SELECT true");
@@ -291,7 +292,7 @@ class ProfileRepository {
           this.getClearUserProfile();
           this.setLastLogin(userId);
         }, 1000);
-         const settingDefault = [
+        const settingDefault = [
           {
             key: "theme",
             value: "default",
@@ -305,6 +306,7 @@ class ProfileRepository {
         if (row.length == 0) {
           row = settingDefault;
         }
+        console.log("row", row);
         resolve(row);
       });
     });
@@ -313,22 +315,25 @@ class ProfileRepository {
 
   async saveUserProfileSetting(userId, key, value) {
     console.log("saveUserProfileSetting////////////");
-    const sql = "select count(*) as data from profile where user_id=? and title=? and type=?";
-    let params = [userId, key,5];
+    const sql =
+      "select count(*) as data from profile where user_id=? and title=? and type=?";
+    let params = [userId, key, 5];
 
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
         if (err) reject(err);
-        const isRowExist = row[0].data>0;
-        console.log('row',row);
-        console.log('isRowExist',isRowExist);
+        const isRowExist = row[0].data > 0;
+        console.log("row", row);
+        console.log("isRowExist", isRowExist);
 
-        let sqlSave = ""
-        if(!isRowExist){
-          sqlSave = "insert into profile (content, user_id, title, type) values (?,?,?,?)";
-        }else{
+        let sqlSave = "";
+        if (!isRowExist) {
+          sqlSave =
+            "insert into profile (content, user_id, title, type) values (?,?,?,?)";
+        } else {
           console.log("update>>>>>>>>>>>>>>>>");
-          sqlSave = "update profile set content=? WHERE user_id=? and title=? and type=?";
+          sqlSave =
+            "update profile set content=? WHERE user_id=? and title=? and type=?";
         }
         let paramsSave = [value, userId, key, 5];
         db.all(sqlSave, paramsSave, (errSave, rowSave) => {
@@ -341,14 +346,12 @@ class ProfileRepository {
     return res;
   }
 
-
-
   // Clear history after last one monthh
   async getClearUserProfile() {
     // Delete all query history, not for profile, serverconn, dbconn, bookmark
     let sql = `DELETE FROM profile WHERE created_at < DATETIME('now', '-30 day') AND type NOT IN (1,2,4,6)`;
     const res = await new Promise((resolve, reject) => {
-      db.all(sql,(err, row) => {
+      db.all(sql, (err, row) => {
         if (err) reject(err);
         resolve(row);
       });
@@ -359,7 +362,7 @@ class ProfileRepository {
   async setLastLogin(userId) {
     let sql = `UPDATE user SET last_login=datetime('now','localtime') WHERE id=${userId}`;
     const res = await new Promise((resolve, reject) => {
-      db.all(sql,(err, row) => {
+      db.all(sql, (err, row) => {
         if (err) reject(err);
         resolve(row);
       });

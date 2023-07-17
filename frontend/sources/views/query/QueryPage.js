@@ -2956,11 +2956,11 @@ export function QueryPage(prefix, selectedDb) {
 
       editor.focus();
 
-      let edFontSize = FONT_SIZE_EDITOR;
+      let edFontSize;
       if (stateBase.appProfile && Array.isArray(stateBase.appProfile)) {
         edFontSize = stateBase.appProfile.find(
-          (o) => o.m_key == "editor_font_size"
-        ).m_val;
+          (o) => o.key == "editor_font_size"
+        ) || FONT_SIZE_EDITOR;
       }
       editor.updateOptions({
         fontSize: edFontSize + "px",

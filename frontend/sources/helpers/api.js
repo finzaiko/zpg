@@ -28,3 +28,11 @@ export function setDefaultHeader(headers) {
 export function getErrorMessage(e) {
   return JSON.parse(e.response).message;
 }
+
+
+export function runDBQuery(urlModule, urlPath, inputData) {
+  return webix
+    .ajax()
+    .post(`${urlModule}/${urlPath}`, inputData)
+    .then((data) => data.json());
+}

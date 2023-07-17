@@ -1,5 +1,6 @@
 const { db } = require("../core/database");
 const { Pool } = require("pg");
+const UserRepository = require(`../repositories/user.repository`);
 
 class ProfileRepository {
   async findAll(type, userId, isList, showAll, limit, offset, search) {
@@ -285,6 +286,13 @@ class ProfileRepository {
   async getUserProfile(userId) {
     let sql = `select title as key, content as value from profile where type in (5) and user_id=?`;
     let params = [userId];
+
+    const data = await UserRepository.getById(userId);
+    let userLevel = 3;
+    if(typeof data[0]!="undefined"){
+      userLevel = data[0].user_level;
+    }
+
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
         if (err) reject(err);
@@ -292,6 +300,7 @@ class ProfileRepository {
           this.getClearUserProfile();
           this.setLastLogin(userId);
         }, 1000);
+
         const settingDefault = [
           {
             key: "theme",
@@ -299,22 +308,28 @@ class ProfileRepository {
           },
           {
             key: "is_admin_menu",
-            value: "0",
+            value: userLevel==1 ? "1": "0",
+          },
+          {
+            key: "editor_font_size",
+            value: 14,
           },
         ];
 
-        if (row.length == 0) {
-          row = settingDefault;
-        }
-        console.log("row", row);
-        resolve(row);
+        const ids = new Set(row.map((d) => d.key));
+        const settingData = [
+          ...row,
+          ...settingDefault.filter((d) => !ids.has(d.key)),
+        ];
+
+        resolve(settingData);
       });
     });
     return res;
   }
 
   async saveUserProfileSetting(userId, key, value) {
-    console.log("saveUserProfileSetting////////////");
+    // console.log("saveUserProfileSetting////////////");
     const sql =
       "select count(*) as data from profile where user_id=? and title=? and type=?";
     let params = [userId, key, 5];

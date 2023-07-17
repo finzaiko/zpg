@@ -13,6 +13,28 @@ function isInt(value) {
     })(parseFloat(value))
   );
 }
+function loadAppSetting() {
+  const st = $$("app:sidebar");
+  webix.extend(st, webix.OverlayBox);
+  st.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
+  webix.ajax(`${API_URL}/app`, function (res) {
+    const rData = JSON.parse(res);
+    state.appProfile = rData.data;
+    const b = state.appProfile.find((o) => o.key == "is_admin_menu").value;
+    if (b == "1") {
+      st.parse(menuDataFiltered);
+    } else {
+      const f = menuDataFiltered.filter((o) => o.id !== "administration");
+      st.parse(f);
+    }
+    st.hideOverlay();
+  });
+}
+
+let menuDataFiltered =
+  BUILD_MODE == "desktop"
+    ? menuData.filter((e) => e.id !== "shared")
+    : menuData;
 
 export default class MainView extends JetView {
   addTab(config) {
@@ -20,10 +42,10 @@ export default class MainView extends JetView {
   }
   config() {
     const _this = this;
-    let menuDataFiltered =
-      BUILD_MODE == "desktop"
-        ? menuData.filter((e) => e.id !== "shared")
-        : menuData;
+    // let menuDataFiltered =
+    //   BUILD_MODE == "desktop"
+    //     ? menuData.filter((e) => e.id !== "shared")
+    //     : menuData;
     const header = {
       type: "header",
       borderless: true,
@@ -211,10 +233,10 @@ export default class MainView extends JetView {
       ],
     };
 
-    webix.ajax(`${API_URL}/app`).then((ra) => {
-      const data = ra.json();
-      state.appProfile = JSON.parse(data.data.find((m) => m.type == 5).content);
-    });
+    // webix.ajax(`${API_URL}/app`).then((ra) => {
+    //   const data = ra.json();
+    //   state.appProfile = JSON.parse(data.data.find((m) => m.type == 5).content);
+    // });
 
     return ui;
   }
@@ -223,6 +245,36 @@ export default class MainView extends JetView {
     state.viewScope = this;
     const menuState = webix.storage.local.get(LAST_SIDEBAR);
     const st = $$("app:sidebar");
+
+    // webix.extend(st, webix.OverlayBox);
+    // st.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
+    // webix.ajax(`${API_URL}/app`).then((res) => {
+    //   console.log("res.json()>>>", res.json().data);
+    //   // const rData = data.json().data[0];
+    //   const rData = res.json();
+    //   console.log("aa1", typeof rData);
+    //   console.log("aa2", typeof rData.data);
+    //   console.log("aa3", rData);
+    //   // state.appProfile = rData.data;
+
+    //   // console.log('rData.data',rData.data);
+
+    //   // state.appProfile = rData.data;
+    //   // console.log("state.appProfile", state.appProfile);
+    //   console.log("bb");
+    //   // const b = rData.data.find((o) => o.key == "is_admin_menu").value;
+    //   // console.log("b", b);
+
+    //   // if (b == "1") {
+    //   //   st.parse(menuDataFiltered);
+    //   // } else {
+    //   //   const f = menuDataFiltered.filter((o) => o.id !== "administration");
+    //   //   st.parse(f);
+    //   // }
+
+    //   // st.hideOverlay();
+    // });
+
     if (menuState == "1") {
       st.collapse();
     } else {
@@ -236,6 +288,8 @@ export default class MainView extends JetView {
         $$("$tabbar1").attachEvent("onEnter", function (ev) {});
       }
     });
+
+    loadAppSetting();
   }
 
   menuClick(_scope, id) {

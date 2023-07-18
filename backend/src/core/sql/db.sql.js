@@ -435,7 +435,7 @@ const dbTableContentByOid = (oid) => {
               coldef.relname,
               coldef.relopts,
               coldef.relpersistence,
-              string_agg(coldef.col_create_sql, E', -- '  || coldef.comment_col || '\n    ') as cols_create_sql
+              string_agg(coldef.col_create_sql, E',\n    ') as cols_create_sql
           FROM coldef, idxdef
           GROUP BY
               coldef.nspname, coldef.relname, coldef.relopts, coldef.relpersistence

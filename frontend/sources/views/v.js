@@ -76,6 +76,7 @@ export default class MainView extends JetView {
       layout: "y",
       select: true,
       template: "<span class='webix_icon #icon#'></span> #value# ",
+      // data: menuDataFiltered,
       data: menuDataFiltered,
       on: {
         onMenuItemClick: function (id) {
@@ -129,22 +130,11 @@ export default class MainView extends JetView {
                 header,
               ],
             },
-            // {
-            //   view: "button",
-            //   type: "icon",
-            //   icon: "mdi mdi-menu",
-            //   width: 37,
-            //   align: "left",
-            //   css: "app_button",
-            //   click: function() {
-            //     $$("app:sidebar").toggle();
-            //   }
-            // },
             {
               view: "sidebar",
               id: "app:sidebar",
               css: "z_app_sidebar",
-              data: menuDataFiltered,
+              data: [],
               width: 180,
               collapsed: true,
               on: {
@@ -245,36 +235,6 @@ export default class MainView extends JetView {
     state.viewScope = this;
     const menuState = webix.storage.local.get(LAST_SIDEBAR);
     const st = $$("app:sidebar");
-
-    // webix.extend(st, webix.OverlayBox);
-    // st.showOverlay("<div style='margin-top: 20px'>Loading...</div>");
-    // webix.ajax(`${API_URL}/app`).then((res) => {
-    //   console.log("res.json()>>>", res.json().data);
-    //   // const rData = data.json().data[0];
-    //   const rData = res.json();
-    //   console.log("aa1", typeof rData);
-    //   console.log("aa2", typeof rData.data);
-    //   console.log("aa3", rData);
-    //   // state.appProfile = rData.data;
-
-    //   // console.log('rData.data',rData.data);
-
-    //   // state.appProfile = rData.data;
-    //   // console.log("state.appProfile", state.appProfile);
-    //   console.log("bb");
-    //   // const b = rData.data.find((o) => o.key == "is_admin_menu").value;
-    //   // console.log("b", b);
-
-    //   // if (b == "1") {
-    //   //   st.parse(menuDataFiltered);
-    //   // } else {
-    //   //   const f = menuDataFiltered.filter((o) => o.id !== "administration");
-    //   //   st.parse(f);
-    //   // }
-
-    //   // st.hideOverlay();
-    // });
-
     if (menuState == "1") {
       st.collapse();
     } else {

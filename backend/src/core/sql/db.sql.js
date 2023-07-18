@@ -271,8 +271,25 @@ const dbTableContentByOid = (oid) => {
       select nsp.nspname as scm_name, tbl.relname AS tbl_name
       from pg_namespace nsp join pg_class tbl on nsp.oid = tbl.relnamespace
       where tbl.oid = '${oid}'
-  ),
 
+  ), commlist AS ( -- Comment list
+        SELECT
+            c.table_schema,
+            c.table_name,
+            c.column_name,
+            pgd.description
+        from pg_catalog.pg_statio_all_tables as st
+        inner join pg_catalog.pg_description pgd on (
+            pgd.objoid = st.relid
+        )
+        inner join information_schema.columns c on (
+            pgd.objsubid   = c.ordinal_position and
+            c.table_schema = st.schemaname and
+            c.table_name   = st.relname
+        ),
+        oidinfo
+        WHERE c.table_schema=oidinfo.scm_name and c.table_name=oidinfo.tbl_name
+  ),
   attrdef AS (
           SELECT
               n.nspname,
@@ -304,6 +321,8 @@ const dbTableContentByOid = (oid) => {
               attrdef.relname,
               attrdef.relopts,
               attrdef.relpersistence,
+              attrdef.attname,
+              commlist.description as comment_col,
               pg_catalog.format(
                   '%I %s%s%s%s%s',
                   attrdef.attname,
@@ -321,6 +340,7 @@ const dbTableContentByOid = (oid) => {
                       else '' end
               ) as col_create_sql
           FROM attrdef
+          LEFT JOIN commlist ON commlist.column_name=attrdef.attname
           ORDER BY attrdef.attnum
       ),
       tblown AS (
@@ -386,25 +406,10 @@ const dbTableContentByOid = (oid) => {
             , pc.relname
       ), idxdef AS (
             SELECT string_agg(ci_str, E',\n\n') AS idxstr FROM pkeyidx
-      ), commlist AS ( -- Comment list
-          SELECT
-              c.table_schema,
-              c.table_name,
-              c.column_name,
-              pgd.description
-          from pg_catalog.pg_statio_all_tables as st
-          inner join pg_catalog.pg_description pgd on (
-              pgd.objoid = st.relid
-          )
-          inner join information_schema.columns c on (
-              pgd.objsubid   = c.ordinal_position and
-              c.table_schema = st.schemaname and
-              c.table_name   = st.relname
-          ),
-          oidinfo
-          WHERE c.table_schema=oidinfo.scm_name and c.table_name=oidinfo.tbl_name
       ), tblcomm AS (
           SELECT FORMAT(e'COMMENT ON COLUMN %s.%s.%s\nIS %s;', table_schema, table_name, column_name, quote_literal(description)) AS commstr FROM commlist
+      ), commdef AS (
+          SELECT string_agg(commstr, E'\n\n') as commstr FROM tblcomm
       ), triglist AS ( -- Trigger list
           SELECT
               FORMAT(e'-- Trigger: %s\n\n-- DROP TRIGGER IF EXISTS %s ON %s;\n\n%s',
@@ -430,7 +435,7 @@ const dbTableContentByOid = (oid) => {
               coldef.relname,
               coldef.relopts,
               coldef.relpersistence,
-              string_agg(coldef.col_create_sql, E',\n    ') as cols_create_sql
+              string_agg(coldef.col_create_sql, E', -- '  || coldef.comment_col || '\n    ') as cols_create_sql
           FROM coldef, idxdef
           GROUP BY
               coldef.nspname, coldef.relname, coldef.relopts, coldef.relpersistence
@@ -462,11 +467,11 @@ const dbTableContentByOid = (oid) => {
           FORMAT('-- DROP TABLE IF EXISTS %s.%s;',oidinfo.scm_name, oidinfo.tbl_name),
           tbldef.data,
           tblown.ownstr,
-          tblcomm.commstr,
+          commdef.commstr,
           idxdef.idxstr,
           tbltrig.trigstr) AS data
         FROM oidinfo, tbldef, tblown, idxdef
-        LEFT JOIN tblcomm ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
+        LEFT JOIN commdef ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
         LEFT JOIN tbltrig ON true
   `;
   // console.log('sql>>>>>>>>>>>>',sql);

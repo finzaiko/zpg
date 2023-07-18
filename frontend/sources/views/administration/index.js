@@ -5,6 +5,7 @@ import {
   state,
 } from "../../models/Administration";
 import { url as urlProfile } from "../../models/Profile";
+import { showLoadingText } from "../../helpers/ui";
 
 const prefix = state.prefix;
 
@@ -38,13 +39,16 @@ const toolbar = {
 function runAction() {
   const serverSource = $$(prefix + "_server").getValue();
   if (!serverSource) {
-    webix.message({ text: "Please select Server source", type: "error" });
+    webix.message({ text: "Please choose source server", type: "error" });
     return;
   }
   const inputData = {
     source_id: serverSource,
     action: state.dataSelected.action,
   };
+
+  const panelId = $$(prefix + "_mainview");
+  showLoadingText(panelId);
 
   runView(inputData).then((r) => {
     const newView = {
@@ -62,6 +66,7 @@ function runAction() {
 
     $$(prefix + "_result_scrollview").show();
     $$(prefix + "_scrollview_body").addView(newView);
+    panelId.hideOverlay();
   });
 }
 
@@ -98,7 +103,10 @@ export default class AdministrationPage extends JetView {
                 },
               ],
             },
-            { $subview: true, name: prefix + "_pageview" },
+            {
+              id: prefix + "_mainview",
+              rows: [{ $subview: true, name: prefix + "_pageview" }],
+            },
           ],
         },
       ],

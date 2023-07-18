@@ -291,7 +291,7 @@ export function showToast(msg, type) {
   }).showToast();
 }
 
-export function showLoadingText(viewId, text) {
+export function showLoadingText(viewId, text="") {
   webix.html.addCss(viewId.$view, "padding_overlay_zero");
   webix.extend(viewId, webix.OverlayBox);
   viewId.showOverlay(

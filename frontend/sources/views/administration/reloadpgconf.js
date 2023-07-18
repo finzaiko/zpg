@@ -88,6 +88,7 @@ export default class ReloadConfigPanel extends JetView {
   }
   urlChange(view, url) {
     const serverSource = $$(prefix + "_server").getValue();
+    $$(prefix + "_mainview").hideOverlay();
     if (serverSource) {
       $$(prefix + "_reload_conf_btn").enable();
     }

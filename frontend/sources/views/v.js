@@ -4,6 +4,7 @@ import { showError } from "../helpers/ui";
 import { menuData, state } from "../models/Base";
 import { routeName, routes } from "./routes";
 import start from "./about";
+// import start from "./start";
 
 function isInt(value) {
   return (
@@ -214,7 +215,7 @@ export default class MainView extends JetView {
                 let tabview = $$("tabs");
                 let tabs = tabview.getMultiview().getChildViews();
                 if (tabs.length > 1) {
-                  tabview.removeView("start_tab");
+                  tabview.removeView("about_tab" || "start_tab");
                 }
               },
             },
@@ -222,11 +223,6 @@ export default class MainView extends JetView {
         },
       ],
     };
-
-    // webix.ajax(`${API_URL}/app`).then((ra) => {
-    //   const data = ra.json();
-    //   state.appProfile = JSON.parse(data.data.find((m) => m.type == 5).content);
-    // });
 
     return ui;
   }

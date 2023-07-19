@@ -435,7 +435,8 @@ const dbTableContentByOid = (oid) => {
               coldef.relname,
               coldef.relopts,
               coldef.relpersistence,
-              string_agg(coldef.col_create_sql, E',\n    ') as cols_create_sql
+              -- string_agg(coldef.col_create_sql, concat(',', chr(10),repeat(chr(32), 4)) ) as cols_create_sql
+              string_agg(coldef.col_create_sql, concat(',', case when coldef.comment_col is not null then ' -- ' end, coldef.comment_col, chr(10), repeat(chr(32), 4) )) as cols_create_sql
           FROM coldef, idxdef
           GROUP BY
               coldef.nspname, coldef.relname, coldef.relopts, coldef.relpersistence
@@ -474,7 +475,7 @@ const dbTableContentByOid = (oid) => {
         LEFT JOIN commdef ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
         LEFT JOIN tbltrig ON true
   `;
-  // console.log('sql>>>>>>>>>>>>',sql);
+  console.log('sql>>>>>>>>>>>>',sql);
 
   return sql;
 };

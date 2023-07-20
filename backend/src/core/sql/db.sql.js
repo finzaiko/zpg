@@ -444,7 +444,7 @@ const dbTableContentByOid = (oid) => {
           WHERE  tgrelid = format('"%s"."%s"',oidinfo.scm_name, oidinfo.tbl_name)::regclass
           and not tgisinternal
       ), tbltrig AS (
-          SELECT concat(string_agg(strval, e''),';') AS trigstr FROM triglist
+          SELECT string_agg(strval || ';', e'\n\n') AS trigstr FROM triglist
       ), tbltrigfmt AS ( -- Trigger string formatter
           SELECT
                 replace(
@@ -498,12 +498,12 @@ const dbTableContentByOid = (oid) => {
           tblown.ownstr,
           nullif(commstrall.commstr,''),
           idxdef.idxstr,
-          tbltrigfmt.trigstr) AS data
+          tbltrig.trigstr) AS data
         FROM oidinfo, tbldef, tblown, idxdef
         LEFT JOIN commstrall ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
-        LEFT JOIN tbltrigfmt ON true
+        LEFT JOIN tbltrig ON true
   `;
-  // console.log('sql>>>>>>>>>>>>',sql);
+  console.log('sql>>>>>>>>>>>>',sql);
 
   return sql;
 };

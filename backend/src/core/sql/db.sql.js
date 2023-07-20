@@ -200,10 +200,12 @@ const dbTableTriggerContent = (oid) => {
 const dbFuncContentByOid = (oid) => {
   const commentBase = `
       WITH a AS (
-        SELECT prc.oid, isp.data_type, isp.parameter_name, isr.specific_schema, isr.routine_name, isp.parameter_mode
+        SELECT prc.oid, isp.data_type, isp.parameter_name, isr.specific_schema, isr.routine_name, isp.parameter_mode,
+        pgd.description as func_comment, prc.proowner::regrole as func_owner
         FROM information_schema.routines isr
         LEFT JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
         LEFT JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
+        LEFT JOIN pg_description pgd ON pgd.objoid = prc.oid
         where prc.oid=${oid}
       ), b AS (
         SELECT
@@ -220,7 +222,7 @@ const dbFuncContentByOid = (oid) => {
       (${commentBase}
       SELECT
       CONCAT(
-        '-- FUNCTION: ', specific_schema|| '.' ||  routine_name,'(',in_params_type,');',
+        '-- FUNCTION: ', specific_schema|| '.' ||  routine_name,'(',in_params_type,');', e'\n-- ' || func_comment,
         e'\n\n',
               '-- DROP FUNCTION IF EXISTS ',specific_schema|| '.' ||  routine_name,'(',in_params_type,');',
         e'\n')
@@ -228,9 +230,17 @@ const dbFuncContentByOid = (oid) => {
       FROM c)
     `;
 
+  let ownerFunc = `(SELECT FORMAT(e'ALTER FUNCTION %s.%s(%s)\n%sOWNER TO %s;\n\n', specific_schema, routine_name, in_params_type, repeat(chr(32), 4), func_owner) FROM c)`;
+
+  let commentFunc = `(SELECT CASE WHEN func_comment is not null THEN
+      FORMAT(e'COMMENT ON FUNCTION %s.%s(%s)\n%sIS %s;\n\n', specific_schema, routine_name, in_params_type, repeat(chr(32), 4), quote_literal(func_comment)) END
+      FROM c)`;
+
   let commentSample = `
       (${commentBase}
         SELECT CONCAT(
+        ${ownerFunc},
+        ${commentFunc},
         '-- PARAMS NAME: ', in_params_type , e'\n',
         '-- PARAMS TYPE: ', in_params_name , e'\n',
         '-- SELECT * FROM ', specific_schema|| '.' ||  routine_name,'()') as func_def
@@ -261,6 +271,7 @@ const dbFuncContentByOid = (oid) => {
             ${commentSample}
         ) AS data;
         `;
+          // console.log('sql>>>>>>>>>>>>',sql);
   return sql;
 };
 
@@ -268,7 +279,7 @@ const dbTableContentByOid = (oid) => {
   let sql = `
   -- partner TABLE DEFINITION
   WITH oidinfo AS (
-      select nsp.nspname as scm_name, tbl.relname AS tbl_name
+      select nsp.nspname as scm_name, tbl.relname AS tbl_name, obj_description(tbl.oid) as tbl_comment
       from pg_namespace nsp join pg_class tbl on nsp.oid = tbl.relnamespace
       where tbl.oid = '${oid}'
 
@@ -344,7 +355,7 @@ const dbTableContentByOid = (oid) => {
           ORDER BY attrdef.attnum
       ),
       tblown AS (
-        SELECT format('ALTER TABLE IF EXISTS %s.%s OWNER to %s;',oidinfo.scm_name, oidinfo.tbl_name, tableowner) as ownstr
+        SELECT format('ALTER TABLE IF EXISTS %s.%s \n%sOWNER to %s;',oidinfo.scm_name, oidinfo.tbl_name, repeat(chr(32), 4), tableowner) as ownstr
         FROM pg_tables, oidinfo where schemaname=oidinfo.scm_name and tablename=oidinfo.tbl_name
       ),
       constlist AS ( -- Constraint and primary key list
@@ -407,9 +418,15 @@ const dbTableContentByOid = (oid) => {
       ), idxdef AS (
             SELECT string_agg(ci_str, E',\n\n') AS idxstr FROM pkeyidx
       ), tblcomm AS (
-          SELECT FORMAT(e'COMMENT ON COLUMN %s.%s.%s\nIS %s;', table_schema, table_name, column_name, quote_literal(description)) AS commstr FROM commlist
+          SELECT FORMAT(e'COMMENT ON COLUMN %s.%s.%s\n%sIS %s;', table_schema, table_name, column_name, repeat(chr(32), 4), quote_literal(description)) AS commstr FROM commlist
       ), commdef AS (
           SELECT string_agg(commstr, E'\n\n') as commstr FROM tblcomm
+      ), commstrall AS (
+            SELECT CONCAT_WS(e'\n\n',
+              CASE WHEN oidinfo.tbl_comment is not null THEN
+              FORMAT(e'COMMENT ON TABLE %s.%s \n%sIS %s;', scm_name, tbl_name, repeat(chr(32), 4), quote_literal(oidinfo.tbl_comment)) END,
+              commstr) AS commstr
+        FROM oidinfo, commdef
       ), triglist AS ( -- Trigger list
           SELECT
               FORMAT(e'-- Trigger: %s\n\n-- DROP TRIGGER IF EXISTS %s ON %s;\n\n%s',
@@ -427,7 +444,18 @@ const dbTableContentByOid = (oid) => {
           WHERE  tgrelid = format('"%s"."%s"',oidinfo.scm_name, oidinfo.tbl_name)::regclass
           and not tgisinternal
       ), tbltrig AS (
-          SELECT string_agg(strval, e'\n\n') AS trigstr FROM triglist
+          SELECT concat(string_agg(strval, e''),';') AS trigstr FROM triglist
+      ), tbltrigfmt AS ( -- Trigger string formatter
+          SELECT
+                replace(
+                    replace(
+                          replace(
+                              replace(trigstr,'AFTER',format(e'\n%sAFTER',repeat(chr(32), 4)))
+                          ,(format('ON %s.%s', oidinfo.scm_name, oidinfo.tbl_name)), (format(e'\n%sON %s.%s', repeat(chr(32), 4), oidinfo.scm_name, oidinfo.tbl_name)::text ))
+                    ,'FOR EACH ROW', format(e'\n%sFOR EACH ROW',repeat(chr(32), 4)) )
+                ,'EXECUTE FUNCTION',format(e'\n%sEXECUTE FUNCTION',repeat(chr(32), 4)) )
+              AS trigstr
+          FROM tbltrig, oidinfo
     ),
       tabdef AS (
           SELECT
@@ -464,18 +492,18 @@ const dbTableContentByOid = (oid) => {
       )
       SELECT
           CONCAT_WS(e'\n\n',
-          FORMAT('-- Table: %s.%s',oidinfo.scm_name, oidinfo.tbl_name),
+          FORMAT('-- Table: %s.%s%s',oidinfo.scm_name, oidinfo.tbl_name, CASE WHEN oidinfo.tbl_comment is not null THEN CONCAT(e'\n-- ', oidinfo.tbl_comment) END),
           FORMAT('-- DROP TABLE IF EXISTS %s.%s;',oidinfo.scm_name, oidinfo.tbl_name),
           tbldef.data,
           tblown.ownstr,
-          commdef.commstr,
+          nullif(commstrall.commstr,''),
           idxdef.idxstr,
-          tbltrig.trigstr) AS data
+          tbltrigfmt.trigstr) AS data
         FROM oidinfo, tbldef, tblown, idxdef
-        LEFT JOIN commdef ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
-        LEFT JOIN tbltrig ON true
+        LEFT JOIN commstrall ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
+        LEFT JOIN tbltrigfmt ON true
   `;
-  console.log('sql>>>>>>>>>>>>',sql);
+  // console.log('sql>>>>>>>>>>>>',sql);
 
   return sql;
 };
@@ -968,7 +996,7 @@ const dbFuncTableSearch = (search, type, view) => {
   } else {
     sql = `SELECT id, value, css, name, schema, type ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   }
-  console.log("sql", sql);
+  // console.log("sql", sql);
 
   return sql;
 };

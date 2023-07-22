@@ -55,6 +55,20 @@ export const administrationMenuList = [
     detail: "Number of open connections",
     action: "connopen"
   },
+  {
+    id: 7,
+    url: "administration.view",
+    title: "Active Session",
+    detail: "Current active session",
+    action: "activesession"
+  },
+  {
+    id: 8,
+    url: "administration.view",
+    title: "Transaction Hit",
+    detail: "DB Transaction Hit",
+    action: "transactionhit"
+  },
 ];
 
 export function runReloadConf(inputData) {

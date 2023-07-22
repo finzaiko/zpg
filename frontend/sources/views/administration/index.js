@@ -55,8 +55,18 @@ function runAction() {
       view: "datatable",
       autoConfig: true,
       resizeColumn: true,
+      // autowidth:true,
       data: r.data,
       select: "row",
+      /*
+      ready: function () {
+          const cols = this.config.columns;
+          cols.forEach((o) => {
+            this.getColumnConfig(o.id).maxWidth =
+              Number.MAX_SAFE_INTEGER;
+          });
+      },
+      */
     };
 
     let views = $$(prefix + "_scrollview_body").getChildViews();

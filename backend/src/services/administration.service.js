@@ -1,3 +1,4 @@
+const { activeSession, dbHitTransaction } = require("../core/sql/admin.sql");
 const BaseRepository = require(`../repositories/base.repository`);
 
 class AdministrationService {
@@ -81,6 +82,12 @@ class AdministrationService {
           GROUP BY backend_type
           ORDER BY connections DESC;
         `;
+        break;
+      case 'activesession':
+        sql = activeSession();
+        break;
+      case 'transactionhit':
+        sql = dbHitTransaction();
         break;
       default:
         break;

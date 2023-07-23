@@ -373,10 +373,18 @@ export function QueryPage(prefix, selectedDb) {
         },
       },
       {
+        id: prefix + "_database_search_shimm",
+        template: `<div class="shimmer"></div>`,
+        css: "shimmer_container",
+        borderless: true,
+        width: 300,
+      },
+      {
         view: "text",
         css: "search_suggest",
         id: prefix + "_database_search",
         placeholder: "Search name..",
+        hidden: true,
         width: 300,
         suggest: {
           keyPressTimeout: 500,
@@ -2944,6 +2952,10 @@ export function QueryPage(prefix, selectedDb) {
 
     editorId.getEditor(true).then((editor) => {
       editorId.hideProgress();
+      setTimeout(() => {
+        $$(prefix + "_database_search_shimm").hide();
+        $$(prefix + "_database_search").show();
+      }, 1000);
       editorId.enable();
 
       // Replace current shortcut
@@ -3084,7 +3096,9 @@ export function QueryPage(prefix, selectedDb) {
       });
     } else {
       $$(prefix + "_database_search_content").hide();
-      $$(prefix + "_database_search").show();
+      if($$(prefix + "_database_search").isVisible()){
+        $$(prefix + "_database_search").show();
+      }
       $$(prefix + "_search_more_btn").show();
       $$(prefix + "_search_detach_btn").hide();
     }

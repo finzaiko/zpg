@@ -152,11 +152,19 @@ export function QueryPage(prefix, selectedDb) {
           }
         },
       },
+      // {
+      //   id: prefix + "_source_combo_shimm",
+      //   template: `<div class="shimmer"></div>`,
+      //   css: "shimmer_container",
+      //   borderless: true,
+      //   width: 200,
+      // },
       {
         view: "combo",
         id: prefix + "_source_combo",
         placeholder: "Source DB",
         width: 200,
+        // hidden: true,
         options: {
           width: 250,
           fitMaster: false,
@@ -178,6 +186,7 @@ export function QueryPage(prefix, selectedDb) {
             on: {
               onAfterLoad: function () {
                 colorComboDBSource($$(prefix + "_source_combo"));
+                setTimeout(() => $$(prefix + "_source_combo").hideOverlay(), 1000);
               },
             },
           },
@@ -188,6 +197,10 @@ export function QueryPage(prefix, selectedDb) {
           },
         },
         on: {
+          onAfterRender: function () {
+              webix.extend(this, webix.OverlayBox);
+              this.showOverlay(`<div class="shimmer" style="margin-top:3px"></div>`);
+          },
           onChange: function (id, val) {
             webix.storage.local.put(LAST_DB_CONN_QUERY, id);
             if (id) {

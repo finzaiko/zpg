@@ -335,7 +335,7 @@ const dbTableContentByOid = (oid) => {
               attrdef.attname,
               commlist.description as comment_col,
               pg_catalog.format(
-                  '%I %s%s%s%s%s',
+                  '%I %s%s%s%s%s%s',
                   attrdef.attname,
                   attrdef.atttype,
                   case when attrdef.attcollation is null then '' else pg_catalog.format(' COLLATE %I', attrdef.attcollation) end,
@@ -348,7 +348,8 @@ const dbTableContentByOid = (oid) => {
                   end,
                   case when attrdef.attidentity<>'' then pg_catalog.format(' GENERATED %s AS IDENTITY',
                           case attrdef.attidentity when 'd' then 'BY DEFAULT' when 'a' then 'ALWAYS' else 'NOT_IMPLEMENTED' end)
-                      else '' end
+                      else '' end,
+                  case when commlist.description is null then '' else concat(' -- ', replace(commlist.description,'\n',' ')) end
               ) as col_create_sql
           FROM attrdef
           LEFT JOIN commlist ON commlist.column_name=attrdef.attname
@@ -463,8 +464,8 @@ const dbTableContentByOid = (oid) => {
               coldef.relname,
               coldef.relopts,
               coldef.relpersistence,
-              -- string_agg(coldef.col_create_sql, concat(',', chr(10),repeat(chr(32), 4)) ) as cols_create_sql
-              string_agg(coldef.col_create_sql, concat(',', case when coldef.comment_col is not null then ' -- ' end, coldef.comment_col, chr(10), repeat(chr(32), 4) )) as cols_create_sql
+              string_agg(coldef.col_create_sql, concat(',', chr(10),repeat(chr(32), 4)) ) as cols_create_sql
+              -- string_agg(coldef.col_create_sql, concat(',', case when coldef.comment_col is not null then ' -- ' end, coldef.comment_col, chr(10), repeat(chr(32), 4) )) as cols_create_sql
           FROM coldef, idxdef
           GROUP BY
               coldef.nspname, coldef.relname, coldef.relopts, coldef.relpersistence
@@ -492,7 +493,7 @@ const dbTableContentByOid = (oid) => {
       )
       SELECT
           CONCAT_WS(e'\n\n',
-          FORMAT('-- Table: %s.%s%s',oidinfo.scm_name, oidinfo.tbl_name, CASE WHEN oidinfo.tbl_comment is not null THEN CONCAT(e'\n-- ', oidinfo.tbl_comment) END),
+          FORMAT('-- Table: %s.%s%s',oidinfo.scm_name, oidinfo.tbl_name, CASE WHEN oidinfo.tbl_comment is not null THEN CONCAT(e'\n-- ', replace(oidinfo.tbl_comment,'\n',e'\n--') ) END),
           FORMAT('-- DROP TABLE IF EXISTS %s.%s;',oidinfo.scm_name, oidinfo.tbl_name),
           tbldef.data,
           tblown.ownstr,
@@ -503,7 +504,7 @@ const dbTableContentByOid = (oid) => {
         LEFT JOIN commstrall ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
         LEFT JOIN tbltrig ON true
   `;
-  console.log('sql>>>>>>>>>>>>',sql);
+  // console.log('sql>>>>>>>>>>>>',sql);
 
   return sql;
 };

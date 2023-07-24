@@ -1776,8 +1776,7 @@ svg text {
   /* padding: 8px; */
   min-height: 24px;
   border-radius: 2px;
-  /* background-image: linear-gradient(to right, #D8D8D8, #D8D8D8, #D8D8D8, #F2F2F2, #D8D8D8, #D8D8D8, #D8D8D8, #D8D8D8); */
-  background-image: linear-gradient(to right, #e9e9e9, #e9e9e9, #e9e9e9, #F2F2F2, #f0f0f0, #e9e9e9, #e9e9e9, #e9e9e9);
+  background-image: linear-gradient(to right, #f4f5f9, #f4f5f9, #f4f5f9, #F2F2F2, #f4f5f9, #f4f5f9, #f4f5f9, #f4f5f9);
   background-size: 300%;
   background-repeat: no-repeat;
   animation: shimmy 1s infinite cubic-bezier(0.9, 0, 0.3, 0.1);

@@ -793,6 +793,7 @@ export function QueryPage(prefix, selectedDb) {
               baseRootId = this.getParentId(baseRootId);
             }
             baseDbName = this.getItem(baseRootId).value;
+            loadSchemaContent(baseRootId, id, true);
           },
           onItemClick: function (id) {
             let itemRootId = id;
@@ -808,7 +809,11 @@ export function QueryPage(prefix, selectedDb) {
             } else {
               $$(prefix + "_viewdata_btn").disable();
             }
-            loadSchemaContent(baseRootId, id, true);
+
+            const dbTreePreviewId = $$(prefix + "_dbtree_preview");
+            if(!dbTreePreviewId.isVisible()){
+              loadSchemaContent(baseRootId, id, true);
+            }
           },
           onItemDblClick: function (id) {
             if (this.isBranchOpen(id)) {

@@ -1,15 +1,13 @@
 {
-  "name": "zpg-frontend",
-  "version": "0.0.17-dev",
+  "name": "webix-jet-app",
+  "version": "1.1.0",
   "description": "Webix Jet App",
   "main": "sources/myapp.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint sources/",
-    "build-server": "webpack --env.production true --env.server_url http://yourserver:9000 && cp codebase/* ../backend/public/assets",
+    "build-server": "webpack --env.production true --env.server_url http://10.109.129.137:9000 && cp codebase/* ../backend/public/assets",
     "build-local": "webpack --env.production true --env.server_url http://localhost:9000 && cp codebase/* ../backend/public/assets",
-    "build-desktop": "webpack --env.production true --env.server_url http://localhost:9000 --env.buildmode desktop && cp codebase/* ../backend/public/assets",
-    "build-docker": "webpack --env.production true --env.server_url http://0.0.0.0:9000 && cp codebase/* ../backend/public/assets",
     "install-monaco-server": "cp -r \"node_modules/monaco-editor/min\" \"../backend/public/assets/\" && mv \"../backend/public/assets/min\" \"../backend/public/assets/monaco-editor\"",
     "module": "webpack --env.production true --env.module true",
     "standalone": "webpack --env.production true --env.module true --env.standalone true",
@@ -41,14 +39,14 @@
     "webpack-dev-server": "^3.1.4"
   },
   "dependencies": {
-    "@mdi/font": "^7.1.96",
+    "@mdi/font": "^7.0.96",
     "animate.css": "^4.1.1",
     "copy-text-to-clipboard": "^3.0.1",
     "javascript-time-ago": "^2.3.4",
-    "monaco-editor": "^0.36.1",
+    "monaco-editor": "^0.40.0",
     "sql-formatter": "^4.0.2",
     "toastify-js": "^1.12.0",
-    "webix": "^9.4.0",
+    "webix": "^8.2.0",
     "webix-jet": "^2.1.3"
   }
 }

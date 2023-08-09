@@ -43,7 +43,7 @@
     "animate.css": "^4.1.1",
     "copy-text-to-clipboard": "^3.0.1",
     "javascript-time-ago": "^2.3.4",
-    "monaco-editor": "^0.40.0",
+    "monaco-editor": "^0.41.0",
     "sql-formatter": "^4.0.2",
     "toastify-js": "^1.12.0",
     "webix": "^8.2.0",

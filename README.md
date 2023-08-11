@@ -148,4 +148,3 @@ pm2 startup
 <Copy paste script result and run again>
 
 ```
-Increase JS heap momory to 4GB

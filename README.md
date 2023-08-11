@@ -137,3 +137,15 @@ Query
 
 ![query](assets-demo/zpg_query.png)
 
+
+#### Deploy PM2
+
+```
+# Increase JS heap momory to 4GB
+pm2 start zpg/backend/index.js --node-args="--max-old-space-size=4096" --name "zpg"
+pm2 save
+pm2 startup
+<Copy paste script result and run again>
+
+```
+Increase JS heap momory to 4GB

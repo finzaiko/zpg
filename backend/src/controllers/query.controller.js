@@ -1,3 +1,4 @@
+const { QUERY_RECORD_SHOW } = require("../config/contant");
 const profileService = require("../services/profile.service");
 const QueryService = require(`../services/query.service`);
 const { pgType } = require("../utils/pg.util");
@@ -54,6 +55,18 @@ class QueryController {
       }
     )
       .then((r) => {
+
+        if(r.rowCount>QUERY_RECORD_SHOW){
+          reply.send({
+            data: [],
+            total_count: 0,
+            message: `\nQuery failed, ZPG server memory limit, only show ${QUERY_RECORD_SHOW} record.`,
+            message_toas: `Query failed, only show ${QUERY_RECORD_SHOW} limited record.`,
+            type_toas: 'error',
+          });
+          return;
+        }
+
         let tableConfig;
         let tableData;
         let status = 0;

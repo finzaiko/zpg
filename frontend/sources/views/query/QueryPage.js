@@ -2833,6 +2833,9 @@ export function QueryPage(prefix, selectedDb) {
           }
 
           showToast(rData.message_toas, `toasify_${rData.type_toas}`); // .replace(/(\r\n|\n|\r)/gm, " ").trim()
+          if(rData.type_toas=="error"){
+            $$(prefix + "_tabbar").setValue(prefix + "_console");
+          }
 
           // Reset decoration
           if (lineNo == 0) {

@@ -6,7 +6,7 @@ start-dev-desktop:
 	cd desktop && npm run start-electron
 
 build-desktop:
-	cd frontend && npm run build-desktop
+	cd frontend && npm run build-local
 	cd desktop && npm run build
 
 clean:

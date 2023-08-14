@@ -7,6 +7,8 @@ import { state as stateQuery } from "./models/Query";
 import { setAppHeader, setDefaultHeader } from "./helpers/api";
 import { initSession, userProfile } from "./models/UserProfile";
 import { showExpiredMsg } from "./helpers/ui";
+// import { loadExComponentMonacoEditor } from "./components/monaco";p
+import { loadExComponentFadeInWindow } from "./components/fadeInWindow";
 
 // getAppMeta() {
 //   webix.ajax(`${API_URL}/meta`).then((ra) => {
@@ -14,28 +16,9 @@ import { showExpiredMsg } from "./helpers/ui";
 //   });
 // }
 
-webix.protoUI(
-  {
-    name: "fadeInWindow",
-    $init: function () {
-      this.$ready.push(function () {
-        this.attachEvent("onShow", function () {
-          const boxes = document.querySelectorAll("body > div.webix_modal");
-          boxes.forEach((box) => {
-            box.style.backgroundColor = "#FFF";
-          });
-          this.$view.className =
-            this.$view.className + " animate__animated animate__bounceInDown"; // animate__fadeInDown
-        });
-        this.attachEvent("onHide", function () {
-          this.$view.style.display = "block";
-          this.$view.className += " animate__fadeOut";
-        });
-      });
-    },
-  },
-  webix.ui.window
-);
+// loadExComponentMonacoEditor();
+loadExComponentFadeInWindow();
+
 // https://snippet.webix.com/mw0mlhvz
 
 export default class MyApp extends JetApp {
@@ -194,14 +177,13 @@ if (!BUILD_AS_MODULE) {
 
       initSession();
 
-      app.attachEvent("app:guard", function(url, view, nav){
-        if (url.indexOf("/blocked") !== -1){
-              nav.redirect = "/index";
-          }
+      app.attachEvent("app:guard", function (url, view, nav) {
+        if (url.indexOf("/blocked") !== -1) {
+          nav.redirect = "/index";
+        }
       });
 
       app.render();
-
     }, laodingDelay);
   });
 }

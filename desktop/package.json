@@ -1,6 +1,6 @@
 {
   "name": "zpg",
-  "version": "0.0.17-dev",
+  "version": "0.0.18-dev",
   "windowtitle": "ZPG",
   "description": "Simple Easy Postgres Dev Tool",
   "main": "main.js",

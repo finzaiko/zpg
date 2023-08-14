@@ -51,7 +51,7 @@ sudo rpm -i zpg-0.0.17-dev.x86_64.rpm
 #### AppImage Linux
 ```shell
 wget https://github.com/finzaiko/zpg/releases/download/0.0.17-dev/ZPG-0.0.17-dev.AppImage
-chmod a+x ZPG-0.0.17-dev.AppImage.AppImage
+chmod a+x ZPG-0.0.17-dev.AppImage
 ./ZPG-0.0.17-dev.AppImage
 ```
 

@@ -282,6 +282,12 @@ div.webix_list_item:hover .hoverButton {
 .z_resizer_small {
   width: 3px !important;
 }
+.z_resizer_smaller {
+  width: 2px !important;
+}
+.z_resizer_thin {
+  width: 1px !important;
+}
 .z_resizer_hor_thin {
   height: 1px !important;
 }
@@ -481,6 +487,47 @@ div.webix_list_item:hover .hoverButton {
   color: #d3cf07 !important;
   /* #834EC7 */
   /* #B0D73D */
+}
+.z_tree_u2_icon,
+.z_db_tree .webix_selected {
+  color: #d100ae;
+}
+.z_tree_u3_icon,
+.z_db_tree .webix_selected {
+  color: #3575ff !important;
+}
+.z_tree_u31_icon,
+.z_db_tree .webix_selected {
+  color: #5d90ff !important;
+}
+.z_tree_u4_icon,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #ce9e00 !important;
+}
+.z_tree_u42_icon,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #f3ba00 !important;
+}
+.z_tree_u21_icon_p,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #ddb224 !important;
+}
+span.z_tree_u21_icon_f,
+span.z_tree_u21_icon_p {
+  font-size: 15px;
+}
+.z_tree_u21_icon_f,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #a7a7a7 !important;
+}
+.z_tree_u21_icon_u,
+.z_db_tree .webix_selected {
+  /* color: #0add1c; */
+  color: #85b5f5 !important;
 }
 .z_db_tree .webix_selected {
   /* background-color: orange !important; */
@@ -999,14 +1046,17 @@ background-size: cover;
 .z_icon_color_primary .webix_icon:hover {
   color: #0a8dad;
 }
-.z_icon_size_16 .webix_icon {
+.z_icon_size_16 .webix_icon,
+.z_icon_size_16 .webix_icon_btn {
   font-size: 16px;
   line-height: 19px;
 }
-.z_icon_size_17 .webix_icon {
+.z_icon_size_17 .webix_icon,
+.z_icon_size_17 .webix_icon_btn {
   font-size: 17px;
 }
-.z_icon_size_18 .webix_icon {
+.z_icon_size_18 .webix_icon,
+.z_icon_size_18 .webix_icon_btn {
   font-size: 18px;
 }
 /* Syntax highlighted */
@@ -1296,6 +1346,129 @@ background-size: cover;
 }
 .copydata_scrollview div.webix_overlay {
   cursor: pointer;
+}
+.search_suggest_list .webix_list_item {
+  display: flex;
+  justify-content: space-between;
+}
+.source_def_item {
+  width: 230px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.source_def_type {
+  width: 20px;
+  height: 18px;
+  margin-top: 2px;
+  text-align: center;
+  border-radius: 2px;
+}
+.source_def_type_tbl {
+  color: #fff;
+  background: #f96854;
+}
+.source_def_type_fun {
+  color: #fff;
+  background: #00d1b2;
+}
+.welcome_content {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.welcome_title {
+  /* color: rgb(221, 171, 137); */
+  color: #fff;
+  font-size: 16em;
+  margin: 0;
+  -webkit-text-stroke: 1px #ddab89;
+  -webkit-text-fill-color: #fff;
+  /* -webkit-text-fill-color: rgb(250, 231, 218); */
+  /* color: #e3f0ff;
+  text-shadow:
+    -8px -8px 12px rgba(255, 255, 255, 0.4),
+    8px 8px 12px rgba(0, 0, 0, 0.08);
+  caret-color: #262626;
+  outline: none; */
+}
+svg {
+  position: absolute;
+  font-family: Roboto, sans-serif;
+  font-size: 20em;
+  letter-spacing: 0.15em;
+  width: 100%;
+  height: 100%;
+  margin-top: 5%;
+}
+svg text {
+  fill: #f3ddce;
+  stroke: #ddab89;
+  fill-opacity: 1;
+  stroke-width: 0;
+  stroke-dasharray: 100% 0;
+  animation: stroke-offset 3s ease-out;
+}
+@keyframes stroke-offset {
+  0% {
+    fill-opacity: 0;
+    stroke-width: 0;
+    stroke-dasharray: 0% 100%;
+  }
+  25% {
+    stroke-width: 3px;
+  }
+  50% {
+    fill-opacity: 0;
+  }
+  75% {
+    stroke-width: 3px;
+  }
+  100% {
+    stroke-width: 0;
+  }
+}
+.short-picker .webix_inp_static {
+  padding: 0px;
+  color: transparent;
+}
+.short-picker .webix_input_icon {
+  right: 7px;
+}
+.ed_char_error_decoration {
+  background: yellow !important;
+}
+.ed_line_error_decoration {
+  background: lightblue !important;
+}
+.start_bg {
+  /* background: #eeeeee; */
+}
+.shimmer_container {
+  margin-top: 1px !important;
+}
+.shimmer_container .webix_template {
+  padding: 4px 0pt !important;
+}
+.shimmer {
+  /* padding: 8px; */
+  min-height: 24px;
+  border-radius: 2px;
+  background-image: linear-gradient(to right, #f4f5f9, #f4f5f9, #f4f5f9, #F2F2F2, #f4f5f9, #f4f5f9, #f4f5f9, #f4f5f9);
+  background-size: 300%;
+  background-repeat: no-repeat;
+  animation: shimmy 1s infinite cubic-bezier(0.9, 0, 0.3, 0.1);
+  margin-bottom: 8px;
+}
+@keyframes shimmy {
+  0% {
+    background-position: 80%;
+  }
+  100% {
+    background-position: 0;
+  }
 }
 
 /*!

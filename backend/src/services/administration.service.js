@@ -1,4 +1,4 @@
-const { activeSession, dbHitTransaction } = require("../core/sql/admin.sql");
+const { activeSession, dbHitTransaction, pgConfigSetting, pgFileSetting } = require("../core/sql/admin.sql");
 const BaseRepository = require(`../repositories/base.repository`);
 
 class AdministrationService {
@@ -88,6 +88,12 @@ class AdministrationService {
         break;
       case 'transactionhit':
         sql = dbHitTransaction();
+        break;
+      case 'configsetting':
+        sql = pgConfigSetting();
+        break;
+      case 'filesetting':
+        sql = pgFileSetting();
         break;
       default:
         break;

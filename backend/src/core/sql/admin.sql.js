@@ -47,11 +47,21 @@ const dbHitTransaction = () => {
     `;
 };
 
+const pgConfigSetting = () => {
+  return `SELECT * FROM pg_settings`;
+};
+
+const pgFileSetting = () => {
+  return `SELECT * FROM pg_file_settings`;
+};
+
 module.exports = {
   activeSession,
   killSessionID,
   tableRowCount,
   dbHitTransaction,
+  pgConfigSetting,
+  pgFileSetting
 };
 
 // REFERENCES: https://dataedo.com/kb/query/postgresql

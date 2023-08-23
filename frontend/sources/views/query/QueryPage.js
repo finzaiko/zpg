@@ -186,7 +186,7 @@ export function QueryPage(prefix, selectedDb) {
             on: {
               onAfterLoad: function () {
                 colorComboDBSource($$(prefix + "_source_combo"));
-                setTimeout(() => $$(prefix + "_source_combo").hideOverlay(), 1000);
+                setTimeout(() => $$(prefix + "_source_combo").hideOverlay(), 300);
               },
             },
           },
@@ -2976,7 +2976,7 @@ export function QueryPage(prefix, selectedDb) {
       setTimeout(() => {
         $$(prefix + "_database_search_shimm").hide();
         $$(prefix + "_database_search").show();
-      }, 1000);
+      }, 300);
       editorId.enable();
 
       // Replace current shortcut

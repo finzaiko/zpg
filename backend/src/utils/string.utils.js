@@ -27,7 +27,7 @@ const getSqlStringTypeFromArray = (
   first_row,
   typeField
 ) => {
-  console.log("data", data);
+  // console.log("data", data);
 
   // let parsedData = JSON.parse(data);
   let parsedData = data;
@@ -56,7 +56,8 @@ const getSqlStringTypeFromArray = (
         }
       } else {
         field.push(`"${key}"`);
-        val.push(`'${value}'`);
+        // val.push(`'${value}'`);
+        val.push(`'${value.replace(/'+/g,"''")}'`);
       }
     });
 

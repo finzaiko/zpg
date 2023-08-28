@@ -60,7 +60,7 @@ class QueryController {
           reply.send({
             data: [],
             total_count: 0,
-            message: `\nQuery failed, ZPG server memory limit, only show ${QUERY_RECORD_SHOW} record.`,
+            message: `\nQuery failed, ZPG server memory limit, only show ${QUERY_RECORD_SHOW} record.\n\nHINT: Limit your query (eg: select * from [table] LIMIT 1000)`,
             message_toas: `Query failed, only show ${QUERY_RECORD_SHOW} limited record.`,
             type_toas: 'error',
           });

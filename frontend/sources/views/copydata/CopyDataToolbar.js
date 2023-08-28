@@ -1,7 +1,7 @@
 import { state } from "../../models/CopyData";
 import { url as urlProfile } from "../../models/Profile";
 import { applyCopyAction, generateEmptyRow, sourceTypeChanges } from "./CopyDataAction";
-import { csvToArray } from "../../helpers/ui";
+import { csvToArray, getCSVDelimeter } from "../../helpers/ui";
 const prefix = state + "_page";
 
 export default toolbar = {
@@ -52,8 +52,9 @@ export default toolbar = {
       width: 130,
       labelWidth: 70,
       options: [
-        { id: 1, value: "," },
-        { id: 2, value: ";" },
+        { id: 1, value: "auto" },
+        { id: 2, value: "," },
+        { id: 3, value: ";" },
       ],
       on: {
         onChange: function (newv) {
@@ -89,6 +90,11 @@ export default toolbar = {
           reader.onload = function (event) {
             const text = event.target.result;
             const delimeter = $$(prefix + "_uploadcsv_delimeter").getText();
+
+            if (delimeter == "auto") {
+              delimeter = getCSVDelimeter(text);
+            }
+
             const { col_name, data } = csvToArray(text, delimeter);
             viewCSVFile(col_name, data);
           };

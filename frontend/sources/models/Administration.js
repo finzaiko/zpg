@@ -5,7 +5,7 @@ const path = "administration";
 
 export let state = {
   prefix: CODE_PREFIX + path,
-  dataSelected: {}
+  dataSelected: {},
   // action: null,
   // currentView: null
 };
@@ -32,42 +32,56 @@ export const administrationMenuList = [
     url: "administration.reloadpgconf",
     title: "Reload Config",
     detail: "Reload pg_hba.conf",
-    action: "reloadconf"
+    action: "reloadconf",
   },
   {
     id: 4,
     url: "administration.view",
     title: "Database Size",
     detail: "All database size",
-    action: "dbsize"
+    action: "dbsize",
   },
   {
     id: 5,
     url: "administration.view",
     title: "Running queries",
     detail: "Running queries",
-    action: "runqueries"
+    action: "runqueries",
   },
   {
     id: 6,
     url: "administration.view",
     title: "Open connections",
     detail: "Number of open connections",
-    action: "connopen"
+    action: "connopen",
   },
   {
     id: 7,
     url: "administration.view",
     title: "Active Session",
     detail: "Current active session",
-    action: "activesession"
+    action: "activesession",
   },
   {
     id: 8,
     url: "administration.view",
     title: "Transaction Hit",
     detail: "DB Transaction Hit",
-    action: "transactionhit"
+    action: "transactionhit",
+  },
+  {
+    id: 9,
+    url: "administration.view",
+    title: "Config Setting",
+    detail: "PG Config Setting",
+    action: "configsetting",
+  },
+  {
+    id: 10,
+    url: "administration.view",
+    title: "File Setting",
+    detail: "PG File Setting",
+    action: "filesetting",
   },
 ];
 
@@ -76,9 +90,9 @@ export function runReloadConf(inputData) {
 }
 
 export function runAction(inputData) {
-  return runDBQuery(url, 'runaction', inputData);
+  return runDBQuery(url, "runaction", inputData);
 }
 
 export function runView(inputData) {
-  return runDBQuery(url, 'view', inputData);
+  return runDBQuery(url, "view", inputData);
 }

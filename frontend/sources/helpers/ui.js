@@ -328,6 +328,10 @@ export function csvToArray(str, delimiter = ",") {
   // use split to create an array of each csv value row
   const rows = str.slice(str.indexOf("\n") + 1).split("\n");
 
+  if(rows.slice(-1)[0]==""){
+		rows.pop();
+	}
+
   // Map the rows
   // split values from each row into an array
   // use headers.reduce to create an object
@@ -336,7 +340,8 @@ export function csvToArray(str, delimiter = ",") {
   const arr = rows.map(function (row) {
     const values = row.split(delimiter);
     const el = headers.reduce(function (object, header, index) {
-      object[header] = values[index];
+      // object[header] = values[index];
+      object[header] = values[index].replace(/[\r\n]/gm, '');
       return object;
     }, {});
     return el;
@@ -345,6 +350,15 @@ export function csvToArray(str, delimiter = ",") {
   // return the array
   return { col_name: headers, data: arr };
 }
+
+export function getCSVDelimeter(text) {
+	let index = text.indexOf("\n");
+	if (index === -1) index = undefined;
+	const firstLineText = text.substring(0, index);
+	if (firstLineText.indexOf(",") >= 0) return ",";
+	if (firstLineText.indexOf(";") >= 0) return ";";
+}
+
 
 export function csvToArray3(data, fieldSep, newLine) {
   fieldSep = fieldSep || ',';

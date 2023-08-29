@@ -318,7 +318,7 @@ export function showAlert(msg) {
   });
 }
 
-export function csvToArray(str, delimiter = ",") {
+export function csvToArray2(str, delimiter = ",") {
   // SOURCE: https://sebhastian.com/read-csv-javascript/
   // slice from start of text to the first \n index
   // use split to create an array from string by delimiter
@@ -327,6 +327,8 @@ export function csvToArray(str, delimiter = ",") {
   // slice from \n index + 1 to the end of the text
   // use split to create an array of each csv value row
   const rows = str.slice(str.indexOf("\n") + 1).split("\n");
+
+  // console.log('rows',rows);
 
   if(rows.slice(-1)[0]==""){
 		rows.pop();
@@ -339,9 +341,16 @@ export function csvToArray(str, delimiter = ",") {
   // the object passed as an element of the array
   const arr = rows.map(function (row) {
     const values = row.split(delimiter);
+    // console.log('values>>>',values);
+
     const el = headers.reduce(function (object, header, index) {
+      // console.log('values[index]',values[index]);
       // object[header] = values[index];
-      object[header] = values[index].replace(/[\r\n]/gm, '');
+      if(values[index]){
+        object[header] = values[index].replace(/[\r\n]/gm, '');
+      }else{
+        object[header] = values[index];
+      }
       return object;
     }, {});
     return el;
@@ -349,6 +358,60 @@ export function csvToArray(str, delimiter = ",") {
 
   // return the array
   return { col_name: headers, data: arr };
+}
+
+// TODO:
+// OTHER REF:
+// https://github.com/Keyang/node-csvtojson
+
+export function csvToArray (CSV_string, delimiter) {
+  // SOURCE: https://www.bennadel.com/blog/1504-ask-ben-parsing-csv-strings-with-javascript-exec-regular-expression-command.htm
+  /**
+   * CSVToArray parses any String of Data including '\r' '\n' characters,
+   * and returns an array with the rows of data.
+   * @param {String} CSV_string - the CSV string you need to parse
+   * @param {String} delimiter - the delimeter used to separate fields of data
+   * @returns {Array} rows - rows of CSV where first row are column headers
+   */
+  delimiter = (delimiter || ","); // user-supplied delimeter or default comma
+
+  var pattern = new RegExp( // regular expression to parse the CSV values.
+    ( // Delimiters:
+      "(\\" + delimiter + "|\\r?\\n|\\r|^)" +
+      // Quoted fields.
+      "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+      // Standard fields.
+      "([^\"\\" + delimiter + "\\r\\n]*))"
+    ), "gi"
+  );
+
+  var rows = [[]];  // array to hold our data. First row is column headers.
+  // array to hold our individual pattern matching groups:
+  var matches = false; // false if we don't find any matches
+  // Loop until we no longer find a regular expression match
+  while (matches = pattern.exec( CSV_string )) {
+      var matched_delimiter = matches[1]; // Get the matched delimiter
+      // Check if the delimiter has a length (and is not the start of string)
+      // and if it matches field delimiter. If not, it is a row delimiter.
+      if (matched_delimiter.length && matched_delimiter !== delimiter) {
+        // Since this is a new row of data, add an empty row to the array.
+        rows.push( [] );
+      }
+      var matched_value;
+      // Once we have eliminated the delimiter, check to see
+      // what kind of value was captured (quoted or unquoted):
+      if (matches[2]) { // found quoted value. unescape any double quotes.
+       matched_value = matches[2].replace(
+         new RegExp( "\"\"", "g" ), "\""
+       );
+      } else { // found a non-quoted value
+        matched_value = matches[3];
+      }
+      // Now that we have our value string, let's add
+      // it to the data array.
+      rows[rows.length - 1].push(matched_value);
+  }
+  return rows; // Return the parsed data Array
 }
 
 export function getCSVDelimeter(text) {

@@ -924,6 +924,7 @@ export function QueryPage(prefix, selectedDb) {
                   icon: "mdi mdi-close",
                   autowidth: true,
                   tooltip: "Close",
+                  css: "zmdi_padding",
                   click: function () {
                     $$(prefix + "_history_preview").hide();
                     $$(prefix + "_sql_editor").show();
@@ -933,6 +934,7 @@ export function QueryPage(prefix, selectedDb) {
                 view: "button",
                 type: "icon",
                 icon: "mdi mdi-arrange-send-backward",
+                css: "zmdi_padding",
                 autowidth: true,
                 tooltip: "Copy to query editor",
                 click: function () {
@@ -951,6 +953,7 @@ export function QueryPage(prefix, selectedDb) {
                     autowidth: true,
                     id: prefix + "_copy_clipboard",
                     tooltip: "Copy to clipboard",
+                    css: "zmdi_padding",
                     click: function () {
                       this.hide();
                       const ck = $$(prefix + "_copy_clipboard_done");
@@ -968,7 +971,7 @@ export function QueryPage(prefix, selectedDb) {
                     hidden: true,
                     id: prefix + "_copy_clipboard_done",
                     label:
-                      '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                      `<span class="mdi mdi-check-bold" style="font-size:16px;"></span>`
                   },
                 ],
               },
@@ -1011,6 +1014,7 @@ export function QueryPage(prefix, selectedDb) {
                   icon: "mdi mdi-close",
                   autowidth: true,
                   tooltip: "Close",
+                  css: "zmdi_padding",
                   click: function () {
                     $$(prefix + "_dbtree_preview").hide();
                     $$(prefix + "_sql_editor").show();
@@ -1022,6 +1026,7 @@ export function QueryPage(prefix, selectedDb) {
                 icon: "mdi mdi-arrange-send-backward",
                 autowidth: true,
                 tooltip: "Copy to query editor",
+                css: "zmdi_padding",
                 click: function () {
                   $$(prefix + "_dbtree_preview").hide();
                   copyToQuery($$(prefix + "_dbtree_content").getValue());
@@ -1038,6 +1043,7 @@ export function QueryPage(prefix, selectedDb) {
                     autowidth: true,
                     id: prefix + "_qdbtreeprv_copy_clipboard",
                     tooltip: "Copy to clipboard",
+                    css: "zmdi_padding",
                     click: function () {
                       this.hide();
                       const ck = $$(prefix + "_qdbtreeprv_copy_clipboard_done");
@@ -1057,7 +1063,7 @@ export function QueryPage(prefix, selectedDb) {
                     hidden: true,
                     id: prefix + "_qdbtreeprv_copy_clipboard_done",
                     label:
-                      '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                    `<span class="mdi mdi-check-bold" style="font-size:16px;"></span>`
                   },
                 ],
               },
@@ -1076,6 +1082,7 @@ export function QueryPage(prefix, selectedDb) {
                 fontSize: "14px",
                 borderless: true,
                 renderLineHighlight: "none",
+                readOnly: true
               },
             ],
           },
@@ -2170,7 +2177,7 @@ export function QueryPage(prefix, selectedDb) {
                   borderless: true,
                   id: prefix + "_copy_detail_cell_done",
                   template:
-                    '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                    `<span class="mdi mdi-check-bold" style="font-size:16px;"></span>`
                 },
                 {},
                 {
@@ -2583,11 +2590,11 @@ export function QueryPage(prefix, selectedDb) {
                     autowidth: true,
                     hidden: true,
                     width: 31,
-                    css: { "padding-top": "3px" },
+                    css: "z_primary_color",
                     borderless: true,
                     id: prefix + "_copy_result_clipboard_done",
                     template:
-                      '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                    `<span class="mdi mdi-check-bold" style="font-size:16px;"></span>`
                   },
                   { width: 10 },
                   {

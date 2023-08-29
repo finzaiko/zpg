@@ -49,7 +49,7 @@ export default toolbar = {
       label: "Delimeter",
       id: prefix + "_uploadcsv_delimeter",
       hidden: true,
-      width: 130,
+      width: 145,
       labelWidth: 70,
       options: [
         { id: 1, value: "auto" },
@@ -89,7 +89,7 @@ export default toolbar = {
           const reader = new FileReader();
           reader.onload = function (event) {
             const text = event.target.result;
-            const delimeter = $$(prefix + "_uploadcsv_delimeter").getText();
+            let delimeter = $$(prefix + "_uploadcsv_delimeter").getText();
 
             if (delimeter == "auto") {
               delimeter = getCSVDelimeter(text);

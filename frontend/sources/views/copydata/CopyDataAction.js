@@ -36,9 +36,9 @@ export function confirmCreateTableAndCopyData(inputData) {
               }, 1000);
             })
             .fail((e) => {
+              $$("z_copydata_page").hideOverlay();
               const rError = JSON.parse(e.response);
               setConsoleMessage(rError.message);
-              $$("z_copydata_page").hideOverlay();
             });
 
       }
@@ -223,8 +223,11 @@ function getDataFromDatatable(sheetSource, skipFirstRow) {
   const obj = data[0];
   let filteredKey = [];
   Object.keys(obj).forEach((key) => {
-    if (obj[key].length > 0) {
-      filteredKey.push(key);
+    console.log('obj[key]',obj[key]);
+    if(obj[key]){
+      if (obj[key].length > 0) {
+        filteredKey.push(key);
+      }
     }
   });
 

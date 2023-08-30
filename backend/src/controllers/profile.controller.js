@@ -42,6 +42,12 @@ class ProfileController {
     responseHttp(reply, 201, "Conn created");
   }
 
+  async updateQue(request, reply) {
+    const userId = request.user.uid;
+    await ProfileService.updateQue(userId, request.body);
+    responseHttp(reply, 201, "Que updated");
+  }
+
   async updateConn(request, reply) {
     const userId = request.user.uid;
     await ProfileService.updateConn(request.params.id, request.body);

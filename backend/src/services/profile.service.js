@@ -4,29 +4,45 @@ const ProfileRepository = require(`../repositories/profile.repository`);
 
 class ProfileService {
   async findAll(type, userId, isList, showAll, limit, offset, search) {
-    if(typeof limit=="undefined"){
+    if (typeof limit == "undefined") {
       limit = 100;
     }
-    if(typeof offset=="undefined"){
+    if (typeof offset == "undefined") {
       offset = 0;
     }
-    if(typeof showAll=="undefined"){
+    if (typeof showAll == "undefined") {
       showAll = 0;
     }
-    return await ProfileRepository.findAll(type, userId, isList, showAll, limit, offset, search);
+    return await ProfileRepository.findAll(
+      type,
+      userId,
+      isList,
+      showAll,
+      limit,
+      offset,
+      search
+    );
   }
 
   async countAll(type, userId, isList, showAll, limit, offset, search) {
-    if(typeof limit=="undefined"){
+    if (typeof limit == "undefined") {
       limit = 100;
     }
-    if(typeof offset=="undefined"){
+    if (typeof offset == "undefined") {
       offset = 0;
     }
-    if(typeof showAll=="undefined"){
+    if (typeof showAll == "undefined") {
       showAll = 0;
     }
-    return await ProfileRepository.countAll(type, userId, isList, showAll, limit, offset, search);
+    return await ProfileRepository.countAll(
+      type,
+      userId,
+      isList,
+      showAll,
+      limit,
+      offset,
+      search
+    );
   }
 
   async getById(id, type, userId) {
@@ -48,9 +64,9 @@ class ProfileService {
       password: profile[0].password,
     };
     const data = await ProfileRepository.check(newData);
-    const check = data.data<=0;
-    if(check){
-      this.createConn(newData)
+    const check = data.data <= 0;
+    if (check) {
+      this.createConn(newData);
     }
     return check;
   }
@@ -69,6 +85,28 @@ class ProfileService {
     profileConnDto.content = data.content;
 
     return await ProfileRepository.createConn(profileConnDto);
+  }
+
+  async updateQue(userId, data) {
+    // console.log("data>>>", data);
+
+    const inputData = JSON.parse(data.data);
+    // console.log("inputData", inputData);
+    let sqlStr = [];
+    inputData.forEach((obj) => {
+      const oneSql = `UPDATE profile SET seq=${obj.seq} WHERE id=${obj.id};`;
+      sqlStr.push(oneSql);
+    });
+
+    // console.log("sqlStr", sqlStr.join(""));
+
+    // const sqlAll = ``;
+    // const result = await baseRepository.runBatchQueryLocal(sqlStr.join(""));
+    const result = await ProfileRepository.updateSequence(inputData);
+    console.log("result", result);
+
+    // return result;
+    return { result };
   }
 
   async updateConn(id, data) {
@@ -127,7 +165,5 @@ class ProfileService {
     const data = await ProfileRepository.getUserProfile(userId);
     return data;
   }
-
-
 }
 module.exports = new ProfileService();

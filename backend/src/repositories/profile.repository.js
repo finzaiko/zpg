@@ -1,5 +1,7 @@
 const { db } = require("../core/database");
 const { Pool } = require("pg");
+const async = require("async");
+
 const UserRepository = require(`../repositories/user.repository`);
 
 class ProfileRepository {
@@ -27,7 +29,7 @@ class ProfileRepository {
     if (search) {
       sql += ` AND content LIKE '%${search}%'`;
     }
-    sql += " ORDER BY profile.id DESC";
+    sql += " ORDER BY profile.seq ASC";
 
     if (limit) {
       sql += " LIMIT " + limit;
@@ -380,6 +382,31 @@ class ProfileRepository {
       db.all(sql, (err, row) => {
         if (err) reject(err);
         resolve(row);
+      });
+    });
+    return res;
+  }
+
+
+  async updateSequence(dataArr) {
+    const res = await new Promise((resolve, reject) => {
+      db.serialize(function () {
+        db.run("begin transaction");
+        async.eachSeries(
+          dataArr,
+          (d, next) => {
+            const oneSql = `UPDATE profile SET seq=${d.seq} WHERE id=${d.id};`;
+            db.run(oneSql, function (err, row) {
+              if (err) reject(err);
+            });
+            next();
+          },
+          function () {
+            resolve("done");
+          }
+        );
+        db.run("commit");
+        resolve("done");
       });
     });
     return res;

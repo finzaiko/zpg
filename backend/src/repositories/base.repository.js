@@ -36,10 +36,10 @@ class BaseRepository {
     if (serverCfgTarget.length > 0) {
       const pgPool = new Pool(serverCfgTarget[0]);
       const client = await pgPool.connect();
-      let result = { error: false, message: "Copy success" };
+      let result = { error: false, message: "Success execute" };
 
       try {
-        await client.query('BEGIN')
+        await client.query("BEGIN");
         // console.log(`LOG:Running query /////////////////////`);
         async.eachSeries(
           sql,
@@ -49,7 +49,7 @@ class BaseRepository {
             client.query(query, (err, results) => {
               if (err) {
                 // console.log("ERROR: ", err);
-                result = { error: true, message: ""+err };
+                result = { error: true, message: "" + err };
               }
             });
             next();
@@ -60,10 +60,9 @@ class BaseRepository {
         );
         await client.query("COMMIT");
       } catch (e) {
-
         await client.query("ROLLBACK");
         // throw e;
-        result =  { error: true, message: "Copy fail" };
+        result = { error: true, message: "Fail" };
       } finally {
         client.release();
         return result;
@@ -72,6 +71,7 @@ class BaseRepository {
       return { error: false, message: "No connection batch query" };
     }
   }
+
 }
 
 module.exports = new BaseRepository();

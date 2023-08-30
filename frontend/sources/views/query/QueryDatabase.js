@@ -5,12 +5,27 @@ import { url } from "../../models/Profile";
 import { url as urlDb } from "../../models/Db";
 import { showError } from "../../helpers/ui";
 import { testConnection } from "../../models/Database";
-import { defaultHeader } from "../../helpers/api";
 import { url as urlProfile } from "../../models/Profile";
 
 const prefix = state.prefix + "_server";
 let isEdit = false,
   oldConnName = "";
+
+function updateQue(_this) {
+  let i = 0,
+    arr = [];
+    _this.eachRow(function (row) {
+    i++;
+    arr.push({ id: row, seq: i });
+  });
+
+  webix
+    .ajax()
+    .post(url + "/que", { data: JSON.stringify(arr) }, () => reloadHistory())
+    .fail(function (err) {
+      showError(err);
+    });
+}
 
 const WindowForm = () => {
   const winId = prefix + "_win",
@@ -310,14 +325,24 @@ const WindowForm = () => {
     height: 300,
     pager: "pagerA",
     editable: true,
+    drag: "order",
     columns: [
       {
-        id:"content",
-        header:"",
+        id: "content",
+        header: "",
         width: 6,
+        // template: function (obj) {
+        //   return obj.content !== null
+        //     ? `<span style='border-radius: 2px;display: inline-block;width:4px;height:20px;background:${obj.content};margin-top:4px;'></span>`
+        //     : "";
+        // },
         template: function (obj) {
-          return obj.content!==null ? `<span style='border-radius: 2px;display: inline-block;width:4px;height:20px;background:${obj.content};margin-top:4px;'></span>`: ""
-        }
+          return obj.content !== null
+            ? `
+            <span style='border-radius: 2px;display: inline-block;width:4px;height:20px;background:${obj.content};margin-top:4px;'></span>
+            `
+            : "";
+        },
       },
       {
         id: "conn_name",
@@ -375,6 +400,9 @@ const WindowForm = () => {
         oldConnName = item.conn_name;
       },
       onItemDblClick: function () {},
+      onAfterDrop: function (ctx, e) {
+        updateQue(this);
+      },
     },
     url: `${url}/conn?type=2`,
   };
@@ -486,7 +514,6 @@ function save(isDuplicate) {
 
       webix
         .ajax()
-
         .post(url + "/conn", data, function (res) {
           webix.message({
             text: "<strong>" + msgName + "</strong> saved.",
@@ -500,7 +527,6 @@ function save(isDuplicate) {
     } else {
       webix
         .ajax()
-
         .put(url + "/conn/" + data.id, data, function (res) {
           webix.message({
             text: "<strong>" + msgName + "</strong> updated.",
@@ -538,20 +564,22 @@ const remove = () => {
 const reload = () => {
   $$(prefix + "_table").clearAll();
   $$(prefix + "_table").load(`${url}/conn?type=2`);
+  reloadHistory();
+  defaultBtn();
+};
 
+const reloadHistory = () => {
   let tabPrefix = $$("tabs").getValue();
-  if(tabPrefix.split("_")[0]!="z"){
-    tabPrefix = "z_"+tabPrefix;
+  if (tabPrefix.split("_")[0] != "z") {
+    tabPrefix = "z_" + tabPrefix;
   }
 
-  if($$(tabPrefix + "_list_multi")){
+  if ($$(tabPrefix + "_list_multi")) {
     const listMultiConn = $$(tabPrefix + "_list_multi").getChildViews()[1];
     listMultiConn.clearAll();
     listMultiConn.load(`${urlProfile}/content?type=2&ls=true`);
   }
-  defaultBtn();
 };
-
 const close = () => {
   $$(prefix + "_form").clear();
   $$(prefix + "_win").destructor();

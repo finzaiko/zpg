@@ -29,7 +29,12 @@ class ProfileRepository {
     if (search) {
       sql += ` AND content LIKE '%${search}%'`;
     }
-    sql += " ORDER BY profile.seq ASC";
+
+    if (type == 1 || type == 2) {
+      sql += " ORDER BY profile.seq ASC";
+    }else{
+      sql += " ORDER BY profile.id DESC";
+    }
 
     if (limit) {
       sql += " LIMIT " + limit;

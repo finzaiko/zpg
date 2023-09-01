@@ -112,7 +112,7 @@ const toolbar = {
     {
       view: "button",
       type: "icon",
-      css: "zmdi_padding",
+      css: "z_icon_color_primary z_icon_size_17",
       autowidth: true,
       id: prefix + "_copy_content",
       hidden: true,
@@ -137,12 +137,12 @@ const toolbar = {
       hidden: true,
       id: prefix + "_copy_content_done",
       label:
-        '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+      `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`
     },
     {
       view: "button",
       type: "icon",
-      css: "zmdi_padding",
+      css: "z_icon_color_primary z_icon_size_18",
       id: prefix + "_send_backward",
       icon: "mdi mdi-arrange-send-backward",
       autowidth: true,

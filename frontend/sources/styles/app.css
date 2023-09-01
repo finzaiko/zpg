@@ -1489,6 +1489,7 @@ background-size: cover;
 
 .blink_me {
   animation: blinker 1s linear infinite;
+  animation-iteration-count: 3;
 }
 
 @keyframes blinker {

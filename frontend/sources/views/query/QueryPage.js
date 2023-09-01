@@ -971,7 +971,7 @@ export function QueryPage(prefix, selectedDb) {
                     hidden: true,
                     id: prefix + "_copy_clipboard_done",
                     label:
-                      `<span class="mdi mdi-check-bold" style="font-size:16px;"></span>`
+                      `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`
                   },
                 ],
               },
@@ -1063,7 +1063,7 @@ export function QueryPage(prefix, selectedDb) {
                     hidden: true,
                     id: prefix + "_qdbtreeprv_copy_clipboard_done",
                     label:
-                    `<span class="mdi mdi-check-bold" style="font-size:16px;"></span>`
+                    `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`
                   },
                 ],
               },
@@ -2177,7 +2177,7 @@ export function QueryPage(prefix, selectedDb) {
                   borderless: true,
                   id: prefix + "_copy_detail_cell_done",
                   template:
-                    `<span class="mdi mdi-check-bold" style="font-size:16px;"></span>`
+                    `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`
                 },
                 {},
                 {
@@ -2594,7 +2594,7 @@ export function QueryPage(prefix, selectedDb) {
                     borderless: true,
                     id: prefix + "_copy_result_clipboard_done",
                     template:
-                    `<span class="mdi mdi-check-bold" style="font-size:16px;"></span>`
+                    `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`
                   },
                   { width: 10 },
                   {

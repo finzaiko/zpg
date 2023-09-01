@@ -115,8 +115,7 @@ const toolbar = {
       css: { "padding-top": "3px" },
       borderless: true,
       id: prefix + "_copy_share_clipboard_done",
-      template:
-        '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+      template: `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`,
     },
     {},
     {
@@ -274,7 +273,7 @@ function confirmRemove() {
     webix.confirm({
       ok: "Yes",
       cancel: "No",
-      type:"confirm-warning",
+      type: "confirm-warning",
       text: "Are you sure to delete ?",
       callback: function (result) {
         if (result) {
@@ -302,7 +301,7 @@ function remove(isDelAll) {
       text: `Share deleted`,
       type: "success",
     });
-    reload(false,true);
+    reload(false, true);
   });
 }
 
@@ -310,7 +309,7 @@ function reload(isLoadOnly, isAfterDelete) {
   if (typeof isLoadOnly == "undefined") {
     isLoadOnly = false;
   }
-  if (typeof isAfterDelete== "undefined") {
+  if (typeof isAfterDelete == "undefined") {
     isAfterDelete = false;
   }
   const tblId = $$(prefix + "_share_list");
@@ -318,9 +317,8 @@ function reload(isLoadOnly, isAfterDelete) {
   const item = tblId.getItem(selId);
   tblId.clearAll();
   tblId.load(url).then((_) => {
-
-    console.log('selId',selId);
-    console.log('item',item);
+    console.log("selId", selId);
+    console.log("item", item);
 
     if (item && !isAfterDelete) {
       tblId.select(selId.id);

@@ -122,7 +122,7 @@ export default class GeneratorInsertQueryContent extends JetView {
                   hidden: true,
                   id: prefixThis + "_copy_clipboard_done",
                   label:
-                    '<svg class="animated-check" viewBox="0 0 24 24"><path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none"/></svg>',
+                    `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`
                 },
               ],
             },

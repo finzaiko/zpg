@@ -96,7 +96,7 @@ class QueryController {
                 adjust: data.adjustcol,
                 header: [
                   {
-                    text: `${obj.colHeader}<span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span>`,
+                    text: `${obj.colHeader}<span style='float:right;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span><span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span>`,
                     height: 42,
                     css: "z_multiline_header",
                   },
@@ -115,7 +115,7 @@ class QueryController {
                 ztype: obj.colType,
                 adjust: data.adjustcol,
                 header: [
-                  { text: `${obj.colHeader}` },
+                  { text: `${obj.colHeader}<span style='float:right;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span>` },
                   { content: "textFilter" },
                 ],
               };

@@ -36,3 +36,5 @@ export const CONFIRM_EXECUTE = "confirmexec";
 export const PING_SERVER = 15 * 60000; // Every 15m
 export const LOGIN_ANIMATE = true;
 export const FONT_SIZE_EDITOR = 14; // Defalt font size monaco editor
+export const EXPAND_COL_SIZE = 500;
+export const EXPAND_ALL_COL_SIZE = 300;

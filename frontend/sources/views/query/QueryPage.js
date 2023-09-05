@@ -29,6 +29,8 @@ import {
   LAST_ADJUSTCOLS,
   BACKEND_URL,
   FONT_SIZE_EDITOR,
+  EXPAND_COL_SIZE,
+  EXPAND_ALL_COL_SIZE,
 } from "../../config/setting";
 
 import { copyToClipboard } from "../../helpers/copy";
@@ -2033,6 +2035,7 @@ export function QueryPage(prefix, selectedDb) {
                 },
               },
             },
+            /*
             {
               view: "checkbox",
               id: prefix + "_adjust_cols",
@@ -2051,6 +2054,7 @@ export function QueryPage(prefix, selectedDb) {
                 },
               },
             },
+            */
             {height: 8},
             /*
             {
@@ -2097,15 +2101,15 @@ export function QueryPage(prefix, selectedDb) {
             if (hs) {
               $$(prefix + "_disable_history").setValue(hs);
             }
-            const ac = webix.storage.local.get(LAST_ADJUSTCOLS);
-            if (ac) {
-              $$(prefix + "_adjust_cols").setValue(ac);
-            }
+            // const ac = webix.storage.local.get(LAST_ADJUSTCOLS);
+            // if (ac) {
+            //   $$(prefix + "_adjust_cols").setValue(ac);
+            // }
             $$(prefix + "_show_data_type").unblockEvent();
             $$(prefix + "_detach_quick_search").unblockEvent();
             $$(prefix + "_show_minimap").unblockEvent();
             $$(prefix + "_disable_history").unblockEvent();
-            $$(prefix + "_adjust_cols").unblockEvent();
+            // $$(prefix + "_adjust_cols").unblockEvent();
           },
           onHide: function () {
             this.close();
@@ -2436,6 +2440,20 @@ export function QueryPage(prefix, selectedDb) {
                   { width: 10 },
                   {
                     view: "icon",
+                    icon: "mdi mdi-arrow-left-right",
+                    autowidth: true,
+                    id: prefix + "_expand_col_size",
+                    tooltip: "Expand size all columns",
+                    css: "z_icon_color_primary z_icon_size_18",
+                    click: function () {
+                      $$(prefix + "_result").eachColumn(function(id){
+                        this.setColumnWidth(id, EXPAND_ALL_COL_SIZE)
+                      })
+                    },
+                  },
+                  {width: 10},
+                  {
+                    view: "icon",
                     // icon: "mdi mdi-table-arrow-up",
                     icon: "mdi mdi-content-save-outline",
                     autowidth: true,
@@ -2712,7 +2730,15 @@ export function QueryPage(prefix, selectedDb) {
                         );
                         // $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
                       },
+                      onHeaderClick:function(id, e, node){
+                        const name = e.target.className;
+                        if (name.indexOf("z_expand_col_btn") !== -1){
+                          this.setColumnWidth(id.column, EXPAND_COL_SIZE)
+                          return false;
+                        }
+                      }
                     },
+                    /*
                     ready: function () {
                       if (state.isAdjustCols) {
                         const cols = this.config.columns;
@@ -2722,6 +2748,7 @@ export function QueryPage(prefix, selectedDb) {
                         });
                       }
                     },
+                    */
                     /*
                     scheme:{
                       $change:function(item){

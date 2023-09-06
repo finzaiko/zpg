@@ -96,7 +96,8 @@ class QueryController {
                 adjust: data.adjustcol,
                 header: [
                   {
-                    text: `${obj.colHeader}<span style='float:right;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span><span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span>`,
+                    // text: `${obj.colHeader}<span style='float:right;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span><span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span>`,
+                    text: `<div style='contain:content;'>${obj.colHeader}<span style='background:#F4F5F9;position:fixed;top:0;right:0;padding-left:3px;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span><span style='display:block;font-weight:normal;font-size:12px;color:grey;margin-top:-8px'>${obj.colType}</span></div>`,
                     height: 42,
                     css: "z_multiline_header",
                   },
@@ -115,7 +116,8 @@ class QueryController {
                 ztype: obj.colType,
                 adjust: data.adjustcol,
                 header: [
-                  { text: `${obj.colHeader}<span style='float:right;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span>` },
+                  // { text: `${obj.colHeader}<span style='float:right;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span>` },
+                  { text: `<div style='contain:content;'>${obj.colHeader}<span style='background:#F4F5F9;position:fixed;top:0;right:0;padding-left:3px;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span></div>` },
                   { content: "textFilter" },
                 ],
               };

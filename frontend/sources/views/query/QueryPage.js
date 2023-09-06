@@ -2315,7 +2315,8 @@ export function QueryPage(prefix, selectedDb) {
       sql: sqlInput,
       dtype: state.isDataType,
       history: state.isDisableHistory, // is store history
-      adjustcol: state.isAdjustCols,
+      // adjustcol: state.isAdjustCols, // REMOVED, webix adjust col make slower
+      adjustcol: 0
     };
 
     if (input.sql != "" && inputSourceId) {
@@ -3344,10 +3345,12 @@ export function QueryPage(prefix, selectedDb) {
           showhideMulticonn(lmt);
         }
 
+        /*
         const ac = webix.storage.local.get(LAST_ADJUSTCOLS);
         if (ac) {
           state.isAdjustCols = ac;
         }
+        */
 
         setSearchType();
 

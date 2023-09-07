@@ -2447,9 +2447,16 @@ export function QueryPage(prefix, selectedDb) {
                     tooltip: "Expand size all columns",
                     css: "z_icon_color_primary z_icon_size_18",
                     click: function () {
-                      $$(prefix + "_result").eachColumn(function(id){
-                        this.setColumnWidth(id, EXPAND_ALL_COL_SIZE)
-                      })
+                      this.config.icon = "mdi mdi-circle-slice-1 mdi-spin"; // or dots-circle
+                      document.body.style.cursor = "wait";
+                      this.refresh();
+                      setTimeout(() => {
+                        $$(prefix + "_result").eachColumn(function(id){
+                          this.setColumnWidth(id, EXPAND_ALL_COL_SIZE)
+                        })
+                        this.config.icon = "mdi mdi-arrow-left-right";
+                        this.refresh();
+                      }, 500);
                     },
                   },
                   {width: 10},

@@ -67,6 +67,15 @@ class QueryRepository {
     }
     return [];
   }
+  async runCancelSQL(profileId, userId, runSql) {
+    const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
+    if (serverCfg.length > 0) {
+      const pgPool = new Pool(serverCfg[0]);
+      const sql = `SELECT pg_cancel_backend((select pid from pg_stat_activity where state='active' and query='${runSql.replace(/'/g, "''")}'));`;
+      return pgPool.query(sql);
+    }
+    return [];
+  }
 }
 
 module.exports = new QueryRepository();

@@ -24,6 +24,11 @@ class QueryService {
     return q;
   }
 
+  async runCancelSQL(profileId, userId, sql) {
+    const result = await QueryRepository.runCancelSQL(profileId, userId, sql);
+    return result.rows[0];
+  }
+
   async getTableNameByOid(profileId, userId, oid) {
     const tblName = await viewdataRepository.getTableNameByOid(
       profileId,

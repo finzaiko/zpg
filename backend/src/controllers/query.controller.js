@@ -55,14 +55,13 @@ class QueryController {
       }
     )
       .then((r) => {
-
-        if(r.rowCount>QUERY_RECORD_SHOW){
+        if (r.rowCount > QUERY_RECORD_SHOW) {
           reply.send({
             data: [],
             total_count: 0,
             message: `\nQuery failed, ZPG server memory limit, only show ${QUERY_RECORD_SHOW} record.\n\nHINT: Limit your query (eg: select * from [table] LIMIT 1000)`,
             message_toas: `Query failed, only show ${QUERY_RECORD_SHOW} limited record.`,
-            type_toas: 'error',
+            type_toas: "error",
           });
           return;
         }
@@ -86,7 +85,7 @@ class QueryController {
           // console.log('rrrrr',r);
 
           // if (r.dType) {
-          if (data.dtype==1) {
+          if (data.dtype == 1) {
             tableConfig = columnDef.map((obj) => {
               return {
                 id: obj.colName,
@@ -117,7 +116,9 @@ class QueryController {
                 adjust: data.adjustcol,
                 header: [
                   // { text: `${obj.colHeader}<span style='float:right;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span>` },
-                  { text: `<div style='contain:content;'>${obj.colHeader}<span style='background:#F4F5F9;position:fixed;top:0;right:0;padding-left:3px;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span></div>` },
+                  {
+                    text: `<div style='contain:content;'>${obj.colHeader}<span style='background:#F4F5F9;position:fixed;top:0;right:0;padding-left:3px;' class='z_expand_col_btn mdi mdi-arrow-left-right'></span></div>`,
+                  },
                   { content: "textFilter" },
                 ],
               };
@@ -126,23 +127,27 @@ class QueryController {
 
           tableData = r.rows.map(function (x) {
             let newObj = {};
-            const objType = ["json","jsonb","json[]","jsonb[]","interval"];
+            const objType = ["json", "jsonb", "json[]", "jsonb[]", "interval"];
             let nullVal = [];
             columnDef.forEach((obj, i) => {
-              const isObjVal = objType.find(o=>o==obj.colType);
-              if(typeof isObjVal!="undefined"){
+              const isObjVal = objType.find((o) => o == obj.colType);
+              if (typeof isObjVal != "undefined") {
                 newObj[obj.colName] = JSON.stringify(x[i]);
-              }else{
+              } else {
                 newObj[obj.colName] = x[i];
               }
-              if (x[i] === null && obj.colType!='json' && obj.colType!='jsonb'){
-                nullVal.push([obj.colName,'z_cell_null'])
+              if (
+                x[i] === null &&
+                obj.colType != "json" &&
+                obj.colType != "jsonb"
+              ) {
+                nullVal.push([obj.colName, "z_cell_null"]);
               }
             });
             const nullObj = Object.fromEntries(nullVal);
 
             // return newObj;
-            return Object.assign(newObj, {"$cellCss":nullObj});
+            return Object.assign(newObj, { $cellCss: nullObj });
 
             /*
             // Handle null value
@@ -160,9 +165,7 @@ class QueryController {
             return Object.assign(newObj, {"$cellCss":nullObj});
             // END: Handle null value
             */
-
           });
-
         } else {
           const rr = r[r.length - 1];
           tableConfig = columnDef.map((obj) => {
@@ -171,10 +174,7 @@ class QueryController {
               editor: "text",
               ztype: obj.colType,
               adjust: data.adjustcol,
-              header: [
-                { text: `${obj.colHeader}` },
-                { content: "textFilter" },
-              ],
+              header: [{ text: `${obj.colHeader}` }, { content: "textFilter" }],
             };
           });
 
@@ -182,9 +182,9 @@ class QueryController {
           tableData = rr.map(function (x) {
             let newObj = {};
             columnDef.forEach((obj, i) => {
-              if(obj.colType=='json' || obj.colType=='jsonb'){
+              if (obj.colType == "json" || obj.colType == "jsonb") {
                 newObj[obj.colName] = JSON.stringify(x[i]);
-              }else{
+              } else {
                 /*
                 if(x[i]===null){ //  Object.is(x[i], null)
                   newObj[obj.colName] = '[null]';
@@ -206,7 +206,7 @@ class QueryController {
 
         let textMsg = [];
         //  console.log(`rcb###########2`, rcb);
-         if (typeof rcb != "undefined" && rcb.length > 0) {
+        if (typeof rcb != "undefined" && rcb.length > 0) {
           // textMsg.push(`\n--notice:--\n${rcb.severity} ${rcb.message}\n`);
           textMsg.push(`${rcb.join("\n")}\n--end:notice:--\n`);
         }
@@ -218,12 +218,17 @@ class QueryController {
         let effected = `\n${rc} rows effected.`;
         Object.assign(rd, {
           total_count: rc,
-          message: `${noticeResult}\nQuery successfully in ${msToTime(et)}.${effected}\n`,
-          message_toas: `Query successfully in ${msToTime(et)}. ${rc} rows effected.`,
-          type_toas: 'success',
+          message: `${noticeResult}\nQuery successfully in ${msToTime(
+            et
+          )}.${effected}\n`,
+          message_toas: `Query successfully in ${msToTime(
+            et
+          )}. ${rc} rows effected.`,
+          type_toas: "success",
         });
 
-        if(!data.history){ // is disable history
+        if (!data.history) {
+          // is disable history
           const hsData = {
             // title: "",
             content: data.sql,
@@ -257,14 +262,13 @@ class QueryController {
         const _sql = data.sql;
         const errLine =
           (_sql.substring(0, e.position).match(/\n/g) || []).length + 1;
-        console.log('>>>>>>>>>>error: %s', e);
+        console.log(">>>>>>>>>>error: %s", e);
         let errDetail = "",
           errHint = "",
           errQuery = "",
           errQueryLabel = "QUERY: ",
           errWhere = "",
-          errLinePos = ""
-          ;
+          errLinePos = "";
         // if (typeof e.detail != "undefined" && typeof e.hint != "undefined") {
         //   errDetail = e.detail;
         //   errHint = e.hint;
@@ -279,10 +283,10 @@ class QueryController {
         if (typeof e.internalQuery != "undefined") {
           errQuery = `${errQueryLabel}${e.internalQuery}`;
 
-          const str = '^^',
-          len = str.length,
-          space = parseInt(e.internalPosition)+ errQueryLabel.length;
-          errLinePos = str.padStart(len + space, ' ');
+          const str = "^^",
+            len = str.length,
+            space = parseInt(e.internalPosition) + errQueryLabel.length;
+          errLinePos = str.padStart(len + space, " ");
         }
         if (typeof e.where != "undefined") {
           errWhere = `CONTEXT: ${e.where}`;
@@ -297,40 +301,44 @@ class QueryController {
           err_line: errLine,
           err_position: Number(e.position),
           message_toas: `Query failed.`,
-          type_toas: 'error',
+          type_toas: "error",
         });
       });
+  }
+
+  async runCancelSQL(request, reply) {
+    let errors = [];
+    if (!request.body.sql) {
+      errors.push("No Conn Name specified");
+    }
+    const { source_id, sql } = request.body;
+    const userId = request.user.uid;
+    const r = await QueryService.runCancelSQL(source_id, userId, sql);
+    reply.send(r);
   }
 
   async getTableName(request, reply) {
     const { id, oid, start, count, filter, sort } = request.query; // t = is type level, 1 show db only;
     // console.log(`request.query /////////`, request.query);
     const userId = request.user.uid;
-    const r = await QueryService.getTableNameByOid(
-      id,
-      userId,
-      oid
-    );
+    const r = await QueryService.getTableNameByOid(id, userId, oid);
     reply.send(r.rows[0]);
   }
 
   async getIsTable(request, reply) {
     const { id, table } = request.query; // t = is type level, 1 show db only;
     const userId = request.user.uid;
-    let schema = 'public', tbl;
-    if(table.includes('.')){
-      const tblSchema = table.split('.');
+    let schema = "public",
+      tbl;
+    if (table.includes(".")) {
+      const tblSchema = table.split(".");
       schema = tblSchema[0];
       tbl = tblSchema[1];
-    }else{
+    } else {
       tbl = table;
     }
 
-    const r = await QueryService.getIsTable(
-      id,
-      userId,
-      schema,
-      tbl);
+    const r = await QueryService.getIsTable(id, userId, schema, tbl);
     reply.send(r);
   }
 }

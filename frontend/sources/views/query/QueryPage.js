@@ -2345,7 +2345,10 @@ export function QueryPage(prefix, selectedDb) {
         z-index: 999;
         font-size: 13px;
         cursor:pointer;
-        color: #e15353;
+        color: #ffffff;
+        background:#1ca1c1;
+        padding: 4px;
+        border-radius: 6px;
         '>&nbsp;Cancel</span>
         <span>Running query...</span></div>`
       );
@@ -2362,10 +2365,7 @@ export function QueryPage(prefix, selectedDb) {
             .then((r) => {
               let rData = r.json();
               const isOk = rData.pg_cancel_backend;
-              webix.message({
-                text: `Cancel query ${isOk ? "success" : "fail"}`,
-                type: isOk ? "success" : "error",
-              });
+              showToast(`Cancel query ${isOk ? "succeeded" : "failed"}`, `toasify_${isOk ? "success" : "error"}`);
               pagePanelId.hideOverlay();
             })
             .fail((err) => {
@@ -2607,7 +2607,7 @@ export function QueryPage(prefix, selectedDb) {
                     tooltip: "Export Result",
                     css: "z_icon_color_primary z_icon_size_18",
                     click: function () {
-                      const format = webix.Date.dateToStr("%Y%m%d%h%m%s");
+                      const format = webix.Date.dateToStr("%Y%m%d%h%i%s");
                       const timeStamp = format(new Date());
                       const tblId = $$(prefix + "_result");
                       webix.toExcel(tblId, {
@@ -2975,7 +2975,7 @@ export function QueryPage(prefix, selectedDb) {
   function copyFieldName() {
     const resultTblId = $$(`${prefix}_result`);
     webix.event(resultTblId.$view, "contextmenu", function (e, node) {
-      const hasHeader = e.srcElement.classList.contains("webix_hcell");
+      const hasHeader = e.srcElement.classList.contains("webix_hcell_content");
       if (hasHeader) {
         webix.html.preventEvent(e);
         const pos = resultTblId.locate(e);

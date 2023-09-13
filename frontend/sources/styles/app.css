@@ -1808,3 +1808,7 @@ svg text {
   font-size: 16px;
   cursor: pointer;
 }
+
+.server_status .webix_template{
+  padding: 0 !important;
+}

@@ -115,573 +115,610 @@ export function QueryPage(prefix, selectedDb) {
   let decorations = [];
 
   let QueryToolbar = {
-    view: "toolbar",
-    css: "z_query_toolbar",
-    id: prefix + "_tb",
-    elements: [
+    rows: [
       {
-        view: "button",
-        type: "icon",
-        css: "zmdi_padding",
-        id: prefix + "_new_query_btn",
-        autowidth: true,
-        tooltip: "Open new Query",
-        icon: "mdi mdi-play-box-multiple-outline",
-        click: function () {
-          newQueryTab();
-        },
-      },
-      {
-        view: "button",
-        type: "icon",
-        css: "zmdi_padding",
-        id: prefix + "_showhide_db",
-        autowidth: true,
-        tooltip: "Show database content",
-        icon: "mdi mdi-forwardburger",
-        click: function () {
-          const treeId = $$(prefix + "_db_tree_panel");
-          const treeResizedId = $$(prefix + "_db_tree_panel_resizer");
-          if (treeId.isVisible()) {
-            treeId.hide();
-            treeResizedId.hide();
-            this.config.icon = "mdi mdi-forwardburger";
-            this.config.tooltip = { template: "Show database content" };
-            this.refresh();
-            loadDb(false);
-            $$(prefix + "_viewdata_btn").disable();
-          } else {
-            treeId.show();
-            treeResizedId.show();
-            this.config.icon = "mdi mdi-backburger";
-            this.config.tooltip = { template: "Hide database content" };
-            this.refresh();
-            loadDb(true);
-          }
-        },
-      },
-      // {
-      //   id: prefix + "_source_combo_shimm",
-      //   template: `<div class="shimmer"></div>`,
-      //   css: "shimmer_container",
-      //   borderless: true,
-      //   width: 200,
-      // },
-      {
-        view: "combo",
-        id: prefix + "_source_combo",
-        placeholder: "Source DB",
-        width: 200,
-        // hidden: true,
-        options: {
-          width: 250,
-          fitMaster: false,
-          body: {
-            // template:
-            //   `<div style="background-color:#content#;margin:0;padding-left:4px;padding-right:4px;border-radius:3px;">#value#</div>`,
-            template: function (obj) {
-              let clr = "#475466",
-                bg = "#ffffff";
-              if (obj.content) {
-                bg = obj.content;
-              }
-              if (!isColorLight(bg)) {
-                clr = "#ffffff";
-              }
-              return `<div style="background-color:${obj.content};color:${clr};border-radius:3px;padding-left:4px;padding-right:4px;">${obj.value}</div>`;
-            },
-            url: `${urlProfile}/content?type=2&ls=true`,
-            on: {
-              onAfterLoad: function () {
-                colorComboDBSource($$(prefix + "_source_combo"));
-                setTimeout(
-                  () => $$(prefix + "_source_combo").hideOverlay(),
-                  300
-                );
-              },
+        view: "toolbar",
+        css: "z_query_toolbar",
+        id: prefix + "_tb",
+        elements: [
+          {
+            view: "button",
+            type: "icon",
+            css: "zmdi_padding",
+            id: prefix + "_new_query_btn",
+            autowidth: true,
+            tooltip: "Open new Query",
+            icon: "mdi mdi-play-box-multiple-outline",
+            click: function () {
+              newQueryTab();
             },
           },
-          on: {
-            onBeforeShow: function () {
-              reloadDBConnCombo();
-            },
-          },
-        },
-        on: {
-          onAfterRender: function () {
-            webix.extend(this, webix.OverlayBox);
-            this.showOverlay(
-              `<div class="shimmer" style="margin-top:3px"></div>`
-            );
-          },
-          onChange: function (id, val) {
-            webix.storage.local.put(LAST_DB_CONN_QUERY, id);
-            if (id) {
-              $$(prefix + "_run_btn").enable();
-            } else {
-              $$(prefix + "_run_btn").disable();
-            }
-
-            const treeId = $$(prefix + "_db_tree_panel");
-            if (treeId.isVisible()) {
-              loadDb(true);
-            }
-            colorComboDBSource($$(prefix + "_source_combo"));
-          },
-        },
-      },
-      {
-        view: "button",
-        type: "icon",
-        css: "zmdi_padding",
-        id: prefix + "_dbconn_toggle",
-        autowidth: true,
-        tooltip: "Manage DB Connection",
-        icon: "mdi mdi-connection",
-        click: function () {
-          this.$scope.ui(QueryDatabase).show();
-        },
-      },
-      {
-        view: "toggle",
-        type: "icon",
-        autowidth: true,
-        css: "zmdi_padding",
-        tooltip: "Show multi Connection",
-        id: prefix + "_multiconn_toggle",
-        icon: "mdi mdi-playlist-play",
-        on: {
-          onChange: function (v) {
-            showhideMulticonn(v);
-            webix.storage.local.put(LAST_MULTICONN, v);
-          },
-        },
-      },
-      {
-        view: "button",
-        type: "icon",
-        css: "zmdi_padding",
-        icon: "mdi mdi-table",
-        id: prefix + "_viewdata_btn",
-        tooltip: "View data selected tree or search",
-        disabled: true,
-        autowidth: true,
-        click: function () {
-          let profileId = $$(prefix + "_source_combo").getValue();
-          let tableOid = $$(prefix + "_db_tree")
-            .getSelectedId()
-            .split("_")[0];
-          if (!tableOid) {
-            tableOid = searchOidSelected.split("_")[0];
-          } else {
-            webix.message({
-              text: "Selected table view not defined",
-              type: "error",
-            });
-            return false;
-          }
-          runViewData(profileId, tableOid);
-        },
-      },
-      {
-        view: "button",
-        type: "icon",
-        css: "zmdi_padding",
-        icon: "mdi mdi-play",
-        id: prefix + "_run_btn",
-        tooltip: "Execute (Ctrl+Enter or F5)",
-        disabled: true,
-        autowidth: true,
-        click: function () {
-          runQuery($$(prefix + "_source_combo").getValue());
-        },
-      },
-      {
-        view: "button",
-        type: "icon",
-        css: "zmdi_padding",
-        icon: "mdi mdi-playlist-check",
-        tooltip: "Auto Format",
-        autowidth: true,
-        click: function () {
-          autoFormat();
-        },
-      },
-      {
-        view: "button",
-        tooltip: "Bookmark",
-        id: prefix + "_bookmark_btn",
-        type: "icon",
-        css: "zmdi_padding",
-        icon: "mdi mdi-bookmark-outline",
-        autowidth: true,
-        popup: {
-          view: "contextmenu",
-          data: [],
-          submenuConfig: {
-            width: 300,
-          },
-          on: {
-            onBeforeShow: function () {
-              this.clearAll();
-              webix
-                .ajax()
-                .get(`${urlProfile}/content?type=4&limit=10`)
-                .then((r) => {
-                  let arr = [];
-                  arr.push({
-                    id: prefix + "_add_bookmark",
-                    value:
-                      "<span class='mdi mdi-star-plus-outline webix_icon'></span>  Add Bookmark",
-                  });
-                  arr.push({
-                    id: prefix + "_manage_bookmark",
-                    value: "<span class='webix_icon'></span>  Manage Bookmark",
-                  });
-
-                  const _data = r.json().data;
-                  if (_data.length > 0) {
-                    arr.push({ $template: "Separator" });
-                    this.config.width = 300;
-                  } else {
-                    this.config.width = 160;
-                  }
-                  this.refresh();
-                  _data.forEach((item, index) => {
-                    let no = index + 1;
-                    arr.push({ id: item.id, value: no + ". " + item.title });
-                  });
-                  this.parse(arr);
-                });
-            },
-            onMenuItemClick: function (id) {
-              if (id == prefix + "_add_bookmark") {
-                let data = {
-                  title: "",
-                  content: $$(prefix + "_sql_editor").getValue(),
-                  user_id: userProfile.userId,
-                  type: 4,
-                };
-                webix
-                  .ajax()
-
-                  .post(urlProfile + "/content", data, (r) => {
-                    webix.message({ text: "Bookmark added.", type: "success" });
-                  });
-              } else if (id == prefix + "_manage_bookmark") {
-                openBookmarkManager();
+          {
+            view: "button",
+            type: "icon",
+            css: "zmdi_padding",
+            id: prefix + "_showhide_db",
+            autowidth: true,
+            tooltip: "Show database content",
+            icon: "mdi mdi-forwardburger",
+            click: function () {
+              const treeId = $$(prefix + "_db_tree_panel");
+              const treeResizedId = $$(prefix + "_db_tree_panel_resizer");
+              if (treeId.isVisible()) {
+                treeId.hide();
+                treeResizedId.hide();
+                this.config.icon = "mdi mdi-forwardburger";
+                this.config.tooltip = { template: "Show database content" };
+                this.refresh();
+                loadDb(false);
+                $$(prefix + "_viewdata_btn").disable();
               } else {
-                webix
-                  .ajax()
-                  .get(`${urlProfile}/content/${id}?type=4`)
-                  .then((r) => {
-                    $$(prefix + "_sql_editor").setValue(r.json().data.content);
-                  });
+                treeId.show();
+                treeResizedId.show();
+                this.config.icon = "mdi mdi-backburger";
+                this.config.tooltip = { template: "Hide database content" };
+                this.refresh();
+                loadDb(true);
               }
             },
           },
-        },
-      },
-      {
-        view: "toggle",
-        // label: "History",
-        type: "icon",
-        css: "zmdi_padding",
-        icon: "mdi mdi-history",
-        tooltip: "History",
-        id: prefix + "_history_toggle",
-        autowidth: true,
-        on: {
-          onChange: function (v) {
-            showhideHistory(v);
-            webix.storage.local.put(LAST_HISTORY, v);
-          },
-        },
-      },
-      {
-        id: prefix + "_database_search_shimm",
-        template: `<div class="shimmer"></div>`,
-        css: "shimmer_container",
-        borderless: true,
-        width: 300,
-      },
-      {
-        view: "text",
-        css: "search_suggest",
-        id: prefix + "_database_search",
-        placeholder: "Search name..",
-        hidden: true,
-        width: 300,
-        suggest: {
-          keyPressTimeout: 500,
-          template: "#value#",
-          body: {
-            css: "search_suggest_list",
-            template: function (obj) {
-              let val = `<span class='source_def_item'>${obj.value}</span>`,
-                sty = "",
-                typ = "";
-              if (obj.type == "Table") {
-                typ = "tbl";
-              } else if (obj.type == "Function") {
-                typ = "fun";
-              }
-              if (typeof obj.type != "undefined") {
-                sty = `<span class='source_def_type source_def_type_${typ}'>${typ}</span>`;
-              }
-              return val + sty;
-            },
-
-            dataFeed: function (filtervalue, filter) {
-              const sourceId = $$(prefix + "_source_combo").getValue();
-              if (!sourceId) {
-                webix.message({
-                  text: "Ops, select source DB first",
-                  type: "error",
-                });
-                return;
-              }
-              if (filtervalue.length < 3) {
-                const viewId = $$(prefix + "_database_search");
-                webix.extend(viewId, webix.OverlayBox);
-                if (viewId) $$(viewId).hideOverlay();
-                this.clearAll();
-                return;
-              }
-              this.clearAll();
-              this.load(
-                `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=` +
-                  filtervalue
-              );
+          // {
+          //   id: prefix + "_source_combo_shimm",
+          //   template: `<div class="shimmer"></div>`,
+          //   css: "shimmer_container",
+          //   borderless: true,
+          //   width: 200,
+          // },
+          {
+            view: "combo",
+            id: prefix + "_source_combo",
+            placeholder: "Source DB",
+            width: 200,
+            // hidden: true,
+            options: {
+              width: 250,
+              fitMaster: false,
+              body: {
+                // template:
+                //   `<div style="background-color:#content#;margin:0;padding-left:4px;padding-right:4px;border-radius:3px;">#value#</div>`,
+                template: function (obj) {
+                  let clr = "#475466",
+                    bg = "#ffffff";
+                  if (obj.content) {
+                    bg = obj.content;
+                  }
+                  if (!isColorLight(bg)) {
+                    clr = "#ffffff";
+                  }
+                  return `<div style="background-color:${obj.content};color:${clr};border-radius:3px;padding-left:4px;padding-right:4px;">${obj.value}</div>`;
+                },
+                url: `${urlProfile}/content?type=2&ls=true`,
+                on: {
+                  onAfterLoad: function () {
+                    colorComboDBSource($$(prefix + "_source_combo"));
+                    setTimeout(
+                      () => $$(prefix + "_source_combo").hideOverlay(),
+                      300
+                    );
+                  },
+                },
+              },
+              on: {
+                onBeforeShow: function () {
+                  reloadDBConnCombo();
+                },
+              },
             },
             on: {
-              onBeforeLoad: function () {
-                const viewId = $$(prefix + "_database_search");
-                webix.extend(viewId, webix.OverlayBox);
-                if (viewId)
-                  viewId.showOverlay(
-                    `<span style='display:block;text-align:right;padding-right:10px;height:100%;line-height:2.5; color:orange' class='mdi mdi-circle-slice-8 mdi_pulsate'></span>`
-                  );
-              },
-              onAfterLoad: function () {
-                const viewId = $$(prefix + "_database_search");
-                webix.delay(
-                  function () {
-                    webix.extend(viewId, webix.OverlayBox);
-                    if (viewId) $$(viewId).hideOverlay();
-                  },
-                  this,
-                  null,
-                  2000
+              onAfterRender: function () {
+                webix.extend(this, webix.OverlayBox);
+                this.showOverlay(
+                  `<div class="shimmer" style="margin-top:3px"></div>`
                 );
               },
-            },
-          },
-          on: {
-            onValueSuggest: function (node) {
-              loadSchemaContent(0, node.id);
-            },
-          },
-        },
-        on: {
-          onKeyPress: function (code, e) {
-            if (code == 9) {
-              $$(prefix + "_sql_editor")
-                .getEditor(true)
-                .then((editor) => editor.focus());
-            }
-          },
-        },
-      },
-      {
-        view: "text",
-        css: "search_suggest",
-        id: prefix + "_database_search_content",
-        placeholder: "Search content and press enter..",
-        tooltip: "Type and enter",
-        width: 300,
-        hidden: true,
-        on: {
-          onKeyPress: function (code, e) {
-            if (code == 13) {
-              const sourceId = $$(prefix + "_source_combo").getValue();
-              const filtervalue = this.getValue();
-              const pageId = $$(prefix + "_page_panel");
-              webix.extend(pageId, webix.OverlayBox);
-              pageId.showOverlay(
-                `<div class="loading-content"><div class="loading-ico no-border"></div>
-                <span id='${prefix}_z_cancel_query' class='mdi mdi-close-circle-outline' style='
-                position: absolute;
-                bottom: 15px;
-                right: 15px;
-                z-index: 999;
-                font-size: 13px;
-                cursor:pointer;
-                color: #e15353;
-                '>&nbsp;Cancel</span>
-                <span>Searching contents...</span></div>`
-              );
+              onChange: function (id, val) {
+                webix.storage.local.put(LAST_DB_CONN_QUERY, id);
+                if (id) {
+                  $$(prefix + "_run_btn").enable();
+                } else {
+                  $$(prefix + "_run_btn").disable();
+                }
 
-              document.getElementById(`${prefix}_z_cancel_query`).onclick =
-                function () {
-                  // alert("Not implemented yet");
-                  pageId.hideOverlay();
-                  webix.message({ text: "Search cancelled", type: "debug" });
-                };
+                const treeId = $$(prefix + "_db_tree_panel");
+                if (treeId.isVisible()) {
+                  loadDb(true);
+                }
+                colorComboDBSource($$(prefix + "_source_combo"));
 
-              webix
-                .ajax()
-                .get(
-                  `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=${filtervalue}&type=content`
-                )
-                .then((r) => {
-                  const rData = r.json();
-                  const data = rData.data;
-                  if (typeof data != "undefined") {
-                    if ($$(prefix + "_sidemenu_right").isVisible()) {
-                      $$(prefix + "_sidemenu_right").hide();
-                    }
-                    if ($$(prefix + "_history_preview").isVisible()) {
-                      $$(prefix + "_history_preview").hide();
-                      $$(prefix + "_sql_editor").show();
-                    }
-
-                    $$(prefix + "_history_toggle").setValue(false);
-                    $$(prefix + "_multiconn_toggle").setValue(false);
-                    $$(prefix + "_search_content_right").show();
-
-                    const resultContent = $$(prefix + "_result_content");
-                    resultContent.clearAll();
-                    resultContent.parse(data);
-                    resultContent.registerFilter(
-                      $$(prefix + "_filter_content"),
-                      { columnId: "content_name" },
-                      {
-                        getValue: function (view) {
-                          return view.getValue();
-                        },
-                        setValue: function (view, value) {
-                          view.setValue(value);
-                        },
-                      }
-                    );
-                  } else {
-                    const resultContent = $$(prefix + "_result_content");
-                    if (resultContent) {
-                      resultContent.clearAll();
-                    }
-                    webix.message({ text: "No record found", type: "error" });
+                if (id) {
+                  const sourceHost = this.getPopup().getList().getItem(id);
+                  if (typeof sourceHost != "undefined") {
+                    // TODO: // check connection DB
                   }
-                  setTimeout(() => pageId.hideOverlay(), 1000);
-                })
-                .fail((e) => {
-                  pageId.hideProgress();
-                  pageId.enable();
-                  webix.message({ text: getErrorMessage(e), type: "error" });
-                });
-            }
-          },
-        },
-      },
-      {
-        view: "icon",
-        icon: "mdi mdi-magnify",
-        id: prefix + "_search_more_btn",
-        tooltip: "Search by name",
-        popup: {
-          view: "popup",
-          width: 120,
-          body: {
-            view: "list",
-            data: [
-              {
-                id: prefix + "_sname",
-                name: "name",
-                icon: "mdi mdi-magnify",
-                tooltip: "Search by name",
-              },
-              {
-                id: prefix + "_scontent",
-                name: "content",
-                icon: "mdi mdi-text-search",
-                tooltip: "Search by content",
-              },
-            ],
-            template: "<span class='#icon#'></span> #name#",
-            autoheight: true,
-            select: true,
-            on: {
-              onItemClick: function (id) {
-                this.getParentView().hide();
-                const popBtn = $$(prefix + "_search_more_btn");
-                const sel = this.getItem(id);
-                popBtn.config.icon = sel.icon;
-                popBtn.config.tooltip = sel.tooltip;
-                popBtn.refresh();
-
-                const search = $$(prefix + "_database_search");
-                const searchContent = $$(prefix + "_database_search_content");
-                if (id == prefix + "_sname") {
-                  search.show();
-                  search.focus();
-                  searchContent.hide();
-                } else if (id == prefix + "_scontent") {
-                  search.hide();
-                  searchContent.show();
-                  searchContent.focus();
                 }
               },
             },
           },
-        },
+          {
+            view: "button",
+            type: "icon",
+            css: "zmdi_padding",
+            id: prefix + "_dbconn_toggle",
+            autowidth: true,
+            tooltip: "Manage DB Connection",
+            icon: "mdi mdi-connection",
+            click: function () {
+              this.$scope.ui(QueryDatabase).show();
+            },
+          },
+          {
+            view: "toggle",
+            type: "icon",
+            autowidth: true,
+            css: "zmdi_padding",
+            tooltip: "Show multi Connection",
+            id: prefix + "_multiconn_toggle",
+            icon: "mdi mdi-playlist-play",
+            on: {
+              onChange: function (v) {
+                showhideMulticonn(v);
+                webix.storage.local.put(LAST_MULTICONN, v);
+              },
+            },
+          },
+          {
+            view: "button",
+            type: "icon",
+            css: "zmdi_padding",
+            icon: "mdi mdi-table",
+            id: prefix + "_viewdata_btn",
+            tooltip: "View data selected tree or search",
+            disabled: true,
+            autowidth: true,
+            click: function () {
+              let profileId = $$(prefix + "_source_combo").getValue();
+              let tableOid = $$(prefix + "_db_tree")
+                .getSelectedId()
+                .split("_")[0];
+              if (!tableOid) {
+                tableOid = searchOidSelected.split("_")[0];
+              } else {
+                webix.message({
+                  text: "Selected table view not defined",
+                  type: "error",
+                });
+                return false;
+              }
+              runViewData(profileId, tableOid);
+            },
+          },
+          {
+            view: "button",
+            type: "icon",
+            css: "zmdi_padding",
+            icon: "mdi mdi-play",
+            id: prefix + "_run_btn",
+            tooltip: "Execute (Ctrl+Enter or F5)",
+            disabled: true,
+            autowidth: true,
+            click: function () {
+              runQuery($$(prefix + "_source_combo").getValue());
+            },
+          },
+          {
+            view: "button",
+            type: "icon",
+            css: "zmdi_padding",
+            icon: "mdi mdi-playlist-check",
+            tooltip: "Auto Format",
+            autowidth: true,
+            click: function () {
+              autoFormat();
+            },
+          },
+          {
+            view: "button",
+            tooltip: "Bookmark",
+            id: prefix + "_bookmark_btn",
+            type: "icon",
+            css: "zmdi_padding",
+            icon: "mdi mdi-bookmark-outline",
+            autowidth: true,
+            popup: {
+              view: "contextmenu",
+              data: [],
+              submenuConfig: {
+                width: 300,
+              },
+              on: {
+                onBeforeShow: function () {
+                  this.clearAll();
+                  webix
+                    .ajax()
+                    .get(`${urlProfile}/content?type=4&limit=10`)
+                    .then((r) => {
+                      let arr = [];
+                      arr.push({
+                        id: prefix + "_add_bookmark",
+                        value:
+                          "<span class='mdi mdi-star-plus-outline webix_icon'></span>  Add Bookmark",
+                      });
+                      arr.push({
+                        id: prefix + "_manage_bookmark",
+                        value:
+                          "<span class='webix_icon'></span>  Manage Bookmark",
+                      });
+
+                      const _data = r.json().data;
+                      if (_data.length > 0) {
+                        arr.push({ $template: "Separator" });
+                        this.config.width = 300;
+                      } else {
+                        this.config.width = 160;
+                      }
+                      this.refresh();
+                      _data.forEach((item, index) => {
+                        let no = index + 1;
+                        arr.push({
+                          id: item.id,
+                          value: no + ". " + item.title,
+                        });
+                      });
+                      this.parse(arr);
+                    });
+                },
+                onMenuItemClick: function (id) {
+                  if (id == prefix + "_add_bookmark") {
+                    let data = {
+                      title: "",
+                      content: $$(prefix + "_sql_editor").getValue(),
+                      user_id: userProfile.userId,
+                      type: 4,
+                    };
+                    webix
+                      .ajax()
+
+                      .post(urlProfile + "/content", data, (r) => {
+                        webix.message({
+                          text: "Bookmark added.",
+                          type: "success",
+                        });
+                      });
+                  } else if (id == prefix + "_manage_bookmark") {
+                    openBookmarkManager();
+                  } else {
+                    webix
+                      .ajax()
+                      .get(`${urlProfile}/content/${id}?type=4`)
+                      .then((r) => {
+                        $$(prefix + "_sql_editor").setValue(
+                          r.json().data.content
+                        );
+                      });
+                  }
+                },
+              },
+            },
+          },
+          {
+            view: "toggle",
+            // label: "History",
+            type: "icon",
+            css: "zmdi_padding",
+            icon: "mdi mdi-history",
+            tooltip: "History",
+            id: prefix + "_history_toggle",
+            autowidth: true,
+            on: {
+              onChange: function (v) {
+                showhideHistory(v);
+                webix.storage.local.put(LAST_HISTORY, v);
+              },
+            },
+          },
+          {
+            id: prefix + "_database_search_shimm",
+            template: `<div class="shimmer"></div>`,
+            css: "shimmer_container",
+            borderless: true,
+            width: 300,
+          },
+          {
+            view: "text",
+            css: "search_suggest",
+            id: prefix + "_database_search",
+            placeholder: "Search name..",
+            hidden: true,
+            width: 300,
+            suggest: {
+              keyPressTimeout: 500,
+              template: "#value#",
+              body: {
+                css: "search_suggest_list",
+                template: function (obj) {
+                  let val = `<span class='source_def_item'>${obj.value}</span>`,
+                    sty = "",
+                    typ = "";
+                  if (obj.type == "Table") {
+                    typ = "tbl";
+                  } else if (obj.type == "Function") {
+                    typ = "fun";
+                  }
+                  if (typeof obj.type != "undefined") {
+                    sty = `<span class='source_def_type source_def_type_${typ}'>${typ}</span>`;
+                  }
+                  return val + sty;
+                },
+
+                dataFeed: function (filtervalue, filter) {
+                  const sourceId = $$(prefix + "_source_combo").getValue();
+                  if (!sourceId) {
+                    webix.message({
+                      text: "Ops, select source DB first",
+                      type: "error",
+                    });
+                    return;
+                  }
+                  if (filtervalue.length < 3) {
+                    const viewId = $$(prefix + "_database_search");
+                    webix.extend(viewId, webix.OverlayBox);
+                    if (viewId) $$(viewId).hideOverlay();
+                    this.clearAll();
+                    return;
+                  }
+                  this.clearAll();
+                  this.load(
+                    `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=` +
+                      filtervalue
+                  );
+                },
+                on: {
+                  onBeforeLoad: function () {
+                    const viewId = $$(prefix + "_database_search");
+                    webix.extend(viewId, webix.OverlayBox);
+                    if (viewId)
+                      viewId.showOverlay(
+                        `<span style='display:block;text-align:right;padding-right:10px;height:100%;line-height:2.5; color:orange' class='mdi mdi-circle-slice-8 mdi_pulsate'></span>`
+                      );
+                  },
+                  onAfterLoad: function () {
+                    const viewId = $$(prefix + "_database_search");
+                    webix.delay(
+                      function () {
+                        webix.extend(viewId, webix.OverlayBox);
+                        if (viewId) $$(viewId).hideOverlay();
+                      },
+                      this,
+                      null,
+                      2000
+                    );
+                  },
+                },
+              },
+              on: {
+                onValueSuggest: function (node) {
+                  loadSchemaContent(0, node.id);
+                },
+              },
+            },
+            on: {
+              onKeyPress: function (code, e) {
+                if (code == 9) {
+                  $$(prefix + "_sql_editor")
+                    .getEditor(true)
+                    .then((editor) => editor.focus());
+                }
+              },
+            },
+          },
+          {
+            view: "text",
+            css: "search_suggest",
+            id: prefix + "_database_search_content",
+            placeholder: "Search content and press enter..",
+            tooltip: "Type and enter",
+            width: 300,
+            hidden: true,
+            on: {
+              onKeyPress: function (code, e) {
+                if (code == 13) {
+                  const sourceId = $$(prefix + "_source_combo").getValue();
+                  const filtervalue = this.getValue();
+                  const pageId = $$(prefix + "_page_panel");
+                  webix.extend(pageId, webix.OverlayBox);
+                  pageId.showOverlay(
+                    `<div class="loading-content"><div class="loading-ico no-border"></div>
+                    <span id='${prefix}_z_cancel_query' class='mdi mdi-close-circle-outline' style='
+                    position: absolute;
+                    bottom: 15px;
+                    right: 15px;
+                    z-index: 999;
+                    font-size: 13px;
+                    cursor:pointer;
+                    color: #e15353;
+                    '>&nbsp;Cancel</span>
+                    <span>Searching contents...</span></div>`
+                  );
+
+                  document.getElementById(`${prefix}_z_cancel_query`).onclick =
+                    function () {
+                      // alert("Not implemented yet");
+                      pageId.hideOverlay();
+                      webix.message({
+                        text: "Search cancelled",
+                        type: "debug",
+                      });
+                    };
+
+                  webix
+                    .ajax()
+                    .get(
+                      `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=${filtervalue}&type=content`
+                    )
+                    .then((r) => {
+                      const rData = r.json();
+                      const data = rData.data;
+                      if (typeof data != "undefined") {
+                        if ($$(prefix + "_sidemenu_right").isVisible()) {
+                          $$(prefix + "_sidemenu_right").hide();
+                        }
+                        if ($$(prefix + "_history_preview").isVisible()) {
+                          $$(prefix + "_history_preview").hide();
+                          $$(prefix + "_sql_editor").show();
+                        }
+
+                        $$(prefix + "_history_toggle").setValue(false);
+                        $$(prefix + "_multiconn_toggle").setValue(false);
+                        $$(prefix + "_search_content_right").show();
+
+                        const resultContent = $$(prefix + "_result_content");
+                        resultContent.clearAll();
+                        resultContent.parse(data);
+                        resultContent.registerFilter(
+                          $$(prefix + "_filter_content"),
+                          { columnId: "content_name" },
+                          {
+                            getValue: function (view) {
+                              return view.getValue();
+                            },
+                            setValue: function (view, value) {
+                              view.setValue(value);
+                            },
+                          }
+                        );
+                      } else {
+                        const resultContent = $$(prefix + "_result_content");
+                        if (resultContent) {
+                          resultContent.clearAll();
+                        }
+                        webix.message({
+                          text: "No record found",
+                          type: "error",
+                        });
+                      }
+                      setTimeout(() => pageId.hideOverlay(), 1000);
+                    })
+                    .fail((e) => {
+                      pageId.hideProgress();
+                      pageId.enable();
+                      webix.message({
+                        text: getErrorMessage(e),
+                        type: "error",
+                      });
+                    });
+                }
+              },
+            },
+          },
+          {
+            view: "icon",
+            icon: "mdi mdi-magnify",
+            id: prefix + "_search_more_btn",
+            tooltip: "Search by name",
+            popup: {
+              view: "popup",
+              width: 120,
+              body: {
+                view: "list",
+                data: [
+                  {
+                    id: prefix + "_sname",
+                    name: "name",
+                    icon: "mdi mdi-magnify",
+                    tooltip: "Search by name",
+                  },
+                  {
+                    id: prefix + "_scontent",
+                    name: "content",
+                    icon: "mdi mdi-text-search",
+                    tooltip: "Search by content",
+                  },
+                ],
+                template: "<span class='#icon#'></span> #name#",
+                autoheight: true,
+                select: true,
+                on: {
+                  onItemClick: function (id) {
+                    this.getParentView().hide();
+                    const popBtn = $$(prefix + "_search_more_btn");
+                    const sel = this.getItem(id);
+                    popBtn.config.icon = sel.icon;
+                    popBtn.config.tooltip = sel.tooltip;
+                    popBtn.refresh();
+
+                    const search = $$(prefix + "_database_search");
+                    const searchContent = $$(
+                      prefix + "_database_search_content"
+                    );
+                    if (id == prefix + "_sname") {
+                      search.show();
+                      search.focus();
+                      searchContent.hide();
+                    } else if (id == prefix + "_scontent") {
+                      search.hide();
+                      searchContent.show();
+                      searchContent.focus();
+                    }
+                  },
+                },
+              },
+            },
+          },
+          {
+            view: "button",
+            type: "icon",
+            icon: "mdi mdi-magnify",
+            css: "zmdi_padding",
+            id: prefix + "_search_detach_btn",
+            tooltip: "Quick Search",
+            autowidth: true,
+            hidden: true,
+            click: function () {
+              openSearchDetach();
+            },
+          },
+
+          {
+            view: "icon",
+            icon: "mdi mdi-share-variant-outline",
+            css: "zmdi_padding",
+            id: prefix + "_share_btn",
+            tooltip: "Share to other users",
+            autowidth: true,
+            click: function () {
+              openShareUser();
+            },
+          },
+
+          {},
+          {
+            view: "icon",
+            icon: "mdi mdi-help-circle-outline",
+            id: prefix + "_help_btn",
+            tooltip: "Show help, shortcut",
+            autowidth: true,
+            click: function () {
+              this.$scope.ui(QueryHelp).show();
+            },
+          },
+          {
+            view: "icon",
+            icon: "mdi mdi-dots-vertical",
+            id: prefix + "_setting_more",
+            tooltip: "More setting..",
+            autowidth: true,
+            click: function () {
+              // settingMore.show();
+              openMoreSetting();
+            },
+          },
+        ],
       },
       {
-        view: "button",
-        type: "icon",
-        icon: "mdi mdi-magnify",
-        css: "zmdi_padding",
-        id: prefix + "_search_detach_btn",
-        tooltip: "Quick Search",
-        autowidth: true,
         hidden: true,
-        click: function () {
-          openSearchDetach();
-        },
-      },
-
-      {
-        view: "icon",
-        icon: "mdi mdi-share-variant-outline",
-        css: "zmdi_padding",
-        id: prefix + "_share_btn",
-        tooltip: "Share to other users",
-        autowidth: true,
-        click: function () {
-          openShareUser();
-        },
-      },
-
-      {},
-      {
-        view: "icon",
-        icon: "mdi mdi-help-circle-outline",
-        id: prefix + "_help_btn",
-        tooltip: "Show help, shortcut",
-        autowidth: true,
-        click: function () {
-          this.$scope.ui(QueryHelp).show();
-        },
-      },
-      {
-        view: "icon",
-        icon: "mdi mdi-dots-vertical",
-        id: prefix + "_setting_more",
-        tooltip: "More setting..",
-        autowidth: true,
-        click: function () {
-          // settingMore.show();
-          openMoreSetting();
-        },
+        css: "server_status offline_server",
+        template: `<div style='background:#ff8d82;text-align:center;font-size:10px;color:#fff;height:100%'>Database offline</div>`,
+        height: 10,
       },
     ],
   };
@@ -909,6 +946,8 @@ export function QueryPage(prefix, selectedDb) {
                   } else if (id == "refresh") {
                     loadBranch($$(prefix + "_db_tree"), nodeId, true);
                   }
+                  $$(prefix + "_dbtree_preview").hide();
+                  $$(prefix + "_history_preview").hide();
                 },
               },
             });
@@ -2365,7 +2404,10 @@ export function QueryPage(prefix, selectedDb) {
             .then((r) => {
               let rData = r.json();
               const isOk = rData.pg_cancel_backend;
-              showToast(`Cancel query ${isOk ? "succeeded" : "failed"}`, `toasify_${isOk ? "success" : "error"}`);
+              showToast(
+                `Cancel query ${isOk ? "succeeded" : "failed"}`,
+                `toasify_${isOk ? "success" : "error"}`
+              );
               pagePanelId.hideOverlay();
             })
             .fail((err) => {

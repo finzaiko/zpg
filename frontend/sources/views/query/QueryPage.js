@@ -946,8 +946,6 @@ export function QueryPage(prefix, selectedDb) {
                   } else if (id == "refresh") {
                     loadBranch($$(prefix + "_db_tree"), nodeId, true);
                   }
-                  $$(prefix + "_dbtree_preview").hide();
-                  $$(prefix + "_history_preview").hide();
                 },
               },
             });
@@ -1603,7 +1601,6 @@ export function QueryPage(prefix, selectedDb) {
   const runViewData = (profileId, tableOid, type) => {
     webix
       .ajax()
-
       .get(`${url}/table_name?id=${profileId}&&oid=${tableOid}`)
       .then((r) => {
         const rData = r.json();
@@ -1612,7 +1609,12 @@ export function QueryPage(prefix, selectedDb) {
           optionSql = `ORDER BY id DESC LIMIT 100`;
         }
         let sql = `SELECT * FROM ${rData.tableschema}.${rData.tablename} ${optionSql}`;
-        $$(prefix + "_sql_editor").setValue(sql);
+        if(!$$(prefix + "_sql_editor").isVisible()){
+          $$(prefix + "_sql_editor").show();
+          if($$(prefix + "_dbtree_preview"))$$(prefix + "_dbtree_preview").hide();
+          if($$(prefix + "_history_preview"))$$(prefix + "_history_preview").hide();
+          $$(prefix + "_sql_editor").setValue(sql);
+        }
         runQuery($$(prefix + "_source_combo").getValue());
       });
   };

@@ -93,7 +93,7 @@ class ProfileRepository {
   async createConn(data) {
     // 1=serverconn, 2=dbconn
     const sql =
-      "INSERT INTO profile (conn_name, host, port, database, user, password, type, ssl, user_id, content) VALUES (?,?,?,?,?,?,?,?,?,?)";
+      "INSERT INTO profile (conn_name, host, port, database, user, password, type, ssl, user_id, content, seq) VALUES (?,?,?,?,?,?,?,?,?,?,(select max(coalesce(seq,0))+1 from profile where user_id=?))";
 
     // console.log(`data`, data);
     const dbName = data.type == 1 ? "postgres" : data.database;
@@ -108,6 +108,7 @@ class ProfileRepository {
       data.ssl,
       data.user_id,
       data.content,
+      data.user_id
     ];
 
     const res = await new Promise((resolve, reject) => {

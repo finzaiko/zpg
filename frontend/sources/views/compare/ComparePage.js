@@ -1,5 +1,6 @@
 import { JetView } from "webix-jet";
 import { url, state } from "../../models/Compare";
+import { url as urlDb } from "../../models/Db";
 import { url as urlProfile } from "../../models/Profile";
 import { userProfile } from "../../models/UserProfile";
 import { setEditorFontSize, showError } from "../../helpers/ui";
@@ -614,6 +615,32 @@ function showCompareDetail(_this, sel) {
         webix.message({ text: "Content not found", type: "error" });
       }, 1000);
     });
+
+    /*
+    // z_type=t ?? u
+    console.log('item',item);
+
+    const a = webix.ajax(`${urlDb}/schema_content?id=${srcId}&root=0&oid=${item.id_a}_${item.z_type=='t'? 'u': 'g'}`);
+    a.then(r=>{
+      console.log('rrrrr-a',r.json());
+
+    })
+    const b = webix.ajax(`${urlDb}/schema_content?id=${tarId}&root=0&oid=${item.id_b}_${item.z_type=='t'? 'u': 'g'}`);
+    b.then(r=>{
+      console.log('rrrrr-b',r.json());
+
+    })
+  //   const b = webix.ajax("someB.php");
+
+  //   webix.promise.all([ a,b,c ]).then(function(results){
+  //     var a_result = results[0];
+  //     var b_result = results[1];
+  //     var c_result = results[2];
+  //     // do something
+  // });
+
+  */
+
 }
 
 function showFullscreenDiff(scope, title, objSource, objTarget) {

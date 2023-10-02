@@ -318,7 +318,7 @@ export function showAlert(msg) {
   });
 }
 
-export function csvToArray2(str, delimiter = ",") {
+export function csvToArray(str, delimiter = ",") {
   // SOURCE: https://sebhastian.com/read-csv-javascript/
   // slice from start of text to the first \n index
   // use split to create an array from string by delimiter
@@ -364,7 +364,7 @@ export function csvToArray2(str, delimiter = ",") {
 // OTHER REF:
 // https://github.com/Keyang/node-csvtojson
 
-export function csvToArray (CSV_string, delimiter) {
+export function csvToArray2 (CSV_string, delimiter) {
   // SOURCE: https://www.bennadel.com/blog/1504-ask-ben-parsing-csv-strings-with-javascript-exec-regular-expression-command.htm
   /**
    * CSVToArray parses any String of Data including '\r' '\n' characters,

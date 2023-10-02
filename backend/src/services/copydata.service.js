@@ -155,7 +155,7 @@ class CopydataService {
         table_exist
       );
 
-      // console.log('sqlInsert############# ',sqlInsert);
+      console.log('sqlInsert############# ',sqlInsert);
 
       if(create_table){
         const sqlCreate = this.getCreateTableSql(schema, table, table_field);

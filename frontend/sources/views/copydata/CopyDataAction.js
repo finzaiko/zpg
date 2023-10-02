@@ -205,7 +205,9 @@ export function applyCopyAction() {
       })
       .fail((e) => {
         const rError = JSON.parse(e.response);
-        setConsoleMessage(rError.message);
+        const errHints = `HINTS:\n- Remove all breakline in cell\n- Remove all unsual symbol\n- Remove all single quote\n`;
+        const errMsg = `${rError.message}\n\n${errHints}`
+        setConsoleMessage(errMsg);
         $$("z_copydata_page").hideOverlay();
       });
   }

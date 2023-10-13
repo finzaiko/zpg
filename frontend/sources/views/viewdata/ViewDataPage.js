@@ -4,6 +4,7 @@ import { url as urlDb } from "../../models/Db";
 import { url, state } from "../../models/ViewData";
 import { LAST_DB_CONN_VIEWDATA } from "../../config/setting";
 import { defaultHeader } from "../../helpers/api";
+import { colorComboDBSource, isColorLight } from "../../helpers/ui";
 
 
 function newViewDataTab() {
@@ -172,8 +173,31 @@ export function ViewDataPage(prefix, selectedDb) {
         id: prefix + "_source_combo",
         placeholder: "Source DB",
         width: 200,
+        // options: {
+        //   url: `${urlProfile}/content?type=2&ls=true`,
+        // },
         options: {
-          url: `${urlProfile}/content?type=2&ls=true`,
+          width: 250,
+          fitMaster: false,
+          body: {
+            template: function (obj) {
+              let clr = "#475466",
+                bg = "#ffffff";
+              if (obj.content) {
+                bg = obj.content;
+              }
+              if (!isColorLight(bg)) {
+                clr = "#ffffff";
+              }
+              return `<div style="background-color:${obj.content};color:${clr};border-radius:3px;padding-left:4px;padding-right:4px;">${obj.value}</div>`;
+            },
+            url: `${urlProfile}/content?type=2&ls=true`,
+            on: {
+              onAfterLoad: function () {
+                colorComboDBSource($$(prefix + "_source_combo"));
+              },
+            },
+          },
         },
         on: {
           onChange: function (id, val) {

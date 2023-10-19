@@ -1812,3 +1812,9 @@ svg text {
 .server_status .webix_template{
   padding: 0 !important;
 }
+
+.z_hover_text:hover{
+  font-size: 14px;
+  color: #1ca1c1;
+  cursor: pointer;
+}

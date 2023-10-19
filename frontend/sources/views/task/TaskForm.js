@@ -5,7 +5,7 @@ import { url as urlDb } from "../../models/Db";
 import { userProfile } from "../../models/UserProfile";
 import { url as urlProfile } from "../../models/Profile";
 import { runTarget } from "./TaskPage";
-import { showError } from "../../helpers/ui";
+import { isColorLight, showError } from "../../helpers/ui";
 
 const prefix = state.prefix;
 
@@ -25,8 +25,8 @@ function reloadAvailableFiltered(id, selId) {
   const panelId = $$(prefix + "_panel_form_item");
   webix.extend(panelId, webix.ProgressBar);
   panelId.showProgress({
-    type:"icon",
-    icon: "mdi mdi-loading z_mdi_loader"
+    type: "icon",
+    icon: "mdi mdi-loading z_mdi_loader",
   });
   panelId.disable();
   loadAvailable(id).then((rAv) => {
@@ -60,7 +60,25 @@ const availableToolbar = {
       labelWidth: 60,
       width: 300,
       placeholder: "db name",
-      options: urlProfile + "/content?type=2&ls=true",
+      // options: urlProfile + "/content?type=2&ls=true",
+      options: {
+        width: 250,
+        fitMaster: false,
+        body: {
+          template: function (obj) {
+            let clr = "#475466",
+              bg = "#ffffff";
+            if (obj.content) {
+              bg = obj.content;
+            }
+            if (!isColorLight(bg)) {
+              clr = "#ffffff";
+            }
+            return `<div style="background-color:${obj.content};color:${clr};border-radius:3px;padding-left:4px;padding-right:4px;">${obj.value}</div>`;
+          },
+          url: `${urlProfile}/content?type=2&ls=true`,
+        },
+      },
       on: {
         onChange: function (v) {
           // reloadAvailable(v);
@@ -139,7 +157,25 @@ const selectedToolbar = {
       id: prefix + "_target_db_id",
       width: 300,
       placeholder: "db name",
-      options: urlProfile + "/content?type=2&ls=true",
+      // options: urlProfile + "/content?type=2&ls=true",
+      options: {
+        width: 250,
+        fitMaster: false,
+        body: {
+          template: function (obj) {
+            let clr = "#475466",
+              bg = "#ffffff";
+            if (obj.content) {
+              bg = obj.content;
+            }
+            if (!isColorLight(bg)) {
+              clr = "#ffffff";
+            }
+            return `<div style="background-color:${obj.content};color:${clr};border-radius:3px;padding-left:4px;padding-right:4px;">${obj.value}</div>`;
+          },
+          url: `${urlProfile}/content?type=2&ls=true`,
+        },
+      },
     },
     {
       view: "button",
@@ -331,6 +367,7 @@ const form = {
                 this.$scope.show("task.page", { target: "z_task_page" });
               },
             },
+            { width: 10 },
           ],
         },
         {},
@@ -363,11 +400,16 @@ const availableList = {
   drag: true,
   select: "row",
   columns: [
-    { id: "schema", header: ["Schema", { content: "textFilter" }], sort:"string"  },
+    {
+      id: "schema",
+      header: ["Schema", { content: "textFilter" }],
+      sort: "string",
+    },
     {
       id: "name",
       header: ["Name", { content: "textFilter" }],
-      fillspace: true, sort:"string"
+      fillspace: true,
+      sort: "string",
     },
     { id: "type", header: ["Type", { content: "textFilter" }], adjust: true },
   ],
@@ -393,14 +435,77 @@ const selectedList = {
   multiselect: "touch",
   drag: true,
   columns: [
-    { id: "schema", header: ["Schema", { content: "textFilter" }], sort:"string"  },
+    {
+      id: "schema",
+      header: ["Schema", { content: "textFilter" }],
+      sort: "string",
+    },
     {
       id: "name",
       header: ["Name", { content: "textFilter" }],
-      fillspace: true, sort:"string"
+      fillspace: true,
+      sort: "string",
     },
-    { id: "type", header: "Type", adjust: true },
+    { id: "type", header: ["Type", { content: "textFilter" }], adjust: true },
+    {
+      id: "is_execreplace",
+      header: [
+        "XReplace",
+        {
+          content: "selectFilter",
+          options: [
+            { id: "0", value: "No" },
+            { id: "1", value: "Yes" },
+          ],
+        },
+      ],
+      adjust: true,
+      // cssFormat: yesNoStatus,
+      template: function (obj) {
+        if (obj.is_execreplace != null) {
+          if (obj.is_execreplace == 0) {
+            return `<span class="xreplace_task z_hover_text" style="color:#d9d9d9">No</span>`;
+          } else if (obj.is_execreplace == 0) {
+            return `<span class="xreplace_task z_hover_text">Yes</span>`;
+          } else if (obj.is_execreplace == 9) {
+            // loading icon
+            return `<span class="mdi mdi-spin mdi-autorenew"></span>`;
+          } else {
+            return "";
+          }
+        }
+      },
+    },
+    {
+      id: "is_active",
+      header: [
+        "Active",
+        {
+          content: "selectFilter",
+          options: [
+            { id: "0", value: "No" },
+            { id: "1", value: "Yes" },
+          ],
+        },
+      ],
+      adjust: true,
+      template: function (obj) {
+        if (obj.is_active != null) {
+          return obj.is_active == 0
+            ? `<span class="active_task z_hover_text" style="color:#d9d9d9">No</span>`
+            : `<span class="active_task z_hover_text">Yes</span>`;
+        } else {
+          return "";
+        }
+      },
+    },
   ],
+  onClick: {
+    xreplace_task: function (e, id) {
+      setXReplaceToggle(id);
+    },
+    active_task: function (e, id) {},
+  },
   on: {
     onItemClick: function () {
       $$(prefix + "_delete_item_btn").show();
@@ -416,6 +521,36 @@ const selectedList = {
     },
   },
 };
+
+function setXReplaceToggle(id) {
+  const tbl = $$(prefix + "_selected_table");
+  console.log("id", id);
+
+  console.log("id", tbl.getItem(id));
+  const item = tbl.getItem(id);
+  let newVal = !item.is_execreplace;
+
+  tbl.updateItem(id, { is_execreplace: 9 }); // 9= show loading
+  tbl.refresh(id);
+  setTimeout(() => tbl.unselect(id, 500));
+  return;
+
+  webix
+    .ajax()
+    .post(url + "/change", { id: id.row, value: newVal }, (res) => {
+      tbl.updateItem(id, { is_execreplace: newVal });
+      tbl.refresh(id);
+    })
+    .fail(function (err) {
+      showError(err);
+    });
+}
+
+function yesNoStatus(value, config) {
+  if (value == 0) {
+    return { color: "#d9d9d9" };
+  }
+}
 
 function save() {
   if ($$(prefix + "_form").validate()) {
@@ -465,8 +600,7 @@ function updateTask() {
   webix
     .ajax()
 
-    .put(url + "/" + id, data, function (res) {
-    })
+    .put(url + "/" + id, data, function (res) {})
     .fail(function (err) {
       showError(err);
     });
@@ -533,8 +667,8 @@ const remove = () => {
 export function reloadTaskItem(viewId, selId) {
   webix.extend(viewId, webix.ProgressBar);
   viewId.showProgress({
-    type:"icon",
-    icon: "mdi mdi-loading z_mdi_loader"
+    type: "icon",
+    icon: "mdi mdi-loading z_mdi_loader",
   });
   viewId.disable();
   loadSelected(selId).then((rSel) => {
@@ -592,4 +726,3 @@ export default class TaskForm extends JetView {
     }
   }
 }
-

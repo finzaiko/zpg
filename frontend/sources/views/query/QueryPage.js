@@ -1678,10 +1678,10 @@ export function QueryPage(prefix, selectedDb) {
                   css: "z_db_tree_filter",
                   on: {
                     onTimedKeyPress: function () {
-                      $$(prefix + "_bm_list").filter(
-                        "#value#",
-                        this.getValue()
-                      );
+                      const value = this.getValue().toLowerCase();
+                      $$(prefix + "_bm_list").filter(function(obj){
+                        return obj.title.toLowerCase().indexOf(value) !== -1;
+                      })
                     },
                   },
                 },

@@ -320,6 +320,7 @@ export function sourceTypeChanges(id) {
     $$(prefix + "_uploadcsv_delimeter").hide();
     generateEmptyRow();
   } else {
+    console.log("csvvvv");
     $$(prefix + "_type_uploadcsv").show();
     $$(prefix + "_uploadcsv_btn").show();
     $$(prefix + "_uploadcsv_delimeter").show();
@@ -329,6 +330,7 @@ export function sourceTypeChanges(id) {
     $$(prefix + "_first_row_column").setValue(0);
     $$(prefix + "_first_row_column").hide();
     $$(prefix + "_row_count").hide();
+    $$(prefix + "_uploadcsv_delimeter").setValue(1);
   }
 }
 

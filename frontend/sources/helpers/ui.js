@@ -322,7 +322,10 @@ export function csvToArray(str, delimiter = ",") {
   // SOURCE: https://sebhastian.com/read-csv-javascript/
   // slice from start of text to the first \n index
   // use split to create an array from string by delimiter
-  const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+  let headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+
+  	// Replace all \r in title header
+	headers = headers.map((v) => v.replace(/[\r\n]/gm, "").trim());
 
   // slice from \n index + 1 to the end of the text
   // use split to create an array of each csv value row
@@ -345,11 +348,10 @@ export function csvToArray(str, delimiter = ",") {
 
     const el = headers.reduce(function (object, header, index) {
       // console.log('values[index]',values[index]);
-      // object[header] = values[index];
       if(values[index]){
         object[header] = values[index].replace(/[\r\n]/gm, '');
       }else{
-        object[header] = values[index];
+        object[header] = values[index]!="" ? values[index]: " ";
       }
       return object;
     }, {});

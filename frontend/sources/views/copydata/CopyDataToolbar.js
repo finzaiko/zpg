@@ -79,6 +79,13 @@ export default toolbar = {
       multiple: false,
       on: {
         onBeforeFileAdd: function (upload) {
+          if (upload.type.toLowerCase()!="csv") {
+            webix.message({
+              text: `Only CSV file allowed`,
+              type: "error"
+            });
+            return false;
+          }
           if ($$(prefix + "_uploadcsv_delimeter").getValue().length == 0) {
             return webix.message({
               text: "Please select delimeter",

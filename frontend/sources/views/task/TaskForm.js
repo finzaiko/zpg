@@ -6,6 +6,7 @@ import { userProfile } from "../../models/UserProfile";
 import { url as urlProfile } from "../../models/Profile";
 import { runTarget } from "./TaskPage";
 import { isColorLight, showError } from "../../helpers/ui";
+import { TaskFormRawSQL } from "./TaskFormRawSQL";
 
 const prefix = state.prefix;
 
@@ -89,7 +90,7 @@ const availableToolbar = {
     {
       view: "button",
       type: "icon",
-      icon: "mdi mdi-sync",
+      icon: "mdi mdi-refresh",
       css: "zmdi_padding",
       tooltip: "Refresh source",
       autowidth: true,
@@ -122,7 +123,8 @@ const selectedToolbar = {
       css: "zmdi_padding",
       autowidth: true,
       click: function () {
-        webix.mesage("Not implement yet");
+        // webix.message("Not implement yet");
+        this.$scope.ui(TaskFormRawSQL).show();
       },
     },
     {
@@ -465,7 +467,7 @@ const selectedList = {
         if (obj.is_execreplace != null) {
           if (obj.is_execreplace == 0) {
             return `<span class="xreplace_task z_hover_text" style="color:#d9d9d9">No</span>`;
-          } else if (obj.is_execreplace == 0) {
+          } else if (obj.is_execreplace == 1) {
             return `<span class="xreplace_task z_hover_text">Yes</span>`;
           } else if (obj.is_execreplace == 9) {
             // loading icon
@@ -473,6 +475,8 @@ const selectedList = {
           } else {
             return "";
           }
+        }else{
+          return "";
         }
       },
     },
@@ -491,10 +495,22 @@ const selectedList = {
       adjust: true,
       template: function (obj) {
         if (obj.is_active != null) {
-          return obj.is_active == 0
-            ? `<span class="active_task z_hover_text" style="color:#d9d9d9">No</span>`
-            : `<span class="active_task z_hover_text">Yes</span>`;
-        } else {
+          //   return obj.is_active == 0
+          //     ? `<span class="active_task z_hover_text" style="color:#d9d9d9">No</span>`
+          //     : `<span class="active_task z_hover_text">Yes</span>`;
+          // } else {
+          //   return "";
+          if (obj.is_active == 0) {
+            return `<span class="active_task z_hover_text" style="color:#d9d9d9">No</span>`;
+          } else if (obj.is_active == 1) {
+            return `<span class="active_task z_hover_text">Yes</span>`;
+          } else if (obj.is_active == 9) {
+            // loading icon
+            return `<span class="mdi mdi-spin mdi-autorenew"></span>`;
+          } else {
+            return "";
+          }
+        }else{
           return "";
         }
       },
@@ -502,9 +518,11 @@ const selectedList = {
   ],
   onClick: {
     xreplace_task: function (e, id) {
-      setXReplaceToggle(id);
+      changeStatusToggle(id, "is_execreplace");
     },
-    active_task: function (e, id) {},
+    active_task: function (e, id) {
+      changeStatusToggle(id, "is_active");
+    },
   },
   on: {
     onItemClick: function () {
@@ -522,25 +540,29 @@ const selectedList = {
   },
 };
 
-function setXReplaceToggle(id) {
+function changeStatusToggle(id, fieldName) {
   const tbl = $$(prefix + "_selected_table");
-  console.log("id", id);
-
-  console.log("id", tbl.getItem(id));
   const item = tbl.getItem(id);
-  let newVal = !item.is_execreplace;
+  let newVal = !item[fieldName];
 
-  tbl.updateItem(id, { is_execreplace: 9 }); // 9= show loading
+  let fieldValue = {};
+  fieldValue[fieldName] = 9;
+  tbl.updateItem(id, fieldValue); // 9= show loading
   tbl.refresh(id);
   setTimeout(() => tbl.unselect(id, 500));
-  return;
-
   webix
     .ajax()
-    .post(url + "/change", { id: id.row, value: newVal }, (res) => {
-      tbl.updateItem(id, { is_execreplace: newVal });
-      tbl.refresh(id);
-    })
+    .post(
+      urlItem + "/change",
+      { id: id.row, field_name: fieldName, field_value: newVal },
+      (res) => {
+        setTimeout(() => {
+          fieldValue[fieldName] = newVal;
+          tbl.updateItem(id, fieldValue);
+          tbl.refresh(id);
+        }, 800);
+      }
+    )
     .fail(function (err) {
       showError(err);
     });
@@ -608,15 +630,20 @@ function updateTask() {
 
 function saveItem() {
   let itemData = $$(prefix + "_selected_table").serialize();
+  const sData = itemData.map((x, i) => {
+    x["seq"] = i+1;
+    return x;
+  });
+  console.table(sData);
+
   let data = {
     task_id: $$(prefix + "_task_id").getValue(),
     source_db_id: $$(prefix + "_source_db_id").getValue(),
-    oid_arr: itemData.map((v) => v.id).join(","),
+    oid_arr: JSON.stringify(sData),
   };
 
   webix
     .ajax()
-
     .post(urlItem + "/selected", data, function (res) {
       reloadTaskItem($$(prefix + "_selected_table"), data.task_id);
     })

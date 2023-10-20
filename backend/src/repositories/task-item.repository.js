@@ -12,7 +12,7 @@ class TaskItemRepository {
       sql += queryFilterSort(filter, true);
     }
 
-    sql += `ORDER BY ti.id DESC`;
+    sql += `ORDER BY ti.seq`;
     // console.log(`sqllllllllllllllllll`, sql);
     let params = [userId];
     const res = await new Promise((resolve, reject) => {
@@ -68,30 +68,76 @@ class TaskItemRepository {
     return res;
   }
 
+  async changeStatus(data) {
+    const sql = `UPDATE task_item SET ${data.field_name}=${data.field_value} WHERE id=${data.id}`;
+    const res = await new Promise((resolve, reject) => {
+      db.run(sql, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
   async createSelected(data, userId) {
     console.log('data>>>>>>>>>>>>>>>inserteditemtask>>>',data);
-    
+
+    const parsedData = JSON.parse(data.oid_arr);
+    // const arrId = parsedData.map((v) => v.id).join(",");
+    // console.log('arrId',arrId);
+
+    // let idList = [], oidList = [];
+    // parsedData.forEach((obj,id)=>{
+    //   idList.push(obj.id);
+    //   oidList.push(obj.oid);
+    // })
+    // const idListString = idList.join(",");
+    // const oidListString = oidList.join(",");
+
+    // console.log('idList',idList);
+    // console.log('oidList',oidList);
+
+    // FUNC TYPE -------------------------
+    const funcData = parsedData.filter(obj=>obj.task_type==1 || obj.type==1);
+    console.log("/////////////////////////////////0", funcData);
+    let idListFunc = [], oidListFunc = [];
+    funcData.forEach((obj,id)=>{
+      idListFunc.push(obj.id);
+      oidListFunc.push(obj.oid);
+    })
+
+    // const idListString = idListFunc.join(",");
+    // const oidListString = oidListFunc.join(",");
+
     const res = await new Promise((resolve, reject) => {
-      DbDbRepository.getSchemaContent(
-        data.source_db_id,
-        null,
-        null,
-        null,
-        data.oid_arr,
-        userId
-      ).then((r) => {
+      // DbDbRepository.getSchemaContent(
+      //   data.source_db_id,
+      //   null,
+      //   null,
+      //   null,
+      //   // data.oid_arr,
+      //   oidListFunc.join(","),
+      //   userId
+      // ).then((r) => {
+        console.log("/////////////////////////////////1",idListFunc.join(","));
+        console.log("/////////////////////////////////2",oidListFunc.join(","));
         db.serialize(function () {
           db.run("begin transaction");
           db.run(
-            `DELETE FROM task_item WHERE task_id=${data.task_id} AND oid IN (${data.oid_arr})`
+            `DELETE FROM task_item WHERE task_id=${data.task_id} AND id IN (${idListFunc.join(",")})`
           );
           async.eachSeries(
-            r,
+            funcData,
               (d, next) => {
+                // idx++;d
+                console.log("/////////////////////////////////3", d);
+                console.log("/////////////////////////////////4", d.name);
               db.run(
-                `INSERT INTO task_item (task_id, schema, name, params_in, params_out, params_inout, return_type, type, oid) 
-                    VALUES (${data.task_id},'${d.schema}','${d.name}',${d.params_in},${d.params_out},${d.params_inout},'${d.return_type}',1,${d.id})`,
+                `INSERT INTO task_item (task_id, schema, name, params_in, params_out, params_inout, return_type, type, oid, seq, is_execreplace, is_active)
+                    VALUES (${data.task_id},'${d.schema}','${d.name}',${d.params_in},${d.params_out},${d.params_inout},'${d.return_type}',1,${d.oid},${d.seq},0,1)`,
                 function (err, row) {
+                  console.log('error',err);
+
                   if (err) reject(err);
                 }
                 );
@@ -104,7 +150,7 @@ class TaskItemRepository {
           db.run("commit");
           resolve("done");
         });
-      });
+      // });
     });
     return res;
   }

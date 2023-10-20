@@ -32,7 +32,7 @@ class TaskItemController {
     // console.log(`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, a)
     // console.log(`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, strWhere.join(', '))
 
-    
+
     const data = await TaskItemService.getAll(filter, offset, limit, sort, userId);
     responseHttp(reply, 200, "Ok", { data: data });
   }
@@ -52,6 +52,11 @@ class TaskItemController {
     const userId = request.user.uid;
     await TaskItemService.createSelected(request.body, userId);
     responseHttp(reply, 201, "Created selected");
+  }
+  async changeStatus(request, reply) {
+    const userId = request.user.uid;
+    await TaskItemService.changeStatus(request.body, userId);
+    responseHttp(reply, 201, "Status changed");
   }
 
   async syncSelected(request, reply) {

@@ -50,7 +50,22 @@ class TaskItemService {
     return { msg: "Create selected done" };
   }
 
+  async changeStatus(data) {
+    return await TaskItemRepository.changeStatus(data);
+  }
+
   async update(id, data) {
+    let userDto = new TaskItemDto();
+    tasItemkDto.task_id = data.task_id;
+    tasItemkDto.func_name = data.func_name;
+    tasItemkDto.type = data.type;
+    tasItemkDto.sql_content = data.sql_content;
+    tasItemkDto.oid = data.oid;
+
+    return await TaskItemRepository.update(id, userDto);
+  }
+
+  async updateByField(id, data) {
     let userDto = new TaskItemDto();
     tasItemkDto.task_id = data.task_id;
     tasItemkDto.func_name = data.func_name;

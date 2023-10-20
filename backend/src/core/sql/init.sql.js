@@ -113,6 +113,9 @@ CREATE TABLE task_item (
     type integer,
     sql_content text,
     oid integer,
+    seq integer,
+    is_execreplace integer default 0,
+    is_active integer default 1,
     FOREIGN KEY (task_id)
         REFERENCES task (id)
         ON DELETE CASCADE

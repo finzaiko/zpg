@@ -46,10 +46,13 @@ const dbAllFunc = (schema, oidArr) => {
     _schema = ` AND isr.specific_schema='${schema}'`;
   }
 
-  return `SELECT * FROM
+  const sql = `SELECT *, id as oid, 0 as is_execreplace, 1 as is_active FROM
           (${_getAllFunc} ${_schema} ${_oidArr}
         GROUP BY 1, 2, 3, 4 order by prc.proname )t
     `;
+    // console.log('sql################',sql);
+
+    return sql;
 };
 
 const dbAllFuncBySchema = (schemaName) => {

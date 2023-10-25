@@ -5,7 +5,9 @@ const path = "task";
 export let state = {
   prefix: CODE_PREFIX + path,
   isEdit: false,
-  dataSelected: {}
+  isEditItem: false,
+  dataSelected: {},
+  dataSelectedItem: {}
 };
 
 export const url = API_URL + "/" + path;

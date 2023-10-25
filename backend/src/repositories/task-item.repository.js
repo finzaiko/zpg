@@ -50,13 +50,23 @@ class TaskItemRepository {
   }
 
   async create(data) {
-    const sql = `INSERT INTO task_item (task_id, name, type, sql_content, oid) VALUES (?,?,?,?,?)`;
+
+    // tasItemDto.task_id = data.task_id;
+    // tasItemDto.schema = data.schema;
+    // tasItemDto.func_name = data.func_name;
+    // tasItemDto.type = data.type;
+    // tasItemDto.sql_content = data.sql_content;
+    // tasItemDto.oid = data.oid;
+
+    const sql = `INSERT INTO task_item (task_id, schema, name, type, sql_content, oid, seq) VALUES (?,?,?,?,?,?,?)`;
     let params = [
       data.task_id,
+      data.schema,
       data.func_name,
       data.type,
       data.sql_content,
       data.oid,
+      data.seq,
     ];
 
     const res = await new Promise((resolve, reject) => {

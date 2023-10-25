@@ -32,10 +32,12 @@ class TaskItemService {
   async create(data) {
     let tasItemDto = new TaskItemDto();
     tasItemDto.task_id = data.task_id;
+    tasItemDto.schema = data.schema;
     tasItemDto.func_name = data.func_name;
     tasItemDto.type = data.type;
     tasItemDto.sql_content = data.sql_content;
     tasItemDto.oid = data.oid;
+    tasItemDto.seq = data.seq;
 
     return await TaskItemRepository.create(tasItemDto);
   }

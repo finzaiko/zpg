@@ -1,4 +1,4 @@
-class TaskItemDto {
+class TaskItemSelectedDto {
 
   get task_id() {
     return this._task_id;
@@ -41,4 +41,4 @@ class TaskItemDto {
   }
 }
 
-module.exports = TaskItemDto;
+module.exports = TaskItemSelectedDto;

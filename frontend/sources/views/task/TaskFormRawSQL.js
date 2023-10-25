@@ -1,8 +1,9 @@
 import { JetView } from "webix-jet";
-import { state } from "../../models/Query";
-import { urlItem } from "../../models/Task";
+import { state, urlItem } from "../../models/Task";
+import { reloadTaskItem } from "./TaskForm";
 
-const prefix = state.prefix + "_help";
+const prefix = state.prefix + "_rawform";
+const prefixPage = state.prefix;
 
 const WindowForm = () => {
   const winId = prefix + "_win";
@@ -14,8 +15,8 @@ const WindowForm = () => {
     id: winId,
     position: "center",
     move: true,
-    width: 600,
-    height: 500,
+    width: 700,
+    height: 550,
     position: "center",
     move: true,
     head: {
@@ -29,13 +30,17 @@ const WindowForm = () => {
           icon: "mdi mdi-content-save-outline",
           css: "zmdi_padding",
           id: prefix + "_save_raw_item_btn",
-          tooltip: "Save Task",
+          tooltip: "Save raw query",
           autowidth: true,
           click: function () {
             saveItemRawSQL();
           },
         },
-        {},
+        {
+          view: "text",
+          id: prefix + "_raw_title",
+          placeholder: "Title..",
+        },
         {
           view: "icon",
           icon: "mdi mdi-window-close",
@@ -58,11 +63,29 @@ const WindowForm = () => {
 };
 
 function saveItemRawSQL() {
+  const rawTitle = $$(prefix + "_raw_title").getValue();
   const sqlRaw = $$(prefix + "_raw_sql_editor").getValue();
-  const taskItemId= $$(prefix + "_task_id").getValue();
-
+  const itemCount = $$(prefixPage + "_selected_table").count();
+  const taskId = state.dataSelected.id;
+  const data = {
+    task_id: taskId,
+    schema: "",
+    type: 9,
+    seq: parseInt(itemCount) * -1,
+    func_name: rawTitle,
+    sql_content: sqlRaw,
+  };
+  webix
+    .ajax()
+    .post(urlItem, data, function (res) {
+      reloadTaskItem($$(prefixPage + "_selected_table"), taskId);
+      webix.message({ message: "Raw SQL saved", type: "success" });
+      $$(prefix + "_win").destructor();
+    })
+    .fail(function (err) {
+      showError(err);
+    });
 }
-
 
 const close = () => {
   $$(prefix + "_win").destructor();
@@ -74,5 +97,12 @@ export class TaskFormRawSQL extends JetView {
   }
   show(target) {
     this.getRoot().show(target);
+  }
+  ready() {
+    if (state.isEditItem) {
+      const { name, sql_content } = state.dataSelectedItem;
+      $$(prefix + "_raw_title").setValue(name);
+      $$(prefix + "_raw_sql_editor").setValue(sql_content);
+    }
   }
 }

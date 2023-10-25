@@ -3,7 +3,12 @@ import { url, state } from "../../models/Compare";
 import { url as urlDb } from "../../models/Db";
 import { url as urlProfile } from "../../models/Profile";
 import { userProfile } from "../../models/UserProfile";
-import { isColorLight, setEditorFontSize, showError } from "../../helpers/ui";
+import {
+  colorComboDBSource,
+  isColorLight,
+  setEditorFontSize,
+  showError,
+} from "../../helpers/ui";
 import { CompareHelp } from "./CompareHelp";
 import { url as urlTask, urlItem as urlTaskItem } from "../../models/Task";
 import { url as urlQuery } from "../../models/Query";
@@ -119,17 +124,6 @@ const toolbar = {
       id: "diffsourcecombo",
       placeholder: "Source DB",
       width: 200,
-      // options: {
-      //   url: `${urlProfile}/content?type=2&ls=true`,
-      //   on: {
-      //     onBeforeShow: function () {
-      //       reloaCombo(
-      //         $$("diffsourcecombo"),
-      //         `${urlProfile}/content?type=2&ls=true`
-      //       );
-      //     },
-      //   },
-      // },
       options: {
         width: 250,
         fitMaster: false,
@@ -149,19 +143,7 @@ const toolbar = {
           on: {
             onAfterLoad: function () {
               colorComboDBSource($$("diffsourcecombo"));
-              setTimeout(
-                () => $$("diffsourcecombo").hideOverlay(),
-                300
-              );
             },
-          },
-        },
-        on: {
-          onBeforeShow: function () {
-            reloaCombo(
-                $$("diffsourcecombo"),
-                `${urlProfile}/content?type=2&ls=true`
-              );
           },
         },
       },
@@ -177,6 +159,7 @@ const toolbar = {
             $$("diff_swap_btn").disable();
             $$("diff_compare_btn").disable();
           }
+          colorComboDBSource($$("diffsourcecombo"));
         },
       },
     },
@@ -204,17 +187,6 @@ const toolbar = {
       id: "difftargetcombo",
       width: 200,
       placeholder: "Target DB",
-      // options: {
-      //   url: `${urlProfile}/content?type=2&ls=true`,
-      //   on: {
-      //     onBeforeShow: function () {
-      //       reloaCombo(
-      //         $$("difftargetcombo"),
-      //         `${urlProfile}/content?type=2&ls=true`
-      //       );
-      //     },
-      //   },
-      // },
       options: {
         width: 250,
         fitMaster: false,
@@ -233,20 +205,8 @@ const toolbar = {
           url: `${urlProfile}/content?type=2&ls=true`,
           on: {
             onAfterLoad: function () {
-              colorComboDBSource($$("diffsourcecombo"));
-              setTimeout(
-                () => $$("diffsourcecombo").hideOverlay(),
-                300
-              );
+              colorComboDBSource($$("difftargetcombo"));
             },
-          },
-        },
-        on: {
-          onBeforeShow: function () {
-            reloaCombo(
-                $$("diffsourcecombo"),
-                `${urlProfile}/content?type=2&ls=true`
-              );
           },
         },
       },
@@ -264,6 +224,7 @@ const toolbar = {
             $$("diff_swap_btn").disable();
             $$("diff_compare_btn").disable();
           }
+          colorComboDBSource($$("difftargetcombo"));
         },
       },
     },
@@ -686,7 +647,7 @@ function showCompareDetail(_this, sel) {
       }, 1000);
     });
 
-    /*
+  /*
     // z_type=t ?? u
     console.log('item',item);
 
@@ -710,7 +671,6 @@ function showCompareDetail(_this, sel) {
   // });
 
   */
-
 }
 
 function showFullscreenDiff(scope, title, objSource, objTarget) {
@@ -809,8 +769,7 @@ function doExecQuery(tranferTo) {
     .then((r) => {
       let rData = r.json();
     })
-    .fail(function (err) {
-    });
+    .fail(function (err) {});
 }
 export default class ComparePage extends JetView {
   config() {

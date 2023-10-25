@@ -121,9 +121,10 @@ const selectedToolbar = {
       type: "icon",
       icon: "mdi mdi-plus",
       css: "zmdi_padding",
+      id: prefix + "_add_item_btn",
+      tooltip: "Add raw SQL task item",
       autowidth: true,
       click: function () {
-        // webix.message("Not implement yet");
         this.$scope.ui(TaskFormRawSQL).show();
       },
     },
@@ -132,6 +133,7 @@ const selectedToolbar = {
       type: "icon",
       icon: "mdi mdi-minus",
       css: "zmdi_padding",
+      tooltip: "Delete task item",
       id: prefix + "_delete_item_btn",
       autowidth: true,
       hidden: true,
@@ -475,7 +477,7 @@ const selectedList = {
           } else {
             return "";
           }
-        }else{
+        } else {
           return "";
         }
       },
@@ -510,7 +512,7 @@ const selectedList = {
           } else {
             return "";
           }
-        }else{
+        } else {
           return "";
         }
       },
@@ -525,8 +527,17 @@ const selectedList = {
     },
   },
   on: {
-    onItemClick: function () {
+    onItemClick: function (sel) {
+      state.dataSelectedItem = this.getItem(sel);
+
       $$(prefix + "_delete_item_btn").show();
+    },
+    onItemDblClick: function (sel) {
+      const item = this.getItem(sel);
+      if (item.type == 9) {
+        state.isEditItem = true;
+        this.$scope.ui(TaskFormRawSQL).show();
+      }
     },
     onAfterDrop: function (context, native_event) {
       updateTask();
@@ -582,7 +593,6 @@ function save() {
     if (!state.isEdit) {
       webix
         .ajax()
-
         .post(url, data, function (res) {
           const dataRes = JSON.parse(res);
           $$(prefix + "_task_id").setValue(dataRes.data.last_id);
@@ -631,7 +641,7 @@ function updateTask() {
 function saveItem() {
   let itemData = $$(prefix + "_selected_table").serialize();
   const sData = itemData.map((x, i) => {
-    x["seq"] = i+1;
+    x["seq"] = i + 1;
     return x;
   });
   console.table(sData);
@@ -744,12 +754,16 @@ export default class TaskForm extends JetView {
     } else {
       this.$$(prefix + "_add_btn").hide();
       const dataSel = state.dataSelected;
+
       this.$$(prefix + "_form").setValues(dataSel);
-      // reloadTaskItem($$(prefix + "_selected_table"), dataSel.id);
       $$(prefix + "_panel_form_item").show();
       $$(prefix + "_panel_form_item_empty").hide();
       this.$$(prefix + "_source_db_id").setValue(dataSel.source_db_id);
       this.$$(prefix + "_target_db_id").setValue(dataSel.target_db_id);
     }
+  }
+  destructor() {
+    state.isEditItem = false;
+    state.dataSelectedItem = {};
   }
 }

@@ -88,24 +88,13 @@ class ProfileService {
   }
 
   async updateQue(userId, data) {
-    // console.log("data>>>", data);
-
     const inputData = JSON.parse(data.data);
-    // console.log("inputData", inputData);
     let sqlStr = [];
     inputData.forEach((obj) => {
       const oneSql = `UPDATE profile SET seq=${obj.seq} WHERE id=${obj.id};`;
       sqlStr.push(oneSql);
     });
-
-    // console.log("sqlStr", sqlStr.join(""));
-
-    // const sqlAll = ``;
-    // const result = await baseRepository.runBatchQueryLocal(sqlStr.join(""));
     const result = await ProfileRepository.updateSequence(inputData);
-    console.log("result", result);
-
-    // return result;
     return { result };
   }
 

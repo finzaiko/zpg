@@ -36,11 +36,7 @@ const WindowForm = () => {
             saveItemRawSQL();
           },
         },
-        {
-          view: "text",
-          id: prefix + "_raw_title",
-          placeholder: "Title..",
-        },
+        {},
         {
           view: "icon",
           icon: "mdi mdi-window-close",
@@ -53,6 +49,11 @@ const WindowForm = () => {
     },
     body: {
       rows: [
+        {
+          view: "text",
+          id: prefix + "_raw_title",
+          placeholder: "Title..",
+        },
         {
           view: "monaco-editor",
           id: prefix + "_raw_sql_editor",
@@ -74,6 +75,7 @@ function saveItemRawSQL() {
     seq: parseInt(itemCount) * -1,
     func_name: rawTitle,
     sql_content: sqlRaw,
+    oid: 0,
   };
   webix
     .ajax()
@@ -103,6 +105,9 @@ export class TaskFormRawSQL extends JetView {
       const { name, sql_content } = state.dataSelectedItem;
       $$(prefix + "_raw_title").setValue(name);
       $$(prefix + "_raw_sql_editor").setValue(sql_content);
+    } else {
+      $$(prefix + "_raw_title").setValue();
+      $$(prefix + "_raw_sql_editor").setValue();
     }
   }
 }

@@ -72,6 +72,13 @@ class TaskItemController {
     responseHttp(reply, 204, "Updated");
   }
 
+  async updateQue(request, reply) {
+    const userId = request.user.uid;
+    await TaskItemService.updateQue(request.body);
+    responseHttp(reply, 201, "Que updated");
+  }
+
+
   async remove(request, reply) {
     await TaskItemService.delete(request.params.id);
     responseHttp(reply, 204, "Removed");

@@ -78,6 +78,23 @@ class TaskItemService {
     return await TaskItemRepository.update(id, userDto);
   }
 
+  async updateQue(data) {
+    const inputData = JSON.parse(data.data);
+    const taskId = data.task_id;
+    // let sqlStr = [];
+    // inputData.forEach((obj) => {
+    //   const oneSql = `UPDATE task_item SET seq=${obj.seq} WHERE task_id=${taskId} AND id=${obj.id};`;
+    //   sqlStr.push(oneSql);
+    // });
+    console.log('taskId',taskId);
+    console.log('inputData',inputData);
+
+
+    const result = await TaskItemRepository.updateSequence(taskId, inputData);
+    console.log("result", result);
+    return { result };
+  }
+
   async delete(id) {
     return await TaskItemRepository.delete(id);
   }

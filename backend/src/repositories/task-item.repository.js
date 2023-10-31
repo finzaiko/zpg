@@ -220,6 +220,32 @@ class TaskItemRepository {
     });
     return res;
   }
+
+
+  async updateSequence(taskId, dataArr) {
+    const res = await new Promise((resolve, reject) => {
+      db.serialize(function () {
+        db.run("begin transaction");
+        async.eachSeries(
+          dataArr,
+          (d, next) => {
+            const oneSql = `UPDATE task_item SET seq=${d.seq} WHERE task_id=${taskId} AND id=${d.id};`;
+            db.run(oneSql, function (err, row) {
+              if (err) reject(err);
+            });
+            next();
+          },
+          function () {
+            resolve("done");
+          }
+        );
+        db.run("commit");
+        resolve("done");
+      });
+    });
+    return res;
+  }
+
 }
 
 module.exports = new TaskItemRepository();

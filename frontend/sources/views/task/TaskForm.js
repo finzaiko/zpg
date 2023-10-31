@@ -125,6 +125,7 @@ const selectedToolbar = {
       tooltip: "Add raw SQL task item",
       autowidth: true,
       click: function () {
+        state.isEditItem = false;
         this.$scope.ui(TaskFormRawSQL).show();
       },
     },
@@ -454,7 +455,7 @@ const selectedList = {
     {
       id: "is_execreplace",
       header: [
-        "XReplace",
+        "Run Replace",
         {
           content: "selectFilter",
           options: [
@@ -467,14 +468,18 @@ const selectedList = {
       // cssFormat: yesNoStatus,
       template: function (obj) {
         if (obj.is_execreplace != null) {
-          if (obj.is_execreplace == 0) {
-            return `<span class="xreplace_task z_hover_text" style="color:#d9d9d9">No</span>`;
-          } else if (obj.is_execreplace == 1) {
-            return `<span class="xreplace_task z_hover_text">Yes</span>`;
-          } else if (obj.is_execreplace == 9) {
-            // loading icon
-            return `<span class="mdi mdi-spin mdi-autorenew"></span>`;
-          } else {
+          if(obj.type!=9){
+            if (obj.is_execreplace == 0) {
+              return `<span class="xreplace_task z_hover_text" style="color:#d9d9d9">No</span>`;
+            } else if (obj.is_execreplace == 1) {
+              return `<span class="xreplace_task z_hover_text">Yes</span>`;
+            } else if (obj.is_execreplace == 9) {
+              // loading icon
+              return `<span class="mdi mdi-spin mdi-autorenew"></span>`;
+            } else {
+              return "";
+            }
+          }else{
             return "";
           }
         } else {
@@ -541,6 +546,7 @@ const selectedList = {
     },
     onAfterDrop: function (context, native_event) {
       updateTask();
+      updateQue(this);
     },
     onBeforeLoad: function () {
       this.showOverlay("Loading...");
@@ -639,13 +645,12 @@ function updateTask() {
 }
 
 function saveItem() {
-  let itemData = $$(prefix + "_selected_table").serialize();
+  const tblId = $$(prefix + "_selected_table");
+  let itemData = tblId.serialize();
   const sData = itemData.map((x, i) => {
     x["seq"] = i + 1;
     return x;
   });
-  console.table(sData);
-
   let data = {
     task_id: $$(prefix + "_task_id").getValue(),
     source_db_id: $$(prefix + "_source_db_id").getValue(),
@@ -655,7 +660,8 @@ function saveItem() {
   webix
     .ajax()
     .post(urlItem + "/selected", data, function (res) {
-      reloadTaskItem($$(prefix + "_selected_table"), data.task_id);
+      updateQue(tblId);
+      reloadTaskItem(tblId, data.task_id);
     })
     .fail(function (err) {
       showError(err);
@@ -716,6 +722,23 @@ export function reloadTaskItem(viewId, selId) {
   });
   // viewId.load(`${urlItem}_filter?field=task_id&value=${id}`);
   // viewId.load(`${urlItem}?filter[task_id]=${id}`);
+}
+
+
+function updateQue(_this) {
+  let i = 0,
+    arr = [];
+    _this.eachRow(function (row) {
+    i++;
+    arr.push({ id: row, seq: i});
+  });
+
+  webix
+    .ajax()
+    .post(urlItem + "/que", { task_id: state.dataSelected.id, data: JSON.stringify(arr) })
+    .fail(function (err) {
+      showError(err);
+    });
 }
 
 export default class TaskForm extends JetView {

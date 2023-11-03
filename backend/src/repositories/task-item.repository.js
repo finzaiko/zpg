@@ -166,7 +166,7 @@ class TaskItemRepository {
   }
 
   async update(id, data) {
-    const sql = `UPDATE task_item SET task_id=?, name=?, type=?, sql_content=?, oid=?WHERE id=?`;
+    const sql = `UPDATE task_item SET task_id=?, name=?, type=?, sql_content=?, oid=? WHERE id=?`;
     let params = [
       data.task_id,
       data.func_name,
@@ -178,6 +178,17 @@ class TaskItemRepository {
 
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
+  async updateByField(key, value, data) {
+    const sql = `UPDATE task_item SET task_id=${data.task_id}, name='${data.func_name}', type='${data.type}', sql_content='${data.sql_content}', oid='${data.oid}' WHERE ${key}='${value}'`;
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, (err, row) => {
         if (err) reject(err);
         resolve(row);
       });

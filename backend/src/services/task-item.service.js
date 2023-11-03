@@ -57,25 +57,25 @@ class TaskItemService {
   }
 
   async update(id, data) {
-    let userDto = new TaskItemDto();
+    let tasItemkDto = new TaskItemDto();
     tasItemkDto.task_id = data.task_id;
     tasItemkDto.func_name = data.func_name;
     tasItemkDto.type = data.type;
     tasItemkDto.sql_content = data.sql_content;
     tasItemkDto.oid = data.oid;
 
-    return await TaskItemRepository.update(id, userDto);
+    return await TaskItemRepository.update(id, tasItemkDto);
   }
 
-  async updateByField(id, data) {
-    let userDto = new TaskItemDto();
+  async updateByField(key, value, data) {
+    let tasItemkDto = new TaskItemDto();
     tasItemkDto.task_id = data.task_id;
     tasItemkDto.func_name = data.func_name;
     tasItemkDto.type = data.type;
     tasItemkDto.sql_content = data.sql_content;
     tasItemkDto.oid = data.oid;
 
-    return await TaskItemRepository.update(id, userDto);
+    return await TaskItemRepository.updateByField(key, value, tasItemkDto);
   }
 
   async updateQue(data) {

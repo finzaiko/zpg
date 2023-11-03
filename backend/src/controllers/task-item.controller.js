@@ -6,7 +6,6 @@ class TaskItemController {
     const { filter, offset, limit, sort } = request.query;
     const userId = request.user.uid;
 
-
     // console.log(`request.body###############`, request.query)
     let strKey = [],
       strVal = [],
@@ -32,8 +31,13 @@ class TaskItemController {
     // console.log(`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, a)
     // console.log(`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, strWhere.join(', '))
 
-
-    const data = await TaskItemService.getAll(filter, offset, limit, sort, userId);
+    const data = await TaskItemService.getAll(
+      filter,
+      offset,
+      limit,
+      sort,
+      userId
+    );
     responseHttp(reply, 200, "Ok", { data: data });
   }
 
@@ -61,14 +65,13 @@ class TaskItemController {
 
   async syncSelected(request, reply) {
     const userId = request.user.uid;
-    const { id, source_db_id} = request.body;
+    const { id, source_db_id } = request.body;
     await TaskItemService.syncSelected(id, source_db_id, userId);
     responseHttp(reply, 201, "Sync selected");
   }
 
   async update(request, reply) {
     await TaskItemService.update(request.params.id, request.body);
-
     responseHttp(reply, 204, "Updated");
   }
 
@@ -77,7 +80,6 @@ class TaskItemController {
     await TaskItemService.updateQue(request.body);
     responseHttp(reply, 201, "Que updated");
   }
-
 
   async remove(request, reply) {
     await TaskItemService.delete(request.params.id);

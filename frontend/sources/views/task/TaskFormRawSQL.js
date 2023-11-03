@@ -77,16 +77,30 @@ function saveItemRawSQL() {
     sql_content: sqlRaw,
     oid: 0,
   };
-  webix
-    .ajax()
-    .post(urlItem, data, function (res) {
-      reloadTaskItem($$(prefixPage + "_selected_table"), taskId);
-      webix.message({ message: "Raw SQL saved", type: "success" });
-      $$(prefix + "_win").destructor();
-    })
-    .fail(function (err) {
-      showError(err);
-    });
+  if (!state.isEditItem) {
+    webix
+      .ajax()
+      .post(urlItem, data, function (res) {
+        reloadTaskItem($$(prefixPage + "_selected_table"), taskId);
+        webix.message({ message: "Raw SQL saved", type: "success" });
+        $$(prefix + "_win").destructor();
+      })
+      .fail(function (err) {
+        showError(err);
+      });
+  } else {
+    const selId = state.dataSelectedItem.id;
+    webix
+      .ajax()
+      .put(`${urlItem}/${selId}`, data, function (res) {
+        reloadTaskItem($$(prefixPage + "_selected_table"), taskId);
+        webix.message({ message: "Raw SQL updated", type: "success" });
+        $$(prefix + "_win").destructor();
+      })
+      .fail(function (err) {
+        showError(err);
+      });
+  }
 }
 
 const close = () => {

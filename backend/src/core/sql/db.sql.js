@@ -13,7 +13,6 @@ const _getAllFunc = `
       COUNT(*) FILTER(WHERE isp.parameter_mode='IN') AS params_in,
       COUNT(*) FILTER(WHERE isp.parameter_mode='OUT') AS params_out,
       COUNT(*) FILTER(WHERE isp.parameter_mode='INOUT') AS params_inout,
-      COUNT(*) FILTER(WHERE isp.parameter_mode='INOUT') AS params_inout,
       (COUNT(*) FILTER(WHERE isp.parameter_mode='IN')
       +COUNT(*) FILTER(WHERE isp.parameter_mode='OUT')
       +COUNT(*) FILTER(WHERE isp.parameter_mode='INOUT')
@@ -60,6 +59,10 @@ const dbAllFuncBySchema = (schemaName) => {
           (${_getAllFunc} AND isr.specific_schema='${schemaName}'
         GROUP BY 1, 2, 3, 4 order by prc.proname )t
     `;
+};
+
+const dbAllFuncList = () => {
+  return `WITH tbl AS (${_getAllFunc} GROUP BY 1, 2, 3, 4) SELECT *, pg_get_functiondef(id) as sql_content FROM tbl`;
 };
 
 const dbAllTableBySchema = (schemaName) => {
@@ -1011,6 +1014,7 @@ module.exports = {
   dbAllByOid,
   dbSchemaAllByOid,
   dbAllFunc,
+  dbAllFuncList,
   dbAllFuncBySchema,
   dbAllTableBySchema,
   dbFuncContentByOid,

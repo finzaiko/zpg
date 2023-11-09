@@ -1336,7 +1336,11 @@ export function QueryPage(prefix, selectedDb) {
               {
                 fillspace: true,
                 template: function (obj) {
-                  return obj.title.match(/(.+)/)[0];
+                  const tt = obj.title.match(/(.+)/);
+					        if(tt){
+                    	return tt[0];
+                    }
+                  return obj.title
                 },
               },
               {

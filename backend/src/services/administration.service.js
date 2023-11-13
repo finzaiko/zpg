@@ -1,4 +1,4 @@
-const { activeSession, dbHitTransaction, pgConfigSetting, pgFileSetting } = require("../core/sql/admin.sql");
+const { activeSession, dbHitTransaction, pgConfigSetting, pgFileSetting, tempFileSize, tableSize } = require("../core/sql/admin.sql");
 const BaseRepository = require(`../repositories/base.repository`);
 
 class AdministrationService {
@@ -94,6 +94,12 @@ class AdministrationService {
         break;
       case 'filesetting':
         sql = pgFileSetting();
+        break;
+      case 'tempfilesize':
+        sql = tempFileSize();
+        break;
+      case 'tblsize':
+        sql = tableSize();
         break;
       default:
         break;

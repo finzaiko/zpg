@@ -66,7 +66,7 @@ const WindowForm = () => {
 function saveItemRawSQL() {
   const rawTitle = $$(prefix + "_raw_title").getValue();
   const sqlRaw = $$(prefix + "_raw_sql_editor").getValue();
-  const itemCount = $$(prefixPage + "_selected_table").count();
+  const itemCount = $$(prefixPage + "_form_selected_table").count();
   const taskId = state.dataSelected.id;
   const data = {
     task_id: taskId,
@@ -81,20 +81,22 @@ function saveItemRawSQL() {
     webix
       .ajax()
       .post(urlItem, data, function (res) {
-        reloadTaskItem($$(prefixPage + "_selected_table"), taskId);
-        webix.message({ message: "Raw SQL saved", type: "success" });
+        reloadTaskItem($$(prefixPage + "_form_selected_table"), taskId);
+        webix.message({ text: "Raw SQL saved", type: "success" });
         $$(prefix + "_win").destructor();
       })
       .fail(function (err) {
         showError(err);
       });
+      console.log('add');
   } else {
+    console.log("edit");
     const selId = state.dataSelectedItem.id;
     webix
       .ajax()
       .put(`${urlItem}/${selId}`, data, function (res) {
-        reloadTaskItem($$(prefixPage + "_selected_table"), taskId);
-        webix.message({ message: "Raw SQL updated", type: "success" });
+        reloadTaskItem($$(prefixPage + "_form_selected_table"), taskId);
+        webix.message({ text: "Raw SQL updated", type: "success" });
         $$(prefix + "_win").destructor();
       })
       .fail(function (err) {

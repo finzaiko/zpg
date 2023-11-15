@@ -20,12 +20,12 @@ class TaskItemService {
   }
 
   async getAllByField(fieldName, fieldValue, userId) {
-    const data = await TaskItemRepository.getAllByField(
-      fieldName,
-      fieldValue
-      // userId
-    );
-    // return data[0];
+    const data = await TaskItemRepository.getAllByField(fieldName, fieldValue);
+    return data;
+  }
+
+  async getRunTask(taskId) {
+    const data = await TaskItemRepository.getRunTask(taskId);
     return data;
   }
 
@@ -48,8 +48,25 @@ class TaskItemService {
     taskItemSelectedDto.oid_arr = data.oid_arr;
     taskItemSelectedDto.source_db_id = data.source_db_id;
     await TaskItemRepository.createSelected(taskItemSelectedDto, userId);
-    await this.writeToWorkspace(taskItemSelectedDto.task_id, userId);
     return { msg: "Create selected done" };
+  }
+
+  async syncSelected(data, userId) {
+    let taskItemSelectedDto = new TaskItemSelectedDto();
+    taskItemSelectedDto.task_id = data.task_id;
+    taskItemSelectedDto.oid_arr = data.oid_arr;
+    taskItemSelectedDto.source_db_id = data.source_db_id;
+
+    await TaskItemRepository.updateAllFuncByTaskId(
+      taskItemSelectedDto.source_db_id,
+      userId,
+      taskItemSelectedDto.task_id
+    );
+    return { msg: "Sync selected done" };
+  }
+
+  sleep(millis) {
+    return new Promise((resolve) => setTimeout(resolve, millis));
   }
 
   async changeStatus(data) {
@@ -81,17 +98,7 @@ class TaskItemService {
   async updateQue(data) {
     const inputData = JSON.parse(data.data);
     const taskId = data.task_id;
-    // let sqlStr = [];
-    // inputData.forEach((obj) => {
-    //   const oneSql = `UPDATE task_item SET seq=${obj.seq} WHERE task_id=${taskId} AND id=${obj.id};`;
-    //   sqlStr.push(oneSql);
-    // });
-    console.log('taskId',taskId);
-    console.log('inputData',inputData);
-
-
     const result = await TaskItemRepository.updateSequence(taskId, inputData);
-    console.log("result", result);
     return { result };
   }
 
@@ -103,6 +110,7 @@ class TaskItemService {
     return await TaskItemRepository.deleteSelected(data);
   }
 
+  /*
   async syncSelected(id, sourceId, userId) {
     const allData = await DbService.getSchemaContent(
       sourceId,
@@ -127,9 +135,9 @@ class TaskItemService {
       source_db_id: sourceId,
       task_id: id,
     };
-    // console.log(input);
     return this.createSelected(input, userId);
   }
+  */
 
   async writeToWorkspace(id, userId) {
     const task = await TaskRepository.getById(id, userId);

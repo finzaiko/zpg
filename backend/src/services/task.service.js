@@ -2,6 +2,7 @@ const TaskRepository = require(`../repositories/task.repository`);
 const TaskDto = require(`../dtos/task.dto`);
 const DbRepository = require(`../repositories/db.repository`);
 const TaskItemService = require(`./task-item.service`);
+const BaseRepository = require(`../repositories/base.repository`);
 
 const fs = require("fs");
 const fsExtra = require("fs-extra");
@@ -49,13 +50,14 @@ class TaskService {
     return await TaskRepository.delete(id);
   }
 
-  async checkBrokenFile(id, userId){
+  async checkBrokenFile(id, userId) {
     const task = await TaskRepository.getById(id, userId);
     const dirWp = path.join(__dirname, `../../workspace`);
-    const dir = `${dirWp}/task/${(task[0].task_name).replace(/ /g,"_")}`;
+    const dir = `${dirWp}/task/${task[0].task_name.replace(/ /g, "_")}`;
     const userCfg = await TaskItemService.getAllByField("task_id", id, userId);
-    // console.log(`userCfg`, userCfg)
-    let emptyFile = [], status = true;
+
+    let emptyFile = [],
+      status = true;
 
     async.eachSeries(
       userCfg,
@@ -64,11 +66,11 @@ class TaskService {
         try {
           if (fsExtra.existsSync(filePath)) {
             const stats = fsExtra.statSync(filePath);
-            if(stats.size<=0){
+            if (stats.size <= 0) {
               emptyFile.push(`${d.name}.sql`);
             }
             status = false;
-          }else{
+          } else {
             status = false;
           }
         } catch (error) {
@@ -79,57 +81,61 @@ class TaskService {
       },
       () => {
         console.log("done..");
-      });
-      return {status: status, data: emptyFile.join(", ")}
+      }
+    );
+    return { status: status, data: emptyFile.join(", ") };
   }
 
-  async transferToTarget(id, userId) {
-    // console.log(`idddddddddddddddddddd`, id);
+  async transferToTargetWithWorkspace(id, userId) {
     const task = await TaskRepository.getById(id, userId);
-    // console.log(`taskkkkkkkkkkkkkkkkkkkkkkk`, task);
+
     const dirWp = path.join(__dirname, `../../workspace`);
-    // console.log(`dirWp`, dirWp);
+
     const dir = `${dirWp}/task/${task[0].task_name.replace(/ /g, "_")}`;
 
-    // console.log(`dirrrrrrrrrrrrrrrrrr`, dir);
     const glob = require("glob"),
       globPattern = path.join(dir, "**/*.sql"),
       files = glob.sync(globPattern, { nosort: true });
-      // console.log(`filessssssssssssssssssssss`, files);
 
     let result = [];
     async.eachSeries(files, (file, next) => {
       const sql = fsExtra.readFileSync(file, { encoding: "utf-8" });
-      // console.log(`sqlllllllllllllllllx`, sql);
+
       result.push(sql);
       next();
     });
 
     const sqlStr = result.join(";\r\n");
-    // console.log(`taskkkkkkkkkkkkkkkkkkk`, task);
-    // console.log(`sqlStrrrrrrrrrrrrrrrrr`, sqlStr);
-    return await DbRepository.runSql(task[0].target_db_id, userId, sqlStr);
-    // dbModel
-    // .setSqlFunc(task[0].target_db_id,sqlStr)
-    // .then((r) => {
-    //   // console.log('r********************', r);
-    // console.log('sukses')
-    // resMsg = "Transfer success";
-    // })
-    // .catch((e) => {
-    //   console.error(e);
-    // });
-    // console.log(`resssssssssssss`, res);
 
-    // return {msg: "Transfered"};
+    return await DbRepository.runSql(task[0].target_db_id, userId, sqlStr);
+  }
+
+  async transferToTarget(data, userId) {
+    const { task_id, target_id } = data;
+
+    const tasks = await TaskItemService.getRunTask(task_id);
+
+    let result = [];
+    async.eachSeries(tasks, (item, next) => {
+      result.push(item.sql_content);
+      next();
+    });
+
+    const sqlStr = result.join(";\r\n\n");
+
+    try {
+      await BaseRepository.runQuery(target_id, userId, sqlStr);
+      return { status: true, message: "Transfer success" };
+    } catch (error) {
+      return { status: false, message: error.toString().split("\n")[0] };
+    }
   }
 
   async downloadBundle(id, userId) {
-
     const task = await TaskRepository.getById(id, userId);
     const dirWp = path.join(__dirname, `../../workspace`);
-    const bundleName = (task[0].task_name).replace(/ /g,"_");
-    const dir = `${dirWp}/task/${(task[0].task_name).replace(/ /g,"_")}`;
+    const bundleName = task[0].task_name.replace(/ /g, "_");
+    const dir = `${dirWp}/task/${task[0].task_name.replace(/ /g, "_")}`;
 
     const glob = require("glob"),
       globPattern = path.join(dir, "**/*.sql"),
@@ -139,23 +145,39 @@ class TaskService {
       bundleDir = "",
       bundlePath = "";
     bundleDir = `${dirWp}/task/bundle`;
-    bundlePath = `${bundleDir}/${(task[0].task_name).replace(/ /g,"_")}_bundle.sql`;
-    if (!fs.existsSync(bundleDir)){
+    bundlePath = `${bundleDir}/${task[0].task_name.replace(
+      / /g,
+      "_"
+    )}_bundle.sql`;
+    if (!fs.existsSync(bundleDir)) {
       fs.mkdirSync(bundleDir);
     }
-    async.eachSeries(files, (file, next) => {
-      const sql = fs.readFileSync(file, { encoding: "utf-8" });
-      result.push(sql);
+    // async.eachSeries(files, (file, next) => {
+    //   const sql = fs.readFileSync(file, { encoding: "utf-8" });
+    //   result.push(sql);
 
+    //   try {
+    //     fs.writeFileSync(bundlePath, result.join(";\r\n\n\n"));
+    //   } catch (error) {
+    //     return error;
+    //   }
+    //   next();
+    // });
 
-      try {
-        fs.writeFileSync(bundlePath, result.join(";\r\n\n\n"));
-      } catch (error) {
-        return error;
-      }
+    const tasks = await TaskItemService.getRunTask(id);
+
+    async.eachSeries(tasks, (item, next) => {
+      result.push(item.sql_content);
       next();
     });
-    return {bundle_path: bundlePath, name: bundleName};
+
+    try {
+      fs.writeFileSync(bundlePath, result.join(";\r\n\n\n"));
+    } catch (error) {
+      return error;
+    }
+
+    return { bundle_path: bundlePath, name: bundleName };
   }
 }
 

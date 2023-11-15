@@ -5,7 +5,7 @@ import { state, url } from "../../models/Task";
 import { getToken, userProfile } from "../../models/UserProfile";
 import { reloadTaskItem } from "./TaskForm";
 
-const prefix = "task";
+const prefix = state.prefix;
 
 const taskToolbar = {
   view: "toolbar",
@@ -87,14 +87,16 @@ const taskToolbar = {
         const url = `${API_URL}/task/download/${item.id}`;
         webix.ajax().get(url, function (res) {
           const data = JSON.parse(res);
-          forceDownload(`${data.name}.sql`, data.bundle);
+          const format = webix.Date.dateToStr("%Y%m%d%h%i%s");
+				const timeStamp = format(new Date());
+          forceDownload(`${data.name}__${timeStamp}.sql`, data.bundle);
         });
       },
     },
   ],
 };
 
-function forceDownload(filename, text) {
+export function forceDownload(filename, text) {
   var element = document.createElement("a");
   element.setAttribute(
     "href",
@@ -186,16 +188,34 @@ export function runTarget() {
       "</strong> ?",
     callback: function (result) {
       if (result) {
-        const panelId = $$(prefix + "_page_panel");
-        const btnId = $$(prefix + "_run_btn");
+        let panelId =
+          $$(prefix + "_page_panel") || $$(prefix + "_form_page_panel_item");
+        // if (typeof panelId == "undefined") {
+        //   panelId = $$(prefix + "_page_panel_item");
+        // }
+        const btnId = $$(prefix + "_run_btn") || $$(prefix + "_form_run_btn");
+        // console.log("panelId", panelId);
+
         webix.extend(panelId, webix.ProgressBar);
         panelId.showProgress();
+        panelId.disable();
         btnId.disable();
-        webix.ajax().post(url + "/transfer/" + item.id, null, function (res) {
-          webix.message(`<strong>${msgName} </strong> transfered.`);
+
+        const targetId  =  $$(prefix + "_form_target_db_id").getValue() || 0;
+        const data = {
+          task_id: item.id,
+          target_id: targetId
+        }
+        webix.ajax().post(url + "/transfer" ,data, function (res) {
+          console.log('res',res);
+          const resData = JSON.parse(res);
+          console.log('resData',resData);
+
+          webix.message({text:`<strong>${msgName} </strong> ${resData.message}.`, type: resData.status ?"success" :"error"});
           setTimeout(() => {
             panelId.hideProgress();
             btnId.enable();
+            panelId.enable();
           }, 1000);
         });
       }

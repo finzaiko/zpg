@@ -6,31 +6,6 @@ class TaskItemController {
     const { filter, offset, limit, sort } = request.query;
     const userId = request.user.uid;
 
-    // console.log(`request.body###############`, request.query)
-    let strKey = [],
-      strVal = [],
-      strWhere = [];
-    // const qParse = request.query;
-    // let filterStr = 'filter';
-    // const filter = filterStr == 'filter' ? qParse.filter : qParse.sort;
-
-    // const {filter, sort} = request.query;
-    // console.log(`qParse.filter`, qParse.filter);
-    // Object.keys(filter).map(function(k) {
-    //   if (filter[k]) {
-    //     strKey.push(k);
-    //     strVal.push(filter[k]);
-    //     strWhere.push(`${k.toLocaleLowerCase()} like '%${filter[k].toLocaleLowerCase()}%'`)
-    //   }
-    // });
-
-    // console.log(`strKey`, strKey);
-    // console.log(`strVal`, strVal);
-
-    // let a= { key: strKey.join(','), val: strVal.join(',') };
-    // console.log(`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, a)
-    // console.log(`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, strWhere.join(', '))
-
     const data = await TaskItemService.getAll(
       filter,
       offset,
@@ -57,17 +32,17 @@ class TaskItemController {
     await TaskItemService.createSelected(request.body, userId);
     responseHttp(reply, 201, "Created selected");
   }
+
+  async syncSelected(request, reply) {
+    const userId = request.user.uid;
+    await TaskItemService.syncSelected(request.body, userId);
+    responseHttp(reply, 201, "Sync selected");
+  }
+
   async changeStatus(request, reply) {
     const userId = request.user.uid;
     await TaskItemService.changeStatus(request.body, userId);
     responseHttp(reply, 201, "Status changed");
-  }
-
-  async syncSelected(request, reply) {
-    const userId = request.user.uid;
-    const { id, source_db_id } = request.body;
-    await TaskItemService.syncSelected(id, source_db_id, userId);
-    responseHttp(reply, 201, "Sync selected");
   }
 
   async update(request, reply) {

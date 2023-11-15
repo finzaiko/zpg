@@ -6,6 +6,7 @@ module.exports = async (fastify) => {
   fastify.post(`/`, TaskItemController.create);
   fastify.post(`/que`, TaskItemController.updateQue);
   fastify.post(`/selected`, TaskItemController.createSelected);
+  fastify.post(`/sync`, TaskItemController.syncSelected);
   fastify.post(`/change`, TaskItemController.changeStatus);
   fastify.post(`/rmselected`, TaskItemController.removeSelected);
   fastify.post(`/syncselected`, TaskItemController.syncSelected);

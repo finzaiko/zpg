@@ -4,11 +4,12 @@ import { state, url, urlItem } from "../../models/Task";
 import { url as urlDb } from "../../models/Db";
 import { userProfile } from "../../models/UserProfile";
 import { url as urlProfile } from "../../models/Profile";
-import { runTarget } from "./TaskPage";
+import { forceDownload, runTarget } from "./TaskPage";
 import { isColorLight, showError } from "../../helpers/ui";
 import { TaskFormRawSQL } from "./TaskFormRawSQL";
+import { API_URL } from "../../config/setting";
 
-const prefix = state.prefix;
+const prefix = state.prefix + "_form";
 
 const loadAvailable = (sourceId) => {
   return webix
@@ -61,7 +62,6 @@ const availableToolbar = {
       labelWidth: 60,
       width: 300,
       placeholder: "db name",
-      // options: urlProfile + "/content?type=2&ls=true",
       options: {
         width: 250,
         fitMaster: false,
@@ -162,7 +162,6 @@ const selectedToolbar = {
       id: prefix + "_target_db_id",
       width: 300,
       placeholder: "db name",
-      // options: urlProfile + "/content?type=2&ls=true",
       options: {
         width: 250,
         fitMaster: false,
@@ -192,36 +191,36 @@ const selectedToolbar = {
         reloadTaskItem($$(prefix + "_selected_table"), state.dataSelected.id);
       },
     },
-    {
-      view: "button",
-      type: "icon",
-      icon: "mdi mdi-database-sync-outline",
-      css: "zmdi_padding",
-      tooltip: "Sync from source DB",
-      autowidth: true,
-      click: function () {
-        const panelId = $$(prefix + "_panel_form_item");
-        const input = {
-          id: state.dataSelected.id,
-          source_db_id: $$(prefix + "_source_db_id").getValue(),
-        };
-        webix.extend(panelId, webix.OverlayBox);
-        panelId.showOverlay(
-          `
-            <div class='transfer-content'>
-            <div class="spinner"></div>
-            </div>
-            `
-        );
+    // {
+    //   view: "button",
+    //   type: "icon",
+    //   icon: "mdi mdi-database-sync-outline",
+    //   css: "zmdi_padding",
+    //   tooltip: "Sync from source DB",
+    //   autowidth: true,
+    //   click: function () {
+    //     const panelId = $$(prefix + "_panel_form_item");
+    //     const input = {
+    //       id: state.dataSelected.id,
+    //       source_db_id: $$(prefix + "_source_db_id").getValue(),
+    //     };
+    //     webix.extend(panelId, webix.OverlayBox);
+    //     panelId.showOverlay(
+    //       `
+    //         <div class='transfer-content'>
+    //         <div class="spinner"></div>
+    //         </div>
+    //         `
+    //     );
 
-        webix
-          .ajax()
-          .post(`${urlItem}/syncselected`, input, function (res) {
-            setTimeout(() => panelId.hideOverlay(), 1000);
-          })
-          .finally(function () {});
-      },
-    },
+    //     webix
+    //       .ajax()
+    //       .post(`${urlItem}/syncselected`, input, function (res) {
+    //         setTimeout(() => panelId.hideOverlay(), 1000);
+    //       })
+    //       .finally(function () {});
+    //   },
+    // },
     {
       view: "button",
       type: "icon",
@@ -238,51 +237,70 @@ const selectedToolbar = {
       view: "button",
       type: "icon",
       css: "zmdi_padding",
-      icon: "mdi mdi-dots-vertical-circle-outline",
+      icon: "mdi mdi-download-outline",
+      id: prefix + "_download_btn",
       autowidth: true,
-      popup: "my_pop",
-      id: prefix + "_more_btn",
-      popup: {
-        view: "contextmenu",
-        data: [
-          { id: 1, value: "Check broken files" },
-          { id: 2, value: "Clear workspace" },
-        ],
-        submenuConfig: {
-          // width: 100,
-        },
-        on: {
-          onMenuItemClick: function (id) {
-            if (id == 1) {
-              webix
-                .ajax()
-                .post(
-                  url + "/checkbroken/" + state.dataSelected.id,
-                  null,
-                  function (res) {
-                    const { data } = JSON.parse(res);
-                    let mType = "",
-                      mText = "All Ok, no broken files";
-                    if (!data.status) {
-                      mType = "alert-warning";
-                      mText = "Files not found on workspace";
-                      if (data.length > 0) {
-                        mText = data.replace(/ *, */g, "<br>");
-                      }
-                    }
-
-                    webix.alert({
-                      title: "Checking workspace files",
-                      type: mType,
-                      text: mText,
-                    });
-                  }
-                );
-            }
-          },
-        },
+      tooltip: "Download SQL script",
+      click: function () {
+        const item = state.dataSelected;
+        const url = `${API_URL}/task/download/${item.id}`;
+        webix.ajax().get(url, function (res) {
+          const data = JSON.parse(res);
+          const format = webix.Date.dateToStr("%Y%m%d%h%i%s");
+          const timeStamp = format(new Date());
+          forceDownload(`${data.name}__${timeStamp}.sql`, data.bundle);
+        });
       },
     },
+    // {
+    //   view: "button",
+    //   type: "icon",
+    //   css: "zmdi_padding",
+    //   icon: "mdi mdi-dots-vertical-circle-outline",
+    //   autowidth: true,
+    //   popup: "my_pop",
+    //   id: prefix + "_more_btn",
+    //   popup: {
+    //     view: "contextmenu",
+    //     data: [
+    //       { id: 1, value: "Check broken files" },
+    //       { id: 2, value: "Clear workspace" },
+    //     ],
+    //     submenuConfig: {
+    //       // width: 100,
+    //     },
+    //     on: {
+    //       onMenuItemClick: function (id) {
+    //         if (id == 1) {
+    //           webix
+    //             .ajax()
+    //             .post(
+    //               url + "/checkbroken/" + state.dataSelected.id,
+    //               null,
+    //               function (res) {
+    //                 const { data } = JSON.parse(res);
+    //                 let mType = "",
+    //                   mText = "All Ok, no broken files";
+    //                 if (!data.status) {
+    //                   mType = "alert-warning";
+    //                   mText = "Files not found on workspace";
+    //                   if (data.length > 0) {
+    //                     mText = data.replace(/ *, */g, "<br>");
+    //                   }
+    //                 }
+
+    //                 webix.alert({
+    //                   title: "Checking workspace files",
+    //                   type: mType,
+    //                   text: mText,
+    //                 });
+    //               }
+    //             );
+    //         }
+    //       },
+    //     },
+    //   },
+    // },
     // {
     //   view: "button",
     //   type: "icon",
@@ -468,7 +486,7 @@ const selectedList = {
       // cssFormat: yesNoStatus,
       template: function (obj) {
         if (obj.is_execreplace != null) {
-          if(obj.type!=9){
+          if (obj.type != 9) {
             if (obj.is_execreplace == 0) {
               return `<span class="xreplace_task z_hover_text" style="color:#d9d9d9">No</span>`;
             } else if (obj.is_execreplace == 1) {
@@ -479,7 +497,7 @@ const selectedList = {
             } else {
               return "";
             }
-          }else{
+          } else {
             return "";
           }
         } else {
@@ -662,12 +680,21 @@ function saveItem() {
     .post(urlItem + "/selected", data, function (res) {
       updateQue(tblId);
       reloadTaskItem(tblId, data.task_id);
+      syncItem(data);
     })
     .fail(function (err) {
       showError(err);
     });
 }
 
+function syncItem(data) {
+  webix
+    .ajax()
+    .post(urlItem + "/sync", data, function (res) {})
+    .fail(function (err) {
+      showError(err);
+    });
+}
 function reloadAvailable(id) {
   const tbl = $$(prefix + "_avalaible_table");
   tbl.clearAll();
@@ -724,18 +751,20 @@ export function reloadTaskItem(viewId, selId) {
   // viewId.load(`${urlItem}?filter[task_id]=${id}`);
 }
 
-
 function updateQue(_this) {
   let i = 0,
     arr = [];
-    _this.eachRow(function (row) {
+  _this.eachRow(function (row) {
     i++;
-    arr.push({ id: row, seq: i});
+    arr.push({ id: row, seq: i });
   });
 
   webix
     .ajax()
-    .post(urlItem + "/que", { task_id: state.dataSelected.id, data: JSON.stringify(arr) })
+    .post(urlItem + "/que", {
+      task_id: state.dataSelected.id,
+      data: JSON.stringify(arr),
+    })
     .fail(function (err) {
       showError(err);
     });
@@ -744,6 +773,7 @@ function updateQue(_this) {
 export default class TaskForm extends JetView {
   config() {
     return {
+      id: prefix + "_page_panel_item",
       rows: [
         form,
         {

@@ -49,9 +49,8 @@ const dbAllFunc = (schema, oidArr) => {
           (${_getAllFunc} ${_schema} ${_oidArr}
         GROUP BY 1, 2, 3, 4 order by prc.proname )t
     `;
-    // console.log('sql################',sql);
 
-    return sql;
+  return sql;
 };
 
 const dbAllFuncBySchema = (schemaName) => {
@@ -63,6 +62,21 @@ const dbAllFuncBySchema = (schemaName) => {
 
 const dbAllFuncList = () => {
   return `WITH tbl AS (${_getAllFunc} GROUP BY 1, 2, 3, 4) SELECT *, pg_get_functiondef(id) as sql_content FROM tbl`;
+};
+
+const dbFuncDropReplace = (oid) => {
+  return `WITH a AS (
+        SELECT prc.oid, isr.specific_schema, isr.routine_name, isp.parameter_mode, coalesce(string_agg(isp.data_type::text,','),'') as datatype_list
+        FROM information_schema.routines isr
+        LEFT JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
+        LEFT JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
+        WHERE prc.oid=${oid} GROUP BY prc.oid, isr.specific_schema, isr.routine_name, isp.parameter_mode
+    ), b AS (
+        SELECT * FROM a WHERE parameter_mode='IN'
+    )
+    SELECT DISTINCT FORMAT('DROP FUNCTION IF EXISTS %s.%s(%s);', a.specific_schema, a.routine_name, b.datatype_list,'') as value
+    FROM a LEFT JOIN b ON true
+  `;
 };
 
 const dbAllTableBySchema = (schemaName) => {
@@ -277,7 +291,6 @@ const dbFuncContentByOid = (oid) => {
             ${commentSample}
         ) AS data;
         `;
-          // console.log('sql>>>>>>>>>>>>',sql);
   return sql;
 };
 
@@ -510,7 +523,6 @@ const dbTableContentByOid = (oid) => {
         LEFT JOIN commstrall ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
         LEFT JOIN tbltrig ON true
   `;
-  // console.log('sql>>>>>>>>>>>>',sql);
 
   return sql;
 };
@@ -1003,7 +1015,6 @@ const dbFuncTableSearch = (search, type, view) => {
   } else {
     sql = `SELECT id, value, css, name, schema, type ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   }
-  // console.log("sql", sql);
 
   return sql;
 };
@@ -1033,4 +1044,5 @@ module.exports = {
   dbTableConstraintContent,
   dbTableIndexDefenition,
   dbTableIndexContent,
+  dbFuncDropReplace,
 };

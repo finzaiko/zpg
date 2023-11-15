@@ -74,6 +74,7 @@ const tableSize = () => {
     WHERE nspname NOT IN ('pg_catalog', 'information_schema') and relkind='r'
     ORDER BY pg_relation_size(C.oid) DESC;`;
     // https://wiki.postgresql.org/wiki/Disk_Usage
+    // https://stackoverflow.com/questions/21738408/postgresql-list-and-order-tables-by-size
 };
 
 module.exports = {

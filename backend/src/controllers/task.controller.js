@@ -45,14 +45,13 @@ class TaskController {
 
   async transferToTarget(request, reply) {
     const userId = request.user.uid;
-    await TaskService.transferToTarget(request.params.id, userId);
-    responseHttp(reply, 204, "Removed");
+    const r = await TaskService.transferToTarget(request.body, userId);
+    responseHttp(reply, 200, "Ok", r);
   }
 
   async downloadBundle(request, reply) {
     const userId = request.user.uid;
     const task = await TaskService.downloadBundle(request.params.id, userId);
-    // console.log(`taskkkkkkkkkkkkkkkkkkkkkkkk`, task)
     // reply.dowload
     // https://github.com/fastify/fastify/issues/1258
     // https://github.com/fastify/fastify-static#usage
@@ -62,9 +61,9 @@ class TaskController {
     // const stream = fs.createReadStream(task)
     // reply.header("Content-Type", "attachment");
     // reply.type('text/plain').send(stream)
-    // reply.sendFile(task) 
+    // reply.sendFile(task)
     const bundle = fs.readFileSync(task.bundle_path, { encoding: "utf-8" });
-    reply.send({status: true, bundle: bundle, name: task.name}) 
+    reply.send({status: true, bundle: bundle, name: task.name})
   }
 }
 

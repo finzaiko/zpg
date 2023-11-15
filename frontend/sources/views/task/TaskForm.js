@@ -11,6 +11,8 @@ import { API_URL } from "../../config/setting";
 
 const prefix = state.prefix + "_form";
 
+// const avCollection = new webix.DataCollection();
+
 const loadAvailable = (sourceId) => {
   return webix
     .ajax()
@@ -41,6 +43,7 @@ function reloadAvailableFiltered(id, selId) {
       const tbl = $$(prefix + "_avalaible_table");
       tbl.clearAll();
       tbl.parse(avFiltered);
+      // avCollection.parse(avFiltered);
 
       const tblSel = $$(prefix + "_selected_table");
       tblSel.clearAll();
@@ -439,6 +442,11 @@ const availableList = {
   on: {
     onAfterDrop: function (context, native_event) {
       updateTask();
+      reloadTaskItem($$(prefix + "_selected_table"), state.dataSelected.id);
+      webix.message({
+        text: "Disable to drop, use remove button",
+        type: "debug",
+      });
     },
     onBeforeLoad: function () {
       this.showOverlay("Loading...");

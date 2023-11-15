@@ -205,10 +205,10 @@ class TaskItemRepository {
         );
         async.eachSeries(
           funcData,
-          (d, next) => {
+          (item, next) => {
             db.run(
               `INSERT INTO task_item (task_id, schema, name, params_in, params_out, params_inout, return_type, type, oid, seq, is_execreplace, is_active)
-                    VALUES (${data.task_id},'${d.schema}','${d.name}',${d.params_in},${d.params_out},${d.params_inout},'${d.return_type}',1,${d.oid},${d.seq},${d.is_execreplace},${d.is_active})`,
+                    VALUES (${data.task_id},'${item.schema}','${item.name}',${item.params_in},${item.params_out},${item.params_inout},'${item.return_type}',1,${item.oid},${item.seq},${item.is_execreplace},${item.is_active})`,
               function (err, row) {
                 if (err) reject(err);
               }

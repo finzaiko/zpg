@@ -4,6 +4,7 @@ import { defaultHeader } from "../../helpers/api";
 import { state, url } from "../../models/Task";
 import { getToken, userProfile } from "../../models/UserProfile";
 import { reloadTaskItem } from "./TaskForm";
+import { downloadFileContent, forceDownload } from "../../helpers/ui";
 
 const prefix = state.prefix;
 
@@ -83,30 +84,27 @@ const taskToolbar = {
       tooltip: "Download SQL script",
       hidden: true,
       click: function () {
-        const item = state.dataSelected;
-        const url = `${API_URL}/task/download/${item.id}`;
-        webix.ajax().get(url, function (res) {
-          const data = JSON.parse(res);
-          const format = webix.Date.dateToStr("%Y%m%d%h%i%s");
-				const timeStamp = format(new Date());
-          forceDownload(`${data.name}__${timeStamp}.sql`, data.bundle);
-        });
+        downloadTaskContent();
       },
     },
   ],
 };
 
-export function forceDownload(filename, text) {
-  var element = document.createElement("a");
-  element.setAttribute(
-    "href",
-    "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-  );
-  element.setAttribute("download", filename);
-  element.style.display = "none";
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
+export function downloadTaskContent() {
+  const item = state.dataSelected;
+  const url = `${API_URL}/task_item/?filter[task_id]=${item.id}`;
+  webix.ajax().get(url, function (res) {
+    const data = JSON.parse(res).data;
+    let result = [];
+    data.forEach((o) => {
+      result.push(o.sql_content);
+    });
+    const format = webix.Date.dateToStr("%Y%m%d%h%i%s");
+    downloadFileContent(
+      result.join(";\r\n\n\n"),
+      `${item.task_name.replace(/ /g, "_")}__${format(new Date())}.sql`
+    );
+  });
 }
 
 function loadIframe(iframe, url, headers) {
@@ -201,17 +199,20 @@ export function runTarget() {
         panelId.disable();
         btnId.disable();
 
-        const targetId  =  $$(prefix + "_form_target_db_id").getValue() || 0;
+        const targetId = $$(prefix + "_form_target_db_id").getValue() || 0;
         const data = {
           task_id: item.id,
-          target_id: targetId
-        }
-        webix.ajax().post(url + "/transfer" ,data, function (res) {
-          console.log('res',res);
+          target_id: targetId,
+        };
+        webix.ajax().post(url + "/transfer", data, function (res) {
+          console.log("res", res);
           const resData = JSON.parse(res);
-          console.log('resData',resData);
+          console.log("resData", resData);
 
-          webix.message({text:`<strong>${msgName} </strong> ${resData.message}.`, type: resData.status ?"success" :"error"});
+          webix.message({
+            text: `<strong>${msgName} </strong> ${resData.message}.`,
+            type: resData.status ? "success" : "error",
+          });
           setTimeout(() => {
             panelId.hideProgress();
             btnId.enable();

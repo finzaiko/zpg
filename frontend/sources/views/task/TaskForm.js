@@ -4,8 +4,8 @@ import { state, url, urlItem } from "../../models/Task";
 import { url as urlDb } from "../../models/Db";
 import { userProfile } from "../../models/UserProfile";
 import { url as urlProfile } from "../../models/Profile";
-import { forceDownload, runTarget } from "./TaskPage";
-import { isColorLight, showError } from "../../helpers/ui";
+import { downloadTaskContent, runTarget } from "./TaskPage";
+import { forceDownload, isColorLight, showError } from "../../helpers/ui";
 import { TaskFormRawSQL } from "./TaskFormRawSQL";
 import { API_URL } from "../../config/setting";
 
@@ -245,14 +245,7 @@ const selectedToolbar = {
       autowidth: true,
       tooltip: "Download SQL script",
       click: function () {
-        const item = state.dataSelected;
-        const url = `${API_URL}/task/download/${item.id}`;
-        webix.ajax().get(url, function (res) {
-          const data = JSON.parse(res);
-          const format = webix.Date.dateToStr("%Y%m%d%h%i%s");
-          const timeStamp = format(new Date());
-          forceDownload(`${data.name}__${timeStamp}.sql`, data.bundle);
-        });
+        downloadTaskContent();
       },
     },
     // {

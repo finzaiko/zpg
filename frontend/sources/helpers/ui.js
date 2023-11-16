@@ -291,7 +291,7 @@ export function showToast(msg, type) {
   }).showToast();
 }
 
-export function showLoadingText(viewId, text="") {
+export function showLoadingText(viewId, text = "") {
   webix.html.addCss(viewId.$view, "padding_overlay_zero");
   webix.extend(viewId, webix.OverlayBox);
   viewId.showOverlay(
@@ -324,8 +324,8 @@ export function csvToArray(str, delimiter = ",") {
   // use split to create an array from string by delimiter
   let headers = str.slice(0, str.indexOf("\n")).split(delimiter);
 
-  	// Replace all \r in title header
-	headers = headers.map((v) => v.replace(/[\r\n]/gm, "").trim());
+  // Replace all \r in title header
+  headers = headers.map((v) => v.replace(/[\r\n]/gm, "").trim());
 
   // slice from \n index + 1 to the end of the text
   // use split to create an array of each csv value row
@@ -333,9 +333,9 @@ export function csvToArray(str, delimiter = ",") {
 
   // console.log('rows',rows);
 
-  if(rows.slice(-1)[0]==""){
-		rows.pop();
-	}
+  if (rows.slice(-1)[0] == "") {
+    rows.pop();
+  }
 
   // Map the rows
   // split values from each row into an array
@@ -348,10 +348,10 @@ export function csvToArray(str, delimiter = ",") {
 
     const el = headers.reduce(function (object, header, index) {
       // console.log('values[index]',values[index]);
-      if(values[index]){
-        object[header] = values[index].replace(/[\r\n]/gm, '');
-      }else{
-        object[header] = values[index]!="" ? values[index]: " ";
+      if (values[index]) {
+        object[header] = values[index].replace(/[\r\n]/gm, "");
+      } else {
+        object[header] = values[index] != "" ? values[index] : " ";
       }
       return object;
     }, {});
@@ -366,7 +366,7 @@ export function csvToArray(str, delimiter = ",") {
 // OTHER REF:
 // https://github.com/Keyang/node-csvtojson
 
-export function csvToArray2 (CSV_string, delimiter) {
+export function csvToArray2(CSV_string, delimiter) {
   // SOURCE: https://www.bennadel.com/blog/1504-ask-ben-parsing-csv-strings-with-javascript-exec-regular-expression-command.htm
   /**
    * CSVToArray parses any String of Data including '\r' '\n' characters,
@@ -375,94 +375,112 @@ export function csvToArray2 (CSV_string, delimiter) {
    * @param {String} delimiter - the delimeter used to separate fields of data
    * @returns {Array} rows - rows of CSV where first row are column headers
    */
-  delimiter = (delimiter || ","); // user-supplied delimeter or default comma
+  delimiter = delimiter || ","; // user-supplied delimeter or default comma
 
-  var pattern = new RegExp( // regular expression to parse the CSV values.
-    ( // Delimiters:
-      "(\\" + delimiter + "|\\r?\\n|\\r|^)" +
+  var pattern = new RegExp( // regular expression to parse the CSV values. // Delimiters:
+    "(\\" +
+      delimiter +
+      "|\\r?\\n|\\r|^)" +
       // Quoted fields.
-      "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+      '(?:"([^"]*(?:""[^"]*)*)"|' +
       // Standard fields.
-      "([^\"\\" + delimiter + "\\r\\n]*))"
-    ), "gi"
+      '([^"\\' +
+      delimiter +
+      "\\r\\n]*))",
+    "gi"
   );
 
-  var rows = [[]];  // array to hold our data. First row is column headers.
+  var rows = [[]]; // array to hold our data. First row is column headers.
   // array to hold our individual pattern matching groups:
   var matches = false; // false if we don't find any matches
   // Loop until we no longer find a regular expression match
-  while (matches = pattern.exec( CSV_string )) {
-      var matched_delimiter = matches[1]; // Get the matched delimiter
-      // Check if the delimiter has a length (and is not the start of string)
-      // and if it matches field delimiter. If not, it is a row delimiter.
-      if (matched_delimiter.length && matched_delimiter !== delimiter) {
-        // Since this is a new row of data, add an empty row to the array.
-        rows.push( [] );
-      }
-      var matched_value;
-      // Once we have eliminated the delimiter, check to see
-      // what kind of value was captured (quoted or unquoted):
-      if (matches[2]) { // found quoted value. unescape any double quotes.
-       matched_value = matches[2].replace(
-         new RegExp( "\"\"", "g" ), "\""
-       );
-      } else { // found a non-quoted value
-        matched_value = matches[3];
-      }
-      // Now that we have our value string, let's add
-      // it to the data array.
-      rows[rows.length - 1].push(matched_value);
+  while ((matches = pattern.exec(CSV_string))) {
+    var matched_delimiter = matches[1]; // Get the matched delimiter
+    // Check if the delimiter has a length (and is not the start of string)
+    // and if it matches field delimiter. If not, it is a row delimiter.
+    if (matched_delimiter.length && matched_delimiter !== delimiter) {
+      // Since this is a new row of data, add an empty row to the array.
+      rows.push([]);
+    }
+    var matched_value;
+    // Once we have eliminated the delimiter, check to see
+    // what kind of value was captured (quoted or unquoted):
+    if (matches[2]) {
+      // found quoted value. unescape any double quotes.
+      matched_value = matches[2].replace(new RegExp('""', "g"), '"');
+    } else {
+      // found a non-quoted value
+      matched_value = matches[3];
+    }
+    // Now that we have our value string, let's add
+    // it to the data array.
+    rows[rows.length - 1].push(matched_value);
   }
   return rows; // Return the parsed data Array
 }
 
 export function getCSVDelimeter(text) {
-	let index = text.indexOf("\n");
-	if (index === -1) index = undefined;
-	const firstLineText = text.substring(0, index);
-	if (firstLineText.indexOf(",") >= 0) return ",";
-	if (firstLineText.indexOf(";") >= 0) return ";";
+  let index = text.indexOf("\n");
+  if (index === -1) index = undefined;
+  const firstLineText = text.substring(0, index);
+  if (firstLineText.indexOf(",") >= 0) return ",";
+  if (firstLineText.indexOf(";") >= 0) return ";";
 }
 
-
 export function csvToArray3(data, fieldSep, newLine) {
-  fieldSep = fieldSep || ',';
-  newLine = newLine || '\n';
-  var nSep = '\x1D';
-  var qSep = '\x1E';
-  var cSep = '\x1F';
-  var nSepRe = new RegExp(nSep, 'g');
-  var qSepRe = new RegExp(qSep, 'g');
-  var cSepRe = new RegExp(cSep, 'g');
-  var fieldRe = new RegExp('(?<=(^|[' + fieldSep + '\\n]))"(|[\\s\\S]+?(?<![^"]"))"(?=($|[' + fieldSep + '\\n]))', 'g');
+  fieldSep = fieldSep || ",";
+  newLine = newLine || "\n";
+  var nSep = "\x1D";
+  var qSep = "\x1E";
+  var cSep = "\x1F";
+  var nSepRe = new RegExp(nSep, "g");
+  var qSepRe = new RegExp(qSep, "g");
+  var cSepRe = new RegExp(cSep, "g");
+  var fieldRe = new RegExp(
+    "(?<=(^|[" +
+      fieldSep +
+      '\\n]))"(|[\\s\\S]+?(?<![^"]"))"(?=($|[' +
+      fieldSep +
+      "\\n]))",
+    "g"
+  );
   var grid = [];
-  data.replace(/\r/g, '').replace(/\n+$/, '').replace(fieldRe, function(match, p1, p2) {
+  data
+    .replace(/\r/g, "")
+    .replace(/\n+$/, "")
+    .replace(fieldRe, function (match, p1, p2) {
       return p2.replace(/\n/g, nSep).replace(/""/g, qSep).replace(/,/g, cSep);
-  }).split(/\n/).forEach(function(line) {
-      var row = line.split(fieldSep).map(function(cell) {
-          return cell.replace(nSepRe, newLine).replace(qSepRe, '"').replace(cSepRe, ',');
+    })
+    .split(/\n/)
+    .forEach(function (line) {
+      var row = line.split(fieldSep).map(function (cell) {
+        return cell
+          .replace(nSepRe, newLine)
+          .replace(qSepRe, '"')
+          .replace(cSepRe, ",");
       });
       grid.push(row);
-  });
+    });
   return grid;
   // https://stackoverflow.com/questions/1293147/how-to-parse-csv-data
 }
 
 export function csvToArray1(text) {
-  return text.match( /\s*(\"[^"]*\"|'[^']*'|[^,]*)\s*(,|$)/g ).map( function (text) {
-    let m;
-    if (m = text.match(/^\s*,?$/)) return null; // null value
-    if (m = text.match(/^\s*\"([^"]*)\"\s*,?$/)) return m[1]; // Double Quoted Text
-    if (m = text.match(/^\s*'([^']*)'\s*,?$/)) return m[1]; // Single Quoted Text
-    if (m = text.match(/^\s*(true|false)\s*,?$/)) return m[1] === "true"; // Boolean
-    if (m = text.match(/^\s*((?:\+|\-)?\d+)\s*,?$/)) return parseInt(m[1]); // Integer Number
-    if (m = text.match(/^\s*((?:\+|\-)?\d*\.\d*)\s*,?$/)) return parseFloat(m[1]); // Floating Number
-    if (m = text.match(/^\s*(.*?)\s*,?$/)) return m[1]; // Unquoted Text
-    return text;
-  } );
+  return text
+    .match(/\s*(\"[^"]*\"|'[^']*'|[^,]*)\s*(,|$)/g)
+    .map(function (text) {
+      let m;
+      if ((m = text.match(/^\s*,?$/))) return null; // null value
+      if ((m = text.match(/^\s*\"([^"]*)\"\s*,?$/))) return m[1]; // Double Quoted Text
+      if ((m = text.match(/^\s*'([^']*)'\s*,?$/))) return m[1]; // Single Quoted Text
+      if ((m = text.match(/^\s*(true|false)\s*,?$/))) return m[1] === "true"; // Boolean
+      if ((m = text.match(/^\s*((?:\+|\-)?\d+)\s*,?$/))) return parseInt(m[1]); // Integer Number
+      if ((m = text.match(/^\s*((?:\+|\-)?\d*\.\d*)\s*,?$/)))
+        return parseFloat(m[1]); // Floating Number
+      if ((m = text.match(/^\s*(.*?)\s*,?$/))) return m[1]; // Unquoted Text
+      return text;
+    });
 }
-
-
 
 export function JSONToListText(data) {
   if (typeof data == "object") {
@@ -517,8 +535,29 @@ export function isColorLight(hex, alpha = 1) {
   // https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
 }
 
-
 export function isInt(value) {
   var x;
   return isNaN(value) ? !1 : ((x = parseFloat(value)), (0 | x) === x);
+}
+
+export function forceDownload(filename, text) {
+  const element = document.createElement("a");
+  element.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+  );
+  element.setAttribute("download", filename);
+  element.style.display = "none";
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+export function downloadFileContent(content, fileName) {
+  const link = document.createElement("a");
+  const file = new Blob([content], { type: "text/plain" });
+  link.href = URL.createObjectURL(file);
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }

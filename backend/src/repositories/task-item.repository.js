@@ -85,7 +85,6 @@ class TaskItemRepository {
   async updateAllFuncByTaskId(profileId, userId, taskId) {
     const res = await new Promise((resolve, reject) => {
       this.getAllFuncByTaskId(taskId).then((r) => {
-
         db.serialize(function () {
           db.run("begin transaction");
           async.eachSeries(
@@ -181,7 +180,6 @@ class TaskItemRepository {
   }
 
   async createSelected(data, userId) {
-
     const parsedData = JSON.parse(data.oid_arr);
 
     // FUNC TYPE -------------------------
@@ -317,6 +315,19 @@ class TaskItemRepository {
         );
         db.run("commit");
         resolve("done");
+      });
+    });
+    return res;
+  }
+
+  async updateToggleDropReplace(taskId, isYes) {
+    const sql = `UPDATE task_item SET is_execreplace=${isYes} WHERE type=1 AND task_id=${taskId}`;
+    console.log('sql',sql);
+
+    const res = await new Promise((resolve, reject) => {
+      db.run(sql, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
       });
     });
     return res;

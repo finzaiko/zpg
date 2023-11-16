@@ -51,9 +51,13 @@ class TaskItemController {
   }
 
   async updateQue(request, reply) {
-    const userId = request.user.uid;
     await TaskItemService.updateQue(request.body);
     responseHttp(reply, 201, "Que updated");
+  }
+
+  async updateToggledr(request, reply) {
+    await TaskItemService.updateToggledr(request.body);
+    responseHttp(reply, 201, "Toggle drop replace updated");
   }
 
   async remove(request, reply) {

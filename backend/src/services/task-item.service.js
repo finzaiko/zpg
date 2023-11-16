@@ -102,6 +102,11 @@ class TaskItemService {
     return { result };
   }
 
+  async updateToggledr(data) {
+    const result = await TaskItemRepository.updateToggleDropReplace(data.task_id, data.is_yes);
+    return { result };
+  }
+
   async delete(id) {
     return await TaskItemRepository.delete(id);
   }

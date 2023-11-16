@@ -12,6 +12,7 @@ import { API_URL } from "../../config/setting";
 const prefix = state.prefix + "_form";
 
 // const avCollection = new webix.DataCollection();
+let isYes = true;
 
 const loadAvailable = (sourceId) => {
   return webix
@@ -189,6 +190,7 @@ const selectedToolbar = {
       type: "icon",
       css: "zmdi_padding",
       icon: "mdi mdi-refresh",
+      tooltip: "Refresh Selected",
       autowidth: true,
       click: function () {
         reloadTaskItem($$(prefix + "_selected_table"), state.dataSelected.id);
@@ -234,6 +236,20 @@ const selectedToolbar = {
       autowidth: true,
       click: function () {
         runTarget();
+      },
+    },
+    {
+      view: "button",
+      type: "icon",
+      css: "zmdi_padding",
+      // icon: "mdi mdi-swap-vertical",
+      // icon: "mdi mdi-not-equal",
+      icon: "mdi mdi-format-list-checks",
+      id: prefix + "_toggle_dropreplace_btn",
+      tooltip: "Toggle All Drop Replace",
+      autowidth: true,
+      click: function () {
+        updateToggleDropReplace();
       },
     },
     {
@@ -474,7 +490,7 @@ const selectedList = {
     {
       id: "is_execreplace",
       header: [
-        "Run Replace",
+        "Drop Replace",
         {
           content: "selectFilter",
           options: [
@@ -595,6 +611,7 @@ function changeStatusToggle(id, fieldName) {
         setTimeout(() => {
           fieldValue[fieldName] = newVal;
           tbl.updateItem(id, fieldValue);
+          syncItem();
           tbl.refresh(id);
         }, 800);
       }
@@ -681,14 +698,26 @@ function saveItem() {
     .post(urlItem + "/selected", data, function (res) {
       updateQue(tblId);
       reloadTaskItem(tblId, data.task_id);
-      syncItem(data);
+      syncItem();
     })
     .fail(function (err) {
       showError(err);
     });
 }
 
-function syncItem(data) {
+function syncItem() {
+  const tblId = $$(prefix + "_selected_table");
+  let itemData = tblId.serialize();
+  const sData = itemData.map((x, i) => {
+    x["seq"] = i + 1;
+    return x;
+  });
+  let data = {
+    task_id: $$(prefix + "_task_id").getValue(),
+    source_db_id: $$(prefix + "_source_db_id").getValue(),
+    oid_arr: JSON.stringify(sData),
+  };
+
   webix
     .ajax()
     .post(urlItem + "/sync", data, function (res) {})
@@ -696,6 +725,7 @@ function syncItem(data) {
       showError(err);
     });
 }
+
 function reloadAvailable(id) {
   const tbl = $$(prefix + "_avalaible_table");
   tbl.clearAll();
@@ -766,6 +796,25 @@ function updateQue(_this) {
       task_id: state.dataSelected.id,
       data: JSON.stringify(arr),
     })
+    .fail(function (err) {
+      showError(err);
+    });
+}
+
+function updateToggleDropReplace() {
+  webix
+    .ajax()
+    .post(
+      urlItem + "/toggledr",
+      {
+        task_id: state.dataSelected.id,
+        is_yes: +isYes,
+      },
+      function (_) {
+        isYes = !isYes;
+        reloadTaskItem($$(prefix + "_selected_table"), state.dataSelected.id);
+      }
+    )
     .fail(function (err) {
       showError(err);
     });

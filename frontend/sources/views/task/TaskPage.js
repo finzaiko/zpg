@@ -3,7 +3,7 @@ import { API_URL } from "../../config/setting";
 import { defaultHeader } from "../../helpers/api";
 import { state, url } from "../../models/Task";
 import { getToken, userProfile } from "../../models/UserProfile";
-import { reloadTaskItem } from "./TaskForm";
+import { reloadTaskItem, syncItem } from "./TaskForm";
 import { downloadFileContent, forceDownload } from "../../helpers/ui";
 
 const prefix = state.prefix;
@@ -188,35 +188,38 @@ export function runTarget() {
       if (result) {
         let panelId =
           $$(prefix + "_page_panel") || $$(prefix + "_form_page_panel_item");
-        // if (typeof panelId == "undefined") {
-        //   panelId = $$(prefix + "_page_panel_item");
-        // }
         const btnId = $$(prefix + "_run_btn") || $$(prefix + "_form_run_btn");
-        // console.log("panelId", panelId);
 
         webix.extend(panelId, webix.ProgressBar);
         panelId.showProgress();
         panelId.disable();
         btnId.disable();
 
-        const targetId = $$(prefix + "_form_target_db_id").getValue() || 0;
+        let targetId = 0;
+        if ($$(prefix + "_form_target_db_id")) {
+          targetId = $$(prefix + "_form_target_db_id").getValue();
+        } else {
+          targetId = state.dataSelected.target_db_id;
+        }
+        // const targetId = $$(prefix + "_form_target_db_id").getValue() || 0;
         const data = {
           task_id: item.id,
           target_id: targetId,
         };
-        webix.ajax().post(url + "/transfer", data, function (res) {
-          console.log("res", res);
-          const resData = JSON.parse(res);
-          console.log("resData", resData);
-
-          webix.message({
-            text: `<strong>${msgName} </strong> ${resData.message}.`,
-            type: resData.status ? "success" : "error",
-          });
+        syncItem().then(() => {
           setTimeout(() => {
-            panelId.hideProgress();
-            btnId.enable();
-            panelId.enable();
+            webix.ajax().post(url + "/transfer", data, function (res) {
+              const resData = JSON.parse(res);
+              setTimeout(() => {
+                panelId.hideProgress();
+                btnId.enable();
+                panelId.enable();
+                webix.message({
+                  text: `<strong>${msgName} </strong> ${resData.message}.`,
+                  type: resData.status ? "success" : "error",
+                });
+              }, 500);
+            });
           }, 1000);
         });
       }
@@ -236,7 +239,7 @@ function remove() {
     callback: function (result) {
       if (result) {
         webix.ajax().del(url + "/" + item.id, null, function (res) {
-          webix.message(`<strong>${msgName} </strong> deleted.`);
+          webix.message({text:`<strong>${msgName} </strong> deleted.`,type:"success"});
           reloadTask();
           defaultBtn();
         });

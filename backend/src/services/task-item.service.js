@@ -65,10 +65,6 @@ class TaskItemService {
     return { msg: "Sync selected done" };
   }
 
-  sleep(millis) {
-    return new Promise((resolve) => setTimeout(resolve, millis));
-  }
-
   async changeStatus(data) {
     return await TaskItemRepository.changeStatus(data);
   }
@@ -113,6 +109,10 @@ class TaskItemService {
 
   async removeSelected(data) {
     return await TaskItemRepository.deleteSelected(data);
+  }
+
+  async removeByTaskId(taskId) {
+    return await TaskItemRepository.removeByTaskId(taskId);
   }
 
   /*

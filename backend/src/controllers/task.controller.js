@@ -1,4 +1,5 @@
 const TaskService = require(`../services/task.service`);
+const TaskItemService = require(`../services/task-item.service`);
 const { responseHttp } = require("../utils/http.utils");
 
 const fs = require("fs");
@@ -33,7 +34,9 @@ class TaskController {
   }
 
   async remove(request, reply) {
-    await TaskService.delete(request.params.id);
+    const { id } = request.params;
+    await TaskService.delete(id);
+    await TaskItemService.removeByTaskId(id);
     responseHttp(reply, 204, "Removed");
   }
 
@@ -63,7 +66,7 @@ class TaskController {
     // reply.type('text/plain').send(stream)
     // reply.sendFile(task)
     const bundle = fs.readFileSync(task.bundle_path, { encoding: "utf-8" });
-    reply.send({status: true, bundle: bundle, name: task.name})
+    reply.send({ status: true, bundle: bundle, name: task.name });
   }
 }
 

@@ -611,7 +611,7 @@ function changeStatusToggle(id, fieldName) {
         setTimeout(() => {
           fieldValue[fieldName] = newVal;
           tbl.updateItem(id, fieldValue);
-          syncItem();
+          syncItem().then((_) => {});
           tbl.refresh(id);
         }, 800);
       }
@@ -655,7 +655,10 @@ function save() {
         .ajax()
 
         .put(`${url}/${data.id}`, data, function (res) {
-          webix.message({ text: "<strong>" + msgName + "</strong> updated." });
+          webix.message({
+            text: `<strong>${msgName}</strong> updated.`,
+            type: "success",
+          });
           // reloadDbConfig();
         })
         .fail(function (err) {
@@ -692,35 +695,46 @@ function saveItem() {
     source_db_id: $$(prefix + "_source_db_id").getValue(),
     oid_arr: JSON.stringify(sData),
   };
-
   webix
     .ajax()
     .post(urlItem + "/selected", data, function (res) {
+      updateTask();
       updateQue(tblId);
       reloadTaskItem(tblId, data.task_id);
-      syncItem();
+      syncItem().then((_) => {});
     })
     .fail(function (err) {
       showError(err);
     });
 }
 
-function syncItem() {
-  const tblId = $$(prefix + "_selected_table");
-  let itemData = tblId.serialize();
+export function syncItem() {
+  let itemData = [];
+  if ($$(state.prefix + "_item_table")) {
+    itemData = $$(state.prefix + "_item_table").serialize();
+  } else {
+    itemData = $$(prefix + "_selected_table").serialize();
+  }
+
   const sData = itemData.map((x, i) => {
     x["seq"] = i + 1;
     return x;
   });
+  let sourceId = 0;
+  if ($$(prefix + "_source_db_id")) {
+    sourceId = $$(prefix + "_source_db_id").getValue();
+  } else {
+    sourceId = state.dataSelected.source_db_id;
+  }
   let data = {
-    task_id: $$(prefix + "_task_id").getValue(),
-    source_db_id: $$(prefix + "_source_db_id").getValue(),
+    task_id: state.dataSelected.id,
+    source_db_id: sourceId,
     oid_arr: JSON.stringify(sData),
   };
-
-  webix
+console.log("startt");
+  return webix
     .ajax()
-    .post(urlItem + "/sync", data, function (res) {})
+    .post(urlItem + "/sync", data, (res) => res)
     .fail(function (err) {
       showError(err);
     });
@@ -754,7 +768,10 @@ const remove = () => {
           webix
             .ajax()
             .post(urlItem + "/rmselected", { sid: ids }, function (res) {
-              webix.message(`<strong>${msgName} </strong> deleted.`);
+              webix.message({
+                text: `<strong>${msgName} </strong> deleted.`,
+                type: "success",
+              });
               reloadTaskItem(dt, state.dataSelected.id);
             });
         }

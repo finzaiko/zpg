@@ -4,6 +4,7 @@ import en from "javascript-time-ago/locale/en";
 import {
   colorComboDBSource,
   isColorLight,
+  isValidCanSave,
   pagerRow,
   pageSize,
   showToast,
@@ -677,19 +678,34 @@ export function QueryPage(prefix, selectedDb) {
               openSearchDetach();
             },
           },
-
           {
             view: "icon",
-            icon: "mdi mdi-share-variant-outline",
+            tooltip: "Other menu",
+            id: prefix + "_othermenu_btn",
+            type: "icon",
             css: "zmdi_padding",
-            id: prefix + "_share_btn",
-            tooltip: "Share to other users",
+            icon: "mdi mdi-dots-vertical",
             autowidth: true,
-            click: function () {
-              openShareUser();
-            },
+            popup: {
+              view: "contextmenu",
+              data: [
+                {id:1, value:"<span class='mdi mdi-share-variant-outline webix_icon'></span>&nbsp; Share to other users"},
+                {id:2, value:"<span class='mdi mdi-checkbox-marked-circle-plus-outline webix_icon'></span>&nbsp; Add to task"},
+              ],
+              submenuConfig: {
+                width: 180,
+              },
+              on: {
+                onMenuItemClick: function (id) {
+                  if(id==1){
+                    openShareUser();
+                  }else if (id==2){
+                    webix.message({text:"Not implement yet", type:"debug"});
+                  }
+                }
+              }
+            }
           },
-
           {},
           {
             view: "icon",
@@ -1786,7 +1802,6 @@ export function QueryPage(prefix, selectedDb) {
                         const sel = listId.getItem(id);
                         webix
                           .ajax()
-
                           .del(urlProfile + "/content/" + id, function (res) {
                             listId.clearAll();
                             listId.load(
@@ -2544,7 +2559,6 @@ export function QueryPage(prefix, selectedDb) {
                   { width: 10 },
                   {
                     view: "icon",
-                    // icon: "mdi mdi-table-arrow-up",
                     icon: "mdi mdi-content-save-outline",
                     autowidth: true,
                     hidden: true,
@@ -2881,7 +2895,8 @@ export function QueryPage(prefix, selectedDb) {
             isCanSave($$(prefix + "_source_combo").getValue(), input.sql).then(
               (d) => {
                 const data = d.json();
-                if (data.data) {
+                const isHasColID = $$(prefix + "_result").config.columns.find(o=>o.id.split("_")[0]=="id");
+                if (data.data && !!isHasColID && isValidCanSave(input.sql)) {
                   isTableCanSave = true;
                   $$(prefix + "_save_result").show();
                   $$(prefix + "_addrow_result").show();
@@ -3268,7 +3283,7 @@ export function QueryPage(prefix, selectedDb) {
 
   const isCanSave = (profileId, sqlString) => {
     const strQry = sqlString.toLowerCase().split("from");
-    const tableName = strQry.pop().trim().split(" ");
+    const tableName = strQry.pop().trim().split(" ")[0];
     return webix
       .ajax()
       .get(`${url}/is_table?id=${profileId}&table=${tableName}`);

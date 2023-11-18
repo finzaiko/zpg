@@ -561,3 +561,9 @@ export function downloadFileContent(content, fileName) {
   link.click();
   URL.revokeObjectURL(link.href);
 }
+
+export function isValidCanSave(sqlString) {
+  const queryStrArr = sqlString.toLowerCase().split(/\s+/);
+  const exludeKey = ["join","with","on"]
+  return !queryStrArr.some(r=> exludeKey.includes(r))
+}

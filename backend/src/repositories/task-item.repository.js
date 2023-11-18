@@ -284,6 +284,17 @@ class TaskItemRepository {
     return res;
   }
 
+  async removeByTaskId(id) {
+    const sql = `DELETE FROM task_item WHERE task_id=${id}`;
+    const res = await new Promise((resolve, reject) => {
+      db.run(sql, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
   async deleteByOid(id) {
     const sql = `DELETE FROM task_item WHERE id=? AND oid=?`;
     let params = [taskId, oidArr];

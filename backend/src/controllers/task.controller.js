@@ -1,4 +1,5 @@
 const TaskService = require(`../services/task.service`);
+const TaskUserService = require(`../services/task-user.service`);
 const TaskItemService = require(`../services/task-item.service`);
 const { responseHttp } = require("../utils/http.utils");
 
@@ -26,6 +27,23 @@ class TaskController {
     responseHttp(reply, 201, "Ok", { data: data });
   }
 
+  async createUserAccess(request, reply) {
+    const data = await TaskUserService.create(request.body);
+    responseHttp(reply, 201, "Ok", { data: data });
+  }
+
+  async getUserAccessByField(request, reply) {
+    const {field_name, field_value} = request.query;
+    const data = await TaskUserService.getByField(field_name, field_value);
+    responseHttp(reply, 200, "Ok", { data: data });
+  }
+
+  async getAddTaskByUserId(request, reply) {
+    const userId = request.user.uid;
+    const data = await TaskUserService.getAddTaskByUserId(userId);
+    responseHttp(reply, 200, "Ok", { data: data });
+  }
+
   async update(request, reply) {
     const userId = request.user.uid;
     await TaskService.update(request.params.id, request.body, userId);
@@ -37,6 +55,12 @@ class TaskController {
     const { id } = request.params;
     await TaskService.delete(id);
     await TaskItemService.removeByTaskId(id);
+    responseHttp(reply, 204, "Removed");
+  }
+
+  async removeUserAccess(request, reply) {
+    const { id } = request.params;
+    await TaskUserService.delete(id);
     responseHttp(reply, 204, "Removed");
   }
 

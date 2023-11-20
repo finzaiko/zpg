@@ -3,8 +3,8 @@ const ProfileRepository = require(`../repositories/profile.repository`);
 const UserDto = require(`../dtos/user.dto`);
 
 class UserService {
-  async getAll(offset = 0, limit = 10, sort = "desc", search = "", type = 0) {
-    const data = await UserRepository.getAll(offset, limit, sort, search, type);
+  async getAll(offset = 0, limit = 10, sort = "desc", search = "", type = 0, except="") {
+    const data = await UserRepository.getAll(offset, limit, sort, search, type, except);
     return data;
   }
 

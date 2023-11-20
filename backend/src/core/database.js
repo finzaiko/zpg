@@ -11,6 +11,7 @@ const {
   compareTable,
   defaultSetting,
   defaultUser,
+  taskUserTable,
 } = require("./sql/init.sql");
 
 const path = require("path");
@@ -43,6 +44,7 @@ function createTable(db) {
   runQuery(db, dbConnTable);
   runQuery(db, taskTable);
   runQuery(db, taskItemTable);
+  runQuery(db, taskUserTable);
   runQuery(db, shareTable);
 }
 

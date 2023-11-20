@@ -1266,11 +1266,11 @@ background-size: cover;
 }
 
 .z_icon_color_primary .webix_icon {
-  color: #1CA1C1;
+  color: #1CA1C1 !important;
 }
 
 .z_icon_color_primary .webix_icon:hover {
-  color: #0a8dad;
+  color: #0a8dad !important;
 }
 
 .z_icon_size_16 .webix_icon,
@@ -1287,6 +1287,11 @@ background-size: cover;
 .z_icon_size_18 .webix_icon,
 .z_icon_size_18 .webix_icon_btn {
   font-size: 18px;
+}
+
+.z_icon_size_20 .webix_icon,
+.z_icon_size_20 .webix_icon_btn {
+  font-size: 20px !important;
 }
 
 /* Syntax highlighted */

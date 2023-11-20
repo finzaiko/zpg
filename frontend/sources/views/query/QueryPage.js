@@ -15,6 +15,7 @@ import { url as urlViewData } from "../../models/ViewData";
 import { nonSringType, state as stateBase } from "../../models/Base";
 import { url as urlProfile } from "../../models/Profile";
 import { url as urlShare } from "../../models/Share";
+import { url as urlTask } from "../../models/Task";
 import { url, state, searchHistoryStore } from "../../models/Query";
 import { QueryDatabase } from "./QueryDatabase";
 import { QueryHelp } from "./QueryHelp";
@@ -616,6 +617,7 @@ export function QueryPage(prefix, selectedDb) {
             icon: "mdi mdi-magnify",
             id: prefix + "_search_more_btn",
             tooltip: "Search by name",
+            css: "z_icon_color_primary",
             popup: {
               view: "popup",
               width: 120,
@@ -669,7 +671,7 @@ export function QueryPage(prefix, selectedDb) {
             view: "button",
             type: "icon",
             icon: "mdi mdi-magnify",
-            css: "zmdi_padding",
+            css: "zmdi_padding z_icon_color_primary",
             id: prefix + "_search_detach_btn",
             tooltip: "Quick Search",
             autowidth: true,
@@ -683,27 +685,75 @@ export function QueryPage(prefix, selectedDb) {
             tooltip: "Other menu",
             id: prefix + "_othermenu_btn",
             type: "icon",
-            css: "zmdi_padding",
-            icon: "mdi mdi-dots-vertical",
+            css: "z_icon_color_primary z_icon_size_20",
+            icon: "mdi mdi-chevron-double-down",
             autowidth: true,
             popup: {
               view: "contextmenu",
-              data: [
-                {id:1, value:"<span class='mdi mdi-share-variant-outline webix_icon'></span>&nbsp; Share to other users"},
-                {id:2, value:"<span class='mdi mdi-checkbox-marked-circle-plus-outline webix_icon'></span>&nbsp; Add to task"},
-              ],
+              data: [],
               submenuConfig: {
                 width: 180,
               },
               on: {
+                onBeforeShow: function () {
+                  this.clearAll();
+                  webix
+                    .ajax()
+                    .get(`${urlTask}/useraccesslist`)
+                    .then((r) => {
+                      let arr = [
+                        {id:"shareto", value:"<span class='mdi mdi-share-variant-outline webix_icon'></span>&nbsp; Share to other users"},
+                      ];
+                      const _data = r.json().data;
+                      if (_data.length > 0) {
+                        let newData = {id:"addtask", value:"<span class='mdi mdi-checkbox-marked-circle-plus-outline webix_icon'></span>&nbsp; Add to task", data: _data}
+                        arr.push(newData)
+                      }
+                      this.parse(arr);
+                    });
+                },
                 onMenuItemClick: function (id) {
-                  if(id==1){
-                    openShareUser();
-                  }else if (id==2){
-                    webix.message({text:"Not implement yet", type:"debug"});
+                  console.log('id',id);
+
+                  if(id=="shareto"){
+                      openShareUser();
+                  }else{
+                    if(!isNaN(id)){
+                      webix.message({text:"Not implement yet="+id, type:"debug"});
+                    }
                   }
-                }
-              }
+
+
+                  // if (id == prefix + "_add_bookmark") {
+                  //   let data = {
+                  //     title: "",
+                  //     content: $$(prefix + "_sql_editor").getValue(),
+                  //     user_id: userProfile.userId,
+                  //     type: 4,
+                  //   };
+                  //   webix
+                  //     .ajax()
+
+                  //     .post(urlProfile + "/content", data, (r) => {
+                  //       webix.message({
+                  //         text: "Bookmark added.",
+                  //         type: "success",
+                  //       });
+                  //     });
+                  // } else if (id == prefix + "_manage_bookmark") {
+                  //   openBookmarkManager();
+                  // } else {
+                  //   webix
+                  //     .ajax()
+                  //     .get(`${urlProfile}/content/${id}?type=4`)
+                  //     .then((r) => {
+                  //       $$(prefix + "_sql_editor").setValue(
+                  //         r.json().data.content
+                  //       );
+                  //     });
+                  // }
+                },
+              },
             }
           },
           {},

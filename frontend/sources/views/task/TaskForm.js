@@ -8,6 +8,7 @@ import { downloadTaskContent, runTarget } from "./TaskPage";
 import { forceDownload, isColorLight, showError } from "../../helpers/ui";
 import { TaskFormRawSQL } from "./TaskFormRawSQL";
 import { API_URL } from "../../config/setting";
+import { url as urlUser } from "../../models/User";
 
 const prefix = state.prefix + "_form";
 
@@ -262,6 +263,18 @@ const selectedToolbar = {
       tooltip: "Download SQL script",
       click: function () {
         downloadTaskContent();
+      },
+    },
+    {
+      view: "button",
+      type: "icon",
+      css: "zmdi_padding",
+      icon: "mdi mdi-account-multiple-check",
+      id: prefix + "_users_share_btn",
+      autowidth: true,
+      tooltip: "Access users",
+      click: function () {
+        openAccessUser();
       },
     },
     // {
@@ -669,6 +682,115 @@ function save() {
   }
 }
 
+function openAccessUser() {
+  webix
+    .ui({
+      view: "window",
+      modal: true,
+      id: prefix + "_win_share_user",
+      width: 300,
+      height: 350,
+      position: "center",
+      move: true,
+      head: {
+        view: "toolbar",
+        cols: [
+          { view: "label", label: "Other user access" },
+          {
+            view: "icon",
+            icon: "mdi mdi-close",
+            tooltip: "Close me",
+            align: "right",
+            click: function () {
+              $$(prefix + "_win_share_user").destructor();
+            },
+          },
+        ],
+      },
+      body: {
+        rows: [
+          {
+            cols: [
+              {
+                view: "combo",
+                id: prefix + "_user_access_cmb",
+                label: "User",
+                labelWidth: 35,
+                options: {
+                  url: `${urlUser}/users?type=6`,
+                  body: {
+                    template: "#fullname#",
+                    // yCount: 7,
+                    on: {
+                      onLoadError: function (err) {
+                        showError(err);
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                view: "button",
+                type: "icon",
+                icon: "mdi mdi-plus",
+                css: "webix_primary zmdi_padding",
+                autowidth: true,
+                click: function () {
+                  const data = {
+                    task_id: state.dataSelected.id,
+                    user_id: $$(prefix + "_user_access_cmb").getValue(),
+                  };
+                  webix
+                    .ajax()
+                    .post(`${url}/useraccess`, data, function (res) {
+                      webix.message({ text: "User added", type: "success" });
+                      loadAccessUser();
+                    })
+                    .fail(function (err) {
+                      showError(err);
+                    });
+                },
+              },
+            ],
+          },
+          {
+            id: prefix + "_usershare_table",
+            view: "datatable",
+            css: "z_usershare_table",
+            columns: [{ id: "fullname", header: "Name", fillspace: true }],
+            select: "row",
+            multiselect: true,
+          },
+        ],
+      },
+      on: {
+        onShow: function () {
+          loadAccessUser();
+        },
+      },
+    })
+    .show();
+}
+
+function loadAccessUser() {
+  const tbl = $$(prefix + "_usershare_table");
+  tbl
+    .load(
+      `${url}/useraccessfield?field_name=task_id&field_value=${state.dataSelected.id}`
+    )
+    .then((_) => {
+      let ids = tbl.serialize().map((o) => o.user_id);
+      ids.push(userProfile.userId);
+      if ($$(prefix + "_user_access_cmb")) {
+        const cmbId = $$(prefix + "_user_access_cmb");
+        const filterCombo = cmbId.getPopup().getList();
+        filterCombo.clearAll();
+        cmbId.setValue("");
+        cmbId.getPopup().getList().unselect();
+        filterCombo.load(`${urlUser}/users?type=6&except=${ids.join()}`);
+      }
+    });
+}
 function updateTask() {
   const data = $$(prefix + "_form").getValues();
   data.source_db_id = $$(prefix + "_source_db_id").getValue();
@@ -731,7 +853,6 @@ export function syncItem() {
     source_db_id: sourceId,
     oid_arr: JSON.stringify(sData),
   };
-console.log("startt");
   return webix
     .ajax()
     .post(urlItem + "/sync", data, (res) => res)

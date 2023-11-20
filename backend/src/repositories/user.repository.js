@@ -3,7 +3,7 @@ const { db } = require("../core/database");
 const bcrypt = require("bcrypt");
 
 class UserRepository {
-  async getAll(offset, limit, sort, search, type) {
+  async getAll(offset, limit, sort, search, type, except) {
 
     let fields = `user.id, fullname, email, username, user_level, access_group, last_login,
       content as is_admin_menu, case when content=1 then 'yes' else 'no' end as is_admin_menu_label,
@@ -21,6 +21,9 @@ class UserRepository {
     }
     if(type==6) { // list suggest
       sql += ` AND user.id!=${search} `;
+    }
+    if(except) { // list suggest
+      sql += ` AND user.id NOT IN (${except}) `;
     }
     sql += " ORDER BY user.id DESC";
 

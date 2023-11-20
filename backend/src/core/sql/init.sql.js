@@ -123,6 +123,19 @@ CREATE TABLE task_item (
 );
 `;
 
+const taskUserTable = `
+CREATE TABLE task_user (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task_id integer not null,
+    user_id integer not null,
+    FOREIGN KEY (task_id)
+        REFERENCES task (id)
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION,
+    FOREIGN KEY (user_id) REFERENCES user (id)
+);
+`;
+
 const shareTable = `
 CREATE TABLE share (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -180,6 +193,7 @@ module.exports = {
   dbConnTable,
   taskTable,
   taskItemTable,
+  taskUserTable,
   userTable,
   settingTable,
   compareTable,

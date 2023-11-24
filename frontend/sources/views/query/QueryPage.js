@@ -1513,7 +1513,7 @@ export function QueryPage(prefix, selectedDb) {
         ],
         on: {
           onItemClick: function (sel) {
-            loadSchemaContent(0, sel.row);
+            loadResultContent(sel.row);
           },
         },
       },
@@ -3410,6 +3410,36 @@ export function QueryPage(prefix, selectedDb) {
       $$(prefix + "_viewdata_btn").disable();
     }
   };
+
+  const loadResultContent = (oid)=>{
+    let profileId = $$(prefix + "_source_combo").getValue();
+    webix
+    .ajax()
+    .get(
+      `${urlDb}/schema_content?id=${profileId}&root=0&oid=${oid}`
+    )
+    .then(function (data) {
+      const content = data.json().data;
+      $$(prefix + "_history_preview").show();
+      $$(prefix + "_sql_editor").hide();
+      $$(prefix + "_dbtree_preview").hide();
+
+      const panelHistoryId = $$(prefix + "_history_content_panel");
+      const editorHistoryId = $$(prefix + "_history_content");
+      webix.extend(panelHistoryId, webix.ProgressBar);
+      panelHistoryId.showProgress({
+        type: "top",
+      });
+
+      editorHistoryId.setValue(content);
+      editorHistoryId.getEditor(true).then((editorHistory) => {
+        editorHistory.updateOptions({
+          readOnly: true,
+        });
+      });
+      panelHistoryId.hideProgress();
+      });
+  }
 
   let QueryPage = {
     id: prefix + "_page_panel",

@@ -4,7 +4,7 @@ module.exports = async (fastify) => {
   fastify.get(`/`, TaskController.getAll);
   fastify.get(`/:id`, TaskController.getById);
   fastify.get(`/useraccessfield`, TaskController.getUserAccessByField);
-  fastify.get(`/useraccesslist`, TaskController.getAddTaskByUserId);
+  fastify.get(`/useraccesslist`, TaskController.getUserAccessListByUserId);
   fastify.post(`/`, TaskController.create);
   fastify.post(`/useraccess`, TaskController.createUserAccess);
   fastify.post(`/transfer`, TaskController.transferToTarget);

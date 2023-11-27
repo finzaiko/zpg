@@ -26,11 +26,11 @@ class TaskRepository {
     return res;
   }
 
-  async getAddTaskByUserId(userId) {
+  async getUserAccessListByUserId(userId, limit=10) {
     const sql = `SELECT DISTINCT t.id, t.task_name as value FROM task_user tu
       JOIN task t ON t.id=tu.task_id
-      WHERE tu.user_id=? OR t.user_id=?`;
-    const params = [userId,userId];
+      WHERE tu.user_id=? OR t.user_id=? ORDER BY t.id DESC LIMIT ?`;
+    const params = [userId,userId,limit];
     const res = await new Promise((resolve, reject) => {
       db.all(sql, params, (err, row) => {
         if (err) reject(err);

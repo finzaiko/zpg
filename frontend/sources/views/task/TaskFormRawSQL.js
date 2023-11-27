@@ -88,9 +88,7 @@ function saveItemRawSQL() {
       .fail(function (err) {
         showError(err);
       });
-      console.log('add');
   } else {
-    console.log("edit");
     const selId = state.dataSelectedItem.id;
     webix
       .ajax()
@@ -104,10 +102,6 @@ function saveItemRawSQL() {
       });
   }
 }
-
-const close = () => {
-  $$(prefix + "_win").destructor();
-};
 
 export class TaskFormRawSQL extends JetView {
   config() {

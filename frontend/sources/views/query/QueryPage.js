@@ -20,6 +20,7 @@ import { url, state, searchHistoryStore } from "../../models/Query";
 import { QueryDatabase } from "./QueryDatabase";
 import { QueryHelp } from "./QueryHelp";
 import { userProfile } from "../../models/UserProfile";
+import { urlItem as urlTaskItem } from "../../models/Task";
 import {
   LAST_DATATYPE,
   LAST_DB_CONN_QUERY,
@@ -713,13 +714,32 @@ export function QueryPage(prefix, selectedDb) {
                     });
                 },
                 onMenuItemClick: function (id) {
-                  console.log('id',id);
 
                   if(id=="shareto"){
                       openShareUser();
                   }else{
                     if(!isNaN(id)){
-                      webix.message({text:"Not implement yet="+id, type:"debug"});
+                      // webix.message({text:"Not implement yet="+id, type:"debug"});
+                      const sqlRaw = $$(prefix + "_sql_editor").getValue();
+                      if(sqlRaw.trim().length>0){
+                        const rawTitle = sqlRaw.split('\n')[0];
+                        const data = {
+                          task_id: id,
+                          schema: "",
+                          type: 9,
+                          seq: -1,
+                          func_name: rawTitle,
+                          sql_content: sqlRaw,
+                          oid: 0,
+                        };
+                          webix
+                            .ajax()
+                            .post(urlTaskItem, data, function (res) {
+                              webix.message({ text: "SQL query added", type: "success" });
+                            });
+                      }else{
+                        webix.message({text:"Nothing to add", type:"error"})
+                      }
                     }
                   }
 

@@ -38,9 +38,9 @@ class TaskController {
     responseHttp(reply, 200, "Ok", { data: data });
   }
 
-  async getAddTaskByUserId(request, reply) {
+  async getUserAccessListByUserId(request, reply) {
     const userId = request.user.uid;
-    const data = await TaskUserService.getAddTaskByUserId(userId);
+    const data = await TaskUserService.getUserAccessListByUserId(userId);
     responseHttp(reply, 200, "Ok", { data: data });
   }
 

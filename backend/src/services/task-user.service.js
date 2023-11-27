@@ -11,8 +11,8 @@ class TaskUserService {
     return data.rows;
   }
 
-  async getAddTaskByUserId(userId) {
-    const data = await TaskUserRepository.getAddTaskByUserId( userId);
+  async getUserAccessListByUserId(userId) {
+    const data = await TaskUserRepository.getUserAccessListByUserId( userId);
     return data;
   }
 

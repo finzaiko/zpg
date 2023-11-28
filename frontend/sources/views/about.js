@@ -34,6 +34,7 @@ export default {
 		<section>
 			<h4>Todo:</h4>
 			<ul>
+				<li>task: add user group</li>
 				<li>all: load user setting from json profile</li>
 				<li>share: reconstruct to separate table and notify socket.io</li>
 				<li>query: change reload on user setting</li>

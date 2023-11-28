@@ -210,7 +210,14 @@ export function deleteStoreIDB(key) {
   });
 }
 
-// Usage: currently not implement yet for offline data
 /*
+// Usage: currently not implement yet for offline data
 addStoreIDB(PROJECT_STORE_NAME, [array_data]);
+
+// Delete all DB
+(async () => {
+    const dbs = await window.indexedDB.databases();
+    dbs.forEach(db => { window.indexedDB.deleteDatabase(db.name) });
+})();
+
 */

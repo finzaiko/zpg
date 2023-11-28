@@ -703,26 +703,34 @@ export function QueryPage(prefix, selectedDb) {
                     .get(`${urlTask}/useraccesslist`)
                     .then((r) => {
                       let arr = [
-                        {id:"shareto", value:"<span class='mdi mdi-share-variant-outline webix_icon'></span>&nbsp; Share to other users"},
+                        {
+                          id: "shareto",
+                          value:
+                            "<span class='mdi mdi-share-variant-outline webix_icon'></span>&nbsp; Share to other users",
+                        },
                       ];
                       const _data = r.json().data;
                       if (_data.length > 0) {
-                        let newData = {id:"addtask", value:"<span class='mdi mdi-checkbox-marked-circle-plus-outline webix_icon'></span>&nbsp; Add to task", data: _data}
-                        arr.push(newData)
+                        let newData = {
+                          id: "addtask",
+                          value:
+                            "<span class='mdi mdi-checkbox-marked-circle-plus-outline webix_icon'></span>&nbsp; Add to task",
+                          data: _data,
+                        };
+                        arr.push(newData);
                       }
                       this.parse(arr);
                     });
                 },
                 onMenuItemClick: function (id) {
-
-                  if(id=="shareto"){
-                      openShareUser();
-                  }else{
-                    if(!isNaN(id)){
+                  if (id == "shareto") {
+                    openShareUser();
+                  } else {
+                    if (!isNaN(id)) {
                       // webix.message({text:"Not implement yet="+id, type:"debug"});
                       const sqlRaw = $$(prefix + "_sql_editor").getValue();
-                      if(sqlRaw.trim().length>0){
-                        const rawTitle = sqlRaw.split('\n')[0];
+                      if (sqlRaw.trim().length > 0) {
+                        const rawTitle = sqlRaw.split("\n")[0];
                         const data = {
                           task_id: id,
                           schema: "",
@@ -732,17 +740,20 @@ export function QueryPage(prefix, selectedDb) {
                           sql_content: sqlRaw,
                           oid: 0,
                         };
-                          webix
-                            .ajax()
-                            .post(urlTaskItem, data, function (res) {
-                              webix.message({ text: "SQL query added", type: "success" });
-                            });
-                      }else{
-                        webix.message({text:"Nothing to add", type:"error"})
+                        webix.ajax().post(urlTaskItem, data, function (res) {
+                          webix.message({
+                            text: "SQL query added",
+                            type: "success",
+                          });
+                        });
+                      } else {
+                        webix.message({
+                          text: "Nothing to add",
+                          type: "error",
+                        });
                       }
                     }
                   }
-
 
                   // if (id == prefix + "_add_bookmark") {
                   //   let data = {
@@ -774,7 +785,7 @@ export function QueryPage(prefix, selectedDb) {
                   // }
                 },
               },
-            }
+            },
           },
           {},
           {
@@ -1423,10 +1434,10 @@ export function QueryPage(prefix, selectedDb) {
                 fillspace: true,
                 template: function (obj) {
                   const tt = obj.title.match(/(.+)/);
-					        if(tt){
-                    	return tt[0];
-                    }
-                  return obj.title
+                  if (tt) {
+                    return tt[0];
+                  }
+                  return obj.title;
                 },
               },
               {
@@ -1699,10 +1710,12 @@ export function QueryPage(prefix, selectedDb) {
           optionSql = `ORDER BY id DESC LIMIT 100`;
         }
         let sql = `SELECT * FROM ${rData.tableschema}.${rData.tablename} ${optionSql}`;
-        if(!$$(prefix + "_sql_editor").isVisible()){
+        if (!$$(prefix + "_sql_editor").isVisible()) {
           $$(prefix + "_sql_editor").show();
-          if($$(prefix + "_dbtree_preview"))$$(prefix + "_dbtree_preview").hide();
-          if($$(prefix + "_history_preview"))$$(prefix + "_history_preview").hide();
+          if ($$(prefix + "_dbtree_preview"))
+            $$(prefix + "_dbtree_preview").hide();
+          if ($$(prefix + "_history_preview"))
+            $$(prefix + "_history_preview").hide();
           $$(prefix + "_sql_editor").setValue(sql);
         }
         runQuery($$(prefix + "_source_combo").getValue());
@@ -1769,9 +1782,9 @@ export function QueryPage(prefix, selectedDb) {
                   on: {
                     onTimedKeyPress: function () {
                       const value = this.getValue().toLowerCase();
-                      $$(prefix + "_bm_list").filter(function(obj){
+                      $$(prefix + "_bm_list").filter(function (obj) {
                         return obj.title.toLowerCase().indexOf(value) !== -1;
-                      })
+                      });
                     },
                   },
                 },
@@ -2965,7 +2978,9 @@ export function QueryPage(prefix, selectedDb) {
             isCanSave($$(prefix + "_source_combo").getValue(), input.sql).then(
               (d) => {
                 const data = d.json();
-                const isHasColID = $$(prefix + "_result").config.columns.find(o=>o.id.split("_")[0]=="id");
+                const isHasColID = $$(prefix + "_result").config.columns.find(
+                  (o) => o.id.split("_")[0] == "id"
+                );
                 if (data.data && !!isHasColID && isValidCanSave(input.sql)) {
                   isTableCanSave = true;
                   $$(prefix + "_save_result").show();
@@ -3279,35 +3294,45 @@ export function QueryPage(prefix, selectedDb) {
         });
 
       // Tester offline data
-      // const _data = {value: "test1", modified: new Date().getTime()};
+      // const _data = { value: "test1", modified: new Date().getTime() };
       // // addStoreIDB(_data, prefix);
 
       // upsertStoreIDB(_data, prefix);
       // setTimeout(() => {
       //   console.log("readddd");
-      //   readStoreIDB().then(o=>{
-      //     console.log('o',o);
+      //   readStoreIDB().then((o) => {
+      //     console.log("o", o);
       //   });
 
-      //   readStoreIDBByKey("z_query2").then(o=>{
-      //     console.log('o2',o);
-      //   })
+      //   readStoreIDBByKey("z_query").then((o) => {
+      //     console.log("o2", o);
+      //   });
       // }, 2000);
 
       // setTimeout(() => {
-      //   const _data = {value: "test2 updated", modified: new Date().getTime()};
-      //   updateStoreIDB(_data, "z_query")
+      //   const _data = {
+      //     value: "test2 updated",
+      //     modified: new Date().getTime(),
+      //   };
+      //   updateStoreIDB(_data, "z_query");
       // }, 3000);
-      // onChange Editor
 
-      // editor.getModel().onDidChangeContent((event)=>{
+      // /// onChange Editor
+      // editor.getModel().onDidChangeContent((event) => {
       //   // console.log('event== ',event);
       //   // console.log(editor.getValue());
-      //   const _data = {value: editor.getValue(), modified: new Date().getTime()};
+      //   const _data = {
+      //     value: editor.getValue(),
+      //     modified: new Date().getTime(),
+      //   };
+      //   console.log('prefix',prefix);
+
+      //   console.log('data',_data);
+
       //   upsertStoreIDB(_data, prefix);
       // });
 
-      // END: Tester
+      /// END: Tester
     });
   };
 
@@ -3431,35 +3456,33 @@ export function QueryPage(prefix, selectedDb) {
     }
   };
 
-  const loadResultContent = (oid)=>{
+  const loadResultContent = (oid) => {
     let profileId = $$(prefix + "_source_combo").getValue();
     webix
-    .ajax()
-    .get(
-      `${urlDb}/schema_content?id=${profileId}&root=0&oid=${oid}`
-    )
-    .then(function (data) {
-      const content = data.json().data;
-      $$(prefix + "_history_preview").show();
-      $$(prefix + "_sql_editor").hide();
-      $$(prefix + "_dbtree_preview").hide();
+      .ajax()
+      .get(`${urlDb}/schema_content?id=${profileId}&root=0&oid=${oid}`)
+      .then(function (data) {
+        const content = data.json().data;
+        $$(prefix + "_history_preview").show();
+        $$(prefix + "_sql_editor").hide();
+        $$(prefix + "_dbtree_preview").hide();
 
-      const panelHistoryId = $$(prefix + "_history_content_panel");
-      const editorHistoryId = $$(prefix + "_history_content");
-      webix.extend(panelHistoryId, webix.ProgressBar);
-      panelHistoryId.showProgress({
-        type: "top",
-      });
-
-      editorHistoryId.setValue(content);
-      editorHistoryId.getEditor(true).then((editorHistory) => {
-        editorHistory.updateOptions({
-          readOnly: true,
+        const panelHistoryId = $$(prefix + "_history_content_panel");
+        const editorHistoryId = $$(prefix + "_history_content");
+        webix.extend(panelHistoryId, webix.ProgressBar);
+        panelHistoryId.showProgress({
+          type: "top",
         });
+
+        editorHistoryId.setValue(content);
+        editorHistoryId.getEditor(true).then((editorHistory) => {
+          editorHistory.updateOptions({
+            readOnly: true,
+          });
+        });
+        panelHistoryId.hideProgress();
       });
-      panelHistoryId.hideProgress();
-      });
-  }
+  };
 
   let QueryPage = {
     id: prefix + "_page_panel",

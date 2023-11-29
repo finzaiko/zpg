@@ -146,11 +146,9 @@ export function readStoreIDB() {
           .openCursor();
 
         request.onsuccess = function (event) {
-          console.log("event", event);
-
-          var cursor = event.target.result;
+          let cursor = event.target.result;
           if (cursor) {
-            items.push(cursor.value);
+            items.push(Object.assign(cursor.value, {tab: cursor.key}));
             cursor.continue();
           } else {
             resolve({ db: db, items: items });

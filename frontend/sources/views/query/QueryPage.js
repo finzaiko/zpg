@@ -4,6 +4,7 @@ import en from "javascript-time-ago/locale/en";
 import {
   colorComboDBSource,
   isColorLight,
+  isInt,
   isValidCanSave,
   pagerRow,
   pageSize,
@@ -111,6 +112,9 @@ function newQueryTab() {
 }
 
 export function QueryPage(prefix, selectedDb) {
+  console.log('prefix',prefix);
+  console.log('selectedDb',selectedDb);
+
   state.countPage = parseInt(prefix.split("_")[2]) || 0;
 
   let searchOidSelected;
@@ -198,11 +202,15 @@ export function QueryPage(prefix, selectedDb) {
                 url: `${urlProfile}/content?type=2&ls=true`,
                 on: {
                   onAfterLoad: function () {
-                    colorComboDBSource($$(prefix + "_source_combo"));
-                    setTimeout(
-                      () => $$(prefix + "_source_combo").hideOverlay(),
-                      300
-                    );
+                    setTimeout(() => {
+                      webix.extend($$(prefix + "_source_combo"), webix.OverlayBox);
+                      // colorComboDBSource($$(prefix + "_source_combo"));
+                      $$(prefix + "_source_combo").hideOverlay();
+                    }, 300);
+                    // setTimeout(
+                    //   () => $$(prefix + "_source_combo").hideOverlay(),
+                    //   300
+                    // );
                   },
                 },
               },
@@ -3293,45 +3301,19 @@ export function QueryPage(prefix, selectedDb) {
           },
         });
 
-      // Tester offline data
-      // const _data = { value: "test1", modified: new Date().getTime() };
-      // // addStoreIDB(_data, prefix);
 
-      // upsertStoreIDB(_data, prefix);
-      // setTimeout(() => {
-      //   console.log("readddd");
-      //   readStoreIDB().then((o) => {
-      //     console.log("o", o);
-      //   });
-
-      //   readStoreIDBByKey("z_query").then((o) => {
-      //     console.log("o2", o);
-      //   });
-      // }, 2000);
-
-      // setTimeout(() => {
-      //   const _data = {
-      //     value: "test2 updated",
-      //     modified: new Date().getTime(),
-      //   };
-      //   updateStoreIDB(_data, "z_query");
-      // }, 3000);
-
-      // /// onChange Editor
+      /// onChange Editor
       // editor.getModel().onDidChangeContent((event) => {
-      //   // console.log('event== ',event);
-      //   // console.log(editor.getValue());
-      //   const _data = {
-      //     value: editor.getValue(),
-      //     modified: new Date().getTime(),
-      //   };
-      //   console.log('prefix',prefix);
-
-      //   console.log('data',_data);
-
-      //   upsertStoreIDB(_data, prefix);
+      //   const edValue = editor.getValue();
+      //   if(edValue.trim().length>0){
+      //     const _data = {
+      //       value: editor.getValue(),
+      //       modified: new Date().getTime(),
+      //       source_id: parseInt($$(prefix + "_source_combo").getValue())
+      //     };
+      //     upsertStoreIDB(_data, prefix);
+      //   }
       // });
-
       /// END: Tester
     });
   };
@@ -3559,12 +3541,25 @@ export function QueryPage(prefix, selectedDb) {
 
         const cmbId = $$(prefix + "_source_combo");
         if (typeof selectedDb != "undefined") {
+          console.log('selectedDb>>>>>>>>>>>',selectedDb);
+
           setTimeout(() => {
             let listCmb = cmbId.getPopup().getList().serialize();
-            const c = listCmb.filter((v) => {
-              return v.value == selectedDb;
-            });
-            $$(prefix + "_source_combo").setValue(c[0].id);
+            if(isInt(selectedDb)){
+              console.log("is intttt");
+              $$(prefix + "_source_combo").setValue(selectedDb);
+            }else{
+              console.log("not is intttt");
+              const c = listCmb.filter((v) => {
+                return v.value == selectedDb;
+              });
+              console.log('c',c);
+              if(c.length>0){
+                console.log("masukk");
+                $$(prefix + "_source_combo").setValue(c[0].id);
+              }
+
+            }
           }, 500);
         } else {
           const db = webix.storage.local.get(LAST_DB_CONN_QUERY);

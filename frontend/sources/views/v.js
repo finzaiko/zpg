@@ -4,6 +4,9 @@ import { showError } from "../helpers/ui";
 import { menuData, state } from "../models/Base";
 import { routeName, routes } from "./routes";
 import start from "./about";
+import { readStoreIDB } from "../helpers/idb";
+import { QueryPage } from "./query/QueryPage";
+import { state as stateQuery } from "../models/Query";
 // import start from "./start";
 
 function isInt(value) {
@@ -29,6 +32,47 @@ function loadAppSetting() {
       st.parse(f);
     }
     st.hideOverlay();
+  });
+}
+
+function restoreLastQuery(scope) {
+
+  readStoreIDB().then((r) => {
+    console.log("r", r);
+    const tabs = r.items;
+    if (tabs.length > 0) {
+      let idx = [];
+      tabs.forEach((item) => {
+        const s = item.tab.split("_").pop();
+        let j = 0;
+        if (isInt(s)) {
+          j = parseInt(s);
+        }
+        idx.push(j);
+        let newViewId = j!=0 ? j:"";
+
+        state.currentTabQuery = j;
+
+          state.viewScope.addTab({
+            header: "Query " + newViewId,
+            id: item.tab,
+            close: true,
+            width: 150,
+            body: QueryPage(item.tab, item.source_id),
+            // body: QueryPage(item.tab),
+          });
+
+          // setTimeout(() => {
+          //   $$(state.prefix + "_sql_editor").setValue(item.value);
+          // }, 600);
+        // }, 1000);
+      });
+      const minTab = Math.min(...idx);
+      const maxTab = Math.max(...idx);
+      state.currentTabQuery = maxTab;
+
+      $$("tabs").getTabbar().setValue(minTab);
+    }
   });
 }
 
@@ -246,6 +290,8 @@ export default class MainView extends JetView {
     });
 
     loadAppSetting();
+
+    // restoreLastQuery(this);
   }
 
   menuClick(_scope, id) {

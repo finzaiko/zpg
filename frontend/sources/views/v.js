@@ -1,6 +1,6 @@
 import { JetView, plugins } from "webix-jet";
 import { API_URL, BUILD_MODE, LAST_SIDEBAR } from "../config/setting";
-import { showError } from "../helpers/ui";
+import { isInt, showError } from "../helpers/ui";
 import { menuData, state } from "../models/Base";
 import { routeName, routes } from "./routes";
 import start from "./about";
@@ -9,14 +9,21 @@ import { QueryPage } from "./query/QueryPage";
 import { state as stateQuery } from "../models/Query";
 // import start from "./start";
 
-function isInt(value) {
-  return (
-    !isNaN(value) &&
-    (function (x) {
-      return (x | 0) === x;
-    })(parseFloat(value))
-  );
-}
+// function isInt(value) {
+//   return (
+//     !isNaN(value) &&
+//     (function (x) {
+//       return (x | 0) === x;
+//     })(parseFloat(value))
+//   );
+// }
+
+window.getTabId = function (context) {
+  var attr = context.target.getAttribute("button_id");
+  var tab = attr ? attr : context.target.parentNode.getAttribute("button_id");
+  return tab;
+};
+
 function loadAppSetting() {
   const st = $$("app:sidebar");
   webix.extend(st, webix.OverlayBox);
@@ -36,7 +43,6 @@ function loadAppSetting() {
 }
 
 function restoreLastQuery(scope) {
-
   readStoreIDB().then((r) => {
     console.log("r", r);
     const tabs = r.items;
@@ -49,22 +55,22 @@ function restoreLastQuery(scope) {
           j = parseInt(s);
         }
         idx.push(j);
-        let newViewId = j!=0 ? j:"";
+        let newViewId = j != 0 ? j : "";
 
         state.currentTabQuery = j;
 
-          state.viewScope.addTab({
-            header: "Query " + newViewId,
-            id: item.tab,
-            close: true,
-            width: 150,
-            body: QueryPage(item.tab, item.source_id),
-            // body: QueryPage(item.tab),
-          });
+        state.viewScope.addTab({
+          header: "Query " + newViewId,
+          id: item.tab,
+          close: true,
+          width: 150,
+          body: QueryPage(item.tab, item.source_id, item.value),
+          // body: QueryPage(item.tab),
+        });
 
-          // setTimeout(() => {
-          //   $$(state.prefix + "_sql_editor").setValue(item.value);
-          // }, 600);
+        // setTimeout(() => {
+        //   $$(state.prefix + "_sql_editor").setValue(item.value);
+        // }, 600);
         // }, 1000);
       });
       const minTab = Math.min(...idx);
@@ -74,6 +80,70 @@ function restoreLastQuery(scope) {
       $$("tabs").getTabbar().setValue(minTab);
     }
   });
+}
+
+function initContextMenu() {
+  webix
+    .ui({
+      view: "contextmenu",
+      id: "tabscmenu",
+      data: [
+        {id: 1, value:"Close Other Query Tabs"},
+        {id: 2, value:"Close Query Tabs to Right"},
+        { $template: "Separator" },
+        {id:3, value: "Close All Query Tabs"},
+      ],
+      submenuConfig: {
+        width: 180,
+      },
+      on: {
+        // how to disable menu for non-tabs (due to the tabbar's structure)
+        // or for a particular tab by its ID
+        onBeforeShow: function () {
+          const tabId = getTabId(this.getContext());
+          // console.log("tabId", tabId);
+          const tabList = $$("tabs").getTabbar().data.options;
+          // console.log("indexxxxxxxxx", aa.indexOf(tabId));
+          const currentIndex = tabList.findIndex(o => o.id ==tabId);
+          // console.log('index',index);
+          // console.log('index-pop',aa.length-1);
+
+          if(tabList.length==1){
+            this.disableItem(1);
+          }else{
+            this.enableItem(1);
+          }
+          if(currentIndex == tabList.length-1){
+            this.disableItem(2);
+          }else{
+            this.enableItem(2);
+          }
+
+          // console.log("aa", aa);
+          // aa.forEach((el,i)=>{
+          //   console.log('el',el.id, i);
+          // })
+
+          // this.disableItem(2);
+
+          // if (!tabId || tabId == "disabledContext"){	// !tabId is a bottom border || a spacer between tabs
+          //   webix.html.preventEvent(this.getContext()); // prevents native browser context menu
+          //   return false
+          // }
+        },
+        // how to get IDs of the option/tab when an option is clicked
+        onMenuItemClick: function (id, event, itemNode) {
+          console.log($$("tabs").getTabbar().$view);
+          const tabId = getTabId(this.getContext());
+          webix.message(id + " on " + tabId);
+        }, // attach to the tabbar's node ($view), as it isn't a data component.
+      }, // getTabbar required in case of tabview
+    })
+    .attachTo($$("tabs").getTabbar().$view);
+}
+
+function onCloseTab(tabId) {
+  deleteStoreIDB(tabId);
 }
 
 let menuDataFiltered =
@@ -229,16 +299,20 @@ export default class MainView extends JetView {
                       webix.confirm("Are you sure?").then((result) => {
                         if (result) {
                           $$("tabs").removeView(id);
+                          onCloseTab(id);
                         }
                       });
                     } else {
                       $$("tabs").removeView(id);
+                      onCloseTab(id);
                     }
                   } else {
                     $$("tabs").removeView(id);
+                    onCloseTab(id);
                   }
                 } else {
                   $$("tabs").removeView(id);
+                  onCloseTab(id);
                 }
 
                 let tabview = $$("tabs");
@@ -290,6 +364,8 @@ export default class MainView extends JetView {
     });
 
     loadAppSetting();
+
+    // initContextMenu();
 
     // restoreLastQuery(this);
   }

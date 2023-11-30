@@ -111,7 +111,7 @@ function newQueryTab() {
   $$("tabs").getTabbar().setValue(state.prefix);
 }
 
-export function QueryPage(prefix, selectedDb) {
+export function QueryPage(prefix, selectedDb, editorValue) {
   console.log('prefix',prefix);
   console.log('selectedDb',selectedDb);
 
@@ -201,16 +201,20 @@ export function QueryPage(prefix, selectedDb) {
                 },
                 url: `${urlProfile}/content?type=2&ls=true`,
                 on: {
+                  onBeforeLoad: function () {
+                      /*
+                      webix.extend(this, webix.OverlayBox);
+                      this.showOverlay(
+                        `<div class="shimmer" style="margin-top:3px"></div>`
+                      );
+                      */
+                  },
                   onAfterLoad: function () {
                     setTimeout(() => {
                       webix.extend($$(prefix + "_source_combo"), webix.OverlayBox);
-                      // colorComboDBSource($$(prefix + "_source_combo"));
+                      colorComboDBSource($$(prefix + "_source_combo"));
                       $$(prefix + "_source_combo").hideOverlay();
                     }, 300);
-                    // setTimeout(
-                    //   () => $$(prefix + "_source_combo").hideOverlay(),
-                    //   300
-                    // );
                   },
                 },
               },
@@ -221,12 +225,6 @@ export function QueryPage(prefix, selectedDb) {
               },
             },
             on: {
-              onAfterRender: function () {
-                webix.extend(this, webix.OverlayBox);
-                this.showOverlay(
-                  `<div class="shimmer" style="margin-top:3px"></div>`
-                );
-              },
               onChange: function (id, val) {
                 webix.storage.local.put(LAST_DB_CONN_QUERY, id);
                 if (id) {
@@ -3216,6 +3214,10 @@ export function QueryPage(prefix, selectedDb) {
       }, 300);
       editorId.enable();
 
+      if(editorValue){
+        editorId.setValue(editorValue)
+      }
+
       // Replace current shortcut
       // changeCommandKeybinding(
       //   editor,
@@ -3303,6 +3305,7 @@ export function QueryPage(prefix, selectedDb) {
 
 
       /// onChange Editor
+
       // editor.getModel().onDidChangeContent((event) => {
       //   const edValue = editor.getValue();
       //   if(edValue.trim().length>0){
@@ -3314,6 +3317,7 @@ export function QueryPage(prefix, selectedDb) {
       //     upsertStoreIDB(_data, prefix);
       //   }
       // });
+
       /// END: Tester
     });
   };

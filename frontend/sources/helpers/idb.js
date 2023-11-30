@@ -16,10 +16,8 @@ export function openIDB(dbVersion) {
 
   return new Promise((resolve, reject) => {
     const openRequest = indexedDB.open(DB_NAME, dbVersion);
-    console.log("OpenIDB--------------");
 
     openRequest.onupgradeneeded = function (e) {
-      console.log("running onupgradeneeded");
       const db = e.target.result;
       if (!db.objectStoreNames.contains(`${STORE_NAME}`)) {
         db.createObjectStore(`${STORE_NAME}`, {
@@ -28,7 +26,6 @@ export function openIDB(dbVersion) {
       }
     };
     openRequest.onsuccess = function (e) {
-      console.log("running onsuccess");
       // db = e.target.result;
       resolve(e.target.result);
     };
@@ -47,9 +44,6 @@ export function openIDB(dbVersion) {
 }
 
 export function upsertStoreIDB(data, key) {
-  console.log("key", key);
-
-  console.log(`Store: ${STORE_NAME} upserting...`);
 
   openIDB(DB_VERSION).then((dbx) => {
     const tx = dbx.transaction([`${STORE_NAME}`], "readwrite");
@@ -58,17 +52,15 @@ export function upsertStoreIDB(data, key) {
     let request;
     requestExist.onsuccess = function (e) {
       if (!e.target.result) {
-        console.log("adding..");
         request = store.add(data, key);
       } else {
-        console.log("updating..");
         request = store.put(data, key);
       }
       request.onerror = function (e) {
         console.log("Error", e.target.error.name);
       };
       request.onsuccess = function (e) {
-        console.log(`Ok ${STORE_NAME} upserted`);
+        // console.log(`Ok ${STORE_NAME} upserted`);
       };
     };
 
@@ -79,9 +71,6 @@ export function upsertStoreIDB(data, key) {
 }
 
 export function addStoreIDB(data, key) {
-  console.log("key", key);
-
-  console.log(`Store: ${STORE_NAME} adding...`);
 
   openIDB(DB_VERSION).then((dbx) => {
     const tx = dbx.transaction([`${STORE_NAME}`], "readwrite");
@@ -92,15 +81,12 @@ export function addStoreIDB(data, key) {
       console.log("Error", e.target.error.name);
     };
     request.onsuccess = function (e) {
-      console.log(`Ok ${STORE_NAME} added`);
+      // console.log(`Ok ${STORE_NAME} added`);
     };
   });
 }
 
 export function updateStoreIDB(data, key) {
-  console.log("key", key);
-
-  console.log(`Store: ${STORE_NAME} updating...`);
 
   openIDB(DB_VERSION).then((dbx) => {
     const tx = dbx.transaction([`${STORE_NAME}`], "readwrite");
@@ -111,15 +97,12 @@ export function updateStoreIDB(data, key) {
       console.log("Error", e.target.error.name);
     };
     request.onsuccess = function (e) {
-      console.log(`Ok ${STORE_NAME} updated`);
+      // console.log(`Ok ${STORE_NAME} updated`);
     };
   });
 }
 
 export function emptyStoreIDB() {
-  console.log("key", key);
-
-  console.log(`Store: ${STORE_NAME} emptying...`);
 
   openIDB(DB_VERSION).then((dbx) => {
     const tx = dbx.transaction([`${STORE_NAME}`], "readwrite");
@@ -130,7 +113,7 @@ export function emptyStoreIDB() {
       console.log("Error", e.target.error.name);
     };
     request.onsuccess = function (e) {
-      console.log(`Ok ${STORE_NAME} emptied`);
+      // console.log(`Ok ${STORE_NAME} emptied`);
     };
   });
 }
@@ -190,10 +173,6 @@ export function readStoreIDBByKey(key) {
 }
 
 export function deleteStoreIDB(key) {
-  console.log("key", key);
-
-  console.log(`Store: ${STORE_NAME} deleting...`);
-
   openIDB(DB_VERSION).then((dbx) => {
     const tx = dbx.transaction([`${STORE_NAME}`], "readwrite");
     const store = tx.objectStore(`${STORE_NAME}`);
@@ -203,7 +182,7 @@ export function deleteStoreIDB(key) {
       console.log("Error", e.target.error.name);
     };
     request.onsuccess = function (e) {
-      console.log(`Ok ${STORE_NAME} deleted`);
+      // console.log(`Ok ${STORE_NAME} deleted`);
     };
   });
 }

@@ -502,22 +502,24 @@ export function colorComboDBSource(viewId) {
       const _that = viewId;
       const id = _that.getValue();
       const data = _that.getPopup().getList().getItem(id);
-      const item =
-        _that.$view.getElementsByClassName("webix_el_box")[0].childNodes[0];
-      let clr = "#475466",
-        bg = "#ffffff";
-      if (id && data) {
-        if (data.content) {
-          bg = data.content;
+      const cmbNode = _that.$view.getElementsByClassName("webix_el_box")[0];
+      if (cmbNode) {
+        const item = cmbNode.childNodes[0];
+        let clr = "#475466",
+          bg = "#ffffff";
+        if (id && data) {
+          if (data.content) {
+            bg = data.content;
+          }
+          if (!isColorLight(bg)) {
+            clr = "#ffffff";
+          }
+          item.style.background = bg;
+          item.style.color = clr;
+        } else {
+          item.style.background = bg;
+          item.style.color = clr;
         }
-        if (!isColorLight(bg)) {
-          clr = "#ffffff";
-        }
-        item.style.background = bg;
-        item.style.color = clr;
-      } else {
-        item.style.background = bg;
-        item.style.color = clr;
       }
     },
     null,
@@ -564,6 +566,6 @@ export function downloadFileContent(content, fileName) {
 
 export function isValidCanSave(sqlString) {
   const queryStrArr = sqlString.toLowerCase().split(/\s+/);
-  const exludeKey = ["join","with","on"]
-  return !queryStrArr.some(r=> exludeKey.includes(r))
+  const exludeKey = ["join", "with", "on"];
+  return !queryStrArr.some((r) => exludeKey.includes(r));
 }

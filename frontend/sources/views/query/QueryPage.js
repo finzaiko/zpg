@@ -112,8 +112,6 @@ function newQueryTab() {
 }
 
 export function QueryPage(prefix, selectedDb, editorValue) {
-  console.log('prefix',prefix);
-  console.log('selectedDb',selectedDb);
 
   state.countPage = parseInt(prefix.split("_")[2]) || 0;
 
@@ -3545,21 +3543,16 @@ export function QueryPage(prefix, selectedDb, editorValue) {
 
         const cmbId = $$(prefix + "_source_combo");
         if (typeof selectedDb != "undefined") {
-          console.log('selectedDb>>>>>>>>>>>',selectedDb);
 
           setTimeout(() => {
             let listCmb = cmbId.getPopup().getList().serialize();
             if(isInt(selectedDb)){
-              console.log("is intttt");
               $$(prefix + "_source_combo").setValue(selectedDb);
             }else{
-              console.log("not is intttt");
               const c = listCmb.filter((v) => {
                 return v.value == selectedDb;
               });
-              console.log('c',c);
               if(c.length>0){
-                console.log("masukk");
                 $$(prefix + "_source_combo").setValue(c[0].id);
               }
 

@@ -3304,17 +3304,17 @@ export function QueryPage(prefix, selectedDb, editorValue) {
 
       /// onChange Editor
 
-      // editor.getModel().onDidChangeContent((event) => {
-      //   const edValue = editor.getValue();
-      //   if(edValue.trim().length>0){
-      //     const _data = {
-      //       value: editor.getValue(),
-      //       modified: new Date().getTime(),
-      //       source_id: parseInt($$(prefix + "_source_combo").getValue())
-      //     };
-      //     upsertStoreIDB(_data, prefix);
-      //   }
-      // });
+      editor.getModel().onDidChangeContent((event) => {
+        const edValue = editor.getValue();
+        if(edValue.trim().length>0){
+          const _data = {
+            value: editor.getValue(),
+            modified: new Date().getTime(),
+            source_id: parseInt($$(prefix + "_source_combo").getValue())
+          };
+          upsertStoreIDB(_data, prefix);
+        }
+      });
 
       /// END: Tester
     });

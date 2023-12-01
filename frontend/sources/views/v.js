@@ -4,7 +4,7 @@ import { isInt, showError } from "../helpers/ui";
 import { menuData, state } from "../models/Base";
 import { routeName, routes } from "./routes";
 import start from "./about";
-import { deleteStoreIDB, readStoreIDB } from "../helpers/idb";
+import { deleteStoreIDB, emptyStoreIDB, readStoreIDB } from "../helpers/idb";
 import { QueryPage } from "./query/QueryPage";
 import { state as stateQuery } from "../models/Query";
 // import start from "./start";
@@ -80,6 +80,10 @@ function restoreLastQuery(scope) {
   });
 }
 
+function getTabbarList(tabId) {
+  return tabId.getTabbar().data.options;
+}
+
 function initContextMenu() {
   webix
     .ui({
@@ -97,7 +101,7 @@ function initContextMenu() {
       on: {
         onBeforeShow: function () {
           const tabId = getTabId(this.getContext());
-          const tabList = $$("tabs").getTabbar().data.options;
+          const tabList = getTabbarList($$("tabs"));
           const currentIndex = tabList.findIndex((o) => o.id == tabId);
           if (tabList.length == 1) {
             this.disableItem(1);
@@ -112,28 +116,56 @@ function initContextMenu() {
         },
         onMenuItemClick: function (id, event, itemNode) {
           const tabId = $$("tabs");
+          const tabList = getTabbarList(tabId);
           const tabIdText = getTabId(this.getContext());
-          const tabList = tabId.getTabbar().data.options;
           if (id == 1) {
-            const to = tabList.filter((o) => o.id !== tabIdText);
-            to.forEach((ol) => {
-              tabId.removeView(ol.id);
-              onCloseTab(ol.id);
+            const closeTabList = tabList.filter((o) => o.id !== tabIdText);
+            const promises = [];
+            closeTabList.forEach((ol) => {
+              promises.push(
+                new Promise((resolve, reject) => {
+                  setTimeout(() => {
+                    tabId.removeView(ol.id);
+                    onCloseTab(ol.id);
+                    resolve();
+                  }, 100);
+                })
+              );
             });
+            Promise.all(promises).then(() => {});
           } else if (id == 2) {
             const currentIndex = tabList.findIndex((o) => o.id == tabIdText);
-            const removedIndex = tabList.filter((_, i) => i > currentIndex);
-            removedIndex.forEach((o) => {
-              tabId.removeView(o.id);
-              onCloseTab(o.id);
+            const rightTabList = tabList.filter((_, i) => i > currentIndex);
+            const promises = [];
+            rightTabList.forEach((ol) => {
+              promises.push(
+                new Promise((resolve, reject) => {
+                  setTimeout(() => {
+                    tabId.removeView(ol.id);
+                    onCloseTab(ol.id);
+                    resolve();
+                  }, 100);
+                })
+              );
             });
+            Promise.all(promises).then(() => {});
           } else if (id == 3) {
+            const promises = [];
             tabList.forEach((o) => {
-              tabId.removeView(o.id);
-              onCloseTab(o.id);
+              promises.push(
+                new Promise((resolve, reject) => {
+                  setTimeout(() => {
+                    tabId.removeView(o.id);
+                    resolve();
+                  }, 100);
+                })
+              );
             });
-            state.currentTabQuery = 0;
-            openWelcomeTab();
+            Promise.all(promises).then(() => {
+              emptyStoreIDB();
+              state.currentTabQuery = 0;
+              openWelcomeTab();
+            });
           }
         },
       },
@@ -353,9 +385,9 @@ export default class MainView extends JetView {
 
     loadAppSetting();
 
-    // initContextMenu();
+    initContextMenu();
 
-    // restoreLastQuery(this);
+    restoreLastQuery(this);
   }
 
   menuClick(_scope, id) {

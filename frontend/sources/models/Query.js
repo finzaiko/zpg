@@ -11,6 +11,7 @@ export let state = {
   isMinimap: 0,
   isDisableHistory: 0,
   isAdjustCols: 0,
+  isRestoreLastQuery: 1,
 };
 
 export const url = API_URL + "/" + path;

@@ -1,5 +1,10 @@
 import { JetView, plugins } from "webix-jet";
-import { API_URL, BUILD_MODE, LAST_SIDEBAR } from "../config/setting";
+import {
+  API_URL,
+  BUILD_MODE,
+  LAST_QUERY_RESTORE,
+  LAST_SIDEBAR,
+} from "../config/setting";
 import { isInt, showError } from "../helpers/ui";
 import { menuData, state } from "../models/Base";
 import { routeName, routes } from "./routes";
@@ -47,41 +52,82 @@ function openWelcomeTab() {
   }
 }
 
-function restoreLastQuery(scope) {
-  readStoreIDB().then((r) => {
-    const tabs = r.items;
-    if (tabs.length > 0) {
+function resetLastIndexTab() {
+  setTimeout(() => {
+    const tabList = getTabbarList($$("tabs"));
+
+    if (tabList.length > 0) {
       let idx = [];
-      tabs.forEach((item) => {
-        const s = item.tab.split("_").pop();
+      tabList.forEach((item) => {
+        const s = item.id.split("_").pop();
         let j = 0;
         if (isInt(s)) {
           j = parseInt(s);
         }
         idx.push(j);
-        let newViewId = j != 0 ? j : "";
-
-        state.currentTabQuery = j;
-
-        state.viewScope.addTab({
-          header: "Query " + newViewId,
-          id: item.tab,
-          close: true,
-          width: 150,
-          body: QueryPage(item.tab, item.source_id, item.value),
-        });
       });
-      const minTab = Math.min(...idx);
-      const maxTab = Math.max(...idx);
-      state.currentTabQuery = maxTab;
-
-      $$("tabs").getTabbar().setValue(minTab);
+      state.currentTabQuery = Math.max(...idx);
     }
-  });
+  }, 100);
+}
+
+function restoreLastQuery(scope) {
+  if (!!stateQuery.isRestoreLastQuery) {
+    readStoreIDB().then((r) => {
+      const tabs = r.items;
+      if (tabs.length > 0) {
+        let idx = [];
+        tabs.forEach((item) => {
+          const s = item.tab.split("_").pop();
+          let j = 0;
+          if (isInt(s)) {
+            j = parseInt(s);
+          }
+          idx.push(j);
+          let newViewId = j != 0 ? j : "";
+
+          state.currentTabQuery = j;
+
+          state.viewScope.addTab({
+            header: "Query " + newViewId,
+            id: item.tab,
+            close: true,
+            width: 150,
+            body: QueryPage(item.tab, item.source_id, item.value),
+          });
+        });
+        const minTab = Math.min(...idx);
+        const maxTab = Math.max(...idx);
+        state.currentTabQuery = maxTab;
+
+        $$("tabs").getTabbar().setValue(minTab);
+      }
+    });
+  }
 }
 
 function getTabbarList(tabId) {
   return tabId.getTabbar().data.options;
+}
+
+function syncCloseTabs(list, isCloseInLoop, afterAction) {
+  const promises = [];
+  list.forEach((ol) => {
+    promises.push(
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          $$("tabs").removeView(ol.id);
+          if (isCloseInLoop) {
+            onCloseTab(ol.id);
+          }
+          resolve();
+        }, 100);
+      })
+    );
+  });
+  Promise.all(promises).then(() => {
+    afterAction();
+  });
 }
 
 function initContextMenu() {
@@ -120,48 +166,17 @@ function initContextMenu() {
           const tabIdText = getTabId(this.getContext());
           if (id == 1) {
             const closeTabList = tabList.filter((o) => o.id !== tabIdText);
-            const promises = [];
-            closeTabList.forEach((ol) => {
-              promises.push(
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    tabId.removeView(ol.id);
-                    onCloseTab(ol.id);
-                    resolve();
-                  }, 100);
-                })
-              );
+            syncCloseTabs(closeTabList, true, () => {
+              resetLastIndexTab();
             });
-            Promise.all(promises).then(() => {});
           } else if (id == 2) {
             const currentIndex = tabList.findIndex((o) => o.id == tabIdText);
             const rightTabList = tabList.filter((_, i) => i > currentIndex);
-            const promises = [];
-            rightTabList.forEach((ol) => {
-              promises.push(
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    tabId.removeView(ol.id);
-                    onCloseTab(ol.id);
-                    resolve();
-                  }, 100);
-                })
-              );
+            syncCloseTabs(rightTabList, true, () => {
+              resetLastIndexTab();
             });
-            Promise.all(promises).then(() => {});
           } else if (id == 3) {
-            const promises = [];
-            tabList.forEach((o) => {
-              promises.push(
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    tabId.removeView(o.id);
-                    resolve();
-                  }, 100);
-                })
-              );
-            });
-            Promise.all(promises).then(() => {
+            syncCloseTabs(tabList, false, () => {
               emptyStoreIDB();
               state.currentTabQuery = 0;
               openWelcomeTab();
@@ -174,7 +189,9 @@ function initContextMenu() {
 }
 
 function onCloseTab(tabId) {
-  deleteStoreIDB(tabId);
+  if (!!stateQuery.isRestoreLastQuery) {
+    deleteStoreIDB(tabId);
+  }
 }
 
 let menuDataFiltered =
@@ -187,6 +204,7 @@ export default class MainView extends JetView {
     $$("tabs").addView(config);
   }
   config() {
+    stateQuery.isRestoreLastQuery = webix.storage.local.get(LAST_QUERY_RESTORE);
     const _this = this;
     // let menuDataFiltered =
     //   BUILD_MODE == "desktop"

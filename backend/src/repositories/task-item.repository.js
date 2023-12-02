@@ -148,7 +148,7 @@ class TaskItemRepository {
   }
 
   async create(data) {
-    const sql = `INSERT INTO task_item (task_id, schema, name, type, sql_content, oid, seq) VALUES (?,?,?,?,?,?,?)`;
+    const sql = `INSERT INTO task_item (task_id, schema, name, type, sql_content, oid, seq, is_execreplace, is_active) VALUES (?,?,?,?,?,?,?,?,?)`;
     let params = [
       data.task_id,
       data.schema,
@@ -157,6 +157,8 @@ class TaskItemRepository {
       data.sql_content,
       data.oid,
       data.seq,
+      0,
+      1
     ];
 
     const res = await new Promise((resolve, reject) => {

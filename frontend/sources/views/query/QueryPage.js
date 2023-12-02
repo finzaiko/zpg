@@ -35,6 +35,7 @@ import {
   FONT_SIZE_EDITOR,
   EXPAND_COL_SIZE,
   EXPAND_ALL_COL_SIZE,
+  LAST_QUERY_RESTORE,
 } from "../../config/setting";
 
 import { copyToClipboard } from "../../helpers/copy";
@@ -42,6 +43,7 @@ import { url as urlUser } from "../../models/User";
 import { getErrorMessage } from "../../helpers/api";
 import {
   addStoreIDB,
+  emptyStoreIDB,
   readStoreIDB,
   readStoreIDBByKey,
   updateStoreIDB,
@@ -2184,7 +2186,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             {
               view: "checkbox",
               id: prefix + "_disable_history",
-              labelRight: "Disable History",
+              labelRight: "Disable Query History",
               tooltip: "Disable capture log history",
               name: "ck_disable_history",
               labelWidth: 8,
@@ -2194,6 +2196,24 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                   state.isDisableHistory = newVal;
                   // setMinimap();
                   webix.storage.local.put(STORE_HISTORY, newVal);
+                },
+              },
+            },
+            {
+              view: "checkbox",
+              id: prefix + "_restore_last_query",
+              labelRight: "Restore Last Query Tabs",
+              tooltip: "Restore last opened queries",
+              name: "ck_restore_last_query",
+              labelWidth: 8,
+              value: 0,
+              on: {
+                onChange: function (newVal, oldVal) {
+                  state.isRestoreLastQuery = newVal;
+                  if(newVal==0){
+                    emptyStoreIDB();
+                  }
+                  webix.storage.local.put(LAST_QUERY_RESTORE, newVal);
                 },
               },
             },
@@ -2263,6 +2283,10 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             if (hs) {
               $$(prefix + "_disable_history").setValue(hs);
             }
+            const lq = webix.storage.local.get(LAST_QUERY_RESTORE);
+            if (lq) {
+              $$(prefix + "_restore_last_query").setValue(lq);
+            }
             // const ac = webix.storage.local.get(LAST_ADJUSTCOLS);
             // if (ac) {
             //   $$(prefix + "_adjust_cols").setValue(ac);
@@ -2271,6 +2295,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             $$(prefix + "_detach_quick_search").unblockEvent();
             $$(prefix + "_show_minimap").unblockEvent();
             $$(prefix + "_disable_history").unblockEvent();
+            $$(prefix + "_restore_last_query").unblockEvent();
             // $$(prefix + "_adjust_cols").unblockEvent();
           },
           onHide: function () {
@@ -3303,18 +3328,19 @@ export function QueryPage(prefix, selectedDb, editorValue) {
 
 
       /// onChange Editor
-
-      editor.getModel().onDidChangeContent((event) => {
-        const edValue = editor.getValue();
-        if(edValue.trim().length>0){
-          const _data = {
-            value: editor.getValue(),
-            modified: new Date().getTime(),
-            source_id: parseInt($$(prefix + "_source_combo").getValue())
-          };
-          upsertStoreIDB(_data, prefix);
+        if(!!state.isRestoreLastQuery){
+          editor.getModel().onDidChangeContent((event) => {
+            const edValue = editor.getValue();
+            if(edValue.trim().length>0){
+              const _data = {
+                value: editor.getValue(),
+                modified: new Date().getTime(),
+                source_id: parseInt($$(prefix + "_source_combo").getValue())
+              };
+              upsertStoreIDB(_data, prefix);
+            }
+          });
         }
-      });
 
       /// END: Tester
     });
@@ -3540,22 +3566,25 @@ export function QueryPage(prefix, selectedDb, editorValue) {
         state.isDataType = webix.storage.local.get(LAST_DATATYPE);
         state.isSearchDetach = webix.storage.local.get(LAST_SEARCHTYPE);
         state.isMinimap = webix.storage.local.get(LAST_MINIMAP);
+        state.isRestoreLastQuery = webix.storage.local.get(LAST_QUERY_RESTORE);
 
         const cmbId = $$(prefix + "_source_combo");
         if (typeof selectedDb != "undefined") {
 
           setTimeout(() => {
-            let listCmb = cmbId.getPopup().getList().serialize();
-            if(isInt(selectedDb)){
-              $$(prefix + "_source_combo").setValue(selectedDb);
-            }else{
-              const c = listCmb.filter((v) => {
-                return v.value == selectedDb;
-              });
-              if(c.length>0){
-                $$(prefix + "_source_combo").setValue(c[0].id);
-              }
+            if(cmbId){
+              let listCmb = cmbId.getPopup().getList().serialize();
+              if(isInt(selectedDb)){
+                $$(prefix + "_source_combo").setValue(selectedDb);
+              }else{
+                const c = listCmb.filter((v) => {
+                  return v.value == selectedDb;
+                });
+                if(c.length>0){
+                  $$(prefix + "_source_combo").setValue(c[0].id);
+                }
 
+              }
             }
           }, 500);
         } else {

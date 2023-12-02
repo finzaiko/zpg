@@ -30,6 +30,7 @@ export const LAST_MULTICONN = "lsmconn";
 export const LAST_HISTORY = "lshistory";
 export const LAST_ADJUSTCOLS = "ldjustcols";
 export const STORE_HISTORY = "sthistory";
+export const LAST_QUERY_RESTORE = "lastquery";
 export const CONFIRM_DROP_REPLACE = "dropreplace";
 export const CONFIRM_EXECUTE = "confirmexec";
 

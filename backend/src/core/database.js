@@ -41,7 +41,7 @@ function createTable(db) {
       runQuery(db, defaultUser);
   });
   runQuery(db, profileTable);
-  runQuery(db, dbConnTable);
+  // runQuery(db, dbConnTable);
   runQuery(db, taskTable);
   runQuery(db, taskItemTable);
   runQuery(db, taskUserTable);

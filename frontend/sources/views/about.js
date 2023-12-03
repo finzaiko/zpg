@@ -34,23 +34,28 @@ export default {
 		<section>
 			<h4>Todo:</h4>
 			<ul>
-				<li>task: add user group</li>
-				<li>all: load user setting from json profile</li>
-				<li>share: reconstruct to separate table and notify socket.io</li>
+			<li>all: load user setting from json profile</li>
+			<li>share: reconstruct to separate table and notify socket.io</li>
 				<li>query: change reload on user setting</li>
 				<li>compare by profile </li>
 				<li>execute query in compare</li>
 				<li>check compatible version</li>
 				<li>dashboard: show process activity</li>
-				<li>query: store latest left</li>
 				<li>query: add note</li>
 				<li>query: enable client history</li>
 				<li>blank hints tab default</li>
-			</ul>
+				</ul>
 		</section>
 
 		<section>
-			<h4>Change log:</h4>
+		<h4>Change log:</h4>
+			<p>
+			<h4>0.0.19-dev (03-12-2023)</h4>
+				<ul>
+					<li>task: add user group</li>
+					<li>query: store latest left</li>
+				</ul>
+			</p>
 			<p>
 				<h4>0.0.18-dev (16-05-2023)</h4>
 				<ul>

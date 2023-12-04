@@ -6,7 +6,6 @@ import { LAST_DB_CONN_VIEWDATA } from "../../config/setting";
 import { defaultHeader } from "../../helpers/api";
 import { colorComboDBSource, isColorLight } from "../../helpers/ui";
 
-
 function newViewDataTab() {
   function isInt(value) {
     var x;
@@ -35,7 +34,6 @@ function newViewDataTab() {
   $$("tabs").getTabbar().setValue(state.prefix);
   stateBase.currentTabViewData++;
 }
-
 
 export function ViewDataPage(prefix, selectedDb) {
   const pageSize = 30;
@@ -100,23 +98,47 @@ export function ViewDataPage(prefix, selectedDb) {
             onItemClick: function (sel) {
               $$(prefix + "_remove_row").show();
             },
-            onAfterEditStop:function(state,editor){
-							if(state.old != state.value){
-                    this.addRowCss(editor.row, "z_orange_row");
-							}
-						}
+            onAfterEditStop: function (state, editor) {
+              // if(state.old != state.value){
+              //       this.addRowCss(editor.row, "z_orange_row");
+              // }
+              if (state.old == state.value) return true;
+              if (!this.$values_cache) this.$values_cache = [];
+
+              const r = this.getItem(editor.row);
+              let idRow = editor.row;
+              let idDb = -1;
+              // if (typeof r["id_0"] != "undefined") {
+              //   idDb = r["id_0"];
+              // }
+              idDb = idRow;
+              this.$values_cache.push({
+                id: idRow,
+                id_db: idDb,
+                column: editor.column,
+                value: state.value,
+              });
+              $$(this).addCellCss(
+                editor.row,
+                editor.column,
+                "z_changes_cell_result",
+                true
+              );
+              // $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
+            },
           },
         };
 
         $$(prefix + "_table_panel").addView(newView);
         $$(prefix + "_refresh").show();
         $$(prefix + "_add_row").show();
-      }).fail(function(err) {
+      })
+      .fail(function (err) {
         const errData = JSON.parse(err.response);
-        webix.message({text: errData.message, type: "error"});
+        webix.message({ text: errData.message, type: "error" });
         viewId.hideProgress();
         $$(prefix + "_table").clearAll();
-			});
+      });
   };
 
   const removeRow = () => {
@@ -154,7 +176,7 @@ export function ViewDataPage(prefix, selectedDb) {
         tooltip: "Open new View Data",
         icon: "mdi mdi-view-grid-plus",
         click: function () {
-          newViewDataTab()
+          newViewDataTab();
         },
       },
       {
@@ -276,6 +298,7 @@ export function ViewDataPage(prefix, selectedDb) {
           },
           on: {
             onValueSuggest: function (node) {
+              $$(prefix + "_database_search").$values_cache = node;
               loadTableData(node.id);
             },
           },
@@ -288,6 +311,11 @@ export function ViewDataPage(prefix, selectedDb) {
                 .then((editor) => editor.focus());
             }
           },
+          onTimedKeyPress: function () {
+            if(this.getValue().trim().length==0){
+              this.$values_cache = null;
+            }
+          }
         },
       },
       {
@@ -308,17 +336,112 @@ export function ViewDataPage(prefix, selectedDb) {
           }
         },
       },
+      // {
+      //   view: "button",
+      //   type: "icon",
+      //   css: "zmdi_padding",
+      //   id: prefix + "_save_row",
+      //   autowidth: true,
+      //   hidden: true,
+      //   tooltip: "Apply Save Changes",
+      //   icon: "mdi mdi-table-check",
+      //   click: function () {
+
+      //   },
+      // },
       {
         view: "button",
         type: "icon",
-        css: "zmdi_padding",
-        id: prefix + "_save_row",
+        icon: "mdi mdi-content-save-outline",
         autowidth: true,
-        hidden: true,
-        tooltip: "Apply Save Changes",
-        icon: "mdi mdi-table-check",
+        // hidden: true,
+        id: prefix + "_save_row",
+        tooltip: "Save changes",
+        css: "z_icon_color_primary zmdi_padding",
         click: function () {
+          const grid = $$(prefix + "_table");
+          grid.editStop();
+          let cache = grid.$values_cache;
+          if (typeof cache != "undefined") {
+            if (cache.length > 0) {
+              cache.forEach((o) => {
+                grid.removeCellCss(
+                  o.id,
+                  o.column,
+                  "z_changes_cell_result",
+                  false
+                );
+              });
+            }
 
+            // const strQry = input.sql.toLowerCase().split("from");
+            // const tableName = strQry.pop().trim().split(" ");
+
+            const uniqueAddedArr = Array.from(new Set(cache.map((a) => a.id)))
+              .map((id) => {
+                return cache.find((a) => a.id === id);
+              })
+              .filter((o) => o.id < 1);
+
+            let createdCache = [];
+            uniqueAddedArr.forEach((o) => {
+              createdCache.push(grid.getItem(o.id));
+            });
+
+            let editedCache = cache.filter((o) => o.id > 0);
+            const dataSave = [...createdCache, ...editedCache];
+            // return webix.message({text: 'Not implement yet!', type: "debug"});
+
+            console.log("dataSave", dataSave);
+            const searchViewId = $$(prefix + "_database_search");
+
+            if(searchViewId.getValue().trim().length==0){
+              webix.message({text:"Table empty, please search table name", type:"error"});
+              return;
+            }
+            console.log('searchViewId',searchViewId);
+            console.log('searchViewId2',searchViewId.getChildViews());
+
+            // console.log('sourceViewId.getPopup().getList()',searchViewId.getPopup().getList());
+
+            const sourceItem = searchViewId.$values_cache;
+            // console.log('sourceItem',sourceItem);
+
+            console.log('searchViewId.$values_cache',searchViewId.$values_cache);
+
+
+            const schemaTable = `${sourceItem.schema}.${sourceItem.name}`;
+
+            if (cache.length > 0) {
+              const inputData = {
+                source_id: $$(prefix + "_source_combo").getValue(),
+                table_name: schemaTable,
+                data: JSON.stringify(dataSave),
+              };
+              console.log('inputData',inputData);
+
+              // webix
+              //   .ajax()
+              //   .post(`${urlViewData}/save_result`, inputData)
+              //   .then(function (data) {
+              //     webix.message({
+              //       text: "Data saved",
+              //       type: "success",
+              //     });
+              //   });
+              grid.$values_cache = [];
+            } else {
+              webix.message({
+                text: "No data to save",
+                type: "error",
+              });
+            }
+          } else {
+            webix.message({
+              text: "Update first, no data to save",
+              type: "error",
+            });
+          }
         },
       },
       {

@@ -124,7 +124,13 @@ export function ViewDataPage(prefix, selectedDb) {
                 "z_changes_cell_result",
                 true
               );
-              // $$(this).removeCellCss(editor.row, editor.column, "z_cell_null", true);
+              $$(prefix + "_save_row").show();
+              if(this.$values_cache.length>0){
+                $$(prefix + "_save_row").enable();
+
+              }else{
+                $$(prefix + "_save_row").disable();
+              }
             },
           },
         };
@@ -354,9 +360,10 @@ export function ViewDataPage(prefix, selectedDb) {
         type: "icon",
         icon: "mdi mdi-content-save-outline",
         autowidth: true,
-        // hidden: true,
+        hidden: true,
         id: prefix + "_save_row",
         tooltip: "Save changes",
+        disabled: true,
         css: "z_icon_color_primary zmdi_padding",
         click: function () {
           const grid = $$(prefix + "_table");
@@ -374,9 +381,6 @@ export function ViewDataPage(prefix, selectedDb) {
               });
             }
 
-            // const strQry = input.sql.toLowerCase().split("from");
-            // const tableName = strQry.pop().trim().split(" ");
-
             const uniqueAddedArr = Array.from(new Set(cache.map((a) => a.id)))
               .map((id) => {
                 return cache.find((a) => a.id === id);
@@ -390,26 +394,12 @@ export function ViewDataPage(prefix, selectedDb) {
 
             let editedCache = cache.filter((o) => o.id > 0);
             const dataSave = [...createdCache, ...editedCache];
-            // return webix.message({text: 'Not implement yet!', type: "debug"});
-
-            console.log("dataSave", dataSave);
             const searchViewId = $$(prefix + "_database_search");
-
             if(searchViewId.getValue().trim().length==0){
               webix.message({text:"Table empty, please search table name", type:"error"});
               return;
             }
-            console.log('searchViewId',searchViewId);
-            console.log('searchViewId2',searchViewId.getChildViews());
-
-            // console.log('sourceViewId.getPopup().getList()',searchViewId.getPopup().getList());
-
             const sourceItem = searchViewId.$values_cache;
-            // console.log('sourceItem',sourceItem);
-
-            console.log('searchViewId.$values_cache',searchViewId.$values_cache);
-
-
             const schemaTable = `${sourceItem.schema}.${sourceItem.name}`;
 
             if (cache.length > 0) {
@@ -417,19 +407,20 @@ export function ViewDataPage(prefix, selectedDb) {
                 source_id: $$(prefix + "_source_combo").getValue(),
                 table_name: schemaTable,
                 data: JSON.stringify(dataSave),
+                real_field: 1
               };
-              console.log('inputData',inputData);
 
-              // webix
-              //   .ajax()
-              //   .post(`${urlViewData}/save_result`, inputData)
-              //   .then(function (data) {
-              //     webix.message({
-              //       text: "Data saved",
-              //       type: "success",
-              //     });
-              //   });
+              webix
+                .ajax()
+                .post(`${url}/save_result`, inputData)
+                .then(function (data) {
+                  webix.message({
+                    text: "Data saved",
+                    type: "success",
+                  });
+                });
               grid.$values_cache = [];
+              $$(prefix + "_save_row").hide();
             } else {
               webix.message({
                 text: "No data to save",

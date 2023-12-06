@@ -2717,6 +2717,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                             source_id: input.source_id,
                             table_name: tableName[0],
                             data: JSON.stringify(dataSave),
+                            real_field: 0
                           };
                           webix
                             .ajax()

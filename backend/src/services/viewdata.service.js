@@ -272,12 +272,13 @@ class ViewdataService {
 
   async saveResult(userId, bodyData) {
 
-    const { source_id, table_name, data } = bodyData;
+    const { source_id, table_name, data, real_field } = bodyData;
 
     const tblData = await ViewdataRepository.updateTableResult(
       source_id,
       userId,
       table_name,
+      real_field,
       data
     );
 

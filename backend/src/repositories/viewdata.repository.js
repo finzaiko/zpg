@@ -18,7 +18,6 @@ class ViewdataRepository {
         from pg_class c
         inner join pg_namespace n on (c.relnamespace = n.oid)
         where c.relfilenode = ${oid}`;
-        console.log('sql',sql);
 
       return pgPool.query(sql);
     }
@@ -66,7 +65,6 @@ class ViewdataRepository {
       sql += ` ${sqlWhere} `;
       sql += ` ${sqlSort} `;
       sql += ` LIMIT ${limit} OFFSET ${offset}`;
-      // console.log(`sqlllllll`, sql);
       return pgPool.query(sql);
     }
     return [];
@@ -81,7 +79,6 @@ class ViewdataRepository {
       from information_schema.columns
       where table_schema='${schema}' and table_name = '${table}';
       `;
-      // console.log(`sql/////////////////`, sql);
       return pgPool.query(sql);
     }
     return [];
@@ -96,7 +93,7 @@ class ViewdataRepository {
     return [];
   }
 
-  async updateTableResult(profileId, userId, tableName, data) {
+  async updateTableResult(profileId, userId, tableName, isRealField, data) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
@@ -110,19 +107,20 @@ class ViewdataRepository {
         await client.query('BEGIN')
         let sqlAll = [];
         JSON.parse(data).forEach(o=>{
-          console.log('o',o);
 
           // update table
           if(o.id>0){
             const inputColName = o.column;
-            const colName = inputColName.substring(0, inputColName.lastIndexOf('_'));
+            let colName = inputColName;
+            if(isRealField==0){
+              colName = inputColName.substring(0, inputColName.lastIndexOf('_'));
+            }
             const oneSql = `UPDATE ${schema}.${table} SET ${colName}='${o.value}' WHERE id=${o.id_db};`;
             sqlAll.push(oneSql);
           }else{ // insert table
             let field = [], val = [];
             Object.entries(o).forEach(entry => {
               const [key, value] = entry;
-              console.log(key, value);
               if(key!="id"){
                 const colName = key.substring(0, key.lastIndexOf('_'));
                 field.push(colName);
@@ -150,6 +148,7 @@ class ViewdataRepository {
           console.log('PK name not ID');
           return;
         }
+
 
         async.eachSeries(
           sqlAll,
@@ -180,7 +179,6 @@ class ViewdataRepository {
   async getIsTable(profileId, userId, schema, table) {
     const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
     if (serverCfg.length > 0) {
-      console.log('hereeee2');
       const pgPool = new Pool(serverCfg[0]);
       const sql = `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = '${schema}' and table_name = '${table}') as data;`;
       return pgPool.query(sql);

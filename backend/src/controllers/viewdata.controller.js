@@ -2,7 +2,6 @@ const ViewdataService = require(`../services/viewdata.service`);
 const { responseOk, responseValidate } = require("../utils/http.utils");
 
 class ViewdataController {
-
   async getTableData(request, reply) {
     const { id, oid, start, count, filter, sort } = request.query; // t = is type level, 1 show db only;
     // console.log(`request.query /////////`, request.query);
@@ -55,22 +54,26 @@ class ViewdataController {
 
     const userId = request.user.uid;
     // profileId, userId, oid, bodyData
-    const r = await ViewdataService.updateTableData(userId, request.body)
-    reply.send({status: "ok"});
+    const r = await ViewdataService.updateTableData(userId, request.body);
+    reply.send({ status: "ok" });
   }
 
   async saveResult2(request, reply) {
     const userId = request.user.uid;
     const r = await ViewdataService.saveResult2(userId, request.body);
-    reply.send({status: "ok"});
+    reply.send({ status: "ok" });
   }
 
   async saveResult(request, reply) {
     const userId = request.user.uid;
     const r = await ViewdataService.saveResult(userId, request.body);
-    console.log('r',r);
+    // console.log('r',r);
+    reply.send({ status: "ok" });
+  }
 
-    reply.send({status: "ok"});
+  async remove(request, reply) {
+    await ViewdataService.removeRow(request.body);
+    responseHttp(reply, 204, "Removed");
   }
 }
 

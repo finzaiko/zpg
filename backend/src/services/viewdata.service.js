@@ -38,10 +38,10 @@ class ViewdataService {
     // const pk = dataPk.rows[0].attname;
 
     let pk = "";
-    if(dataPk.rows.length>0){
+    if (dataPk.rows.length > 0) {
       pk = dataPk.rows[0].attname;
-    }else{
-      if(tblTypes.length>0){
+    } else {
+      if (tblTypes.length > 0) {
         pk = tblTypes[0].column_name;
       }
     }
@@ -127,10 +127,10 @@ class ViewdataService {
     );
 
     let pk = "";
-    if(dataPk.rows.length>0){
+    if (dataPk.rows.length > 0) {
       pk = dataPk.rows[0].attname;
-    }else{
-      if(tblTypes.length>0){
+    } else {
+      if (tblTypes.length > 0) {
         pk = tblTypes[0].column_name;
       }
     }
@@ -152,9 +152,9 @@ class ViewdataService {
               fieldValue.push(`${key}=${value}`);
               break;
             default:
-              if(value===null){
+              if (value === null) {
                 fieldValue.push(`${key}=${value}`);
-              }else{
+              } else {
                 fieldValue.push(`${key}='${value}'`);
               }
               break;
@@ -176,13 +176,12 @@ class ViewdataService {
     return result;
   }
 
-
   async saveResult2(userId, bodyData) {
     const { source_id, table_name, data } = bodyData;
 
-    const ts = table_name.split('.');
-    const tableschema = ts[0]
-    const tablename = ts[1]
+    const ts = table_name.split(".");
+    const tableschema = ts[0];
+    const tablename = ts[1];
 
     const tblType = await ViewdataRepository.getTableType(
       source_id,
@@ -199,20 +198,18 @@ class ViewdataService {
       tablename
     );
 
+    let sqlStr = "";
+    JSON.parse(data).forEach((o) => {
+      console.log("o", o);
 
-    let sqlStr = '';
-    JSON.parse(data).forEach(o=>{
-      console.log('o',o);
-
-      const col = (o.column).split(".")[0];
+      const col = o.column.split(".")[0];
       // update table
-      if(o.id>0){
+      if (o.id > 0) {
         sqlStr = `UPDATE ${tableschema}.${tablename} SET ${col}='${o.value}' WHERE ${pk}=${o.id_db}`;
         // console.log(`sql******`, sqlStr);
-      }else{
-
+      } else {
       }
-    })
+    });
     const tblData = await ViewdataRepository.updateTableData(
       profileId,
       userId,
@@ -221,10 +218,10 @@ class ViewdataService {
 
     return;
     let pk = "";
-    if(dataPk.rows.length>0){
+    if (dataPk.rows.length > 0) {
       pk = dataPk.rows[0].attname;
-    }else{
-      if(tblTypes.length>0){
+    } else {
+      if (tblTypes.length > 0) {
         pk = tblTypes[0].column_name;
       }
     }
@@ -246,9 +243,9 @@ class ViewdataService {
               fieldValue.push(`${key}=${value}`);
               break;
             default:
-              if(value===null){
+              if (value === null) {
                 fieldValue.push(`${key}=${value}`);
-              }else{
+              } else {
                 fieldValue.push(`${key}='${value}'`);
               }
               break;
@@ -271,9 +268,7 @@ class ViewdataService {
   }
 
   async saveResult(userId, bodyData) {
-
     const { source_id, table_name, data, real_field } = bodyData;
-
     const tblData = await ViewdataRepository.updateTableResult(
       source_id,
       userId,
@@ -281,9 +276,18 @@ class ViewdataService {
       real_field,
       data
     );
+    // console.log("tblData", tblData);
+  }
 
-    console.log('tblData',tblData);
-
+  async removeRow(bodyData) {
+    const { source_id, table_name, id } = bodyData;
+    const data = await ViewdataRepository.removeRow(
+      source_id,
+      table_name,
+      id,
+    );
+    return data
+    // console.log("tblData", tblData);
   }
 
 }

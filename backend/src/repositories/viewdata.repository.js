@@ -185,6 +185,17 @@ class ViewdataRepository {
     }
     return [];
   }
+
+  async removeRow(profileId, tableName, id) {
+    const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
+    if (serverCfg.length > 0) {
+      const pgPool = new Pool(serverCfg[0]);
+      const sql = `DELETE FROM ${tableName} WHERE id=${id}`;
+      return pgPool.query(sql);
+    }
+    return [];
+  }
+
 }
 
 module.exports = new ViewdataRepository();

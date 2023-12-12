@@ -78,23 +78,25 @@ function runQuery(db, sql, callback) {
 
 // Compare ------------------
 
-let dbCompare = new sqlite3.Database(DBCOMPARE, (err) => {
-  if (err) {
-    console.error(err.message);
-    throw err;
-  } else {
-    runQueryCompare(dbCompare, 'PRAGMA auto_vacuum = FULL;');
-    runQueryCompare(dbCompare, compareTable('tbl_a'));
-    runQueryCompare(dbCompare, compareTable('tbl_b'));
-  }
-});
+// let dbCompare = new sqlite3.Database(DBCOMPARE, (err) => {
+//   if (err) {
+//     console.error(err.message);
+//     throw err;
+//   } else {
+//     runQueryCompare(dbCompare, 'PRAGMA auto_vacuum = FULL;');
+//     runQueryCompare(dbCompare, compareTable('tbl_a'));
+//     runQueryCompare(dbCompare, compareTable('tbl_b'));
+//   }
+// });
 
-function runQueryCompare(dbCompare, sql) {
-  dbCompare.run(sql, (err) => {
-    if (err) {
-      // console.log("Run query: ", err);
-    }
-  });
-}
+// function runQueryCompare(dbCompare, sql) {
+//   dbCompare.run(sql, (err) => {
+//     if (err) {
+//       // console.log("Run query: ", err);
+//     }
+//   });
+// }
 
-module.exports = { db, pgConfig, dbCompare };
+// module.exports = { db, pgConfig, dbCompare };
+module.exports = { db, pgConfig};
+

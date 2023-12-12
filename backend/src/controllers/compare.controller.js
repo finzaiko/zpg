@@ -108,7 +108,7 @@ class CompareController {
 
     const { source_id, target_id, source_oid, target_oid, z_type, schema, name, ret, prm_in, prm_out } =
       request.query;
-    
+
     const c = await CompareService.getContentDiff(
       source_id,
       userId,
@@ -123,10 +123,10 @@ class CompareController {
       `${schema}.${name}`,
       // "f",
       z_type,
-      target_oid 
+      target_oid
     );
     // console.log('cccccccccccccc',c);
-    
+
     const res = {
       status: true,
       data: {
@@ -185,6 +185,53 @@ class CompareController {
     );
 
     // Save to temp table
+    // let data = await CompareService.createTempTable(dataA.rows, dataB.rows);
+    const data = compareArrayAll(dataA.rows, dataB.rows);
+
+    responseOk(reply, {data});
+  }
+
+
+  async generateDiffTempTable(request, reply) {
+    const { source_id, target_id, schema, filter, is_target, oid } =
+      request.query;
+
+    const userId = request.user.uid;
+
+    let errors = [];
+    if (!request.query.source_id) {
+      errors.push("Source ID required");
+    }
+    if (!request.query.target_id) {
+      errors.push("Target ID required");
+    }
+    if (errors.length) {
+      reply
+        .code(code)
+        .header(`Content-Type`, `application/json; charset=utf-8`)
+        .send({ error: errors.join(",") });
+      return;
+    }
+
+    const dataA = await CompareService.getSchemaInfo(
+      source_id,
+      userId,
+      schema,
+      filter,
+      // is_target,
+      oid
+    );
+
+    const dataB = await CompareService.getSchemaInfo(
+      target_id,
+      userId,
+      schema,
+      filter,
+      // is_target,
+      oid
+    );
+
+    // Save to temp table
     let data = await CompareService.createTempTable(dataA.rows, dataB.rows);
 
     responseOk(reply, {data});
@@ -193,7 +240,7 @@ class CompareController {
   async getResultDiff(request, reply) {
     const data = await CompareService.getDiff();
     // console.log('data2---->',data);
-    
+
     responseOk(reply, {data});
   }
 
@@ -236,7 +283,7 @@ class CompareController {
     // Save to temp table
     let data = await CompareService.createTempTable(dataA.rows, dataB.rows);
     // console.log('data',data);
-    
+
 
     responseOk(reply, {data});
 

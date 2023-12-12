@@ -15,6 +15,8 @@ const schemaInfo = (schema, oidArr, filter, aliasId) => {
   let sql = "";
 
   let sqlFunc = `
+    SELECT *, concat_ws('_', z_schema, z_name, z_return, z_params_in, z_params_out, z_content, params_in_type, params_out_type) as compare_name
+    FROM (
       SELECT
       prc.oid AS id,
       isr.specific_schema AS z_schema,
@@ -25,7 +27,8 @@ const schemaInfo = (schema, oidArr, filter, aliasId) => {
       COUNT(*) FILTER(WHERE isp.parameter_mode='IN')::int AS z_params_in,
       COUNT(*) FILTER(WHERE isp.parameter_mode='OUT')::int AS z_params_out,
       LENGTH(regexp_replace(pg_get_functiondef(prc.oid), E'[\n\r]+', '', 'g')) AS z_content,
-      STRING_AGG(isp.data_type, ',' order by isp.dtd_identifier) FILTER(WHERE isp.parameter_mode='IN') as params_in_type
+      STRING_AGG(isp.data_type, ',' order by isp.dtd_identifier) FILTER(WHERE isp.parameter_mode='IN') as params_in_type,
+      STRING_AGG(isp.data_type, ',' order by isp.dtd_identifier) FILTER(WHERE isp.parameter_mode='OUT') as params_out_type
     FROM information_schema.routines isr
     INNER JOIN pg_proc prc ON prc.oid = reverse(split_part(reverse(isr.specific_name), '_', 1))::int
     INNER JOIN information_schema.parameters isp ON isp.specific_name = isr.specific_name
@@ -39,31 +42,34 @@ const schemaInfo = (schema, oidArr, filter, aliasId) => {
     sqlFunc += ` AND isr.specific_schema='${schema}'`;
   }
 
-  sqlFunc += ` GROUP BY 1, 2, 3, 4`;
+  sqlFunc += ` GROUP BY 1, 2, 3, 4) t`;
 
   let sqlTable = `
-  SELECT
-    COALESCE(
-      (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_schema) || '.' || quote_ident(table_name))
-      ,(SELECT oid FROM pg_class WHERE relname = quote_ident(table_name) AND relkind = 'r' LIMIT 1)
-    )AS id,
-    table_schema AS z_schema,
-    table_name AS z_name,
-    null::text As z_return,
-    't'::text AS z_type,
-    null::int AS z_params_in,
-    null::int AS z_params_out,
-    -- 2::int AS z_tasktype,
-    COUNT(*) FILTER (WHERE column_name IS NOT NULL)::int AS z_content
-  FROM information_schema.columns
-  WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+  SELECT *, concat_ws('_', z_schema,z_name,z_content) as compare_name
+  FROM (
+    SELECT
+      COALESCE(
+        (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_schema) || '.' || quote_ident(table_name))
+        ,(SELECT oid FROM pg_class WHERE relname = quote_ident(table_name) AND relkind = 'r' LIMIT 1)
+      )AS id,
+      table_schema AS z_schema,
+      table_name AS z_name,
+      null::text As z_return,
+      't'::text AS z_type,
+      null::int AS z_params_in,
+      null::int AS z_params_out,
+      -- 2::int AS z_tasktype,
+      COUNT(*) FILTER (WHERE column_name IS NOT NULL)::int AS z_content
+    FROM information_schema.columns
+    WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+
   `;
 
   if (schema !== undefined && schema != "") {
     sqlTable += ` AND table_schema='${schema}'`;
   }
 
-  sqlTable += ` GROUP BY 1, 2, 3 `;
+  sqlTable += ` GROUP BY 1, 2, 3 )t`;
 
 
   let sqlTableFunc = `
@@ -81,6 +87,8 @@ const schemaInfo = (schema, oidArr, filter, aliasId) => {
   }else if(filter==3){
     sql = sqlTableFunc;
   }
+
+  // console.log('sql',sql);
 
   return sql;
 };

@@ -2326,6 +2326,12 @@ export function QueryPage(prefix, selectedDb, editorValue) {
       }
 
       function openWinCell(type, content) {
+        let isJsonType = false, langType = "text";
+        if (type == "json" || type == "jsonb") {
+          isJsonType = true;
+          langType = "json";
+        }
+
         webix
           .ui({
             view: "window",
@@ -2356,18 +2362,49 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                       this.show();
                       ck.hide();
                     }, 1500);
-
-                    copyToClipboard(content);
+                    const editorId = $$(prefix + "_detail_cell");
+                    const cellValue = editorId.getValue();
+                    // copyToClipboard(content);
+                    copyToClipboard(cellValue);
                   },
                 },
                 {
                   view: "template",
-                  autowidth: true,
+                  width: 30,
                   hidden: true,
                   css: { "padding-top": "3px" },
                   borderless: true,
                   id: prefix + "_copy_detail_cell_done",
                   template: `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`,
+                },
+                {
+                  view: "icon",
+                  icon: "mdi mdi-format-align-left",
+                  autowidth: true,
+                  hidden: !isJsonType,
+                  tooltip: "JSON Formatter",
+                  css: "z_icon_color_primary z_icon_size_17",
+                  id: prefix + "_json_formatter_btn",
+                  click: function () {
+                    // this.monacoEditor.trigger('anyString', 'editor.action.formatDocument')
+                    const editorId = $$(prefix + "_detail_cell");
+                    const cellValue = editorId.getValue();
+                    editorId.setValue(JSON.stringify(JSON.parse(cellValue), null, 4))
+                  }
+                },
+                {
+                  view: "icon",
+                  icon: "mdi mdi-format-align-top",
+                  autowidth: true,
+                  hidden: !isJsonType,
+                  id: prefix + "_json_minify_btn",
+                  tooltip: "JSON Minify",
+                  css: "z_icon_color_primary z_icon_size_17",
+                  click: function () {
+                    const editorId = $$(prefix + "_detail_cell");
+                    const cellValue = editorId.getValue();
+                    editorId.setValue(JSON.stringify(JSON.parse(cellValue), null, 0))
+                  }
                 },
                 {},
                 {
@@ -2386,16 +2423,29 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             //   css: "z_query_detail_cell",
             //   value: content,
             // },
-            body: {
-              view: "template",
-              css: "z_query_detail_cell",
-              // template: `<pre style='height:100%;overflow: auto;'>${content}</pre>`,
-              template: `<pre id='${
-                prefix + "_detail_cell_content"
-              }' style='height:100%;overflow: auto;'></pre>`,
+            // body: {
+            //   view: "template",
+            //   css: "z_query_detail_cell",
+            //   // template: `<pre style='height:100%;overflow: auto;'>${content}</pre>`,
+            //   template: `<pre id='${
+            //     prefix + "_detail_cell_content"
+            //   }' style='height:100%;overflow: auto;'></pre>`,
+            // },
+            body:  {
+              view: "monaco-editor",
+              css: "z_console_editor",
+              id: prefix + "_detail_cell",
+              language: langType,
+              lineNumbers: "off",
+              fontSize: "13px",
+              borderless: true,
+              renderLineHighlight: "none",
+              // readOnly: true,
+              value: content
             },
             on: {
               onShow: function () {
+                /*
                 const s = document.querySelector(
                   "#" + prefix + "_detail_cell_content"
                 );
@@ -2404,6 +2454,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                 } else {
                   s.innerText = content;
                 }
+                */
               },
             },
           })

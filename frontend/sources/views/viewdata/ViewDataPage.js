@@ -158,8 +158,9 @@ export function ViewDataPage(prefix, selectedDb) {
         if (result) {
           webix
             .ajax()
+            .del(`${url}/remove/${sel}`, null, function (res) {
+              console.log('res',res);
 
-            .del(`${url}/remove`, null, function (res) {
               $$(prefix + "_table").remove(sel);
               webix.message({
                 text: `Row deleted`,

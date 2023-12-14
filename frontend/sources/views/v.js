@@ -52,9 +52,10 @@ function openWelcomeTab() {
   }
 }
 
-function resetLastIndexTab() {
+function resetLastIndexQueryTab() {
   setTimeout(() => {
-    const tabList = getTabbarList($$("tabs"));
+    const allTabList = getTabbarList($$("tabs"));
+    const tabList = allTabList.filter((o) => o.id.includes("query"));
 
     if (tabList.length > 0) {
       let idx = [];
@@ -147,36 +148,47 @@ function initContextMenu() {
       on: {
         onBeforeShow: function () {
           const tabId = getTabId(this.getContext());
-          const tabList = getTabbarList($$("tabs"));
-          const currentIndex = tabList.findIndex((o) => o.id == tabId);
-          if (tabList.length == 1) {
+          // if (!tabId.includes("query")) {
+          //   webix.html.preventEvent(this);
+          //   return false;
+          // }
+          const allTabList = getTabbarList($$("tabs"));
+          const queryTabList = allTabList.filter((o) => o.id.includes("query"));
+          const currentIndex = queryTabList.findIndex((o) => o.id == tabId);
+          if (queryTabList.length == 1 || currentIndex < 0) {
             this.disableItem(1);
-          } else {
-            this.enableItem(1);
-          }
-          if (currentIndex == tabList.length - 1) {
             this.disableItem(2);
           } else {
-            this.enableItem(2);
+            this.enableItem(1);
+            if (currentIndex == queryTabList.length - 1) {
+              this.disableItem(2);
+            } else {
+              this.enableItem(2);
+            }
           }
         },
         onMenuItemClick: function (id, event, itemNode) {
           const tabId = $$("tabs");
-          const tabList = getTabbarList(tabId);
+          const allTabList = getTabbarList(tabId);
+          const queryTabList = allTabList.filter((o) => o.id.includes("query"));
           const tabIdText = getTabId(this.getContext());
           if (id == 1) {
-            const closeTabList = tabList.filter((o) => o.id !== tabIdText);
+            const closeTabList = queryTabList.filter((o) => o.id !== tabIdText);
             syncCloseTabs(closeTabList, true, () => {
-              resetLastIndexTab();
+              resetLastIndexQueryTab();
             });
           } else if (id == 2) {
-            const currentIndex = tabList.findIndex((o) => o.id == tabIdText);
-            const rightTabList = tabList.filter((_, i) => i > currentIndex);
+            const currentIndex = queryTabList.findIndex(
+              (o) => o.id == tabIdText
+            );
+            const rightTabList = queryTabList.filter(
+              (_, i) => i > currentIndex
+            );
             syncCloseTabs(rightTabList, true, () => {
-              resetLastIndexTab();
+              resetLastIndexQueryTab();
             });
           } else if (id == 3) {
-            syncCloseTabs(tabList, false, () => {
+            syncCloseTabs(queryTabList, false, () => {
               emptyStoreIDB();
               state.currentTabQuery = 0;
               openWelcomeTab();

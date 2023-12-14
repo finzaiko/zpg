@@ -552,21 +552,12 @@ function compare() {
   webix
     .ajax(_url)
     .then(function (rb) {
-      const _url2 = `${url}/result`;
-      webix.ajax(_url2).then((rc) => {
-        const res = rc.json();
-        if (typeof res.data == "undefined") {
-          webix.alert({
-            type: "alert-error",
-            title: "Comparing Failed",
-            text: "Problem accured when not show comparing result, please try again.",
-          });
-          pageId.hideProgress();
+      const res = rb.json();
+      // console.table(res.data);
+
+        pageId.hideProgress();
           pageId.enable();
-        } else {
-          pageId.hideProgress();
-          pageId.enable();
-          $$("griddiff").parse(rc.json());
+          $$("griddiff").parse(res.data);
           webix.extend(diffPanelId, webix.OverlayBox);
           diffPanelId.showOverlay(
             `<div style='background:white;padding-top:0;height:99%; display: flex;justify-content: center;align-items: center; flex-direction: column;margin-top:1px; margin-bottom:1px'>
@@ -582,8 +573,39 @@ function compare() {
             $$("diff_detail_resizer").hide();
             $$("diff_detail_panel").hide();
           }
-        }
-      });
+
+      // const _url2 = `${url}/result`;
+      // webix.ajax(_url2).then((rc) => {
+      //   const res = rc.json();
+      //   if (typeof res.data == "undefined") {
+      //     webix.alert({
+      //       type: "alert-error",
+      //       title: "Comparing Failed",
+      //       text: "Problem accured when not show comparing result, please try again.",
+      //     });
+      //     pageId.hideProgress();
+      //     pageId.enable();
+      //   } else {
+      //     pageId.hideProgress();
+      //     pageId.enable();
+      //     $$("griddiff").parse(rc.json());
+      //     webix.extend(diffPanelId, webix.OverlayBox);
+      //     diffPanelId.showOverlay(
+      //       `<div style='background:white;padding-top:0;height:99%; display: flex;justify-content: center;align-items: center; flex-direction: column;margin-top:1px; margin-bottom:1px'>
+      //     <div>Select left table to show the differences</div>
+      //     <div style='font-size: 20px' class='mdi mdi-arrow-left'></div>
+      //     </div>`
+      //     );
+
+      //     if ($$("griddiff").serialize().length > 0) {
+      //       $$("diff_detail_resizer").show();
+      //       $$("diff_detail_panel").show();
+      //     } else {
+      //       $$("diff_detail_resizer").hide();
+      //       $$("diff_detail_panel").hide();
+      //     }
+        // }
+      // });
     })
     .fail(function (err) {
       webix.message({ text: err.responseText, type: "error" });

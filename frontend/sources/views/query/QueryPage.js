@@ -17,7 +17,7 @@ import { nonSringType, state as stateBase } from "../../models/Base";
 import { url as urlProfile } from "../../models/Profile";
 import { url as urlShare } from "../../models/Share";
 import { url as urlTask } from "../../models/Task";
-import { url, state, searchHistoryStore } from "../../models/Query";
+import { url, state, searchHistoryStore, storeLastOpenQuery } from "../../models/Query";
 import { QueryDatabase } from "./QueryDatabase";
 import { QueryHelp } from "./QueryHelp";
 import { userProfile } from "../../models/UserProfile";
@@ -2212,6 +2212,8 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                   state.isRestoreLastQuery = newVal;
                   if(newVal==0){
                     emptyStoreIDB();
+                  }else{
+                    storeLastOpenQuery()
                   }
                   webix.storage.local.put(LAST_QUERY_RESTORE, newVal);
                 },

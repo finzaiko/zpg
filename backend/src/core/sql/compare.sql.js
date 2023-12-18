@@ -15,7 +15,7 @@ const schemaInfo = (schema, oidArr, filter, aliasId) => {
   let sql = "";
 
   let sqlFunc = `
-    SELECT *, concat_ws('_', z_schema, z_name, z_return, z_params_in, z_params_out, z_content, params_in_type, params_out_type) as compare_name
+    SELECT *, concat_ws('_', z_schema, z_name, z_return, z_params_in, z_params_out, params_in_type, params_out_type) as compare_name
     FROM (
       SELECT
       prc.oid AS id,

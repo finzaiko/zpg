@@ -6,7 +6,7 @@ const compareArrayAll = (a, b) => {
     return function (current) {
       return (
         otherArray.filter(function (other) {
-          return other.compare_name == current.compare_name;
+          return other.z_content == current.z_content;
         }).length == 0
       );
     };
@@ -16,9 +16,9 @@ const compareArrayAll = (a, b) => {
     return Object.assign(v, { diff: true }, { err: "trg" });
   });
 
-  b.filter((e) => !a.find((b) => e.compare_name == b.compare_name)).map((v) =>
-    Object.assign(v, { diff: true }, { err: "src" })
-  );
+  b.filter((e) => !a.find((b) => e.compare_name == b.compare_name)).map((v) => {
+    return Object.assign(v, { diff: true }, { err: "src" });
+  });
 
   a.filter(comparer(b))
     .concat(b.filter(comparer(a)))
@@ -28,7 +28,7 @@ const compareArrayAll = (a, b) => {
     (acc, el2) => {
       if (
         a.findIndex((el1) => {
-          return el1.compare_name === el2.compare_name;
+          // return el1.compare_name === el2.compare_name;
         }) === -1
       ) {
         acc.push(el2);

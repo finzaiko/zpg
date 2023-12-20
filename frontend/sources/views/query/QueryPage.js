@@ -630,6 +630,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
               width: 120,
               body: {
                 view: "list",
+                css: "listitem_handcursor",
                 data: [
                   {
                     id: prefix + "_sname",
@@ -1434,6 +1435,17 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             view: "datatable",
             id: prefix + "_history_list",
             css: "z_fade_list z_list_cursor_pointer",
+            tooltip: function (obj, config) {
+              if (
+                config.column.id == "created_at"
+              ) {
+                console.log('config.column.id',config.column.id);
+
+                return obj.created_at;
+              } else {
+                return "";
+              }
+            },
             columns: [
               // { id: "title", header: "", fillspace: true },
               {
@@ -1450,7 +1462,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                 adjust: true,
                 template: function (obj, common, value, column, index) {
                   if (obj.content) {
-                    return `<span style='color: grey;font-style:italic;font-size:13;float:right;'>
+                    return `<span style='color: grey;font-style:italic;font-size:13;float:right;' title='${obj.created_at}'>
                     ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
                   }
                 },
@@ -2308,6 +2320,37 @@ export function QueryPage(prefix, selectedDb, editorValue) {
       .show();
   };
 
+  const expandSizeColumn = () => {
+    $$(prefix + "_expand_col_size").config.icon = "mdi mdi-circle-slice-1 mdi-spin"; // or dots-circle
+    $$(prefix + "_expand_col_size").refresh();
+    // document.body.style.cursor = "wait !important";
+    webix.html.addCss($$(prefix+"_result").getNode(), "z_cursor_progress");
+    setTimeout(() => {
+      document.body.style.cursor = 'progress';
+      const promises = [];
+      const cols = $$(prefix + "_result").config.columns;
+      cols.forEach((o) => {
+        promises.push(
+          new Promise((resolve, reject) => {
+              $$(prefix + "_result").adjustColumn(o.id, "all");
+              if(o.width>300){
+                $$(prefix + "_result").setColumnWidth(o.id, EXPAND_ALL_COL_SIZE);
+              }else{
+                $$(prefix + "_result").setColumnWidth(o.id, o.width+12);
+              }
+            resolve();
+          })
+        );
+      });
+      Promise.all(promises).then(() => {
+        $$(prefix + "_expand_col_size").config.icon = "mdi mdi-arrow-expand-horizontal";
+        $$(prefix + "_expand_col_size").refresh();
+        // document.body.style.cursor='default';
+        webix.html.removeCss($$(prefix+"_result").$view, "z_cursor_progress");
+      });
+    }, 400);
+  }
+
   const openDetailCell = (type, content) => {
     const allowType = ["json", "jsonb", "text", "varchar"];
     if (allowType.indexOf(type) !== -1) {
@@ -2604,7 +2647,6 @@ export function QueryPage(prefix, selectedDb, editorValue) {
         };
       webix
         .ajax()
-
         .post(url + "/run", input)
         .then((r) => {
           let rData = r.json();
@@ -2693,8 +2735,10 @@ export function QueryPage(prefix, selectedDb, editorValue) {
 
                           if ($$(prefix + "_result").count() > 0) {
                             $$(prefix + "_export_result").show();
+                            $$(prefix + "_expand_col_size").show();
                           } else {
                             $$(prefix + "_export_result").hide();
+                            $$(prefix + "_expand_col_size").hide();
                           }
                         }
                       },
@@ -2703,22 +2747,14 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                   { width: 10 },
                   {
                     view: "icon",
-                    icon: "mdi mdi-arrow-left-right",
+                    icon: "mdi mdi-arrow-expand-horizontal",
                     autowidth: true,
+                    hidden: true,
                     id: prefix + "_expand_col_size",
                     tooltip: "Expand size all columns",
                     css: "z_icon_color_primary z_icon_size_18",
                     click: function () {
-                      this.config.icon = "mdi mdi-circle-slice-1 mdi-spin"; // or dots-circle
-                      document.body.style.cursor = "wait";
-                      this.refresh();
-                      setTimeout(() => {
-                        $$(prefix + "_result").eachColumn(function (id) {
-                          this.setColumnWidth(id, EXPAND_ALL_COL_SIZE);
-                        });
-                        this.config.icon = "mdi mdi-arrow-left-right";
-                        this.refresh();
-                      }, 500);
+                        expandSizeColumn();
                     },
                   },
                   { width: 10 },

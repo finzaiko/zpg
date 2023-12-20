@@ -1823,3 +1823,15 @@ svg text {
   color: #1ca1c1;
   cursor: pointer;
 }
+
+.z_cursor_progress > * {
+  cursor: wait !important;
+}
+
+.listitem_handcursor .webix_list_item{
+  cursor: pointer;
+}
+
+.listitem_handcursor .webix_list_item:hover{
+  background: #edeff5 !important;
+}

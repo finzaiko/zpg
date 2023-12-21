@@ -1835,3 +1835,27 @@ svg text {
 .listitem_handcursor .webix_list_item:hover{
   background: #edeff5 !important;
 }
+
+[data-title]:hover:after {
+  opacity: 1;
+  transition: all 0.1s ease 0.5s;
+  visibility: visible;
+}
+[data-title]:after {
+  content: attr(data-title);
+  background-color:  #475466;
+  color:  #fff;
+  position: absolute;
+  padding: 1px 5px 2px 5px;
+  bottom: -1.6em;
+  white-space: nowrap;
+  box-shadow: 1px 1px 3px #222222;
+  opacity: 0;
+ font-weight: 500;
+  line-height: 20px;
+  z-index: 99999;
+  visibility: hidden;
+}
+[data-title] {
+  position: relative;
+}

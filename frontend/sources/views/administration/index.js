@@ -5,7 +5,12 @@ import {
   state,
 } from "../../models/Administration";
 import { url as urlProfile } from "../../models/Profile";
-import { showLoadingText } from "../../helpers/ui";
+import {
+  autoExpandColumnSize,
+  showLoadingText,
+  toTitleCase,
+} from "../../helpers/ui";
+import { LAST_DB_CONN_ADMIN } from "../../config/setting";
 
 const prefix = state.prefix;
 
@@ -24,8 +29,8 @@ const toolbar = {
       },
       on: {
         onChange: function (newv, oldv) {
-          const serverSource = $$(prefix + "_server").getValue();
-          if (serverSource) {
+          if (newv) {
+            webix.storage.local.put(LAST_DB_CONN_ADMIN, newv);
             if ($$(prefix + "_reload_conf_btn")) {
               $$(prefix + "_reload_conf_btn").enable();
             }
@@ -51,22 +56,28 @@ function runAction() {
   showLoadingText(panelId);
 
   runView(inputData).then((r) => {
+    const cols = Object.keys(r.data[0]);
+    let colConfig = [];
+
+    cols.forEach((o) => {
+      colConfig.push({
+        id: o,
+        header: [toTitleCase(o.replace(/_/g, " ")), { content: "textFilter" }],
+        width: 100,
+        sort: "String",
+        editor: "text",
+      });
+    });
+
     const newView = {
       view: "datatable",
-      autoConfig: true,
       resizeColumn: true,
-      // autowidth:true,
+      id: prefix + "_table_viewer",
       data: r.data,
       select: "row",
-      /*
-      ready: function () {
-          const cols = this.config.columns;
-          cols.forEach((o) => {
-            this.getColumnConfig(o.id).maxWidth =
-              Number.MAX_SAFE_INTEGER;
-          });
-      },
-      */
+      columns: colConfig,
+      editable: true,
+      editaction: "dblclick",
     };
 
     let views = $$(prefix + "_scrollview_body").getChildViews();
@@ -76,7 +87,11 @@ function runAction() {
 
     $$(prefix + "_result_scrollview").show();
     $$(prefix + "_scrollview_body").addView(newView);
-    panelId.hideOverlay();
+
+    setTimeout(() => {
+      autoExpandColumnSize($$(prefix + "_table_viewer"));
+      panelId.hideOverlay();
+    }, 300);
   });
 }
 
@@ -124,5 +139,11 @@ export default class AdministrationPage extends JetView {
   }
   init() {
     this.show("administration.default", { target: prefix + "_pageview" });
+  }
+  ready() {
+    const db = webix.storage.local.get(LAST_DB_CONN_ADMIN);
+    if (db) {
+      $$(prefix + "_server").setValue(db);
+    }
   }
 }

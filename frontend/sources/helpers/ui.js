@@ -1,7 +1,7 @@
 import { state as stateBase } from "../models/Base";
 import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
-import { FONT_SIZE_EDITOR } from "../config/setting";
+import { EXPAND_ALL_COL_SIZE, FONT_SIZE_EDITOR } from "../config/setting";
 
 export const pageSize = 10000;
 export const defaultDateFormat = "%d/%m/%Y";
@@ -569,3 +569,36 @@ export function isValidCanSave(sqlString) {
   const exludeKey = ["join", "with", "on"];
   return !queryStrArr.some((r) => exludeKey.includes(r));
 }
+
+export function toTitleCase(str) {
+  return str.replace(/\w\S*/g, function (txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
+
+export function autoExpandColumnSize(tableId) {
+  // document.body.style.cursor = "wait !important";
+  webix.html.addCss(tableId.getNode(), "z_cursor_progress");
+  setTimeout(() => {
+    document.body.style.cursor = "progress";
+    const promises = [];
+    const cols = tableId.config.columns;
+    cols.forEach((o) => {
+      promises.push(
+        new Promise((resolve, reject) => {
+          tableId.adjustColumn(o.id, "all");
+          if (o.width > 300) {
+            tableId.setColumnWidth(o.id, EXPAND_ALL_COL_SIZE);
+          } else {
+            tableId.setColumnWidth(o.id, o.width + 12);
+          }
+          resolve();
+        })
+      );
+    });
+    Promise.all(promises).then(() => {
+      // document.body.style.cursor='default';
+      webix.html.removeCss(tableId.$view, "z_cursor_progress");
+    });
+  }, 400);
+};

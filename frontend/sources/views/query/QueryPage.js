@@ -1262,7 +1262,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
         adjust: true,
         template: function (obj, common, value, column, index) {
           if (obj.content) {
-            return `<span style='color: grey;font-style:italic;font-size:13;float:right;'>
+            return `<span style='color: grey;font-style:italic;font-size:13;float:right;' title='${obj.created_at}'>
           ${timeAgo.format(new Date(obj.created_at), "mini")}</span>`;
           }
         },
@@ -1435,17 +1435,6 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             view: "datatable",
             id: prefix + "_history_list",
             css: "z_fade_list z_list_cursor_pointer",
-            tooltip: function (obj, config) {
-              if (
-                config.column.id == "created_at"
-              ) {
-                console.log('config.column.id',config.column.id);
-
-                return obj.created_at;
-              } else {
-                return "";
-              }
-            },
             columns: [
               // { id: "title", header: "", fillspace: true },
               {

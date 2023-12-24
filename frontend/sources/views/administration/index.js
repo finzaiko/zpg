@@ -56,42 +56,53 @@ function runAction() {
   showLoadingText(panelId);
 
   runView(inputData).then((r) => {
-    const cols = Object.keys(r.data[0]);
-    let colConfig = [];
-
-    cols.forEach((o) => {
-      colConfig.push({
-        id: o,
-        header: [toTitleCase(o.replace(/_/g, " ")), { content: "textFilter" }],
-        width: 100,
-        sort: "String",
-        editor: "text",
-      });
-    });
-
-    const newView = {
-      view: "datatable",
-      resizeColumn: true,
-      id: prefix + "_table_viewer",
-      data: r.data,
-      select: "row",
-      columns: colConfig,
-      editable: true,
-      editaction: "dblclick",
-    };
-
     let views = $$(prefix + "_scrollview_body").getChildViews();
     if (views[0]) {
       $$(prefix + "_scrollview_body").removeView(views[0]);
     }
 
-    $$(prefix + "_result_scrollview").show();
-    $$(prefix + "_scrollview_body").addView(newView);
+    if (r.data.length > 0) {
+      const cols = Object.keys(r.data[0]);
 
-    setTimeout(() => {
-      autoExpandColumnSize($$(prefix + "_table_viewer"));
-      panelId.hideOverlay();
-    }, 300);
+      let colConfig = [];
+
+      cols.forEach((o) => {
+        colConfig.push({
+          id: o,
+          header: [
+            toTitleCase(o.replace(/_/g, " ")),
+            { content: "textFilter" },
+          ],
+          width: 100,
+          sort: "String",
+          editor: "text",
+        });
+      });
+
+      const newView = {
+        view: "datatable",
+        resizeColumn: true,
+        id: prefix + "_table_viewer",
+        data: r.data,
+        select: "row",
+        columns: colConfig,
+        editable: true,
+        editaction: "dblclick",
+      };
+
+      $$(prefix + "_result_scrollview").show();
+      $$(prefix + "_scrollview_body").addView(newView);
+      setTimeout(() => {
+        autoExpandColumnSize($$(prefix + "_table_viewer"));
+      }, 300);
+    } else {
+      const newView = {
+        template: "No data",
+      };
+      $$(prefix + "_result_scrollview").show();
+      $$(prefix + "_scrollview_body").addView(newView);
+    }
+    panelId.hideOverlay();
   });
 }
 

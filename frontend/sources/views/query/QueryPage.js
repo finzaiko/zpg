@@ -2475,7 +2475,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
               borderless: true,
               renderLineHighlight: "none",
               // readOnly: true,
-              value: content
+              // value: content
             },
             on: {
               onShow: function () {
@@ -2489,6 +2489,8 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                   s.innerText = content;
                 }
                 */
+               const editorId = $$(prefix + "_detail_cell");
+              editorId.getEditor(true).then((editor) => editor.setValue(content));
               },
             },
           })

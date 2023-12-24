@@ -577,28 +577,50 @@ export function toTitleCase(str) {
 }
 
 export function autoExpandColumnSize(tableId) {
-  // document.body.style.cursor = "wait !important";
-  webix.html.addCss(tableId.getNode(), "z_cursor_progress");
-  setTimeout(() => {
-    document.body.style.cursor = "progress";
-    const promises = [];
-    const cols = tableId.config.columns;
-    cols.forEach((o) => {
-      promises.push(
-        new Promise((resolve, reject) => {
-          tableId.adjustColumn(o.id, "all");
-          if (o.width > 300) {
-            tableId.setColumnWidth(o.id, EXPAND_ALL_COL_SIZE);
-          } else {
-            tableId.setColumnWidth(o.id, o.width + 12);
-          }
-          resolve();
-        })
-      );
-    });
-    Promise.all(promises).then(() => {
-      // document.body.style.cursor='default';
-      webix.html.removeCss(tableId.$view, "z_cursor_progress");
-    });
-  }, 400);
-};
+  if (tableId) {
+    // document.body.style.cursor = "wait !important";
+    let div = document.createElement("div");
+    div.style.background = "#c2c2c2";
+    div.style.color = "#595959";
+    div.style.position = "fixed";
+    div.style.bottom = "18px";
+    div.style.right = "18px";
+    div.style.padding = "2px 4px";
+    div.style.borderRadius = "2px";
+    div.innerHTML = "Resizing column..";
+    div.style.font = "normal normal 13px Roboto,sans-serif";
+
+    document.querySelector("body").appendChild(div);
+
+    webix.html.addCss(tableId.getNode(), "z_cursor_progress");
+    setTimeout(() => {
+      document.body.style.cursor = "progress";
+      const promises = [];
+      const cols = tableId.config.columns;
+      cols.forEach((o) => {
+        promises.push(
+          new Promise((resolve, reject) => {
+            tableId.adjustColumn(o.id, "all");
+            if (o.width > 300) {
+              tableId.setColumnWidth(o.id, EXPAND_ALL_COL_SIZE);
+            } else {
+              tableId.setColumnWidth(o.id, o.width + 12);
+            }
+            resolve();
+          })
+        );
+      });
+      Promise.all(promises).then(() => {
+        // document.body.style.cursor='default';
+        webix.html.removeCss(tableId.$view, "z_cursor_progress");
+        const speed = 1000;
+        const seconds = speed / 1000;
+        div.style.transition = "opacity " + seconds + "s ease";
+        div.style.opacity = 0;
+        setTimeout(function () {
+          div.parentNode.removeChild(div);
+        }, speed);
+      });
+    }, 400);
+  }
+}

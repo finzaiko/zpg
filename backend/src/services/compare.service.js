@@ -49,24 +49,13 @@ class CompareService {
       userId,
       type,
       oid
-    )
-    // console.log('contentDef',contentDef.rows[0]);
-
-    // console.log('dropDef',dropDef.rows[0]);
-    return {content_def: contentDef.rows[0], drop_def: dropDef.rows[0]};
-    
+    );
+    return { content_def: contentDef.rows[0], drop_def: dropDef.rows[0] };
   }
 
   async createTempTable(dataA, dataB) {
-    // const a = await CompareRepository.createTemp("tbl_a", dataA);
     await CompareRepository.createTemp("tbl_a", dataA);
     const b = await CompareRepository.createTemp("tbl_b", dataB);
-    // if (a && b) {
-    //   return true;
-    // }
-    // return false;
-    // console.log('bbbbb',b);
-    
     return b;
   }
 
@@ -75,17 +64,14 @@ class CompareService {
   }
 
   async getContentRowCount(profileId, userId, exludeShema, schema) {
-    // console.log("getContentRowCount-SERVICE>>>>");
-    
     const data = await CompareRepository.getContentRowCount(
       profileId,
       userId,
-      exludeShema, 
+      exludeShema,
       schema
     );
 
     return data.slice(-1)[0];
   }
-
 }
 module.exports = new CompareService();

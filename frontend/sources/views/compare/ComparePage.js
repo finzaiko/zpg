@@ -630,7 +630,7 @@ function showCompareDetail(_this, sel) {
   diffPanelId.disable();
   webix.html.addCss(diffPanelId.getNode(), "z_progress_overlay");
 
-  const _url = `${url}/detail?source_id=${srcId}&target_id=${tarId}&source_oid=${item.id_a}&target_oid=${item.id_b}&z_type=${item.z_type}&schema=${item.z_schema}&name=${item.z_name}&ret=${item.z_return}&prm_in=${item.z_params_in}&prm_out=${item.z_params_out}`;
+  const _url = `${url}/detail?source_id=${srcId}&target_id=${tarId}&source_oid=${item.src_id}&target_oid=${item.trg_id}&z_type=${item.z_type}&schema=${item.z_schema}&name=${item.z_name}&ret=${item.z_return}&prm_in=${item.z_params_in}&prm_out=${item.z_params_out}`;
   $$("diff_all_sql_detail").setDiffValue("", "");
 
   webix

@@ -106,16 +106,28 @@ class CompareController {
       return;
     }
 
-    const { source_id, target_id, source_oid, target_oid, z_type, schema, name, ret, prm_in, prm_out } =
-      request.query;
+    const {
+      source_id,
+      target_id,
+      source_oid,
+      target_oid,
+      z_type,
+      schema,
+      name,
+      ret,
+      prm_in,
+      prm_out,
+    } = request.query;
 
+    let contentSource = "",
+      contentTarget = "";
     const c = await CompareService.getContentDiff(
       source_id,
       userId,
       `${schema}.${name}`,
       // "f",
       z_type,
-      source_oid
+      source_oid == "null" || source_oid === null ? -1 : source_oid
     );
     const d = await CompareService.getContentDiff(
       target_id,
@@ -123,9 +135,8 @@ class CompareController {
       `${schema}.${name}`,
       // "f",
       z_type,
-      target_oid
+      target_oid == "null" || target_oid === null ? -1 : target_oid
     );
-    // console.log('cccccccccccccc',c);
 
     const res = {
       status: true,
@@ -133,9 +144,11 @@ class CompareController {
         // source: c.rows[0].value,
         // target: d.rows[0].value,
         source: c.content_def.value,
-        source_dropdef: typeof c.drop_def!="undefined" ? c.drop_def.value: "",
+        source_dropdef:
+          typeof c.drop_def != "undefined" ? c.drop_def.value : "",
         target: d.content_def.value,
-        target_dropdef: typeof d.drop_def!="undefined" ? d.drop_def.value: "",
+        target_dropdef:
+          typeof d.drop_def != "undefined" ? d.drop_def.value : "",
       },
     };
 
@@ -184,13 +197,87 @@ class CompareController {
       oid
     );
 
-    // Save to temp table
-    // let data = await CompareService.createTempTable(dataA.rows, dataB.rows);
-    const data = compareArrayAll(dataA.rows, dataB.rows);
+    const arr1 = dataA.rows;
+    const arr2 = dataB.rows;
 
-    responseOk(reply, {data});
+    let aaFilter1 = [];
+    arr1.forEach((element) => {
+      let bb = arr2.find((a) => a.compare_name == element.compare_name);
+      if (typeof bb == "undefined") {
+        const cc = Object.assign(
+          element,
+          { diff: true },
+          { err: "trg" },
+          { src_id: element.id },
+          { trg_id: null }
+        );
+        aaFilter1.push(cc);
+      } else {
+        let mm = arr2.find((a) => a.compare_name == element.compare_name);
+        if (mm.z_content != element.z_content) {
+          const cc = Object.assign(
+            element,
+            { diff: true },
+            { err: "dif" },
+            { src_id: element.id },
+            { trg_id: bb.id }
+          );
+          aaFilter1.push(cc);
+        } else {
+          const cc2 = Object.assign(
+            element,
+            { src_id: element.id },
+            { trg_id: bb.id }
+          );
+          aaFilter1.push(cc2);
+        }
+      }
+    });
+
+    let aaFilter2 = [];
+    arr2.forEach((element) => {
+      let bb = arr1.find((a) => a.compare_name == element.compare_name);
+      if (typeof bb == "undefined") {
+        console.log(element.z_name, bb);
+        const cc = Object.assign(
+          element,
+          { diff: true },
+          { err: "src" },
+          { trg_id: element.id },
+          { src_id: null }
+        );
+        aaFilter2.push(cc);
+      } else {
+        let mm = arr1.find((a) => a.compare_name == element.compare_name);
+        if (mm.z_content != element.z_content) {
+          const cc = Object.assign(
+            element,
+            { diff: true },
+            { err: "dif" },
+            { trg_id: element.id },
+            { src_id: bb.id }
+          );
+          aaFilter2.push(cc);
+        } else {
+          const cc2 = Object.assign(
+            element,
+            { trg_id: element.id },
+            { src_id: bb.id }
+          );
+          aaFilter2.push(cc2);
+        }
+      }
+    });
+
+    const finalArr = aaFilter1.concat(aaFilter2);
+
+    let mergedif = new Map();
+    for (const o of finalArr) {
+      mergedif.set(o.compare_name, o);
+    }
+    let data = [...mergedif.values()];
+    responseOk(reply, { data });
   }
-
 
   async generateDiffTempTable(request, reply) {
     const { source_id, target_id, schema, filter, is_target, oid } =
@@ -234,20 +321,17 @@ class CompareController {
     // Save to temp table
     let data = await CompareService.createTempTable(dataA.rows, dataB.rows);
 
-    responseOk(reply, {data});
+    responseOk(reply, { data });
   }
 
   async getResultDiff(request, reply) {
     const data = await CompareService.getDiff();
-    // console.log('data2---->',data);
 
-    responseOk(reply, {data});
+    responseOk(reply, { data });
   }
 
-
   async generateTableRowDiff(request, reply) {
-    const { source_id, target_id, schema, schema_exclude } =
-      request.query;
+    const { source_id, target_id, schema, schema_exclude } = request.query;
 
     const userId = request.user.uid;
 
@@ -270,29 +354,20 @@ class CompareController {
       source_id,
       userId,
       schema,
-      schema_exclude,
+      schema_exclude
     );
 
     const dataB = await CompareService.getContentRowCount(
       target_id,
       userId,
       schema,
-      schema_exclude,
+      schema_exclude
     );
 
-    // Save to temp table
     let data = await CompareService.createTempTable(dataA.rows, dataB.rows);
-    // console.log('data',data);
 
-
-    responseOk(reply, {data});
-
-    // console.log("dataA", dataA.rows);
-    // console.log("dataA", dataA[0]);
-    // // console.log("dataB", dataB.rows[0]);
-    // responseOk(reply, {status:"OK: generateTableRowDiff"})
+    responseOk(reply, { data });
   }
-
 }
 
 module.exports = new CompareController();

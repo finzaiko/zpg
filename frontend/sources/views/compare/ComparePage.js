@@ -31,26 +31,31 @@ const defenitionColumn = [
       if (value == "src") return "z-cell-src";
       if (value == "dif") return "z-cell-diff";
     },
+    sort:"text"
   },
   {
     id: "z_schema",
     header: ["Schema", { content: "textFilter" }],
     adjust: true,
+    sort:"text"
   },
   {
     id: "z_name",
     header: ["Name", { content: "textFilter" }],
     adjust: true,
+    sort:"text"
   },
   {
     id: "z_type",
     header: ["Type", { content: "textFilter" }],
     adjust: true,
+    sort:"text"
   },
   {
     id: "z_return",
     header: ["Return", { content: "textFilter" }],
     adjust: true,
+    sort:"text"
   },
   // { id: "z_content", header: "Content Length", adjust: true },
 ];
@@ -322,7 +327,7 @@ const toolbar = {
         onChange: function (id, val) {
           var value = this.getValue().toLowerCase(); // input data is derived
           if (value == "error") {
-            $$("griddiff").filter("#diff#", 1);
+            $$("griddiff").filter("#diff#", true);
           } else if (value == "dif" || value == "trg" || value == "src") {
             $$("griddiff").filter("#err#", value);
           } else {
@@ -528,7 +533,7 @@ function compare() {
   const itemSrc = $$("diffsourcecombo").getPopup().getList().getItem(srcId);
   const itemTar = $$("difftargetcombo").getPopup().getList().getItem(tarId);
   $$("diff_config_info_lbl").setValue(
-    `Source: ${itemSrc.host}/${itemSrc.database} &nbsp;&nbsp;&nbsp; Target: ${itemTar.host}/${itemTar.database}`
+    `<span style="color:#1ca1c1;font-weight:500;font-size:13px;">Source:</span> ${itemSrc.host}/${itemSrc.database} &nbsp;&nbsp;<span class="mdi mdi-arrow-left-right"></span>&nbsp;&nbsp; <span style="color:#1ca1c1;font-weight:500;font-size:13px;"">Target:</span> ${itemTar.host}/${itemTar.database}`
   );
 
   $$("griddiff").clearAll();
@@ -555,57 +560,26 @@ function compare() {
       const res = rb.json();
       // console.table(res.data);
 
-        pageId.hideProgress();
-          pageId.enable();
-          $$("griddiff").parse(res.data);
-          webix.extend(diffPanelId, webix.OverlayBox);
-          diffPanelId.showOverlay(
-            `<div style='background:white;padding-top:0;height:99%; display: flex;justify-content: center;align-items: center; flex-direction: column;margin-top:1px; margin-bottom:1px'>
+      pageId.hideProgress();
+      pageId.enable();
+      $$("griddiff").parse(res.data);
+      webix.extend(diffPanelId, webix.OverlayBox);
+      diffPanelId.showOverlay(
+        `<div style='background:white;padding-top:0;height:99%; display: flex;justify-content: center;align-items: center; flex-direction: column;margin-top:1px; margin-bottom:1px'>
           <div>Select left table to show the differences</div>
           <div style='font-size: 20px' class='mdi mdi-arrow-left'></div>
           </div>`
-          );
+      );
 
-          if ($$("griddiff").serialize().length > 0) {
-            $$("diff_detail_resizer").show();
-            $$("diff_detail_panel").show();
-          } else {
-            $$("diff_detail_resizer").hide();
-            $$("diff_detail_panel").hide();
-          }
-
-      // const _url2 = `${url}/result`;
-      // webix.ajax(_url2).then((rc) => {
-      //   const res = rc.json();
-      //   if (typeof res.data == "undefined") {
-      //     webix.alert({
-      //       type: "alert-error",
-      //       title: "Comparing Failed",
-      //       text: "Problem accured when not show comparing result, please try again.",
-      //     });
-      //     pageId.hideProgress();
-      //     pageId.enable();
-      //   } else {
-      //     pageId.hideProgress();
-      //     pageId.enable();
-      //     $$("griddiff").parse(rc.json());
-      //     webix.extend(diffPanelId, webix.OverlayBox);
-      //     diffPanelId.showOverlay(
-      //       `<div style='background:white;padding-top:0;height:99%; display: flex;justify-content: center;align-items: center; flex-direction: column;margin-top:1px; margin-bottom:1px'>
-      //     <div>Select left table to show the differences</div>
-      //     <div style='font-size: 20px' class='mdi mdi-arrow-left'></div>
-      //     </div>`
-      //     );
-
-      //     if ($$("griddiff").serialize().length > 0) {
-      //       $$("diff_detail_resizer").show();
-      //       $$("diff_detail_panel").show();
-      //     } else {
-      //       $$("diff_detail_resizer").hide();
-      //       $$("diff_detail_panel").hide();
-      //     }
-        // }
-      // });
+      if ($$("griddiff").serialize().length > 0) {
+        $$("diff_detail_resizer").show();
+        $$("diff_detail_panel").show();
+      } else {
+        $$("diff_detail_resizer").hide();
+        $$("diff_detail_panel").hide();
+      }
+        $$("griddiff").sort([{by:"z_schema", dir:"asc"}, {by:"z_name", dir:"asc"}]);
+      setTimeout(() => $$("differrfilter").setValue("error"), 1000);
     })
     .fail(function (err) {
       webix.message({ text: err.responseText, type: "error" });
@@ -838,9 +812,7 @@ export default class ComparePage extends JetView {
           size: 20000,
           template: function (data, common) {
             return (
-              "<span style=float:right;line-height:2;padding-right:8px>Rows: " +
-              data.count +
-              "</span>"
+              `<span style=float:right;line-height:2;padding-right:8px><span style="color:#1ca1c1;font-weight:500;font-size:13px;">Rows:</span> ${data.count}</span>`
             );
           },
         },
@@ -960,6 +932,11 @@ export default class ComparePage extends JetView {
                 onBeforeDrag: function () {
                   // if(!this.config.drag)return false;
                 },
+                ready:function(){
+                  // apply sorting
+                  // this.sort([{by:"z_schema", dir:"asc"}, {by:"z_name", dir:"asc"}]);
+
+                }
               },
               columns: defenitionColumn,
             },

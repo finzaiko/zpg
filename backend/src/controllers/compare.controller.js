@@ -238,7 +238,6 @@ class CompareController {
     arr2.forEach((element) => {
       let bb = arr1.find((a) => a.compare_name == element.compare_name);
       if (typeof bb == "undefined") {
-        console.log(element.z_name, bb);
         const cc = Object.assign(
           element,
           { diff: true },

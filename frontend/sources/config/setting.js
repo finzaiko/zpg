@@ -22,6 +22,8 @@ export const LAST_DB_SERVER = "ldbserver";
 export const LAST_DB_CONN_QUERY = "ldbconn";
 export const LAST_DB_CONN_VIEWDATA = "lvdbconn";
 export const LAST_DB_CONN_ADMIN = "ldbadmin";
+export const LAST_DB_CONN_COMPARE_SRC = "ldbcmpsrc";
+export const LAST_DB_CONN_COMPARE_TRG = "ldbcmptrg";
 
 export const LAST_DATATYPE = "ldtype";
 export const LAST_SEARCHTYPE = "lstype";

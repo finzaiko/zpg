@@ -14,7 +14,7 @@ import { url as urlTask, urlItem as urlTaskItem } from "../../models/Task";
 import { url as urlQuery } from "../../models/Query";
 
 import { defaultHeader } from "../../helpers/api";
-import { CONFIRM_DROP_REPLACE, CONFIRM_EXECUTE } from "../../config/setting";
+import { CONFIRM_DROP_REPLACE, CONFIRM_EXECUTE, LAST_DB_CONN_COMPARE_SRC, LAST_DB_CONN_COMPARE_TRG } from "../../config/setting";
 
 const prefix = state.prefix;
 
@@ -165,6 +165,9 @@ const toolbar = {
             $$("diff_compare_btn").disable();
           }
           colorComboDBSource($$("diffsourcecombo"));
+
+          webix.storage.local.put(LAST_DB_CONN_COMPARE_SRC, id);
+
         },
       },
     },
@@ -230,6 +233,8 @@ const toolbar = {
             $$("diff_compare_btn").disable();
           }
           colorComboDBSource($$("difftargetcombo"));
+
+          webix.storage.local.put(LAST_DB_CONN_COMPARE_TRG, id);
         },
       },
     },
@@ -341,6 +346,23 @@ const toolbar = {
             $$("griddiff").filterByAll();
           }
         },
+      },
+    },
+    {
+      view: "button",
+      type: "icon",
+      css: "zmdi_padding",
+      icon: "mdi mdi-download",
+      id: "diff_download_btn",
+      autowidth: true,
+      hidden: true,
+      tooltip: "Download differences result",
+      click: function () {
+        const src = $$("diffsourcecombo").getText();
+        const trg = $$("difftargetcombo").getText();
+        webix.toExcel($$("griddiff"), {
+          filename: `${src.toLowerCase()}__${trg.toLowerCase()}`,
+        });
       },
     },
     {},
@@ -778,34 +800,6 @@ export default class ComparePage extends JetView {
           css: "diff_config_info_lbl",
         },
         {
-          view: "button",
-          type: "icon",
-          css: "zmdi_padding",
-          icon: "mdi mdi-download",
-          id: "diff_download_btn",
-          autowidth: true,
-          hidden: true,
-          tooltip: "Download differences result",
-          click: function () {
-            const src = $$("diffsourcecombo").getText();
-            const trg = $$("difftargetcombo").getText();
-            webix.toExcel($$("griddiff"), {
-              filename: `${src.toLowerCase()}__${trg.toLowerCase()}`,
-            });
-          },
-        },
-        {
-          view: "button",
-          value: "Err",
-          id: "diff_err_filter_btn",
-          autowidth: true,
-          hidden: true,
-          tooltip: "Filter error differences",
-          click: function () {
-            $$("differrfilter").setValue("error");
-          },
-        },
-        {
           view: "pager",
           width: 100,
           id: prefix + "_pagerA",
@@ -916,12 +910,12 @@ export default class ComparePage extends JetView {
                   $$("diff_reset").show();
                   if (this.count()) {
                     $$("differrfilter").show();
-                    $$("diff_err_filter_btn").show();
+                    // $$("diff_err_filter_btn").show();
                     $$("diff_download_btn").show();
                     $$("diff_moreoptions_btn").show();
                   } else {
                     $$("differrfilter").hide();
-                    $$("diff_err_filter_btn").hide();
+                    // $$("diff_err_filter_btn").hide();
                     $$("diff_download_btn").hide();
                     $$("diff_moreoptions_btn").hide();
                   }
@@ -1029,6 +1023,16 @@ export default class ComparePage extends JetView {
     setEditorFontSize($$("diff_all_sql_detail"));
     setEditorFontSize($$("diff_source_sql_detail"));
     setEditorFontSize($$("diff_target_sql_detail"));
+
+    const dbs = webix.storage.local.get(LAST_DB_CONN_COMPARE_SRC);
+    if (dbs) {
+      $$("diffsourcecombo").setValue(dbs);
+    }
+
+    const dbt = webix.storage.local.get(LAST_DB_CONN_COMPARE_TRG);
+    if (dbt) {
+      $$("difftargetcombo").setValue(dbt);
+    }
 
     const ce = webix.storage.local.get(CONFIRM_EXECUTE);
     if (ce) {

@@ -67,14 +67,70 @@ const tempFileSize = () => {
     temp_bytes desc;`;
 };
 
-const tableSize = () => {
-  return `SELECT nspname as schema, relname as table, pg_relation_size(C.oid)::text as "size", pg_size_pretty(pg_relation_size(C.oid)) AS "size_pretty"
+const tableSize = (schema) => {
+  let whereSchema = "";
+  if (schema) {
+    whereSchema = `AND nspname='${schema}'`;
+  }
+  return `SELECT relname as name, pg_size_pretty(pg_relation_size(C.oid)) AS "size", pg_relation_size(C.oid)::text as actual_size
+  ,(xpath('/row/c/text()', query_to_xml(format('select count(*) as c from %I.%I', nspname, relname), FALSE, TRUE, '')))[1]::text::int AS row_count
     FROM pg_class C
     LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
-    WHERE nspname NOT IN ('pg_catalog', 'information_schema') and relkind='r'
+    WHERE nspname NOT IN ('pg_catalog', 'information_schema') and relkind='r' ${whereSchema}
     ORDER BY pg_relation_size(C.oid) DESC;`;
-    // https://wiki.postgresql.org/wiki/Disk_Usage
-    // https://stackoverflow.com/questions/21738408/postgresql-list-and-order-tables-by-size
+  // https://wiki.postgresql.org/wiki/Disk_Usage
+  // https://stackoverflow.com/questions/21738408/postgresql-list-and-order-tables-by-size
+};
+
+const schemaSize = () => {
+  return `WITH
+    schemas AS (
+    SELECT schemaname as name, sum(pg_relation_size(quote_ident(schemaname) || '.' || quote_ident(tablename)))::bigint as size FROM pg_tables
+    GROUP BY schemaname
+  ), db AS (
+    SELECT pg_database_size(current_database()) AS size
+  )
+  SELECT schemas.name, pg_size_pretty(schemas.size) as "size", schemas.size as actual_size
+  FROM schemas ORDER BY schemas.size DESC;
+  `;
+};
+
+const dbSize = () => {
+  return `
+  SELECT d.datname AS name,
+      CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT')
+          THEN pg_catalog.pg_size_pretty(pg_catalog.pg_database_size(d.datname))
+          ELSE 'No Access'
+      END AS "size",
+      pg_catalog.pg_database_size(d.datname) as actual_size
+  FROM pg_catalog.pg_database d
+  WHERE d.datname NOT IN ('template0','template1','postgres')
+      ORDER BY
+      CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT')
+          THEN pg_catalog.pg_database_size(d.datname)
+          ELSE NULL
+      END DESC -- nulls first
+      -- LIMIT 20
+  `;
+};
+
+const runQueries = () => {
+  return `
+  SELECT pid, age(clock_timestamp(), query_start), usename, query, state
+  FROM pg_stat_activity
+  WHERE state != 'idle' AND query NOT ILIKE '%pg_stat_activity%'
+  ORDER BY query_start desc;
+`;
+};
+
+const connOpen = () => {
+  return `
+  SELECT COUNT(*) as connections, backend_type
+  FROM pg_stat_activity
+  where state = 'active' OR state = 'idle'
+  GROUP BY backend_type
+  ORDER BY connections DESC;
+`;
 };
 
 module.exports = {
@@ -85,7 +141,11 @@ module.exports = {
   pgConfigSetting,
   pgFileSetting,
   tempFileSize,
-  tableSize
+  tableSize,
+  schemaSize,
+  dbSize,
+  runQueries,
+  connOpen,
 };
 
 // REFERENCES: https://dataedo.com/kb/query/postgresql

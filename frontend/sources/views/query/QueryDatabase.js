@@ -252,8 +252,10 @@ const WindowForm = () => {
           {
             view: "combo",
             id: prefix + "_source_combo",
-            placeholder: "Source DB",
+            placeholder: "Server DB",
             options: {
+              width: 250,
+              fitMaster: false,
               url: `${urlProfile}/content?type=1&ls=true`,
               on: {
                 onBeforeShow: function () {

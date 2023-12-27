@@ -36,11 +36,20 @@ export const administrationMenuList = [
   },
   {
     id: 4,
+    url: "administration.tablesize",
+    title: "Database Table Size",
+    detail: "Database and Table size",
+    action: "dbsize",
+  },
+  /*
+  {
+    id: 4,
     url: "administration.view",
     title: "Database Size",
     detail: "All database size",
     action: "dbsize",
   },
+  */
   // ONLY for specific database, not for DB server
   // {
   //   id: 5,

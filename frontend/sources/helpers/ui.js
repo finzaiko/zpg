@@ -577,6 +577,7 @@ export function toTitleCase(str) {
 }
 
 export function autoExpandColumnSize(tableId) {
+
   if (tableId) {
     // document.body.style.cursor = "wait !important";
     let div = document.createElement("div");
@@ -623,4 +624,10 @@ export function autoExpandColumnSize(tableId) {
       });
     }, 400);
   }
+}
+
+export function sortColumn(column){
+  return function(a, b){
+    return a[column] > b[column] ? 1 : -1;
+  };
 }

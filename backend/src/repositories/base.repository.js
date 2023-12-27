@@ -3,8 +3,12 @@ const { Pool } = require("pg");
 const async = require("async");
 
 class BaseRepository {
-  async runQuery(profileId, userId, sql) {
-    const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
+  async runQuery(profileId, userId, sql, dbName) {
+    let serverCfg = await ProfileRepository.getById(profileId, 1, userId);
+
+    if(typeof dbName!="undefined" && dbName!=""){
+      serverCfg[0].database = dbName;
+    }
 
     if (serverCfg.length == 0) {
       return { error: true, message: "No source connection" };

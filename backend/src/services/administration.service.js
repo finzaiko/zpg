@@ -1,4 +1,16 @@
-const { activeSession, dbHitTransaction, pgConfigSetting, pgFileSetting, tempFileSize, tableSize } = require("../core/sql/admin.sql");
+const {
+  activeSession,
+  dbHitTransaction,
+  pgConfigSetting,
+  pgFileSetting,
+  tempFileSize,
+  tableSize,
+  schemaSize,
+  dbSize,
+  runQueries,
+  connOpen,
+} = require("../core/sql/admin.sql");
+const { dbSchemaAll } = require("../core/sql/db.sql");
 const BaseRepository = require(`../repositories/base.repository`);
 
 class AdministrationService {
@@ -13,22 +25,8 @@ class AdministrationService {
     const { source_id, action } = bodyData;
     let sql = "";
     switch (action) {
-      case 'dbsize':
-        sql = `
-        SELECT d.datname AS Name,  pg_catalog.pg_get_userbyid(d.datdba) AS Owner,
-            CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT')
-                THEN pg_catalog.pg_size_pretty(pg_catalog.pg_database_size(d.datname))
-                ELSE 'No Access'
-            END AS Size
-        FROM pg_catalog.pg_database d
-        WHERE d.datname NOT IN ('template0','template1','postgres')
-            ORDER BY
-            CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT')
-                THEN pg_catalog.pg_database_size(d.datname)
-                ELSE NULL
-            END DESC -- nulls first
-            -- LIMIT 20
-        `;
+      case "dbsize":
+        sql = dbSize();
         break;
 
       default:
@@ -40,72 +38,55 @@ class AdministrationService {
   }
 
   async view(userId, bodyData) {
-    const { source_id, action } = bodyData;
+    const { source_id, action, db_name, schema_name } = bodyData;
     let sql = "";
     switch (action) {
-      case 'dbsize':
-        sql = `
-        SELECT d.datname AS Name,  pg_catalog.pg_get_userbyid(d.datdba) AS Owner,
-            CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT')
-                THEN pg_catalog.pg_size_pretty(pg_catalog.pg_database_size(d.datname))
-                ELSE 'No Access'
-            END AS Size
-        FROM pg_catalog.pg_database d
-        WHERE d.datname NOT IN ('template0','template1','postgres')
-            ORDER BY
-            CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT')
-                THEN pg_catalog.pg_database_size(d.datname)
-                ELSE NULL
-            END DESC -- nulls first
-            -- LIMIT 20
-        `;
+      case "dbsize":
+        sql = dbSize();
         break;
-      case 'version':
+      case "version":
         sql = `SELECT version()`;
         break;
-      case 'pghbaconf':
+      case "pghbaconf":
         sql = `select * from pg_hba_file_rules;`;
         break;
-      case 'runqueries':
-        sql = `
-          SELECT pid, age(clock_timestamp(), query_start), usename, query, state
-          FROM pg_stat_activity
-          WHERE state != 'idle' AND query NOT ILIKE '%pg_stat_activity%'
-          ORDER BY query_start desc;
-        `;
+      case "runqueries":
+        sql = runQueries();
         break;
-      case 'connopen':
-        sql = `
-          SELECT COUNT(*) as connections, backend_type
-          FROM pg_stat_activity
-          where state = 'active' OR state = 'idle'
-          GROUP BY backend_type
-          ORDER BY connections DESC;
-        `;
+      case "connopen":
+        sql = connOpen();
         break;
-      case 'activesession':
+      case "activesession":
         sql = activeSession();
         break;
-      case 'transactionhit':
+      case "transactionhit":
         sql = dbHitTransaction();
         break;
-      case 'configsetting':
+      case "configsetting":
         sql = pgConfigSetting();
         break;
-      case 'filesetting':
+      case "filesetting":
         sql = pgFileSetting();
         break;
-      case 'tempfilesize':
+      case "tempfilesize":
         sql = tempFileSize();
         break;
-      case 'tblsize':
-        sql = tableSize();
+      case "schemasize":
+        sql = schemaSize();
+        break;
+      case "tblsize":
+        sql = tableSize(schema_name);
         break;
       default:
         break;
     }
-    // console.log("sql>>>>>>>>>>>>>>>",sql);
-    const sourceData = await BaseRepository.runQuery(source_id, userId, sql);
+
+    const sourceData = await BaseRepository.runQuery(
+      source_id,
+      userId,
+      sql,
+      db_name
+    );
     return sourceData.rows;
   }
 }

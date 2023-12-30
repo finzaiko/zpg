@@ -1,6 +1,6 @@
 import { JetView } from "webix-jet";
 import { runView, state } from "../../models/Administration";
-import { autoExpandColumnSize, toTitleCase } from "../../helpers/ui";
+import { autoExpandColumnSize, showLoadingText, toTitleCase } from "../../helpers/ui";
 const prefix = state.prefix;
 const prefixThis = state.prefix + "_tblsize";
 
@@ -25,63 +25,76 @@ function showTableContent(
     schema_name: schemaName,
   };
 
-  webix.extend(mainView, webix.ProgressBar);
-  mainView.showProgress({ type: "top" });
+  if(action!="dbsize"){
+    showLoadingText(mainView);
+  }
 
-  return runView(inputData).then((r) => {
-    let views = bodyView.getChildViews();
+  let views = bodyView.getChildViews();
 
-    if (views[0]) {
-      bodyView.removeView(views[0]);
-    }
+  if (views[0]) {
+    bodyView.removeView(views[0]);
+  }
 
-    if (r.data.length > 0) {
-      const cols = Object.keys(r.data[0]);
+  return runView(inputData)
+    .then((r) => {
 
-      let colConfig = [];
+      if (r.data.length > 0) {
+        const cols = Object.keys(r.data[0]);
 
-      cols.forEach((o) => {
-        colConfig.push({
-          id: o,
-          header: [
-            toTitleCase(o.replace(/_/g, " ")),
-            { content: "textFilter" },
-          ],
-          width: 100,
-          sort: o == "actual_size" || o == "row_count" ? "int" : "string",
-          editor: "text",
+        let colConfig = [];
+
+        cols.forEach((o) => {
+          colConfig.push({
+            id: o,
+            header: [
+              toTitleCase(o.replace(/_/g, " ")),
+              { content: "textFilter" },
+            ],
+            width: 100,
+            sort: o == "actual_size" || o == "row_count" ? "int" : "string",
+            editor: "text",
+          });
         });
-      });
 
-      const newView = {
-        view: "datatable",
-        resizeColumn: true,
-        id: tableViewId,
-        data: r.data,
-        select: "row",
-        columns: colConfig,
-        editable: true,
-        editaction: "dblclick",
-      };
+        const newView = {
+          view: "datatable",
+          resizeColumn: true,
+          id: tableViewId,
+          data: r.data,
+          select: "row",
+          columns: colConfig,
+          editable: true,
+          editaction: "dblclick",
+        };
 
-      mainView.show();
-      bodyView.addView(newView);
-      setTimeout(() => {
-        autoExpandColumnSize($$(tableViewId));
-      }, 300);
-    } else {
-      const newView = {
-        template: "No data",
-      };
-      mainView.show();
-      bodyView.addView(newView);
-    }
-    const panelId = $$(prefix + "_mainview");
-    webix.extend(panelId, webix.OverlayBox);
-    panelId.hideOverlay();
-    mainView.hideProgress();
-    return action;
-  });
+        mainView.show();
+        bodyView.addView(newView);
+        setTimeout(() => {
+          autoExpandColumnSize($$(tableViewId));
+        }, 300);
+      } else {
+        const newView = {
+          template: "No data",
+        };
+        mainView.show();
+        bodyView.addView(newView);
+      }
+      const panelId = $$(prefix + "_mainview");
+      webix.extend(panelId, webix.OverlayBox);
+      panelId.hideOverlay();
+      if(action!="dbsize"){
+        mainView.hideOverlay();
+      }
+      return action;
+    })
+    .fail(function (err) {
+      const panelId = $$(prefix + "_mainview");
+      webix.extend(panelId, webix.OverlayBox);
+      panelId.hideOverlay();
+      if(action!="dbsize"){
+        mainView.hideOverlay();
+      }
+    });
 }
 
 function loadTableView(itemDb) {

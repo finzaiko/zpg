@@ -74,7 +74,7 @@ function showTableContent(
         }, 300);
       } else {
         const newView = {
-          template: "No data",
+          template: `<div style="text-align:center;margin-top:50px;">No data</div>`,
         };
         mainView.show();
         bodyView.addView(newView);

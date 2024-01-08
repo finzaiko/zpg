@@ -34,7 +34,7 @@ const WindowForm = () => {
           <p>
             <ul style='margin: 0;padding: 0; list-style-type: none;'>
               <li><span class='z-cell-src' style='padding: 2px'>src</span> = Source not found</li>
-              <li><span class='z-cell-trg' style='padding: 2px'>trg</span> = Source not found</li>
+              <li><span class='z-cell-trg' style='padding: 2px'>trg</span> = Target not found</li>
               <li><span class='z-cell-diff' style='padding: 2px'>dif</span> = Source and Target are different</li>
             </ul>
           </p>

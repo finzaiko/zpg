@@ -81,17 +81,14 @@ const dbFuncDropReplace = (oid) => {
 
 const dbAllTableBySchema = (schemaName) => {
   return `SELECT
-      CASE WHEN table_schema<>'public' THEN
-        (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_schema) || '.' || quote_ident(table_name)) || '_u'
-      ELSE
-        (SELECT oid FROM pg_class WHERE oid::regclass::text = quote_ident(table_name)) || '_u'
-      END AS id,
-      table_name AS value,
-      true::boolean as webix_kids
-      FROM information_schema.columns
-      WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-    and table_schema='${schemaName}'
-    GROUP BY 1, 2  order by table_name
+        pc.oid|| '_u' as id,
+        tb.table_name::text AS value,
+        true::boolean as webix_kids
+      FROM information_schema.tables tb
+      JOIN pg_class pc ON pc.oid = (tb.table_schema || '.' || tb.table_name)::regclass
+      WHERE tb.table_type = 'BASE TABLE'
+      AND tb.table_schema NOT IN ('pg_catalog', 'information_schema')
+      AND tb.table_schema = '${schemaName}'
     `;
 };
 

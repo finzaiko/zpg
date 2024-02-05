@@ -23,6 +23,8 @@ class BaseRepository {
         from information_schema.columns
         where table_schema='${schema}' and table_name = '${table}';
       `;
+      console.log('sql>>>>',sql);
+
     return this.runQuery(profileId, userId, sql);
   }
 

@@ -74,7 +74,6 @@ class CopydataService {
     const { target_id, table_field, table_name } = bodyData;
     const { schema, table } = getTableName(table_name);
     const sqlCreate = this.getCreateTableSql(schema, table, table_field);
-    console.log("sqlCreate", sqlCreate);
     const sourceData = await BaseRepository.runQuery(
       target_id,
       userId,
@@ -127,7 +126,8 @@ class CopydataService {
         schema,
         table,
         false,
-        fieldTypes
+        // fieldTypes
+        table_field
       );
 
         if(create_table){
@@ -154,8 +154,6 @@ class CopydataService {
         table_field,
         table_exist
       );
-
-      console.log('sqlInsert############# ',sqlInsert);
 
       if(create_table){
         const sqlCreate = this.getCreateTableSql(schema, table, table_field);

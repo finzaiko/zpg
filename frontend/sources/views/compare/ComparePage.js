@@ -537,7 +537,9 @@ function filterSchema(id) {
   filterCombo.clearAll();
   cmbId.setValue("");
   cmbId.getPopup().getList().unselect();
-  filterCombo.load(`${url}/schema?id=${id}`);
+  filterCombo.load(`${url}/schema?id=${id}`).fail(e=>{
+    webix.message({text: JSON.parse(e.response).message, type:"error"});
+  });
 }
 
 function compare() {

@@ -27,7 +27,6 @@ const getSqlStringTypeFromArray = (
   first_row,
   typeField
 ) => {
-  // console.log("data", data);
 
   // let parsedData = JSON.parse(data);
   let parsedData = data;
@@ -38,14 +37,19 @@ const getSqlStringTypeFromArray = (
   }
   let sqlAll = [];
   parsedData.forEach((o) => {
+
     let field = [],
       val = [];
     Object.entries(o).forEach((entry) => {
       const [key, value] = entry;
+
       if (typeof typeField != "undefined") {
         field.push(`"${key}"`);
-        const tt = typeField.find((tp) => tp.column_name == key);
-        switch (tt.data_type) {
+
+        // const tt = typeField.find((tp) => tp.column_name == key);
+        // switch (tt.data_type) {
+
+        switch (typeField[key]) {
           case "integer":
           case "boolean":
             val.push(`${value}`);

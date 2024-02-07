@@ -30,7 +30,7 @@ class ProfileRepository {
       sql += ` AND content LIKE '%${search}%'`;
     }
 
-    if (type == 1 || type == 2) {
+    if (type == 1 || type == 2 || type == 4) {
       sql += " ORDER BY profile.seq ASC";
     }else{
       sql += " ORDER BY profile.id DESC";

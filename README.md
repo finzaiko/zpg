@@ -148,3 +148,7 @@ pm2 startup
 <Copy paste script result and run again>
 
 ```
+
+### Other Apps
+
+Try ZPG for mobile (Android) :point_right: [ZPG Postgres](https://play.google.com/store/apps/details?id=com.finzaiko.zpgm)

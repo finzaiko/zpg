@@ -31,7 +31,7 @@ class ProfileRepository {
     }
 
     if (type == 1 || type == 2 || type == 4) {
-      sql += " ORDER BY profile.seq ASC";
+      sql += " ORDER BY profile.seq DESC";
     }else{
       sql += " ORDER BY profile.id DESC";
     }
@@ -235,6 +235,17 @@ class ProfileRepository {
     return res;
   }
 
+  async getMaxSequence() {
+    let sql = `SELECT max(seq) as seq FROM profile`;
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
   async testConn(data) {
     if (data.type == 1) {
       data.database = "postgres";
@@ -255,9 +266,13 @@ class ProfileRepository {
   }
 
   async createContent(data) {
+
+    const seqRec = await this.getMaxSequence();
+    const maxSeq = seqRec[0]["seq"] || 0;
+
     const sql =
-      "INSERT INTO profile (title, content, type, user_id) VALUES (NULLIF(?,''),?,?,?)";
-    const params = [data.title, data.content, data.type, data.user_id];
+      "INSERT INTO profile (title, content, type, seq, user_id) VALUES (NULLIF(?,''),?,?,(NULLIF(?,0)),?)";
+    const params = [data.title, data.content, data.type, maxSeq, data.user_id];
     const res = await new Promise((resolve, reject) => {
       db.run(sql, params, (err, row) => {
         if (err) reject(err);

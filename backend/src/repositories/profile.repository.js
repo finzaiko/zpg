@@ -31,7 +31,7 @@ class ProfileRepository {
     }
 
     if (type == 1 || type == 2 || type == 4) {
-      sql += " ORDER BY profile.seq DESC";
+      sql += " ORDER BY profile.seq";
     }else{
       sql += " ORDER BY profile.id DESC";
     }
@@ -361,15 +361,15 @@ class ProfileRepository {
       db.all(sql, params, (err, row) => {
         if (err) reject(err);
         const isRowExist = row[0].data > 0;
-        console.log("row", row);
-        console.log("isRowExist", isRowExist);
+        // console.log("row", row);
+        // console.log("isRowExist", isRowExist);
 
         let sqlSave = "";
         if (!isRowExist) {
           sqlSave =
             "insert into profile (content, user_id, title, type) values (?,?,?,?)";
         } else {
-          console.log("update>>>>>>>>>>>>>>>>");
+          // console.log("update>>>>>>>>>>>>>>>>");
           sqlSave =
             "update profile set content=? WHERE user_id=? and title=? and type=?";
         }
@@ -410,12 +410,16 @@ class ProfileRepository {
 
 
   async updateSequence(dataArr) {
+    // console.log('dataArr',dataArr);
+
     const res = await new Promise((resolve, reject) => {
       db.serialize(function () {
         db.run("begin transaction");
         async.eachSeries(
           dataArr,
           (d, next) => {
+            // console.log('d.sq=',d.seq,'   d.id=',d.id);
+
             const oneSql = `UPDATE profile SET seq=${d.seq} WHERE id=${d.id};`;
             db.run(oneSql, function (err, row) {
               if (err) reject(err);

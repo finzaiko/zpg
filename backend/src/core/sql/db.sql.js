@@ -393,45 +393,46 @@ const dbTableContentByOid = (oid) => {
     ),
     constuniqstr AS ( -- Constraint unique
         SELECT
-            FORMAT(e'    CONSTRAINT "%s" UNIQUE (%s)',constraint_name,column_name) as uniq_str
+            FORMAT(e'    CONSTRAINT "%s" UNIQUE (%s)',constraint_name,STRING_AGG(column_name, ', ')) as uniq_str
         FROM information_schema.table_constraints c
         JOIN information_schema.constraint_column_usage cc
         USING (table_schema, table_name, constraint_name), oidinfo
         WHERE c.constraint_type = 'UNIQUE'
         AND table_schema=oidinfo.scm_name
         AND table_name=oidinfo.tbl_name
-        ),pkeyidx AS ( -- Index list
-          SELECT
-            -- concat(e'\t',pg_catalog.pg_get_constraintdef(pco.oid, true)) as idx_str,
-            -- pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true) as ci_str
-            FORMAT(e'-- Index: %s\n\n-- DROP INDEX IF EXISTS %s."%s";\n\n%s',
-                pc.relname,
-                quote_ident(nspname),
-                quote_ident(pc2.relname),
-                pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true)
-            ) as ci_str
-          from pg_catalog.pg_class pc
-          inner join pg_catalog.pg_namespace pn
-            on pn.oid = pc.relnamespace
-          inner join pg_catalog.pg_index pi
-            on pc.oid = pi.indrelid
-          inner join pg_catalog.pg_class pc2
-            on pi.indexrelid = pc2.oid
-          left join pg_catalog.pg_constraint pco
-            on (
-              pco.conrelid = pi.indrelid
-              and pco.conindid = pi.indexrelid
-              and pco.contype in ('p', 'u', 'x')
-            ),
-            oidinfo
-          WHERE
-            pn.nspname = oidinfo.scm_name
-            and pc.relname = tbl_name
-            and pco.contype is null
-          ORDER BY
-            pi.indisprimary desc
-            , pi.indisunique desc
-            , pc.relname
+        GROUP BY c.constraint_name
+    ),pkeyidx AS ( -- Index list
+        SELECT
+          -- concat(e'\t',pg_catalog.pg_get_constraintdef(pco.oid, true)) as idx_str,
+          -- pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true) as ci_str
+          FORMAT(e'-- Index: %s\n\n-- DROP INDEX IF EXISTS %s."%s";\n\n%s',
+              pc.relname,
+              quote_ident(nspname),
+              quote_ident(pc2.relname),
+              pg_catalog.pg_get_indexdef(pi.indexrelid, 0, true)
+          ) as ci_str
+        from pg_catalog.pg_class pc
+        inner join pg_catalog.pg_namespace pn
+          on pn.oid = pc.relnamespace
+        inner join pg_catalog.pg_index pi
+          on pc.oid = pi.indrelid
+        inner join pg_catalog.pg_class pc2
+          on pi.indexrelid = pc2.oid
+        left join pg_catalog.pg_constraint pco
+          on (
+            pco.conrelid = pi.indrelid
+            and pco.conindid = pi.indexrelid
+            and pco.contype in ('p', 'u', 'x')
+          ),
+          oidinfo
+        WHERE
+          pn.nspname = oidinfo.scm_name
+          and pc.relname = tbl_name
+          and pco.contype is null
+        ORDER BY
+          pi.indisprimary desc
+          , pi.indisunique desc
+          , pc.relname
       ), idxdef AS (
             SELECT string_agg(ci_str, E',\n\n') AS idxstr FROM pkeyidx
       ), tblcomm AS (

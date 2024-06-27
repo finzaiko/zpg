@@ -2342,6 +2342,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
 
   const openDetailCell = (type, content) => {
     const allowType = ["json", "jsonb", "text", "varchar"];
+
     if (allowType.indexOf(type) !== -1) {
       if (type == "json" || type == "jsonb") {
         // formatter json type result
@@ -2365,7 +2366,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
           isJsonType = true;
           langType = "json";
         }
-
+        let screenMode = 'normal';
         webix
           .ui({
             view: "window",
@@ -2443,8 +2444,40 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                 {},
                 {
                   view: "icon",
+                  icon: "mdi mdi-arrow-expand-all",
+                  tooltip: "Expand more",
+                  css: "z_icon_color_primary z_icon_size_17",
+                  align: "right",
+                  click: function () {
+                    const winId = $$(prefix + "_win_detail_cell");
+                    if(screenMode=='normal'){
+                      const midHeight = (window.innerHeight - winId.$height) / 2;
+                      const midWidth = (window.innerWidth - winId.$width) / 2;
+                      winId.define("height", winId.$height + midHeight);
+                      winId.define("width", winId.$height + midWidth);
+                      this.define({icon:"mdi mdi-arrow-expand-all", tooltip:"Set to fullscreen"});
+                      winId.resize();
+                      screenMode='medium';
+                    }else if(screenMode=='medium'){
+                      this.define({icon:"mdi mdi-arrow-collapse-all", tooltip:"Back to normal"});
+                      webix.fullscreen.set(winId);
+                      screenMode='full';
+                    } else if(winId.config.fullscreen){
+                      webix.fullscreen.exit();
+                      winId.define("height", 400);
+                      winId.define("width", 600);
+                      winId.resize();
+                      this.define({icon:"mdi mdi-arrow-expand-all", tooltip:"Expand more"});
+                      screenMode='normal';
+                    }
+                    this.refresh();
+                  },
+                },
+                {
+                  view: "icon",
                   icon: "mdi mdi-close",
                   tooltip: "Close me",
+                  css: "z_icon_color_primary",
                   align: "right",
                   click: function () {
                     $$(prefix + "_win_detail_cell").destructor();

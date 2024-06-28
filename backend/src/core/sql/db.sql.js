@@ -239,7 +239,7 @@ const dbFuncContentByOid = (oid) => {
       (${commentBase}
       SELECT
       CONCAT(
-        '-- FUNCTION: ', specific_schema|| '.' ||  routine_name,'(',in_params_type,');', e'\n-- ' || func_comment,
+        '-- FUNCTION: ', specific_schema|| '.' ||  routine_name,'(',in_params_type,');', CASE WHEN func_comment IS NOT NULL THEN CONCAT(e'\n-- ', replace(func_comment,'\n',e'\n-- ') ) END,
         e'\n\n',
               '-- DROP FUNCTION IF EXISTS ',specific_schema|| '.' ||  routine_name,'(',in_params_type,');',
         e'\n')

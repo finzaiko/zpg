@@ -3344,6 +3344,20 @@ export function QueryPage(prefix, selectedDb, editorValue) {
     editorId.disable();
 
     editorId.getEditor(true).then((editor) => {
+
+      // editor.registerContextKey('hasSelection', function(editor) {
+      //   // Function to determine the context key's value based on editor state
+      //   // ... your logic here
+      //   // Return true or false based on the condition
+      //   return true
+      // });
+
+      // editor.definePrecondition('hasSelection', (d) => {
+      //   // return d.getSelection().isEmpty() === false;
+      //   // return false;
+      // });
+
+
       editorId.hideProgress();
       setTimeout(() => {
         $$(prefix + "_database_search_shimm").hide();
@@ -3354,6 +3368,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
       if(editorValue){
         editorId.setValue(editorValue)
       }
+
 
       // Replace current shortcut
       // changeCommandKeybinding(
@@ -3384,27 +3399,25 @@ export function QueryPage(prefix, selectedDb, editorValue) {
           precondition: null,
           keybindingContext: null,
           contextMenuGroupId: "navigation",
-          contextMenuOrder: 1.5,
+          contextMenuOrder: 6,
           run: function (ed) {
             runQuery($$(prefix + "_source_combo").getValue());
             return null;
           },
         }),
         editor.addAction({
-          id: "auto-format-sql",
-          label: "Auto format sql",
-          keybindings: [
-            monaco.KeyMod.Shift | monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_F,
-          ],
+          id: "open-new-query-ed",
+          label: "Open New Query",
+          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyM],
           precondition: null,
           keybindingContext: null,
           contextMenuGroupId: "navigation",
-          contextMenuOrder: 1.5,
+          contextMenuOrder: 7,
           run: function (ed) {
-            autoFormat();
+            newQueryTab();
             return null;
           },
-        });
+        }),
       editor.addAction({
         id: "search-focus",
         label: "Focus Quick Search",
@@ -3412,7 +3425,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
         precondition: null,
         keybindingContext: null,
         contextMenuGroupId: "navigation",
-        contextMenuOrder: 1.5,
+        contextMenuOrder: 8,
         run: function (ed) {
           if (state.isSearchDetach) {
             openSearchDetach();
@@ -3426,17 +3439,63 @@ export function QueryPage(prefix, selectedDb, editorValue) {
           return null;
         },
       }),
+      editor.addAction({
+        id: "auto-format-sql",
+        label: "Auto format SQL",
+        keybindings: [
+          monaco.KeyMod.Shift | monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_F,
+        ],
+        precondition: null,
+        keybindingContext: null,
+        contextMenuGroupId: "navigation",
+        contextMenuOrder: 9,
+        run: function (ed) {
+          autoFormat();
+          return null;
+        },
+      }),
         editor.addAction({
-          id: "open-new-query-ed",
-          label: "Open New Query",
-          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyM],
+          id: "open-tolowercase-str-ed",
+          label: "Minify Selection",
           precondition: null,
           keybindingContext: null,
           contextMenuGroupId: "navigation",
-          contextMenuOrder: 1.5,
+          contextMenuOrder: 10,
           run: function (ed) {
-            newQueryTab();
-            return null;
+            const {startLineNumber, endLineNumber, startColumn, endColumn} = ed.getSelection();
+            const isSelection = startLineNumber==endLineNumber && startColumn==endColumn;
+            if(!isSelection){
+              const selectionText = editor.getSelection();
+              const selectionValue = editor.getModel().getValueInRange(selectionText);
+              const newText = selectionValue.replace(/,\s+/g, ", ").replace(/[\r\n]+/g," ")
+              ed.executeEdits("", [
+                { range: new monaco.Range(startLineNumber,startColumn,endLineNumber,endColumn), text: newText }
+              ]);
+            }else{
+              webix.message({text:"No selection", type:"error"});
+            }
+          },
+        }),
+        editor.addAction({
+          id: "open-breakaftercomma-str-ed",
+          label: "Break Line After Comma Selection",
+          precondition: null,
+          keybindingContext: null,
+          contextMenuGroupId: "navigation",
+          contextMenuOrder: 11,
+          run: function (ed) {
+            const {startLineNumber, endLineNumber, startColumn, endColumn} = ed.getSelection();
+            const isSelection = startLineNumber==endLineNumber && startColumn==endColumn;
+            if(!isSelection){
+              const selectionText = editor.getSelection();
+              const selectionValue = editor.getModel().getValueInRange(selectionText);
+              const newText = selectionValue.replace(/,\s+/g, ", ").replace(/\,/g, ",\n");
+              ed.executeEdits("", [
+                { range: new monaco.Range(startLineNumber,startColumn,endLineNumber,endColumn), text: newText }
+              ]);
+            }else{
+              webix.message({text:"No selection", type:"error"});
+            }
           },
         });
 

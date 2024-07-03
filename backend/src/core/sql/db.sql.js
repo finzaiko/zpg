@@ -1139,11 +1139,14 @@ const dbFuncTableSearch = (search, type, view) => {
   */
 
   let sqlFunc = `
-        SELECT prc.oid || '_g' AS id, prc.proname || '(f:' || prc.pronamespace::pg_catalog.regnamespace || ')' AS value, 'z_combo_item_f' AS css,
+        SELECT
+          -- prc.oid || '_g' AS id, prc.proname || '(f:' || prc.pronamespace::pg_catalog.regnamespace || ')' AS value, 'z_combo_item_f' AS css,
+          prc.oid || '_g' AS id, prc.proname || '(f:' || prc.pronamespace::pg_catalog.regnamespace || ', r:' || isr.type_udt_name  || ', i:'|| prc.pronargs || ')' AS value, 'z_combo_item_f' AS css,
           prc.proname AS name, prc.pronamespace::pg_catalog.regnamespace::text AS schema, 'Function' AS type
           ${fieldFunc}
-        FROM pg_catalog.pg_proc prc where prc.prokind != 'a' AND
-        prc.pronamespace::pg_catalog.regnamespace::text NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema'])`;
+        FROM pg_catalog.pg_proc prc
+        JOIN information_schema.routines isr ON reverse(split_part(reverse(isr.specific_name), '_', 1))::int = prc.oid
+        WHERE prc.prokind != 'a' AND prc.pronamespace::pg_catalog.regnamespace::text NOT LIKE ALL (ARRAY['pg_%', 'log%', 'information_schema'])`;
 
   let sqlTbl = `SELECT c.oid || '_u' AS id, relname || '(t:' || n.nspname || ')' as value, 'z_combo_item_t' AS css,
       relname as name, n.nspname::text as schema, 'Table' as type
@@ -1159,6 +1162,8 @@ const dbFuncTableSearch = (search, type, view) => {
   } else {
     sql = `SELECT id, value, css, name, schema, type ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   }
+
+  console.log('sql',sql);
 
   return sql;
 };

@@ -440,6 +440,8 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             hidden: true,
             width: 300,
             suggest: {
+              // width:500,
+              // fitMaster:false,
               keyPressTimeout: 500,
               template: "#value#",
               body: {
@@ -939,7 +941,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
         },
         filterMode: {
           showSubItems: false,
-          level: 1,
+          // level: 1,
         },
         template: "{common.icon()} {common.my_folder()} <span>#value#</span>",
         on: {
@@ -3467,7 +3469,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             if(!isSelection){
               const selectionText = editor.getSelection();
               const selectionValue = editor.getModel().getValueInRange(selectionText);
-              const newText = selectionValue.replace(/,\s+/g, ", ").replace(/[\r\n]+/g," ")
+              const newText = selectionValue.replace(/,\s+/g, ", ").replace(/[\r\n]+/g," ").replace( /\s\s+/g, ' ' )
               ed.executeEdits("", [
                 { range: new monaco.Range(startLineNumber,startColumn,endLineNumber,endColumn), text: newText }
               ]);

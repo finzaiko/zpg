@@ -956,6 +956,7 @@ export default class ComparePage extends JetView {
                       language: "sql",
                       readOnly: true,
                       diffEditor: true,
+                      automaticLayout: true,
                     },
                     {
                       view: "monaco-editor",

@@ -258,8 +258,8 @@ const dbFuncContentByOid = (oid) => {
         SELECT CONCAT(
         ${ownerFunc},
         ${commentFunc},
-        '-- PARAMS NAME: ', in_params_type , e'\n',
-        '-- PARAMS TYPE: ', in_params_name , e'\n',
+        '-- PARAMS NAME: ', in_params_name , e'\n',
+        '-- PARAMS TYPE: ', in_params_type , e'\n',
         '-- SELECT * FROM ', specific_schema|| '.' ||  routine_name,'()') as func_def
       FROM c)
   `;

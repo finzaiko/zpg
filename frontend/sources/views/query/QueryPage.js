@@ -429,6 +429,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             id: prefix + "_database_search_shimm",
             template: `<div class="shimmer"></div>`,
             css: "shimmer_container",
+            hidden: true,
             borderless: true,
             width: 300,
           },
@@ -445,6 +446,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
               keyPressTimeout: 500,
               template: "#value#",
               body: {
+                tooltip: function(obj) { return obj.value},
                 css: "search_suggest_list",
                 template: function (obj) {
                   let val = `<span class='source_def_item'>${obj.value}</span>`,
@@ -1962,9 +1964,25 @@ export function QueryPage(prefix, selectedDb, editorValue) {
       suggest: {
         keyPressTimeout: 500,
         css: "search_suggest_detach_item",
+        template: "#value#",
         body: {
           // template: "#name#<br>Type: #type#, Schema: #schema#",
-          template: "#value#",
+          // template: "#value#",
+          css: "search_suggest_list",
+          template: function (obj) {
+            let val = `<span class='source_def_item_detach'>${obj.value}</span>`,
+              sty = "",
+              typ = "";
+            if (obj.type == "Table") {
+              typ = "tbl";
+            } else if (obj.type == "Function") {
+              typ = "fun";
+            }
+            if (typeof obj.type != "undefined") {
+              sty = `<span class='source_def_type_detach source_def_type_${typ}'>${typ}</span>`;
+            }
+            return val + sty;
+          },
           type: {
             height: 38,
           },
@@ -1989,10 +2007,12 @@ export function QueryPage(prefix, selectedDb, editorValue) {
               `${urlDb}/content_search?id=${sourceId}&root=0&filter[value]=` +
                 filtervalue
             ).then((data) => {
-              setTimeout(() => {
-                searchHistoryStore.clearAll();
-                searchHistoryStore.parse(data.json().data);
-              }, 500);
+              if(data.length>0){
+                setTimeout(() => {
+                  searchHistoryStore.clearAll();
+                  searchHistoryStore.parse(data.json().data);
+                }, 500);
+              }
             });
           },
           on: {
@@ -2165,8 +2185,8 @@ export function QueryPage(prefix, selectedDb, editorValue) {
               on: {
                 onChange: function (newVal, oldVal) {
                   state.isSearchDetach = newVal;
-                  setSearchType();
                   webix.storage.local.put(LAST_SEARCHTYPE, newVal);
+                  setSearchType();
                 },
               },
             },
@@ -2278,6 +2298,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             }
             const st = webix.storage.local.get(LAST_SEARCHTYPE);
             if (st) {
+              state.isSearchDetach = st;
               $$(prefix + "_detach_quick_search").setValue(st);
             }
             const mn = state.isMinimap || webix.storage.local.get(LAST_MINIMAP);
@@ -3361,10 +3382,10 @@ export function QueryPage(prefix, selectedDb, editorValue) {
 
 
       editorId.hideProgress();
-      setTimeout(() => {
-        $$(prefix + "_database_search_shimm").hide();
-        $$(prefix + "_database_search").show();
-      }, 300);
+      // setTimeout(() => {
+      //   $$(prefix + "_database_search_shimm").hide();
+      //   $$(prefix + "_database_search").show();
+      // }, 300);
       editorId.enable();
 
       if(editorValue){
@@ -3522,7 +3543,9 @@ export function QueryPage(prefix, selectedDb, editorValue) {
   };
 
   const setSearchType = () => {
-    if (state.isSearchDetach) {
+    const st = state.isSearchDetach || webix.storage.local.get(LAST_SEARCHTYPE);
+    if (st) {
+      $$(prefix + "_database_search_shimm").hide();
       $$(prefix + "_database_search").hide();
       $$(prefix + "_database_search_content").hide();
       $$(prefix + "_search_more_btn").hide();
@@ -3537,11 +3560,20 @@ export function QueryPage(prefix, selectedDb, editorValue) {
           $$(prefix + "_search_detach_win").hide();
         }
       });
+
     } else {
       $$(prefix + "_database_search_content").hide();
-      if ($$(prefix + "_database_search").isVisible()) {
-        $$(prefix + "_database_search").show();
-      }
+      $$(prefix + "_database_search_shimm").show();
+      // $$(prefix + "_database_search").show();
+      // if ($$(prefix + "_database_search").isVisible()) {
+        const editorId = $$(prefix + "_sql_editor");
+        // editorId.hideProgress();
+        setTimeout(() => {
+          $$(prefix + "_database_search_shimm").hide();
+          $$(prefix + "_database_search").show();
+        }, 300);
+        editorId.enable();
+      // }
       $$(prefix + "_search_more_btn").show();
       $$(prefix + "_search_detach_btn").hide();
     }

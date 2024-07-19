@@ -85,10 +85,11 @@ const dbAllTableBySchema = (schemaName) => {
         tb.table_name::text AS value,
         true::boolean as webix_kids
       FROM information_schema.tables tb
-      JOIN pg_class pc ON pc.oid = (tb.table_schema || '.' || tb.table_name)::regclass
+      JOIN pg_class pc ON tb.table_schema = pc.relnamespace::regnamespace::text AND tb.table_name = pc.relname
       WHERE tb.table_type = 'BASE TABLE'
       AND tb.table_schema NOT IN ('pg_catalog', 'information_schema')
       AND tb.table_schema = '${schemaName}'
+      ORDER BY tb.table_name;
     `;
 };
 
@@ -1163,7 +1164,7 @@ const dbFuncTableSearch = (search, type, view) => {
     sql = `SELECT id, value, css, name, schema, type ${fields} FROM ((${sqlFunc}) UNION (${sqlTbl})) t WHERE ${where} ORDER BY value LIMIT ${limit}`;
   }
 
-  console.log('sql',sql);
+  // console.log('sql',sql);
 
   return sql;
 };

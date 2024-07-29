@@ -3,8 +3,10 @@ import { state, testConnection } from "../../models/Database";
 import { userProfile } from "../../models/UserProfile";
 import { url } from "../../models/Profile";
 import { showError } from "../../helpers/ui";
-import { defaultHeader} from "../../helpers/api";
+import { defaultHeader } from "../../helpers/api";
 import { reloadServerCombo } from "./DatabasePage";
+import { API_URL } from "../../config/setting";
+import { encryptData } from "../../helpers/webcrypto-client";
 
 const prefix = state.prefix + "_server";
 let isEdit = false;
@@ -56,8 +58,15 @@ const WindowForm = () => {
                 type: "number",
                 labelWidth: labelWCol2,
               },
-              { view: "switch", name: "ssl", value: 0, label:"SSL", labelWidth: 35,width:80},
-            ]
+              {
+                view: "switch",
+                name: "ssl",
+                value: 0,
+                label: "SSL",
+                labelWidth: 35,
+                width: 80,
+              },
+            ],
           },
         ],
       },
@@ -159,6 +168,7 @@ const WindowForm = () => {
               $$(prefix + "_form").hide();
               $$(prefix + "_add_btn").show();
               $$(prefix + "_form_cancel_btn").hide();
+              $$(prefix + "_test_btn").hide();
               $$(prefix + "_save_btn").hide();
               $$(prefix + "_save_btn").setValue("Save");
               $$(prefix + "_delete_btn").hide();
@@ -177,6 +187,147 @@ const WindowForm = () => {
               let data = $$(prefix + "_form").getValues();
               data.type = 1;
               testConnection(false, data);
+            },
+          },
+          {
+            view: "icon",
+            type: "icon",
+            icon: "mdi mdi-dots-vertical",
+            id: prefix + "_more_btn",
+            popup: {
+              view: "contextmenu",
+              data: [
+                { id: "export", value: "Export" },
+                { id: "import", value: "Import" },
+              ],
+              on: {
+                onMenuItemClick: function (id) {
+                  if (id == "export") {
+                    webix
+                      .alert({
+                        title: "Export",
+                        text: "This export will include <b>Query Database Connection</b>",
+                      })
+                      .then(function () {
+                        webix
+                          .ajax()
+                          .get(`${url}/export`)
+                          .then(function (data) {
+                            const blob = new Blob([data.json().data], {
+                              type: "text/plain",
+                            });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "dbconn.zpg";
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          });
+                      })
+                      .fail(function () {});
+                  } else if (id == "import") {
+                    let encryptedString = "";
+                    const win = webix.ui({
+                      view: "window",
+                      move: true,
+                      modal: true,
+                      position: "center",
+                      head: "Import Connection",
+                      body: {
+                        width: 250,
+                        rows: [
+                          {
+                            cols: [
+                              {
+                                view: "uploader",
+                                label: "Choose file",
+                                id: prefix + "_uploader",
+                                // accept:"text/plain",
+                                autowidth: true,
+                                multiple: false,
+                                link: prefix + "_uploder_list",
+                                autosend: false,
+                                on: {
+                                  onBeforeFileAdd: function (upload) {
+                                    const extAllow = "zpg";
+                                    const file = upload.file;
+                                    const ext = file.name.split(".").pop();
+                                    if (ext !== extAllow) {
+                                      webix.message({
+                                        type: "error",
+                                        text: "File not allowed",
+                                      });
+                                      return false;
+                                    }
+                                    return true;
+                                  },
+                                  onAfterFileAdd: function (upload) {
+                                    const file = upload.file;
+                                    const reader = new FileReader();
+                                    reader.onload = function (event) {
+                                      encryptedString = event.target.result;
+                                      $$(prefix + "_import_btn").show();
+                                    };
+                                    reader.readAsText(file);
+                                    return false;
+                                  },
+                                },
+                              },
+                              { width: 20 },
+                              {
+                                view: "button",
+                                value: "Import",
+                                id: prefix + "_import_btn",
+                                css: "webix_primary",
+                                hidden: true,
+                                autowidth: true,
+                                click: function () {
+                                  webix
+                                    .ajax()
+                                    .post(
+                                      url + "/import",
+                                      { dbconn: encryptedString },
+                                      function (res) {
+                                        console.log("res", res);
+                                        encryptedString = "";
+                                      }
+                                    )
+                                    .fail(function (err) {
+                                      showError(err);
+                                      encryptedString = "";
+                                    });
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            view: "list",
+                            id: prefix + "_uploder_list",
+                            type: "uploader",
+                            autoheight: true,
+                            borderless: true,
+                          },
+                          {
+                            cols: [
+                              {},
+                              {
+                                view: "button",
+                                value: "Close",
+                                autowidth: true,
+                                click: () => {
+                                  win.close();
+                                  encryptedString = "";
+                                },
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    });
+                    win.show();
+                  }
+                },
+              },
             },
           },
         ],
@@ -308,8 +459,7 @@ function save() {
   if (!isEdit) {
     webix
       .ajax()
-
-      .post(url+"/conn", data, function (res) {
+      .post(url + "/conn", data, function (res) {
         webix.message({ text: "<strong>" + msgName + "</strong> saved." });
         reload();
       })

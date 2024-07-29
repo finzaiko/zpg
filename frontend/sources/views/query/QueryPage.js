@@ -185,6 +185,10 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             options: {
               width: 250,
               fitMaster: false,
+              filter: function(item, value){
+                if(!value)return true;
+                return item.value.toUpperCase().indexOf(value.toUpperCase())>-1
+              },
               body: {
                 // template:
                 //   `<div style="background-color:#content#;margin:0;padding-left:4px;padding-right:4px;border-radius:3px;">#value#</div>`,
@@ -220,7 +224,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
               },
               on: {
                 onBeforeShow: function () {
-                  reloadDBConnCombo();
+                  // reloadDBConnCombo();
                 },
               },
             },
@@ -3334,14 +3338,21 @@ export function QueryPage(prefix, selectedDb, editorValue) {
     });
   }
 
+  /*
   function reloadDBConnCombo() {
     const cmbId = $$(prefix + "_source_combo");
+    const a = cmbId.getValue()
+    console.log('a',a);
+
     var cmbList = cmbId.getPopup().getList();
     cmbList.clearAll();
     cmbId.setValue("");
     cmbId.getPopup().getList().unselect();
-    cmbList.load(urlProfile + "/content?type=2&ls=true");
+    cmbList.load(urlProfile + "/content?type=2&ls=true").then(_=>{
+      cmbId.setValue(state.lastConn)
+    });
   }
+  */
 
   const autoFormat = () => {
     let options = {

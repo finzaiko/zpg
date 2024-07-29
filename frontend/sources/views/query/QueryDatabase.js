@@ -582,9 +582,36 @@ const reloadHistory = () => {
     listMultiConn.load(`${urlProfile}/content?type=2&ls=true`);
   }
 };
+
 const close = () => {
   $$(prefix + "_form").clear();
   $$(prefix + "_win").destructor();
+
+  const allTabList = $$("tabs").getTabbar().data.options;
+  const tabList = allTabList.filter((o) => o.id.includes("query"));
+
+  // Reload and restore last connection
+  if (tabList.length > 0) {
+    let idx = [];
+    tabList.forEach((item) => {
+      const queryId = item.id =="query" ? "z_query" : item.id;
+      const cmbId = $$(queryId + "_source_combo");
+      idx.push({id:queryId, value: cmbId.getValue()});
+    });
+    setTimeout(() => {
+      idx.forEach(o=>{
+        const cmbId2 = $$(o.id + "_source_combo");
+        const cmbList2 = cmbId2.getPopup().getList();
+        cmbList2.clearAll();
+        cmbId2.setValue("");
+        cmbId2.getPopup().getList().unselect();
+        cmbList2.load(urlProfile + "/content?type=2&ls=true").then(_=>{
+          cmbId2.setValue(o.value)
+        });
+      })
+    }, 1000);
+  }
+
 };
 
 const defaultBtn = () => {

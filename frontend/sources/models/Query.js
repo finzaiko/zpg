@@ -13,6 +13,7 @@ export let state = {
   isDisableHistory: 0,
   isAdjustCols: 0,
   isRestoreLastQuery: 1,
+  lastConn: 0
 };
 
 export const url = API_URL + "/" + path;

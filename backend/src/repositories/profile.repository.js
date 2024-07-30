@@ -32,7 +32,7 @@ class ProfileRepository {
 
     if (type == 1 || type == 2) {
       sql += " ORDER BY profile.seq";
-    }else{
+    } else {
       sql += " ORDER BY profile.id DESC";
     }
 
@@ -108,7 +108,7 @@ class ProfileRepository {
       data.ssl,
       data.user_id,
       data.content,
-      data.user_id
+      data.user_id,
     ];
 
     const res = await new Promise((resolve, reject) => {
@@ -266,7 +266,6 @@ class ProfileRepository {
   }
 
   async createContent(data) {
-
     const seqRec = await this.getMaxSequence();
     const maxSeq = seqRec[0]["seq"] || 0;
 
@@ -312,7 +311,7 @@ class ProfileRepository {
 
     const data = await UserRepository.getById(userId);
     let userLevel = 3;
-    if(typeof data[0]!="undefined"){
+    if (typeof data[0] != "undefined") {
       userLevel = data[0].user_level;
     }
 
@@ -331,7 +330,7 @@ class ProfileRepository {
           },
           {
             key: "is_admin_menu",
-            value: userLevel==1 ? "1": "0",
+            value: userLevel == 1 ? "1" : "0",
           },
           {
             key: "editor_font_size",
@@ -408,7 +407,6 @@ class ProfileRepository {
     return res;
   }
 
-
   async updateSequence(dataArr) {
     // console.log('dataArr',dataArr);
 
@@ -432,6 +430,63 @@ class ProfileRepository {
         );
         db.run("commit");
         resolve("done");
+      });
+    });
+    return res;
+  }
+
+  async deleteAllDBConn(userId) {
+    let sql = `DELETE FROM profile WHERE type in (1,2) AND user_id=${userId}`;
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
+  async getExportData(userId) {
+    let sql = `SELECT conn_name, host, port, database, user, password, ssl, user_id, type FROM profile WHERE type in (1,2) and user_id=${userId}`;
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
+
+  async setImportData(userId, isOverwrite, data) {
+    if (isOverwrite) {
+      await this.deleteAllDBConn(userId);
+    }
+    const parseData = JSON.parse(data);
+    const columns = Object.keys(parseData[0]);
+    const values = parseData
+      .map((obj) => {
+        let s = []
+        columns.forEach((ov) => {
+          if (typeof obj[ov] == "string") {
+            s.push(`'${obj[ov]}'`);
+          } else {
+            s.push(`${obj[ov]}`);
+          }
+        });
+        return `(${s.join(", ")})`;
+      })
+      .join(", ");
+    let query = `INSERT INTO profile (${columns.join(
+      ", "
+    )}) VALUES ${values};`;
+
+    const res = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        var stmt = db.prepare(query);
+        stmt.run([], function (err,row) {
+          if (err) reject(err);
+          resolve({last_id: this.lastID});
+        });
       });
     });
     return res;

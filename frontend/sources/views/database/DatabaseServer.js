@@ -207,6 +207,7 @@ const WindowForm = () => {
                       .alert({
                         title: "Export",
                         text: "This export will include <b>Query Database Connection</b>",
+                        ok: "&nbsp;&nbsp;Ok, Understood &nbsp;&nbsp;",
                       })
                       .then(function () {
                         webix
@@ -219,9 +220,14 @@ const WindowForm = () => {
                             const url = URL.createObjectURL(blob);
                             const a = document.createElement("a");
                             a.href = url;
-                            a.download = "dbconn.zpg";
+                            const format = webix.Date.dateToStr("%Y%m%d%h%i%s");
+                            a.download = `db_${format(new Date())}.zpg`;
                             a.click();
                             URL.revokeObjectURL(url);
+                            webix.message({
+                              text: "Exported file downloading...",
+                              type: "success",
+                            });
                           });
                       })
                       .fail(function () {});
@@ -269,35 +275,15 @@ const WindowForm = () => {
                                       $$(prefix + "_import_btn").show();
                                     };
                                     reader.readAsText(file);
+                                    setTimeout(
+                                      () => doImport(win, encryptedString),
+                                      600
+                                    );
                                     return false;
                                   },
                                 },
                               },
                               { width: 20 },
-                              {
-                                view: "button",
-                                value: "Import",
-                                id: prefix + "_import_btn",
-                                css: "webix_primary",
-                                hidden: true,
-                                autowidth: true,
-                                click: function () {
-                                  webix
-                                    .ajax()
-                                    .post(
-                                      url + "/import",
-                                      { dbconn: encryptedString },
-                                      function (res) {
-                                        console.log("res", res);
-                                        encryptedString = "";
-                                      }
-                                    )
-                                    .fail(function (err) {
-                                      showError(err);
-                                      encryptedString = "";
-                                    });
-                                },
-                              },
                             ],
                           },
                           {
@@ -310,6 +296,17 @@ const WindowForm = () => {
                           {
                             cols: [
                               {},
+                              {
+                                view: "button",
+                                value: "Import",
+                                id: prefix + "_import_btn",
+                                css: "webix_primary",
+                                hidden: true,
+                                autowidth: true,
+                                click: function () {
+                                  doImport(win, encryptedString);
+                                },
+                              },
                               {
                                 view: "button",
                                 value: "Close",
@@ -501,6 +498,52 @@ const remove = () => {
     },
   });
 };
+
+function doImport(win, encryptedString) {
+  const dataCount = $$(prefix + "_table").count();
+  if (dataCount > 0) {
+    webix.modalbox({
+      css: "zwebix_modalbox_primary",
+      title: "Confirm Import",
+      buttons: ["Overwrite", "Append", "Cancel"],
+      width: 400,
+      text: "Database connection is not empty,<br>Do you want to overwrite or append ?",
+      callback: function (result) {
+        if (result == 0 || result == 1) {
+          doImportSave(win, encryptedString, result == 0);
+        }
+      },
+    });
+  } else {
+    doImportSave(win, encryptedString, true);
+  }
+}
+
+function doImportSave(win, encryptedString, isOverwrite) {
+  webix
+    .ajax()
+    .post(
+      `${url}/import`,
+      {
+        dbconn: encryptedString,
+        overwrite: isOverwrite,
+      },
+      function (_) {
+        webix.message({
+          text: "Import success",
+          type: "success",
+        });
+        encryptedString = "";
+        reload();
+        win.close();
+      }
+    )
+    .fail(function (err) {
+      showError(err);
+      encryptedString = "";
+      win.close();
+    });
+}
 
 const reload = () => {
   $$(prefix + "_table").clearAll();

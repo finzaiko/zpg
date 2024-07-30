@@ -1902,3 +1902,9 @@ svg text {
   10.71429% { transform:translate(0,0) }
   100% { transform:translate(0,0) }
 }
+
+.zwebix_modalbox_primary > div.webix_popup_controls > div:nth-child(1) > div,
+.zwebix_modalbox_primary > div.webix_popup_controls > div:nth-child(2) > div{
+  background: #1CA1C1;
+  color: #FFFFFF;
+}

@@ -246,6 +246,18 @@ class DbRepository {
     }
     return [];
   }
+
+
+  async getExport(userId) {
+    let sql = `SELECT max(seq) as seq FROM profile`;
+    const res = await new Promise((resolve, reject) => {
+      db.all(sql, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    return res;
+  }
 }
 
 module.exports = new DbRepository();

@@ -28,7 +28,6 @@ export default {
 		<p>
 			<ul>
 				<li>Query not have cancel/stop, alternatively set timeout on setting menu (to be improve should do)</li>
-				<li>Not show detail tables defenition</li>
 			</ul>
 		</p>
 		<section>
@@ -37,18 +36,21 @@ export default {
 			<li>all: load user setting from json profile</li>
 			<li>share: reconstruct to separate table and notify socket.io</li>
 				<li>query: change reload on user setting</li>
-				<li>compare by profile </li>
-				<li>execute query in compare</li>
 				<li>check compatible version</li>
 				<li>dashboard: show process activity</li>
 				<li>query: add note</li>
-				<li>query: enable client history</li>
-				<li>blank hints tab default</li>
 				</ul>
 		</section>
 
 		<section>
 		<h4>Change log:</h4>
+			<p>
+			<h4>0.0.20-dev (30-07-2024)</h4>
+				<ul>
+					<li>database: add encrypted import export db connection</li>
+					<li>fix compare</li>
+				</ul>
+			</p>
 			<p>
 			<h4>0.0.19-dev (03-12-2023)</h4>
 				<ul>

@@ -1,6 +1,8 @@
+const { ENCRYPT_PASSWORD } = require("../config/contant");
 const ProfileConnDto = require("../dtos/profile-conn.dto");
 const ProfileContentDto = require("../dtos/profile-content.dto");
 const ProfileRepository = require(`../repositories/profile.repository`);
+const { encrypt, decrypt } = require("../utils/webcrypto.util");
 
 class ProfileService {
   async findAll(type, userId, isList, showAll, limit, offset, search) {
@@ -153,6 +155,22 @@ class ProfileService {
   async getUserProfile(userId) {
     const data = await ProfileRepository.getUserProfile(userId);
     return data;
+  }
+
+  async getExport(userId) {
+    const secretData = await ProfileRepository.getExportData(userId);
+    return await encrypt(JSON.stringify(secretData), ENCRYPT_PASSWORD);
+  }
+
+  async setImport(userId, data) {
+    const { dbconn, overwrite } = data;
+    const plainObj = await decrypt(dbconn, ENCRYPT_PASSWORD);
+    const secretData = await ProfileRepository.setImportData(
+      userId,
+      overwrite,
+      plainObj
+    );
+    return secretData;
   }
 }
 module.exports = new ProfileService();

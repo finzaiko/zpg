@@ -1,12 +1,29 @@
 const ProfileService = require(`../services/profile.service`);
 const { responseOk, responseHttp } = require("../utils/http.utils");
+const { ENCRYPT_PASSWORD } = require("../config/contant");
 
 class ProfileController {
   async findAll(request, reply) {
     const { type, ls, sa, limit, start, search } = request.query; // sa= show all
     const userId = request.user.uid;
-    const data = await ProfileService.findAll(type, userId, ls, sa, limit, start, search);
-    const dataCount = await ProfileService.countAll(type, userId, ls, sa, limit, start, search);
+    const data = await ProfileService.findAll(
+      type,
+      userId,
+      ls,
+      sa,
+      limit,
+      start,
+      search
+    );
+    const dataCount = await ProfileService.countAll(
+      type,
+      userId,
+      ls,
+      sa,
+      limit,
+      start,
+      search
+    );
 
     responseHttp(reply, 200, "Ok", {
       data: data,
@@ -77,12 +94,8 @@ class ProfileController {
   async copyConnContent(request, reply) {
     const userId = request.user.uid;
 
-    const {id, server, copydb} = request.body;
-    const data = await ProfileService.getById(
-      id,
-      5,
-      userId
-    );
+    const { id, server, copydb } = request.body;
+    const data = await ProfileService.getById(id, 5, userId);
     data.conn_name = `${copydb} (${server})`;
     data.type = 2;
     data.database = copydb;
@@ -105,12 +118,21 @@ class ProfileController {
 
   async getUserProfile(request, reply) {
     const userId = request.user.uid;
-    const data = await ProfileService.getUserProfile(
-      userId
-    );
+    const data = await ProfileService.getUserProfile(userId);
     responseHttp(reply, 200, "Ok", { data: data });
   }
 
+  async getExport(request, reply) {
+    const userId = request.user.uid;
+    const data = await ProfileService.getExport(userId);
+    responseOk(reply, { data: data, pass: ENCRYPT_PASSWORD });
+  }
+
+  async setImport(request, reply) {
+    const userId = request.user.uid;
+    await ProfileService.setImport(userId, request.body);
+    responseHttp(reply, 201, "File imported");
+  }
 }
 
 module.exports = new ProfileController();

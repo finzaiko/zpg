@@ -1,3 +1,4 @@
+const { ENCRYPT_PASSWORD } = require("../config/contant");
 const DbService = require(`../services/db.service`);
 const { responseOk, responseValidate } = require("../utils/http.utils");
 

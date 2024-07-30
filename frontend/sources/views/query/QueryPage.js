@@ -2669,7 +2669,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
         padding: 4px;
         border-radius: 6px;
         '>&nbsp;Cancel</span>
-        <span>Running query...</span></div>`
+        <span style="color:#fff">Running query...</span></div>`
       );
 
       document.getElementById(`${prefix}_z_cancel_query`).onclick =

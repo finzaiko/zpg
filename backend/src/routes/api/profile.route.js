@@ -16,4 +16,6 @@ module.exports = async (fastify) => {
   fastify.delete(`/content/:id`, ProfileController.removeContent);
 
   fastify.post(`/copyconn`, ProfileController.copyConnContent);
+  fastify.get(`/export`, ProfileController.getExport);
+  fastify.post(`/import`, ProfileController.setImport);
 };

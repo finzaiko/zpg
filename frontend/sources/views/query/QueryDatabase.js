@@ -348,32 +348,32 @@ const WindowForm = () => {
       },
       {
         id: "conn_name",
-        header: "Name",
+        header:[ "Name", { content:"textFilter" } ],
         width: 150,
       },
       {
         id: "database",
-        header: "Database",
+        header:[ "Database", { content:"textFilter" } ],
         width: 150,
       },
       {
         id: "host",
-        header: "Host",
+        header:[ "Host", { content:"textFilter" } ],
         width: 150,
       },
       {
         id: "port",
-        header: "Port",
+        header:[ "Port", { content:"numberFilter" } ],
         width: 100,
       },
       {
         id: "user",
-        header: "Username",
+        header:[ "Username", { content:"textFilter" } ],
         width: 150,
       },
       {
         id: "ssl",
-        header: "SSL",
+        header:[ "SSL", { content:"textFilter" } ],
         width: 50,
       },
     ],

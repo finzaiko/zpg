@@ -12,6 +12,7 @@ import start from "./about";
 import { deleteStoreIDB, emptyStoreIDB, readStoreIDB } from "../helpers/idb";
 import { QueryPage } from "./query/QueryPage";
 import { state as stateQuery } from "../models/Query";
+import SreensaverView from "./screensaver";
 // import start from "./start";
 
 window.getTabId = function (context) {
@@ -418,6 +419,8 @@ export default class MainView extends JetView {
     initContextMenu();
 
     restoreLastQuery(this);
+
+    // this.ui(SreensaverView).show();
   }
 
   menuClick(_scope, id) {

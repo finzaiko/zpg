@@ -466,6 +466,9 @@ class ProfileRepository {
     const values = parseData
       .map((obj) => {
         let s = []
+        obj.user_id = userId
+        // console.log('obj',obj);
+
         columns.forEach((ov) => {
           if (typeof obj[ov] == "string") {
             s.push(`'${obj[ov]}'`);
@@ -479,6 +482,8 @@ class ProfileRepository {
     let query = `INSERT INTO profile (${columns.join(
       ", "
     )}) VALUES ${values};`;
+
+    // console.log('query',query);
 
     const res = await new Promise((resolve, reject) => {
       db.serialize(() => {

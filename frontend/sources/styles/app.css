@@ -1908,3 +1908,9 @@ svg text {
   background: #1CA1C1;
   color: #FFFFFF;
 }
+
+.screensaver .webix_template{
+  /* filter: blur(10px); */
+  background: transparent !important;
+  /* background-color: rgba(255, 0, 0, 0.5) */
+}

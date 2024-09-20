@@ -309,7 +309,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             disabled: true,
             autowidth: true,
             click: function () {
-              // runQuery($$(prefix + "_source_combo").getValue());
+              runQuery($$(prefix + "_source_combo").getValue());
               // console.log('monaco',monaco);
 
               // monaco.languages.registerCompletionItemProvider("sql", {

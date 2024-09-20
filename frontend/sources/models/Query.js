@@ -18,6 +18,8 @@ export let state = {
 
 export const url = API_URL + "/" + path;
 
+export const snippetStore = new webix.DataCollection();
+
 function changeCommandKeybinding(editor, id, keybinding) {
   editor._standaloneKeybindingService.addDynamicKeybinding("-" + id);
   editor._standaloneKeybindingService.addDynamicKeybinding(id, keybinding);

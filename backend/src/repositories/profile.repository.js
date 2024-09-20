@@ -447,7 +447,7 @@ class ProfileRepository {
   }
 
   async getExportData(userId) {
-    let sql = `SELECT conn_name, host, port, database, user, password, ssl, user_id, type FROM profile WHERE type in (1,2) and user_id=${userId}`;
+    let sql = `SELECT conn_name, host, port, database, user, password, ssl, user_id, type, content FROM profile WHERE type in (1,2) and user_id=${userId}`;
     const res = await new Promise((resolve, reject) => {
       db.all(sql, (err, row) => {
         if (err) reject(err);

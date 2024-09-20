@@ -127,6 +127,10 @@ function msToTime(ms) {
   return tt.join(" ");
 }
 
+function isInt(value) {
+  return !isNaN(value) && (function(x) { return (x | 0) === x; })(parseFloat(value))
+}
+
 module.exports = {
   randomString,
   getObjectKeyName,
@@ -134,4 +138,5 @@ module.exports = {
   getTableName,
   isJSONString,
   msToTime,
+  isInt
 };

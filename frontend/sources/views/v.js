@@ -11,7 +11,7 @@ import { routeName, routes } from "./routes";
 import start from "./about";
 import { deleteStoreIDB, emptyStoreIDB, readStoreIDB } from "../helpers/idb";
 import { QueryPage } from "./query/QueryPage";
-import { state as stateQuery } from "../models/Query";
+import { snippetStore, state as stateQuery } from "../models/Query";
 import SreensaverView from "./screensaver";
 // import start from "./start";
 
@@ -36,6 +36,12 @@ function loadAppSetting() {
       st.parse(f);
     }
     st.hideOverlay();
+  });
+}
+
+function loadSnippet() {
+  webix.ajax(`${API_URL}/snippet`, (res) => {
+    snippetStore.add({ data: JSON.parse(res).data });
   });
 }
 
@@ -419,6 +425,8 @@ export default class MainView extends JetView {
     initContextMenu();
 
     restoreLastQuery(this);
+
+    loadSnippet();
 
     // this.ui(SreensaverView).show();
   }

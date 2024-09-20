@@ -153,6 +153,63 @@ CREATE TABLE share (
 );
 `;
 
+const snippetTable = `
+CREATE TABLE snippet(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    label text,
+    insert_text text,
+    detail text,
+    documentation text,
+    kind text, -- 1=Keyword, 2=Function
+    user_id int, -- 0=system, other=user login
+    UNIQUE(label)
+);
+`;
+
+/*
+insert into snippet(label, insert_text, detail, documentation, kind, user_id)
+values (
+'rais',
+'RAISE NOTICE ''${1:var}= %'', ${1:var};',
+'Show console log notice for 1 parameter',
+'Supplies an error detail message',
+2,
+0
+);
+
+insert into snippet(label, insert_text, detail, documentation, kind, user_id)
+values (
+'rais2',
+'RAISE NOTICE ''${1:var1}= %, ${2:var2}= %'', ${1:var1}, ${2:var2};',
+'Show console log notice for 2 parameter',
+'Supplies an error detail message',
+2,
+0
+);
+
+insert into snippet(label, insert_text, detail, documentation, kind, user_id)
+values (
+'sel',
+'SELECT * FROM ${1:schema}.${2:table};',
+'Select all fields in table',
+'',
+2,
+0
+);
+
+insert into snippet(label, insert_text, detail, documentation, kind, user_id)
+values (
+'selim',
+'SELECT * FROM ${1:schema}.${2:table} LIMIT 10;',
+'Select all fields in table limit 10',
+'',
+2,
+0
+);
+
+
+*/
+
 const compareTable = (tableName) => {
   return `
     CREATE TABLE ${tableName} (
@@ -198,6 +255,7 @@ module.exports = {
   settingTable,
   compareTable,
   shareTable,
+  snippetTable,
   defaultSetting,
   defaultUser,
 };

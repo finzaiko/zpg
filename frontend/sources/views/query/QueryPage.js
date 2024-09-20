@@ -9,7 +9,6 @@ import {
   pagerRow,
   pageSize,
   showToast,
-  stripHtml,
 } from "../../helpers/ui";
 import { url as urlDb } from "../../models/Db";
 import { url as urlViewData } from "../../models/ViewData";
@@ -17,11 +16,12 @@ import { nonSringType, state as stateBase } from "../../models/Base";
 import { url as urlProfile } from "../../models/Profile";
 import { url as urlShare } from "../../models/Share";
 import { url as urlTask } from "../../models/Task";
-import { url, state, searchHistoryStore, storeLastOpenQuery } from "../../models/Query";
+import { url, state, searchHistoryStore, storeLastOpenQuery, snippetStore } from "../../models/Query";
 import { QueryDatabase } from "./QueryDatabase";
 import { QueryHelp } from "./QueryHelp";
 import { userProfile } from "../../models/UserProfile";
 import { urlItem as urlTaskItem } from "../../models/Task";
+import { url as urlSnippet } from "../../models/Snippet";
 import {
   LAST_DATATYPE,
   LAST_DB_CONN_QUERY,
@@ -30,8 +30,6 @@ import {
   LAST_SEARCHTYPE,
   LAST_HISTORY,
   LAST_MULTICONN,
-  LAST_ADJUSTCOLS,
-  BACKEND_URL,
   FONT_SIZE_EDITOR,
   EXPAND_COL_SIZE,
   EXPAND_ALL_COL_SIZE,
@@ -42,11 +40,7 @@ import { copyToClipboard } from "../../helpers/copy";
 import { url as urlUser } from "../../models/User";
 import { getErrorMessage } from "../../helpers/api";
 import {
-  addStoreIDB,
   emptyStoreIDB,
-  readStoreIDB,
-  readStoreIDBByKey,
-  updateStoreIDB,
   upsertStoreIDB,
 } from "../../helpers/idb";
 import { dbTreeType } from "../../helpers/db";
@@ -315,7 +309,99 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             disabled: true,
             autowidth: true,
             click: function () {
-              runQuery($$(prefix + "_source_combo").getValue());
+              // runQuery($$(prefix + "_source_combo").getValue());
+              // console.log('monaco',monaco);
+
+              // monaco.languages.registerCompletionItemProvider("sql", {
+              //   triggerCharacters: ["["],
+              //   provideCompletionItems: function (model, position, context) {
+              //       //   let suggestions = [];
+              //       var word = model.getWordUntilPosition(position);
+              //       var range = {
+              //         startLineNumber: position.lineNumber,
+              //         endLineNumber: position.lineNumber,
+              //         startColumn: word.startColumn,
+              //         endColumn: word.endColumn,
+              //       };
+              //       let suggestions = [
+              //         {
+              //           label: "rais",
+              //           kind: monaco.languages.CompletionItemKind.Function,
+              //           documentation: "Raise Notice one parameter",
+              //           insertText: "RAISE NOTICE '${1:var}= %', ${1:var};",
+              //           insertTextRules:
+              //             monaco.languages.CompletionItemInsertTextRule
+              //               .InsertAsSnippet,
+              //           range: range,
+              //         },
+              //         {
+              //           label: "rais2",
+              //           kind: monaco.languages.CompletionItemKind.Function,
+              //           documentation: "Raise Notice two parameter",
+              //           insertText:
+              //             "RAISE NOTICE '${1:var1}= %, ${2:var2}= %', ${1:var1}, ${2:var2};",
+              //           insertTextRules:
+              //             monaco.languages.CompletionItemInsertTextRule
+              //               .InsertAsSnippet,
+              //           range: range,
+              //         },
+              //       ];
+              //       return { suggestions };
+              //   },
+              // });
+
+              // function fetchSqlSuggestions() {
+              //   return fetch('https://mocki.io/v1/c0f08906-b122-4747-8ee7-b7828c20cea3')
+              //     .then(response => response.json())
+              //     .then(data => {
+              //       // Process the fetched data into a suitable format
+              //       const suggestions = data.map(suggestion => ({
+              //         label: suggestion.label,
+              //         kind: monaco.languages.CompletionItemKind.Keyword, // Adjust kind as needed
+              //         detail: suggestion.detail,
+              //         documentation: suggestion.documentation
+              //       }));
+              //       return suggestions;
+              //     });
+              // }
+
+              // function getSqlCompletionProvider2() {
+              //   return {
+              //     provideCompletionItems: (model, position) => {
+              //       // Fetch suggestions from the server (or use cached data)
+              //       return fetchSqlSuggestions().then(suggestions => {
+              //         console.log("sugg>> ",suggestions)
+              //         var word = model.getWordUntilPosition(position);
+              //         var range = {
+              //           startLineNumber: position.lineNumber,
+              //           endLineNumber: position.lineNumber,
+              //           startColumn: word.startColumn,
+              //           endColumn: word.endColumn,
+              //         };
+
+              //         const s1 = suggestions.map(ss =>{
+              //           console.log("ss>>", ss);
+              //         })
+
+              //         const s2 = suggestions.map(person => ({
+              //           ...person,
+              //           range: range,
+              //           insertText: person.label+'____xxxx',
+              //         }));
+
+              //         console.log("s2>> ", s2)
+
+              //         // var mm = {suggestions};
+              //         // console.log("mm>> ", mm)
+              //         // return {suggestions};
+              //         return {suggestions: s2};
+              //       });
+              //     }
+              //   };
+              // }
+
+              // monaco.languages.registerCompletionItemProvider('sql', getSqlCompletionProvider2());
+
             },
           },
           {
@@ -426,6 +512,112 @@ export function QueryPage(prefix, selectedDb, editorValue) {
               onChange: function (v) {
                 showhideHistory(v);
                 webix.storage.local.put(LAST_HISTORY, v);
+              },
+            },
+          },
+          {
+            view: "button",
+            tooltip: "Other menu",
+            id: prefix + "_othermenu_btn",
+            type: "icon",
+            css: "z_icon_color_primary z_icon_size_20 zmdi_padding",
+            icon: "mdi mdi-chevron-double-down",
+            autowidth: true,
+            popup: {
+              view: "contextmenu",
+              data: [],
+              submenuConfig: {
+                width: 180,
+              },
+              on: {
+                onBeforeShow: function () {
+                  this.clearAll();
+                  webix
+                    .ajax()
+                    .get(`${urlTask}/useraccesslist`)
+                    .then((r) => {
+                      let arr = [
+                        {
+                          id: "shareto",
+                          value:
+                            "<span class='mdi mdi-share-variant-outline webix_icon'></span>&nbsp; Share to other users",
+                        },
+                      ];
+                      const _data = r.json().data;
+                      if (_data.length > 0) {
+                        let newData = {
+                          id: "addtask",
+                          value:
+                            "<span class='mdi mdi-checkbox-marked-circle-plus-outline webix_icon'></span>&nbsp; Add to task",
+                          data: _data,
+                        };
+                        arr.push(newData);
+                      }
+                      this.parse(arr);
+                    });
+                },
+                onMenuItemClick: function (id) {
+                  if (id == "shareto") {
+                    openShareUser();
+                  } else {
+                    if (!isNaN(id)) {
+                      // webix.message({text:"Not implement yet="+id, type:"debug"});
+                      const sqlRaw = $$(prefix + "_sql_editor").getValue();
+                      if (sqlRaw.trim().length > 0) {
+                        const rawTitle = sqlRaw.split("\n")[0];
+                        const data = {
+                          task_id: id,
+                          schema: "",
+                          type: 9,
+                          seq: -1,
+                          func_name: rawTitle,
+                          sql_content: sqlRaw,
+                          oid: 0,
+                        };
+                        webix.ajax().post(urlTaskItem, data, function (res) {
+                          webix.message({
+                            text: "SQL query added",
+                            type: "success",
+                          });
+                        });
+                      } else {
+                        webix.message({
+                          text: "Nothing to add",
+                          type: "error",
+                        });
+                      }
+                    }
+                  }
+
+                  // if (id == prefix + "_add_bookmark") {
+                  //   let data = {
+                  //     title: "",
+                  //     content: $$(prefix + "_sql_editor").getValue(),
+                  //     user_id: userProfile.userId,
+                  //     type: 4,
+                  //   };
+                  //   webix
+                  //     .ajax()
+
+                  //     .post(urlProfile + "/content", data, (r) => {
+                  //       webix.message({
+                  //         text: "Bookmark added.",
+                  //         type: "success",
+                  //       });
+                  //     });
+                  // } else if (id == prefix + "_manage_bookmark") {
+                  //   openBookmarkManager();
+                  // } else {
+                  //   webix
+                  //     .ajax()
+                  //     .get(`${urlProfile}/content/${id}?type=4`)
+                  //     .then((r) => {
+                  //       $$(prefix + "_sql_editor").setValue(
+                  //         r.json().data.content
+                  //       );
+                  //     });
+                  // }
+                },
               },
             },
           },
@@ -694,112 +886,6 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             hidden: true,
             click: function () {
               openSearchDetach();
-            },
-          },
-          {
-            view: "icon",
-            tooltip: "Other menu",
-            id: prefix + "_othermenu_btn",
-            type: "icon",
-            css: "z_icon_color_primary z_icon_size_20",
-            icon: "mdi mdi-chevron-double-down",
-            autowidth: true,
-            popup: {
-              view: "contextmenu",
-              data: [],
-              submenuConfig: {
-                width: 180,
-              },
-              on: {
-                onBeforeShow: function () {
-                  this.clearAll();
-                  webix
-                    .ajax()
-                    .get(`${urlTask}/useraccesslist`)
-                    .then((r) => {
-                      let arr = [
-                        {
-                          id: "shareto",
-                          value:
-                            "<span class='mdi mdi-share-variant-outline webix_icon'></span>&nbsp; Share to other users",
-                        },
-                      ];
-                      const _data = r.json().data;
-                      if (_data.length > 0) {
-                        let newData = {
-                          id: "addtask",
-                          value:
-                            "<span class='mdi mdi-checkbox-marked-circle-plus-outline webix_icon'></span>&nbsp; Add to task",
-                          data: _data,
-                        };
-                        arr.push(newData);
-                      }
-                      this.parse(arr);
-                    });
-                },
-                onMenuItemClick: function (id) {
-                  if (id == "shareto") {
-                    openShareUser();
-                  } else {
-                    if (!isNaN(id)) {
-                      // webix.message({text:"Not implement yet="+id, type:"debug"});
-                      const sqlRaw = $$(prefix + "_sql_editor").getValue();
-                      if (sqlRaw.trim().length > 0) {
-                        const rawTitle = sqlRaw.split("\n")[0];
-                        const data = {
-                          task_id: id,
-                          schema: "",
-                          type: 9,
-                          seq: -1,
-                          func_name: rawTitle,
-                          sql_content: sqlRaw,
-                          oid: 0,
-                        };
-                        webix.ajax().post(urlTaskItem, data, function (res) {
-                          webix.message({
-                            text: "SQL query added",
-                            type: "success",
-                          });
-                        });
-                      } else {
-                        webix.message({
-                          text: "Nothing to add",
-                          type: "error",
-                        });
-                      }
-                    }
-                  }
-
-                  // if (id == prefix + "_add_bookmark") {
-                  //   let data = {
-                  //     title: "",
-                  //     content: $$(prefix + "_sql_editor").getValue(),
-                  //     user_id: userProfile.userId,
-                  //     type: 4,
-                  //   };
-                  //   webix
-                  //     .ajax()
-
-                  //     .post(urlProfile + "/content", data, (r) => {
-                  //       webix.message({
-                  //         text: "Bookmark added.",
-                  //         type: "success",
-                  //       });
-                  //     });
-                  // } else if (id == prefix + "_manage_bookmark") {
-                  //   openBookmarkManager();
-                  // } else {
-                  //   webix
-                  //     .ajax()
-                  //     .get(`${urlProfile}/content/${id}?type=4`)
-                  //     .then((r) => {
-                  //       $$(prefix + "_sql_editor").setValue(
-                  //         r.json().data.content
-                  //       );
-                  //     });
-                  // }
-                },
-              },
             },
           },
           {},
@@ -3549,8 +3635,119 @@ export function QueryPage(prefix, selectedDb, editorValue) {
           });
         }
 
-      /// END: Tester
+
+        /// Tester
+        /*
+         const allTabList = $$("tabs").getTabbar().data.options
+         const tabList = allTabList.filter((o) => o.id.includes("query"));
+
+         if (tabList.length==1) {
+
+
+           function fetchSqlSuggestions(word) {
+             return webix.ajax(`${urlSnippet}/search?value=${word}`)
+               .then(response => response.json())
+               .then(data => {
+                 const suggestions = data.data.map(suggestion => ({
+                    label: suggestion.label,
+                    kind: suggestion.kind==2 ? monaco.languages.CompletionItemKind.Function: monaco.languages.CompletionItemKind.Function,
+                    detail: suggestion.detail,
+                    documentation: suggestion.documentation,
+                    insertText: suggestion.insert_text,
+                    insertTextRules: suggestion.kind==2 ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet : null,
+                 }));
+                 return suggestions;
+               });
+           }
+
+           function getSqlCompletionProvider() {
+             return {
+              //  provideCompletionItems: (model, position) => {
+              //   // const lineContent = model.getLineContent(position.lineNumber);
+              //   const range = new monaco.Range(position.lineNumber, 1, position.lineNumber, position.column);
+              //   const textInRange = model.getValueInRange(range);
+              //   console.log('textInRange',textInRange);
+
+
+              //    return fetchSqlSuggestions(textInRange).then(suggestions => {
+              //      const word = model.getWordUntilPosition(position);
+              //      const range = {
+              //        startLineNumber: position.lineNumber,
+              //        endLineNumber: position.lineNumber,
+              //        startColumn: word.startColumn,
+              //        endColumn: word.endColumn,
+              //      };
+
+              //      const sug = suggestions.map(obj => ({
+              //        ...obj,
+              //        range: range,
+              //        insertText: obj.insertText,
+              //      }));
+              //      console.log('sug',sug);
+
+              //      return {suggestions: sug};
+              //    });
+              //  }
+
+                provideCompletionItems(model, position){
+                    const range = new monaco.Range(position.lineNumber, 1, position.lineNumber, position.column);
+                    const textInRange = model.getValueInRange(range);
+                    // console.log('textInRange',textInRange);
+                    return webix.ajax(`${urlSnippet}/search?value=${textInRange}`)
+                      .then(response => response.json())
+                      .then(data => {
+                        const suggestions = data.data.map(suggestion => ({
+                          label: suggestion.label,
+                          kind: suggestion.kind==2 ? monaco.languages.CompletionItemKind.Function: monaco.languages.CompletionItemKind.Keyword,
+                          detail: suggestion.detail ? suggestion.detail : '',
+                          documentation: {value: suggestion.documentation},
+                          insertText: suggestion.insert_text ? suggestion.insert_text : suggestion.label,
+                          insertTextRules: suggestion.kind==2 ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet : monaco.languages.CompletionItemInsertTextRule.None,
+                        }));
+                        console.log('suggestions',suggestions);
+                        return {suggestions};
+                    });
+                }
+             };
+           }
+
+
+           function getSystemSnippet() {
+            return {
+              triggerCharacters:["/"],
+              provideCompletionItems: (model, position) => {
+                const word = model.getWordUntilPosition(position);
+                const range = {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn: word.startColumn,
+                  endColumn: word.endColumn,
+                };
+                const suggestions = snippetStore.serialize()[0].data.map(suggestion => ({
+                  label: suggestion.label,
+                  kind: suggestion.kind==2 ? monaco.languages.CompletionItemKind.Function: monaco.languages.CompletionItemKind.Keyword,
+                  detail: suggestion.detail ? suggestion.detail : '',
+                  documentation: {value: suggestion.documentation},
+                  insertText: suggestion.insert_text ? suggestion.insert_text : suggestion.label,
+                  insertTextRules: suggestion.kind==2 ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet : monaco.languages.CompletionItemInsertTextRule.None,
+                  range: range,
+               }));
+
+                return { suggestions };
+              }
+              }
+          }
+
+          //  monaco.languages.registerCompletionItemProvider('sql', getSqlCompletionProvider());
+          //  monaco.languages.registerCompletionItemProvider('sql', getSystemSnippet());
+
+        }
+        */
+        /// Tester
+
     });
+
+
   };
 
   const setSearchType = () => {
@@ -3736,6 +3933,14 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                 minimap: {
                   enabled: false,
                 },
+                on: {
+                  onBeforeRender: function() {
+                      console.log(">>> onBeforeRender");
+                  },
+                  onAfterRender: function() {
+                      console.log(">>> onAfterRender");
+                  }
+                }
               },
               QueryHistoryPreview,
               QuerySidemenuRight,
@@ -3837,6 +4042,8 @@ export function QueryPage(prefix, selectedDb, editorValue) {
         initQueryEditor();
 
         setMinimap();
+
+
       }),
       onDestruct: function () {
         settingMore = {};

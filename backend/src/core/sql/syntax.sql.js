@@ -1,0 +1,63 @@
+const sqlSyntax = [
+  { "label": "SELECT", "documentation": "Retrieves data from one or more tables" },
+  { "label": "FROM", "documentation": "Specifies the table(s) to retrieve data from" },
+  { "label": "WHERE", "documentation": "Filters rows based on specified conditions" },
+  { "label": "GROUP BY", "documentation": "Groups rows based on one or more columns" },
+  { "label": "HAVING", "documentation": "Filters groups based on specified conditions" },
+  { "label": "ORDER BY", "documentation": "Sorts the result set based on one or more columns" },
+  { "label": "LIMIT", "documentation": "Limits the number of rows returned" },
+  { "label": "OFFSET", "documentation": "Skips a specified number of rows before returning results" },
+  { "label": "DISTINCT", "documentation": "Returns only unique values" },
+  { "label": "AS", "documentation": "Provides an alias for a column or table" },
+  { "label": "JOIN", "documentation": "Combines rows from two or more tables based on a related column" },
+  { "label": "INNER JOIN", "documentation": "Returns rows that have matching values in both tables" },
+  { "label": "LEFT JOIN", "documentation": "Returns all rows from the left table, and the matched rows from the right table" },
+  { "label": "RIGHT JOIN", "documentation": "Returns all rows from the right table, and the matched rows from the left table" },
+  { "label": "FULL OUTER JOIN", "documentation": "Returns all rows when there is a match in either left or right table" },
+  { "label": "ON", "documentation": "Specifies the condition for joining tables" },
+  { "label": "AND", "documentation": "Logical operator for combining conditions" },
+  { "label": "OR", "documentation": "Logical operator for combining conditions" },
+  { "label": "NOT", "documentation": "Negates a condition" },
+  { "label": "IN", "documentation": "Checks if a value is within a set of values" },
+  { "label": "LIKE", "documentation": "Matches patterns in text data" },
+  { "label": "ILIKE", "documentation": "Case-insensitive LIKE operator" },
+  { "label": "BETWEEN", "documentation": "Checks if a value is within a range" },
+  { "label": "IS NULL", "documentation": "Checks if a value is null" },
+  { "label": "IS NOT NULL", "documentation": "Checks if a value is not null" },
+  { "label": "CASE WHEN", "documentation": "Conditional expression" },
+  { "label": "THEN", "documentation": "Specifies the result if the condition is true" },
+  { "label": "ELSE", "documentation": "Specifies the result if the condition is false" },
+  { "label": "END", "documentation": "Ends the CASE expression" },
+  { "label": "EXISTS", "documentation": "Checks for the existence of rows in a subquery" },
+  { "label": "ANY", "documentation": "Compares a value to all values in a subquery" },
+  { "label": "ALL", "documentation": "Compares a value to all values in a subquery" },
+  { "label": "COUNT", "documentation": "Counts the number of rows or values" },
+  { "label": "SUM", "documentation": "Calculates the sum of values" },
+  { "label": "AVG", "documentation": "Calculates the average of values" },
+  { "label": "MIN", "documentation": "Returns the minimum value" },
+  { "label": "MAX", "documentation": "Returns the maximum value" },
+  { "label": "CREATE TABLE", "documentation": "Creates a new table" },
+  { "label": "DROP TABLE", "documentation": "Deletes a table" },
+  { "label": "ALTER TABLE", "documentation": "Modifies a table's structure" },
+  { "label": "ADD COLUMN", "documentation": "Adds a new column to a table" },
+  { "label": "DROP COLUMN", "documentation": "Deletes a column from a table" },
+  { "label": "MODIFY COLUMN", "documentation": "Modifies a column's definition" },
+  { "label": "INSERT INTO", "documentation": "Inserts data into a table" },
+  { "label": "VALUES", "documentation": "Specifies the values to be inserted" },
+  { "label": "UPDATE", "documentation": "Modifies existing data in a table" },
+  { "label": "SET", "documentation": "Specifies the new values for columns" },
+  { "label": "DELETE FROM", "documentation": "Deletes rows from a table" },
+  { "label": "TRUNCATE", "documentation": "Removes all rows from a table" },
+  { "label": "WITH", "documentation": "Defines common table expressions (CTEs)" },
+  { "label": "UNION", "documentation": "Combines the result sets of two or more SELECT statements" },
+  { "label": "INTERSECT", "documentation": "Returns rows that are present in both result sets" },
+  { "label": "EXCEPT", "documentation": "Returns rows that are present in the first result set but not in the second" }
+];
+
+
+module.exports = {
+  sqlSyntax
+};
+
+
+// generate for me all postgresql syntax in json array and short summary documentaion, example : [{syntax: "SELECT",documentation: "Retrieve rows from a table or view"},{syntax: "JOIN", documentation: "Join multiple table or queries can access multiple tables at once"}, ...]

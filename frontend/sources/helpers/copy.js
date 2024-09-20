@@ -7,6 +7,21 @@ export const copyToClipboard = (content) => {
   webix.message({ text: "Copied", type: "success" });
 };
 
+export const copyToClipboardOverlay = (viewId, text) => {
+  try {
+    navigator.clipboard.writeText(text);
+    webix.extend(viewId, webix.OverlayBox);
+    viewId.showOverlay(
+      `<div class="z_overlay"><span class='z_copied_label animate__animated animate__flash'>Copied! <span class='mdi mdi-checkbox-marked-circle-outline' style='color:orange;'></span></span></div>`
+    );
+    setTimeout(() => {
+      viewId.hideOverlay();
+    }, 1000);
+  } catch (err) {
+    console.error("Failed to copy: ", err);
+  }
+};
+
 const unsecuredCopyToClipboard = (text) => {
   const textArea = document.createElement("textarea");
   textArea.value = text;

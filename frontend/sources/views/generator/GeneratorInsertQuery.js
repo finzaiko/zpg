@@ -3,47 +3,38 @@ import { state, url } from "../../models/Generator";
 import { defaultHeader } from "../../helpers/api";
 import { url as urlProfile } from "../../models/Profile";
 import { LAST_DB_CONN_VIEWDATA } from "../../config/setting";
-import { setEditorFontSize } from "../../helpers/ui";
+import { setEditorFontSize, showErrorResponse, showLoadingText } from "../../helpers/ui";
+import { copyToClipboard } from "../../helpers/copy";
 
 const prefixThis = state.prefix + "_insertquery";
 
 function generate() {
   const editorId = $$(prefixThis + "_insertquery_ed");
   const data = {
-    id: 4,
+    id: $$(prefixThis + "_source_combo").getValue(),
     querysql: editorId.getValue(),
+    table: $$(prefixThis + "_table_name_txt").getValue(),
   };
-
+  const panelId = $$(prefixThis + "_z_generator_content");
+  showLoadingText(panelId, "Generate...");
   webix
     .ajax()
-
-    .post(`${url}/outparams`, data, function (res) {
+    .post(`${url}/insertquery`, data, function (res) {
       let rData = JSON.parse(res);
       if (typeof rData.data != "undefined") {
-        $$(prefixThis + "_result").setHTML(
-          "<pre id='insert_query_result'>" + rData.data + "</pre>"
-        );
+        $$(prefixThis + "_result").setValue(rData.data);
+        panelId.hideOverlay();
       }
     })
     .fail(function (err) {
-      showError(err);
+      console.log('err',err);
+
+      panelId.hideOverlay();
+      // showError(err);
+      showErrorResponse(err.response);
+      $$(prefixThis + "_result").setValue();
     });
 }
-
-const copyToClipboard = (viewId, text) => {
-  try {
-    navigator.clipboard.writeText(text);
-    webix.extend(viewId, webix.OverlayBox);
-    viewId.showOverlay(
-      `<div class="z_overlay"><span class='z_copied_label animate__animated animate__flash'>Copied! <span class='mdi mdi-checkbox-marked-circle-outline' style='color:orange;'></span></span></div>`
-    );
-    setTimeout(() => {
-      viewId.hideOverlay();
-    }, 1000);
-  } catch (err) {
-    console.error("Failed to copy: ", err);
-  }
-};
 
 const clearAll = () => {
   const editorId = $$(prefixThis + "_insertquery_ed");
@@ -51,10 +42,7 @@ const clearAll = () => {
   editorId.getEditor(true).then((editor) => {
     editor.focus();
   });
-  const val = document.getElementById("insert_query_result");
-  if (val) {
-    val.innerHTML = "";
-  }
+  $$(prefixThis + "_result").setValue();
 };
 
 export default class GeneratorInsertQueryContent extends JetView {
@@ -77,6 +65,12 @@ export default class GeneratorInsertQueryContent extends JetView {
                   webix.storage.local.put(LAST_DB_CONN_VIEWDATA, id);
                 },
               },
+            },
+            {
+              view: "text",
+              placeholder: "<schema.table>",
+              id: prefixThis + "_table_name_txt",
+              tooltip: "Table name to generate, eg: public.user",
             },
             {
               view: "button",
@@ -110,10 +104,8 @@ export default class GeneratorInsertQueryContent extends JetView {
                       ck.hide();
                     }, 1500);
 
-                    const val = document.getElementById("generator_result");
-                    if (val) {
-                      copyToClipboard($$(prefixThis + "_result"), val.innerHTML);
-                    }
+                    copyToClipboard($$(prefixThis + "_result").getValue());
+                    // }
                   },
                 },
                 {
@@ -121,8 +113,7 @@ export default class GeneratorInsertQueryContent extends JetView {
                   width: 55,
                   hidden: true,
                   id: prefixThis + "_copy_clipboard_done",
-                  label:
-                    `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`
+                  label: `<span class="mdi mdi-check-bold blink_me" style="font-size:16px;"></span>`,
                 },
               ],
             },
@@ -144,7 +135,7 @@ export default class GeneratorInsertQueryContent extends JetView {
     };
 
     return {
-      id: "z_generator_content",
+      id: `${prefixThis}_z_generator_content`,
       rows: [
         topToolbar,
         {
@@ -154,11 +145,20 @@ export default class GeneratorInsertQueryContent extends JetView {
         },
         { view: "resizer" },
         {
-          view: "template",
-          scroll: "xy",
-          css: "z_out_template",
-          id: prefixThis + "_result",
-          // template: "Result",
+          type:"line",
+          rows: [
+            {
+              view: "monaco-editor",
+              css: "z_console_editor",
+              id: prefixThis + "_result",
+              language: "sql",
+              lineNumbers: "off",
+              fontSize: "12px",
+              borderless: true,
+              renderLineHighlight: "none",
+              readOnly: true,
+            },
+          ]
         },
       ],
     };

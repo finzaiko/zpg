@@ -15,6 +15,7 @@ const apiRoutes = async (app, options) => {
   app.register(require("./copydata.route"), { prefix: "copydata" });
   app.register(require("./administration.route"), { prefix: "administration" });
   app.register(require("./setting.route"), { prefix: "setting" });
+  app.register(require("./snippet.route"), { prefix: "snippet" });
   app.get("/", async (request, reply) => {
     return {
       message: "API/v1 scope running..",

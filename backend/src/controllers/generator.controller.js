@@ -8,6 +8,17 @@ class GeneratorController {
     const data = await GeneratorService.getOutParams(id, userId, querysql, type);
     responseOk(reply, { data: data });
   }
+
+  async getInsertQuery(request, reply) {
+    const { id, querysql, table } = request.body;
+    let tblName = "<schema.table>";
+    if(table.trim()!=""){
+      tblName = table;
+    }
+    const userId = request.user.uid;
+    const data = await GeneratorService.getInsertQuery(id, userId, querysql, tblName);
+    responseOk(reply, { data: data });
+  }
 }
 
 module.exports = new GeneratorController();

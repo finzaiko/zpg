@@ -24,7 +24,7 @@ function generate() {
     type: $$(prefixThis + "_type_combo").getValue()
   };
 
-  const panelId = $$("z_generator_content");
+  const panelId = $$(prefixThis+"_z_generator_content");
   showLoadingText(panelId, "Generate...");
   webix
     .ajax()
@@ -32,7 +32,7 @@ function generate() {
       let rData = JSON.parse(res);
       if (typeof rData.data != "undefined") {
         $$(prefixThis + "_result").setHTML(
-          "<pre id='generator_result'>" + rData.data + "</pre>"
+          `<pre id='${prefixThis}_generator_result'>${rData.data}</pre>`
         );
       }
       panelId.hideOverlay();
@@ -49,7 +49,7 @@ const clearAll = () => {
   editorId.getEditor(true).then((editor) => {
     editor.focus();
   });
-  const val = document.getElementById("generator_result");
+  const val = document.getElementById(`${prefixThis}_generator_result`);
   if (val) {
     val.innerHTML = "";
   }
@@ -125,7 +125,7 @@ export default class GeneratorOutParamsContent extends JetView {
                       ck.hide();
                     }, 1500);
 
-                    const val = document.getElementById("generator_result");
+                    const val = document.getElementById(`${prefixThis}_generator_result`);
                     if (val) {
                       copyToClipboard(val.innerHTML);
                     }
@@ -159,7 +159,7 @@ export default class GeneratorOutParamsContent extends JetView {
     };
 
     return {
-      id: "z_generator_content",
+      id: prefixThis+"_z_generator_content",
       rows: [
         topToolbar,
         {

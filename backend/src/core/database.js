@@ -12,6 +12,7 @@ const {
   defaultSetting,
   defaultUser,
   taskUserTable,
+  snippetTable,
 } = require("./sql/init.sql");
 
 const path = require("path");
@@ -46,6 +47,8 @@ function createTable(db) {
   runQuery(db, taskItemTable);
   runQuery(db, taskUserTable);
   runQuery(db, shareTable);
+  runQuery(db, snippetTable);
+  runQuery(db, 'DROP TABLE IF EXISTS db_conn;');
 }
 
 const pgConfig = async (userConfigId) => {

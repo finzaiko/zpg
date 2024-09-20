@@ -43,6 +43,16 @@ class GeneratorRepository {
     const r = await pgPool.query(sql);
     return r[1].rows[0].data;
   }
+
+  async getInsertQuery(profileId, userId, query) {
+    const sql = query;
+    const serverCfg = await ProfileRepository.getById(profileId, 2, userId);
+    const pgPool = new Pool(serverCfg[0]);
+    const result = await pgPool.query(sql);
+    return result;
+
+  }
+
 }
 
 module.exports = new GeneratorRepository();

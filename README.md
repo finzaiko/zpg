@@ -32,27 +32,27 @@ Try to [Quick Start](#quick_start)
 
 ### Install
 
-Download [here](https://github.com/finzaiko/zpg/releases/tag/0.0.20-dev) and install
+Download [here](https://github.com/finzaiko/zpg/releases/tag/0.0.21-dev) and install
 
 #### Ubuntu/Debian
 ```shell
-wget https://github.com/finzaiko/zpg/releases/download/0.0.20-dev/zpg_0.0.20-dev_amd64.deb
-sudo dpkg -i zpg_0.0.20-dev_amd64.deb
+wget https://github.com/finzaiko/zpg/releases/download/0.0.21-dev/zpg_0.0.21-dev_amd64.deb
+sudo dpkg -i zpg_0.0.21-dev_amd64.deb
 ```
 
 #### Fedora/RHEL
 ```shell
-wget https://github.com/finzaiko/zpg/releases/download/0.0.20-dev/zpg-0.0.20-dev.x86_64.rpm
-sudo yum localinstall zpg-0.0.20-dev.x86_64.rpm
+wget https://github.com/finzaiko/zpg/releases/download/0.0.21-dev/zpg-0.0.21-dev.x86_64.rpm
+sudo yum localinstall zpg-0.0.21-dev.x86_64.rpm
 or
-sudo rpm -i zpg-0.0.20-dev.x86_64.rpm
+sudo rpm -i zpg-0.0.21-dev.x86_64.rpm
 ```
 
 #### AppImage Linux
 ```shell
-wget https://github.com/finzaiko/zpg/releases/download/0.0.20-dev/ZPG-0.0.20-dev.AppImage
-chmod a+x ZPG-0.0.20-dev.AppImage
-./ZPG-0.0.20-dev.AppImage
+wget https://github.com/finzaiko/zpg/releases/download/0.0.21-dev/ZPG-0.0.21-dev.AppImage
+chmod a+x ZPG-0.0.21-dev.AppImage
+./ZPG-0.0.21-dev.AppImage
 ```
 
 #### AppImage Windows

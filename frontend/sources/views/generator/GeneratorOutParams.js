@@ -21,7 +21,8 @@ function generate() {
   const data = {
     id: sourceDb,
     querysql: sql.replace(/'/g, "''"),
-    type: $$(prefixThis + "_type_combo").getValue()
+    type: $$(prefixThis + "_type_combo").getValue(),
+    dtype: $$(prefixThis + "_defined_type_chk").getValue()
   };
 
   const panelId = $$(prefixThis+"_z_generator_content");
@@ -89,8 +90,21 @@ export default class GeneratorOutParamsContent extends JetView {
               ],
               on: {
                 onChange: function (id, val) {
+                  if(id==1 || id==2){
+                    $$(prefixThis + "_defined_type_chk").show();
+                  }else{
+                    $$(prefixThis + "_defined_type_chk").hide();
+                  }
                 },
               },
+            },
+            {
+              view:"checkbox",
+              labelRight:"Defined Type",
+              id: prefixThis + "_defined_type_chk",
+              value: 0,
+              labelWidth: 6,
+              width: 130,
             },
             {
               view: "button",

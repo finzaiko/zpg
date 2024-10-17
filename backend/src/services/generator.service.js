@@ -3,13 +3,14 @@ const { pgType } = require("../utils/pg.util");
 const { isInt, isJSONString } = require("../utils/string.utils");
 
 class GeneratorService {
-  async getOutParams(profileId, userId, query, type) {
+  async getOutParams(profileId, userId, query, type, dtype) {
     query = query.replace(/;*$/, "");
     return await GeneratorRepository.getOutParams(
       profileId,
       userId,
       query,
-      type
+      type,
+      dtype
     );
   }
 
@@ -35,6 +36,8 @@ class GeneratorService {
       let val = [];
       Object.entries(o).forEach((entry) => {
         const [key, value] = entry;
+        console.log('value>>',value);
+
         if (isInt(value) || typeof value == "boolean" || value === null) {
           const isArrType = pgType[fieldsType[key]];
           if (/\[|\]/.test(isArrType)) {
@@ -46,7 +49,11 @@ class GeneratorService {
           if (typeof value === "object" && value !== null) {
             const isArrType = pgType[fieldsType[key]];
             if (/\[|\]/.test(isArrType)) {
-              val.push(`'${value.replace(/'/g, "''")}'`);
+              if(isArrType.includes("int") || isArrType.includes("numeric") || isArrType.includes("float")){
+                val.push(`'{${value}}'`);
+              }else{
+                val.push(`'${value.replace(/'/g, "''")}'`);
+              }
             }else{
               val.push(`'${JSON.stringify(value).replace(/'/g, "''")}'`);
             }

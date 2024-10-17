@@ -27,6 +27,7 @@ class DbController {
         { id: newParent + "_f", value: "Functions", webix_kids: true },
         { id: newParent + "_r", value: "Trigger Functions", webix_kids: true },
         { id: newParent + "_v", value: "Views", webix_kids: true },
+        { id: newParent + "_p", value: "Types", webix_kids: true },
       ];
       responseOk(reply, { parent: parent, data: data });
     } else {
@@ -41,7 +42,7 @@ class DbController {
     const r = await DbService.getSchemaContentTree(id, root, oid, userId, t);
     let m = oid.split("_")[1];
     let _data = [];
-    if (m == "g" || m == "u" || m == "y"|| m == "w" || m=="u2" ||m=="u21" || m=="u3"||m=="u31"|| m=="u4"|| m=="u41" || m=="u42") {
+    if (m == "g" || m == "u" || m == "y"|| m == "w" || m=="u2" ||m=="u21" || m=="u3"||m=="u31"|| m=="u4"|| m=="u41" || m=="u42" || m=="p1") {
       if(Array.isArray(r)){
         const r2 = r[r.length - 1];
         if(r2.rows.length>0){

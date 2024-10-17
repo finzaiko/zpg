@@ -25,6 +25,8 @@ const {
   dbTableConstraintContent,
   dbTableIndexDefenition,
   dbTableIndexContent,
+  dbAllTypesBySchema,
+  dbTypeContentByOid,
 } = require("../core/sql/db.sql");
 
 class DbRepository {
@@ -99,6 +101,8 @@ class DbRepository {
       sql = dbAllFuncTriggerBySchema(dbOid.split("_")[0]);
     } else if (dbOid.split("_")[1] == "v") {
       sql = dbAllViewsBySchema(dbOid.split("_")[0]);
+    } else if (dbOid.split("_")[1] == "p") {
+      sql = dbAllTypesBySchema(dbOid.split("_")[0]);
     } else if (dbOid.split("_")[1] == "u") {
       const newParent = dbOid.split("_")[0];
       sql = dbTableMoreOptions(newParent);
@@ -152,6 +156,8 @@ class DbRepository {
       rsql = dbFuncTriggerContentByOid(mode[0]);
     } else if (mode[1] == "y") {
       rsql = dbViewContentByOid(mode[0]);
+    } else if (mode[1] == "p1") {
+      rsql = dbTypeContentByOid(mode[0]);
     } else if (mode[1] == "u2" || mode[1] == "u3" || mode[1] == "u4") {
       rsql = `SELECT '-- No SQL selected object' as data`;
     } else if (mode[1] == "u21") {

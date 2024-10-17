@@ -116,6 +116,21 @@ const dbAllViewsBySchema = (schemaOid) => {
     `;
 };
 
+const dbAllTypesBySchema = (schemaOid) => {
+  return `SELECT
+              t.oid || '_p1' AS id,
+            typname as value
+          FROM
+              pg_type t
+          JOIN
+              pg_namespace n ON t.typnamespace = n.oid
+          WHERE
+              t.typtype in ('c','e') and typnamespace=${schemaOid}
+          ORDER BY
+              typname;
+    `;
+};
+
 const dbTableMoreOptions = (oid) => {
   return `select * from (values
     ('${oid}_u2','Constraints', true),
@@ -366,7 +381,7 @@ const dbTableContentByOid = (oid) => {
                   case when attrdef.attidentity<>'' then pg_catalog.format(' GENERATED %s AS IDENTITY',
                           case attrdef.attidentity when 'd' then 'BY DEFAULT' when 'a' then 'ALWAYS' else 'NOT_IMPLEMENTED' end)
                       else '' end,
-                  case when commlist.description is null then '' else concat(' -- ', replace(commlist.description,'\n',' ')) end
+                  case when commlist.description is null then '' else concat(', -- ', replace(commlist.description,'\n',' ')) end
               ) as col_create_sql
           FROM attrdef
           LEFT JOIN commlist ON commlist.column_name=attrdef.attname
@@ -522,7 +537,7 @@ const dbTableContentByOid = (oid) => {
         LEFT JOIN commstrall ON true -- 1=1, Tidak ada penghubung, tidak wajib berisi
         LEFT JOIN tbltrig ON true
   `;
-
+  // console.log('sql===',sql);
   return sql;
 };
 
@@ -1076,6 +1091,51 @@ const dbViewContentByOid = (oid) => {
   return sql;
 };
 
+const dbTypeContentByOid = (oid) => {
+  let sql = `WITH enum_vals AS (
+    SELECT
+        n.nspname AS schema_name,
+        t.typname AS type_name,
+        e.enumlabel AS enum_value,
+        u.usename AS owner
+    FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid
+    JOIN pg_enum e ON t.oid = e.enumtypid JOIN pg_user u ON t.typowner = u.usesysid
+    WHERE
+        t.oid = ${oid}
+), enum_data as (
+    SELECT
+        '-- Type: ' || type_name || e'\n\n' ||
+        '-- DROP TYPE IF EXISTS ' || schema_name || '.' || type_name || e';\n\n' ||
+        'CREATE TYPE ' || schema_name || '.' || type_name || e'\n\t AS ENUM (' ||string_agg(quote_literal(enum_value), ', ') || e');\n\n' ||
+        'ALTER TYPE ' || schema_name || '.' || type_name || e'\n\t OWNER TO ' || owner || ';' AS data
+    FROM enum_vals GROUP BY schema_name, type_name, owner
+), composite_info AS (
+    SELECT
+        n.nspname AS schema_name,
+        t.typname AS type_name,
+        u.usename AS owner,
+        a.attname AS attribute_name,
+        pg_catalog.format_type(a.atttypid, a.atttypmod) AS attribute_type
+    FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid JOIN pg_user u ON t.typowner = u.usesysid
+    JOIN pg_class c ON t.typrelid = c.oid JOIN pg_attribute a ON a.attrelid = c.oid
+    WHERE t.oid=${oid} AND a.attnum > 0 AND t.typtype = 'c'
+), composite_data as (
+    SELECT
+        '-- Type: ' || type_name || e'\n\n' ||
+        '-- DROP TYPE IF EXISTS ' || schema_name || '.' || type_name || e';\n\n' ||
+        'CREATE TYPE ' || schema_name || '.' || type_name || e' AS (\n' ||
+        string_agg('    ' || attribute_name || ' ' || attribute_type, e',\n') ||
+        e'\n);\n\n' ||
+        'ALTER TYPE ' || schema_name || '.' || type_name || e'\n\t OWNER TO ' || owner || ';' AS data
+    FROM composite_info GROUP BY schema_name, type_name, owner
+)
+select * from composite_data union select * from enum_data
+  `;
+  // console.log('sql-->>',sql);
+
+  return sql;
+};
+
 const dbTriggerContentByOid = (oid, type) => {
   let sql = `
       SELECT
@@ -1195,4 +1255,6 @@ module.exports = {
   dbTableIndexDefenition,
   dbTableIndexContent,
   dbFuncDropReplace,
+  dbAllTypesBySchema,
+  dbTypeContentByOid,
 };

@@ -71,6 +71,7 @@ export default class GeneratorInsertQueryContent extends JetView {
               placeholder: "<schema.table>",
               id: prefixThis + "_table_name_txt",
               tooltip: "Table name to generate, eg: public.user",
+              width: 200,
             },
             {
               view: "button",

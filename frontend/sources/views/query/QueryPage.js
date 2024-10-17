@@ -997,6 +997,14 @@ export function QueryPage(prefix, selectedDb, editorValue) {
               return `<span class='webix_icon mdi mdi-file-table-box-multiple-outline ${
                 obj.open ? "z_tree_f_open" : ""
               }'></span>`;
+            if (suffix == "p")
+              return `<span class='webix_icon mdi mdi-card-multiple-outline ${
+                obj.open ? "z_tree_f_open" : ""
+              }'></span>`;
+            if (suffix == "p1")
+              return `<span class='webix_icon mdi mdi-card-outline ${
+                obj.open ? "z_tree_f_open" : ""
+              }'></span>`;
             if (suffix == "y")
               return `<span class='webix_icon mdi mdi-file-table-box-outline ${
                 obj.open ? "z_tree_f_open" : ""
@@ -3824,7 +3832,8 @@ export function QueryPage(prefix, selectedDb, editorValue) {
       typ == "u41" ||
       typ == "u42" ||
       typ == "y" ||
-      typ == "w"
+      typ == "w" ||
+      typ == "p1"
     ) {
       let profileId = $$(prefix + "_source_combo").getValue();
       let sqlEditorId = $$(prefix + "_sql_editor");

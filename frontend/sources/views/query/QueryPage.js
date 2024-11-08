@@ -1879,6 +1879,19 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             },
           ],
         },
+        on: {
+          onShow: function(){
+            webix
+            .ajax()
+            .get(`${urlProfile}/content?type=4`)
+            .then(function (data) {
+              const rData = data.json().data;
+              $$(prefix + "_bm_list").clearAll();
+              $$(prefix + "_bm_list").parse(rData);
+            });
+
+          }
+        },
         body: {
           cols: [
             {
@@ -1904,7 +1917,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                   template: "<div style='cursor: pointer;'>#title#</div>",
                   id: prefix + "_bm_list",
                   select: true,
-                  url: `${urlProfile}/content?type=4`,
+                  // url: `${urlProfile}/content?type=4`,
                   on: {
                     onItemClick: function (id) {
                       $$(prefix + "_bm_toolbar").show();

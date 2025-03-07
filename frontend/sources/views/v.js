@@ -352,6 +352,12 @@ export default class MainView extends JetView {
           tabbar: {
             tooltip: true,
             on: {
+              onBeforeTabClick: function(id,ev){
+                const div2 = document.querySelector(".tmp_resizing_col_div");
+                if (div2) {
+                    div2.remove();
+                }
+              },
               onBeforeTabClose: function (id, e) {
                 if (id.includes("query")) {
                   const tval = this.getValue().split("_").pop();

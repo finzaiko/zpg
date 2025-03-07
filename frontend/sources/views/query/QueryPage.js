@@ -34,6 +34,7 @@ import {
   EXPAND_COL_SIZE,
   EXPAND_ALL_COL_SIZE,
   LAST_QUERY_RESTORE,
+  AUTO_RESIZE_COLS,
 } from "../../config/setting";
 
 import { copyToClipboard } from "../../helpers/copy";
@@ -1879,19 +1880,6 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             },
           ],
         },
-        on: {
-          onShow: function(){
-            webix
-            .ajax()
-            .get(`${urlProfile}/content?type=4`)
-            .then(function (data) {
-              const rData = data.json().data;
-              $$(prefix + "_bm_list").clearAll();
-              $$(prefix + "_bm_list").parse(rData);
-            });
-
-          }
-        },
         body: {
           cols: [
             {
@@ -1917,7 +1905,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                   template: "<div style='cursor: pointer;'>#title#</div>",
                   id: prefix + "_bm_list",
                   select: true,
-                  // url: `${urlProfile}/content?type=4`,
+                  url: `${urlProfile}/content?type=4`,
                   on: {
                     onItemClick: function (id) {
                       $$(prefix + "_bm_toolbar").show();
@@ -2353,6 +2341,21 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                 },
               },
             },
+            {
+              view: "checkbox",
+              id: prefix + "_auto_resize_cols_result",
+              labelRight: "Auto Expand Columns Size",
+              tooltip: "Auto resize columns result after run query",
+              name: "ck_auto_resize_cols_result",
+              labelWidth: 8,
+              value: 0,
+              on: {
+                onChange: function (newVal, oldVal) {
+                  state.isAutoResizeCols = newVal;
+                  webix.storage.local.put(AUTO_RESIZE_COLS, newVal);
+                },
+              },
+            },
             /*
             {
               view: "checkbox",
@@ -2423,6 +2426,10 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             const lq = webix.storage.local.get(LAST_QUERY_RESTORE);
             if (lq) {
               $$(prefix + "_restore_last_query").setValue(lq);
+            }
+            const rc = webix.storage.local.get(AUTO_RESIZE_COLS);
+            if (rc) {
+              $$(prefix + "_auto_resize_cols_result").setValue(rc);
             }
             // const ac = webix.storage.local.get(LAST_ADJUSTCOLS);
             // if (ac) {
@@ -2909,7 +2916,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                     autowidth: true,
                     hidden: true,
                     id: prefix + "_expand_col_size",
-                    tooltip: "Expand size all columns",
+                    tooltip: "Expand all columns size",
                     css: "z_icon_color_primary z_icon_size_18",
                     click: function () {
                         expandSizeColumn();
@@ -3363,6 +3370,11 @@ export function QueryPage(prefix, selectedDb, editorValue) {
           $$(prefix + "_page_panel").hideOverlay();
           loadHistory();
           copyFieldName();
+          if(state.isAutoResizeCols==1){
+            if($$(prefix + "_result").count()>0){
+              expandSizeColumn();
+            }
+          }
         })
         .fail((err) => {
           setTimeout(() => {
@@ -4012,6 +4024,7 @@ export function QueryPage(prefix, selectedDb, editorValue) {
         state.isSearchDetach = webix.storage.local.get(LAST_SEARCHTYPE);
         state.isMinimap = webix.storage.local.get(LAST_MINIMAP);
         state.isRestoreLastQuery = webix.storage.local.get(LAST_QUERY_RESTORE);
+        state.isAutoResizeCols = webix.storage.local.get(AUTO_RESIZE_COLS);
 
         const cmbId = $$(prefix + "_source_combo");
         if (typeof selectedDb != "undefined") {

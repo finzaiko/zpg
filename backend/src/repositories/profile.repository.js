@@ -14,7 +14,10 @@ class ProfileRepository {
     }
     if (type == 3 || type == 4 || type == 5) {
       // fields = `id, title, content, created_at`;
-      fields = `profile.id, CASE WHEN title IS NULL THEN substr(content,0,38) ELSE title END AS title, content, profile.created_at`;
+      fields = `profile.id, CASE
+          WHEN title IS NULL THEN substr(TRIM(REPLACE(REPLACE(content, char(10), ' '), char(13), ' ')), 1, 38)
+          ELSE TRIM(REPLACE(REPLACE(title, char(10), ' '), char(13), ' '))
+      END AS title, content, profile.created_at`;
     }
 
     if (showAll == 0) {

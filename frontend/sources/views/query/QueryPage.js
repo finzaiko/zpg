@@ -1899,13 +1899,17 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                   },
                 },
                 {
-                  view: "list",
+                  view: "datatable",
                   width: 250,
                   drag: "order",
-                  template: "<div style='cursor: pointer;'>#title#</div>",
+                  // template: "<div style='cursor: pointer;'>#title#</div>",
                   id: prefix + "_bm_list",
                   select: true,
+                  headerRowHeight: -1,
                   url: `${urlProfile}/content?type=4`,
+                  columns: [
+                    { id: "title", header: "Title", fillspace: true },
+                  ],
                   on: {
                     onItemClick: function (id) {
                       $$(prefix + "_bm_toolbar").show();

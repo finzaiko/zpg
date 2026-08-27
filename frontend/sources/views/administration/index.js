@@ -92,9 +92,9 @@ function runAction() {
 
       $$(prefix + "_result_scrollview").show();
       $$(prefix + "_scrollview_body").addView(newView);
-      setTimeout(() => {
-        autoExpandColumnSize($$(prefix + "_table_viewer"));
-      }, 300);
+      // setTimeout(() => {
+      //   autoExpandColumnSize($$(prefix + "_table_viewer"));
+      // }, 300);
     } else {
       const newView = {
         template: "No data",

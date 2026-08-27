@@ -107,7 +107,7 @@ export default class ShareView extends JetView {
         readOnly: true,
       });
     });
-    document.title = "ZPG share";
+    document.title = "ZPG - Share";
   }
   urlChange(view, url) {
     const id = this.getParam("x");

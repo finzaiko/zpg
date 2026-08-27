@@ -1,4 +1,4 @@
-const compareArrayAll = require("../core/util");
+const {compareArrayAll, compareArraySchemaV2} = require("../core/util");
 const CompareService = require(`../services/compare.service`);
 const { responseOk, responseValidate } = require("../utils/http.utils");
 
@@ -197,84 +197,8 @@ class CompareController {
       oid
     );
 
-    const arr1 = dataA.rows;
-    const arr2 = dataB.rows;
-
-    let aaFilter1 = [];
-    arr1.forEach((element) => {
-      let bb = arr2.find((a) => a.compare_name == element.compare_name);
-      if (typeof bb == "undefined") {
-        const cc = Object.assign(
-          element,
-          { diff: true },
-          { err: "trg" },
-          { src_id: element.id },
-          { trg_id: null }
-        );
-        aaFilter1.push(cc);
-      } else {
-        let mm = arr2.find((a) => a.compare_name == element.compare_name);
-        if (mm.z_content != element.z_content) {
-          const cc = Object.assign(
-            element,
-            { diff: true },
-            { err: "dif" },
-            { src_id: element.id },
-            { trg_id: bb.id }
-          );
-          aaFilter1.push(cc);
-        } else {
-          const cc2 = Object.assign(
-            element,
-            { src_id: element.id },
-            { trg_id: bb.id }
-          );
-          aaFilter1.push(cc2);
-        }
-      }
-    });
-
-    let aaFilter2 = [];
-    arr2.forEach((element) => {
-      let bb = arr1.find((a) => a.compare_name == element.compare_name);
-      if (typeof bb == "undefined") {
-        const cc = Object.assign(
-          element,
-          { diff: true },
-          { err: "src" },
-          { trg_id: element.id },
-          { src_id: null }
-        );
-        aaFilter2.push(cc);
-      } else {
-        let mm = arr1.find((a) => a.compare_name == element.compare_name);
-        if (mm.z_content != element.z_content) {
-          const cc = Object.assign(
-            element,
-            { diff: true },
-            { err: "dif" },
-            { trg_id: element.id },
-            { src_id: bb.id }
-          );
-          aaFilter2.push(cc);
-        } else {
-          const cc2 = Object.assign(
-            element,
-            { trg_id: element.id },
-            { src_id: bb.id }
-          );
-          aaFilter2.push(cc2);
-        }
-      }
-    });
-
-    const finalArr = aaFilter1.concat(aaFilter2);
-
-    let mergedif = new Map();
-    for (const o of finalArr) {
-      mergedif.set(o.compare_name, o);
-    }
-    let data = [...mergedif.values()];
+    let data = compareArraySchemaV2(dataA.rows, dataB.rows);
+    // console.log("data", data);
     responseOk(reply, { data });
   }
 

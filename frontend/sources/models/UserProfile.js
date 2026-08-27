@@ -31,8 +31,20 @@ export function getToken() {
   const userSess = webix.storage.cookie.get(COOKIE_NAME);
   const token = userProfile.token || userSess;
   if (token) {
+    const decoded = parseJwt(token);
+    if (decoded && decoded.exp) {
+      const currentTime = Math.floor(Date.now() / 1000);
+      // const expDate = new Date(decoded.exp * 1000);
+      // const formattedExp = expDate.toISOString().slice(0, 19).replace('T', ' ');
+      // console.log('decoded.exp', formattedExp, 'currentTime', currentTime);
+
+      if (decoded.exp < currentTime) {
+        return null;
+      }
+    }
     setUserProfile(token);
   }
+
   return token;
 }
 

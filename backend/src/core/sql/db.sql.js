@@ -27,6 +27,23 @@ const _getAllFunc = `
       WHERE isr.specific_schema NOT IN ('pg_catalog', 'information_schema')
 `;
 
+
+const dbCompletionSchemas = `select nspname as name from pg_catalog.pg_namespace
+where nspname not in ('information_schema') and nspname not like 'pg\_%' order by nspname`;
+
+const dbCompletionTables = `select distinct table_schema as schema, table_name as name from information_schema.tables
+where table_schema not in ('pg_catalog', 'information_schema') order by table_schema, table_name`;
+
+const dbCompletionColumns = `select distinct table_schema as schema, column_name as name from information_schema.columns
+where table_schema not in ('pg_catalog', 'information_schema') order by table_schema, column_name`;
+
+const dbCompletionFunctions = `select distinct prc.pronamespace::pg_catalog.regnamespace::text as schema, prc.proname as name
+from pg_catalog.pg_proc prc
+where prc.prokind != 'a'
+  and prc.pronamespace::pg_catalog.regnamespace::text not like all (array['pg_%', 'information_schema'])
+order by prc.pronamespace::pg_catalog.regnamespace::text, prc.proname`;
+
+
 const dbAllByOid = (rootOid) => {
   return `select datname from pg_database where oid=${rootOid}`;
 };
@@ -1232,6 +1249,10 @@ const dbFuncTableSearch = (search, type, view) => {
 module.exports = {
   dbAll,
   dbSchemaAll,
+  dbCompletionSchemas,
+  dbCompletionTables,
+  dbCompletionColumns,
+  dbCompletionFunctions,
   dbAllByOid,
   dbSchemaAllByOid,
   dbAllFunc,

@@ -37,6 +37,7 @@ export const LAST_QUERY_RESTORE = "lastquery";
 export const AUTO_RESIZE_COLS = "autoresizecols";
 export const CONFIRM_DROP_REPLACE = "dropreplace";
 export const CONFIRM_EXECUTE = "confirmexec";
+export const SQL_SUGGESTION = "sqlsuggestion";
 
 export const PING_SERVER = 15 * 60000; // Every 15m
 export const LOGIN_ANIMATE = true;

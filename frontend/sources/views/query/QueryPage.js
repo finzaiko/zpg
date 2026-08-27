@@ -35,6 +35,7 @@ import {
   EXPAND_ALL_COL_SIZE,
   LAST_QUERY_RESTORE,
   AUTO_RESIZE_COLS,
+  SQL_SUGGESTION,
 } from "../../config/setting";
 
 import { copyToClipboard } from "../../helpers/copy";
@@ -43,8 +44,11 @@ import { getErrorMessage } from "../../helpers/api";
 import {
   emptyStoreIDB,
   upsertStoreIDB,
+  upsertCompletionIDB,
+  readCompletionIDBByKey,
 } from "../../helpers/idb";
 import { dbTreeType } from "../../helpers/db";
+import { LINK_URL } from "../../config/setting";
 
 TimeAgo.addDefaultLocale(en);
 let timeAgo = new TimeAgo("en-US");
@@ -237,6 +241,10 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                   loadDb(true);
                 }
                 colorComboDBSource($$(prefix + "_source_combo"));
+
+                if (id) {
+                  loadSqlCompletionCache(id);
+                }
 
                 if (id) {
                   const sourceHost = this.getPopup().getList().getItem(id);
@@ -554,12 +562,33 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                         };
                         arr.push(newData);
                       }
+
+                    let toolsArr = [
+                      { $template: "Separator" },
+                      {
+                        id: "jsonformatter",
+                        value:
+                          "<span class='mdi mdi-code-json webix_icon'></span>&nbsp; JSON Formatter",
+                      },
+                      {
+                        id: "textdiff",
+                        value:
+                          "<span class='mdi mdi-select-compare webix_icon'></span>&nbsp; Text Diff",
+                      },
+                    ];
+
+                    arr.push(...toolsArr);
+
                       this.parse(arr);
                     });
                 },
                 onMenuItemClick: function (id) {
                   if (id == "shareto") {
                     openShareUser();
+                  } else if (id == "jsonformatter") {
+                    window.open(`${LINK_URL}/#!/tools.jsonformatter`, "_blank");
+                  } else if (id == "textdiff") {
+                    window.open(`${LINK_URL}/#!/tools.textdiff`, "_blank");
                   } else {
                     if (!isNaN(id)) {
                       // webix.message({text:"Not implement yet="+id, type:"debug"});
@@ -1893,7 +1922,9 @@ export function QueryPage(prefix, selectedDb, editorValue) {
                     onTimedKeyPress: function () {
                       const value = this.getValue().toLowerCase();
                       $$(prefix + "_bm_list").filter(function (obj) {
-                        return obj.title.toLowerCase().indexOf(value) !== -1;
+                        if(obj){
+                          return obj.title.toLowerCase().indexOf(value) !== -1;
+                        }
                       });
                     },
                   },
@@ -2347,6 +2378,21 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             },
             {
               view: "checkbox",
+              id: prefix + "_sql_suggestion",
+              labelRight: "SQL Suggestion",
+              tooltip: "Enable SQL suggestion while typing",
+              name: "ck_sql_suggestion",
+              labelWidth: 8,
+              value: 0,
+              on: {
+                onChange: function (newVal, oldVal) {
+                  state.isSqlSuggestion = newVal;
+                  webix.storage.local.put(SQL_SUGGESTION, newVal);
+                },
+              },
+            },
+            {
+              view: "checkbox",
               id: prefix + "_auto_resize_cols_result",
               labelRight: "Auto Expand Columns Size",
               tooltip: "Auto resize columns result after run query",
@@ -2430,6 +2476,10 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             const lq = webix.storage.local.get(LAST_QUERY_RESTORE);
             if (lq) {
               $$(prefix + "_restore_last_query").setValue(lq);
+            }
+            const ss = webix.storage.local.get(SQL_SUGGESTION);
+            if (ss) {
+              $$(prefix + "_sql_suggestion").setValue(ss);
             }
             const rc = webix.storage.local.get(AUTO_RESIZE_COLS);
             if (rc) {
@@ -2694,6 +2744,58 @@ export function QueryPage(prefix, selectedDb, editorValue) {
       });
     }
   };
+
+
+    // Refreshes monaco.js's sqlCompletionCache (schemas/tables/columns/functions) for the active connection
+    const loadSqlCompletionCache = (profileId) => {
+      if (!profileId || typeof window.setSqlCompletionCache != "function") return;
+
+      $$(prefix + "_sql_editor")
+        .getEditor(true)
+        .then((editor) => {
+          if (typeof window.setSqlEditorProfile == "function") {
+            window.setSqlEditorProfile(editor, profileId);
+          }
+        });
+
+      // Fast path: use the last cached completion list for this connection while fresh data loads
+      readCompletionIDBByKey(profileId)
+        .then((cached) => {
+          if (cached) {
+            window.setSqlCompletionCache(profileId, cached);
+          }
+        })
+        .catch(console.log);
+
+      webix
+        .ajax()
+        .get(`${urlDb}/completion?id=${profileId}`)
+        .then((res) => {
+          const data = res.json();
+
+          // Handle both array format (new) and flat format (old) for backward compatibility
+          let cacheData;
+          if (Array.isArray(data)) {
+            // New format from backend: [{ schema, tables, columns, functions }, ...]
+            cacheData = data;
+          } else if (data.schemas) {
+            // Old flat format (backward compatibility)
+            cacheData = {
+              schemas: data.schemas || [],
+              tables: data.tables || [],
+              columns: data.columns || [],
+              functions: data.functions || [],
+            };
+          } else {
+            cacheData = data;
+          }
+
+          window.setSqlCompletionCache(profileId, cacheData);
+          upsertCompletionIDB(cacheData, profileId);
+        })
+        .catch(console.log);
+    };
+
 
   const loadBranch = (viewId, id, isContext) => {
     let reloadIconId = $$(prefix + "_db_tree_filter_reload");
@@ -3546,6 +3648,25 @@ export function QueryPage(prefix, selectedDb, editorValue) {
       editor.updateOptions({
         fontSize: edFontSize + "px",
       }),
+
+      // Override indent/outdent keybindings with ALT+RIGHT and ALT+LEFT
+      // Add keydown listener to handle these shortcuts
+      editor.onKeyDown((e) => {
+        // console.log("Keydown event:", e, "keyCode:", e.keyCode, "altKey:", e.altKey, "ctrlKey:", e.ctrlKey, "shiftKey:", e.shiftKey);
+        // ALT+RIGHT for indent - Monaco keyCode 17 = Right arrow
+        if (e.altKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 17) {
+          // console.log("ALT+RIGHT pressed for indent");
+          e.preventDefault();
+          editor.trigger('keyboard', 'editor.action.indentLines', {});
+        }
+        // ALT+LEFT for outdent - Monaco keyCode 15 = Left arrow
+        if (e.altKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 15) {
+          // console.log("ALT+LEFT pressed for outdent");
+          e.preventDefault();
+          // editor.trigger('keyboard', 'editor.action.outdentLines', {});
+        }
+      });
+
         editor.addAction({
           id: "run-query",
           label: "Run Query",
@@ -3633,13 +3754,39 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             }
           },
         }),
+         editor.addAction({
+          id: "minify-comma-separation-selection-ed",
+          label: "Minify Comma Separation Selection",
+          precondition: null,
+          keybindingContext: null,
+          contextMenuGroupId: "navigation",
+            contextMenuOrder: 11,
+          run: function (ed) {
+            const {startLineNumber, endLineNumber, startColumn, endColumn} = ed.getSelection();
+            const isSelection = startLineNumber==endLineNumber && startColumn==endColumn;
+            if(!isSelection){
+              const selectionText = editor.getSelection();
+              const selectionValue = editor.getModel().getValueInRange(selectionText);
+              const newText = selectionValue
+                .split(/[\r\n,]+/)
+                .map((item) => item.trim())
+                .filter((item) => item.length > 0)
+                .join(", ");
+              ed.executeEdits("", [
+                { range: new monaco.Range(startLineNumber,startColumn,endLineNumber,endColumn), text: newText }
+              ]);
+            }else{
+              webix.message({text:"No selection", type:"error"});
+            }
+          },
+        }),
         editor.addAction({
           id: "open-breakaftercomma-str-ed",
           label: "Break Line After Comma Selection",
           precondition: null,
           keybindingContext: null,
           contextMenuGroupId: "navigation",
-          contextMenuOrder: 11,
+          contextMenuOrder: 12,
           run: function (ed) {
             const {startLineNumber, endLineNumber, startColumn, endColumn} = ed.getSelection();
             const isSelection = startLineNumber==endLineNumber && startColumn==endColumn;
@@ -3655,7 +3802,50 @@ export function QueryPage(prefix, selectedDb, editorValue) {
             }
           },
         });
-
+              editor.addAction({
+          id: "replace-single-to-double-quote-selection-ed",
+          label: "Single Quote to Double Quote Selection",
+          precondition: null,
+          keybindingContext: null,
+          contextMenuGroupId: "navigation",
+          contextMenuOrder: 13,
+          run: function (ed) {
+            const {startLineNumber, endLineNumber, startColumn, endColumn} = ed.getSelection();
+            const isSelection = startLineNumber==endLineNumber && startColumn==endColumn;
+            if(!isSelection){
+              const selectionText = editor.getSelection();
+              const selectionValue = editor.getModel().getValueInRange(selectionText);
+              const newText = selectionValue.replace(/'/g, "''");
+              ed.executeEdits("", [
+                { range: new monaco.Range(startLineNumber,startColumn,endLineNumber,endColumn), text: newText }
+              ]);
+            }else{
+              webix.message({text:"No selection", type:"error"});
+            }
+          },
+        });
+        editor.addAction({
+          id: "replace-double-to-single-quote-selection-ed",
+          label: "Double Quote to Single Quote Selection",
+          precondition: null,
+          keybindingContext: null,
+          contextMenuGroupId: "navigation",
+          contextMenuOrder: 14,
+          run: function (ed) {
+            const {startLineNumber, endLineNumber, startColumn, endColumn} = ed.getSelection();
+            const isSelection = startLineNumber==endLineNumber && startColumn==endColumn;
+            if(!isSelection){
+              const selectionText = editor.getSelection();
+              const selectionValue = editor.getModel().getValueInRange(selectionText);
+              const newText = selectionValue.replace(/''/g, "'");
+              ed.executeEdits("", [
+                { range: new monaco.Range(startLineNumber,startColumn,endLineNumber,endColumn), text: newText }
+              ]);
+            }else{
+              webix.message({text:"No selection", type:"error"});
+            }
+          },
+        });
 
       /// onChange Editor
         if(!!state.isRestoreLastQuery){

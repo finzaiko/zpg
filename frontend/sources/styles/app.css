@@ -1914,3 +1914,257 @@ svg text {
   background: transparent !important;
   /* background-color: rgba(255, 0, 0, 0.5) */
 }
+
+
+/* accent button override (replaces webix_primary) */
+.btn_accent.webix_button,
+.btn_accent .webix_button {
+  background-color: #E5B290;
+  border-color: #E5B290;
+  color: #fff;
+}
+.btn_accent.webix_button:hover,
+.btn_accent .webix_button:hover {
+  background-color: #d9a07e;
+  border-color: #d9a07e;
+}
+
+.toolbar_empty{
+  background-color: #E5B290;
+  /* margin: 0 !important; */
+  margin: 0 0 0 1px !important;
+  width: auto !important;
+}
+
+.z_label_normal_grey div.webix_el_box {
+  font-weight: normal !important;
+  font-size: 12px !important;
+  color: grey !important;
+}
+/* accent toolbar styling */
+.accent_toolbar.webix_toolbar,
+.accent_toolbar .webix_toolbar {
+  background-color: #E2AF8D !important;
+  border-color: #E2AF8D !important;
+}
+
+.z_label_white .webix_el_box{
+  color: #fff !important;
+}
+
+.z_toolbar_icon_white .webix_icon{
+  color: #fff !important;
+}
+
+.z_toolbar_icon_white .webix_icon_button:hover:before{
+  background-color:#E5B290 !important;
+   color: #cecece !important;
+}
+
+.z_segmented_accent .webix_segment_0, .z_segmented_accent .webix_segment_1, .z_segmented_accent .webix_segment_N {
+  border-color: #e5b290 !important;
+  background-color: #e5b290 !important;
+  color: #fff !important;
+}
+
+.webix_segment_0.webix_selected, .webix_segment_1.webix_selected, .webix_segment_N.webix_selected {
+  border-color: #dba17a !important;
+  background-color: #dba17a !important;
+  color: #fff !important;
+}
+
+
+/* Tab jadi terlihat "grab-able" */
+.z_app_tabview .webix_item_tab {
+  /* cursor: grab; */
+  transition: background-color .15s ease, border-left-color .15s ease;
+}
+.z_app_tabview .webix_item_tab.tab-dragging {
+  opacity: 0.4 !important;
+}
+
+.z_app_tabview .webix_item_tab.tab-drag-over {
+  background-color: rgba(136, 206, 253, 0.15) !important;
+  /* box-shadow: inset 0 0 8px rgba(41, 128, 185, 0.3) !important; */
+  border: 1px solid #1CA1C1 !important;
+  z-index: 9999;
+}
+
+
+.z_boxradius_color{
+  width: 12px;
+  height: 12px;
+  border-radius: 30%;
+  display: inline-block;
+  margin-right: 4px;
+  /* line-height: 12px; */
+  /* vertical-align: middle; */
+}
+
+.z_boxradius_color_blue {
+  background-color: #4285F4;
+}
+
+.z_boxradius_color_red {
+  background-color: #EE675C;
+}
+
+.z_boxradius_color_yellow {
+  background-color: #ffb638;
+}
+
+.z_boxradius_color_green {
+  background-color: #34A853;
+}
+
+.z_boxradius_color_pink {
+  background-color: #E52592;
+}
+
+.z_boxradius_color_purple {
+  background-color: #AF5CF7;
+}
+
+.z_boxradius_color_cyan {
+  background-color: #129EAF;
+}
+
+.z_boxradius_color_orange {
+  background-color: #FB8C00;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_blue,
+.z_app_tabview .webix_item_tab.z_tab_color_blue:hover {
+  background-color: #4285F4 !important;
+  color: #ffffff !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_blue.webix_selected
+{
+  box-shadow: inset 0 -3px #00378f !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_blue .webix_tab_close
+{
+  color: #E8F0FE !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_red,
+.z_app_tabview .webix_item_tab.z_tab_color_red:hover {
+  background-color: #EE675C !important;
+  color: #ffffff !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_red.webix_selected
+{
+  box-shadow: inset 0 -3px #B93C31 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_red .webix_tab_close
+{
+  color: #FDE8E6 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_yellow,
+.z_app_tabview .webix_item_tab.z_tab_color_yellow:hover {
+  background-color: #ffb638 !important;
+  color: #ffffff !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_yellow.webix_selected
+{
+  box-shadow: inset 0 -3px #c47601 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_yellow .webix_tab_close
+{
+  color: #FEF7E0 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_green,
+.z_app_tabview .webix_item_tab.z_tab_color_green:hover {
+  background-color: #34A853 !important;
+  color: #ffffff !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_green.webix_selected
+{
+  box-shadow: inset 0 -3px #1E7B34 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_green .webix_tab_close
+{
+  color: #E6F4EA !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_pink,
+.z_app_tabview .webix_item_tab.z_tab_color_pink:hover {
+  background-color: #E52592 !important;
+  color: #ffffff !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_pink.webix_selected
+{
+  box-shadow: inset 0 -3px #AD1457 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_pink .webix_tab_close
+{
+  color: #FCE4F1 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_purple,
+.z_app_tabview .webix_item_tab.z_tab_color_purple:hover {
+  background-color: #AF5CF7 !important;
+  color: #ffffff !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_purple.webix_selected
+{
+  box-shadow: inset 0 -3px #7E3FD1 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_purple .webix_tab_close
+{
+  color: #F3E8FF !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_cyan,
+.z_app_tabview .webix_item_tab.z_tab_color_cyan:hover {
+  background-color: #129EAF !important;
+  color: #ffffff !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_cyan.webix_selected
+{
+  box-shadow: inset 0 -3px #0B7280 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_cyan .webix_tab_close
+{
+  color: #E0F7FA !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_orange,
+.z_app_tabview .webix_item_tab.z_tab_color_orange:hover {
+  background-color: #FB8C00 !important;
+  color: #ffffff !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_orange.webix_selected
+{
+  box-shadow: inset 0 -3px #C56A00 !important;
+}
+
+.z_app_tabview .webix_item_tab.z_tab_color_orange .webix_tab_close
+{
+  color: #FEF0E6 !important;
+}
+
+.z_resizer_accent{
+    background-color: #e2af8d1f !important;
+}
+
+
+
+

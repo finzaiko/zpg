@@ -3,6 +3,7 @@ import { LOGIN_ANIMATE } from "../config/setting";
 import { isUserNameValid } from "../helpers/ui";
 import { state } from "../models/Base";
 import { register } from "../models/User";
+import { getToken } from "../models/UserProfile";
 
 let enableRegister = true;
 
@@ -233,6 +234,14 @@ class WindowView extends JetView {
   }
 
   ready() {
+  }
+
+  urlChange(_v, _url){
+    const token = getToken();
+    console.log('token', token);
+    if(token){
+      this.app.show("/v");
+    }
   }
 
   doLogin() {

@@ -7,6 +7,11 @@ class DbService {
   async getAll(profileId, userId, typeLevel) {
     return await DbRepository.getAll(profileId, userId, typeLevel);
   }
+
+  async getCompletionList(profileId, userId) {
+    return await DbRepository.getCompletionList(profileId, userId);
+  }
+
   async getSchemaContent(
     profileId,
     schema,

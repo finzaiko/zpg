@@ -14,8 +14,10 @@ module.exports = fastifyPlugin((fastify, options, next) => {
         !/\/ping|\/v1$/.test(request.url) &&
         !/\/taskbundle|\/v1$/.test(request.url) &&
         !/\/meta|\/v1$/.test(request.url) &&
-        !/\/erviewer$/.test(request.url)
-      ) {
+        !/\/erviewer$/.test(request.url) &&
+        !/\/favicon.ico$/.test(request.url) &&
+        !(/\/tblsizeviewer(\?.*)?$/).test(request.url)
+            ) {
         await request.jwtVerify();
       }
     } catch (err) {

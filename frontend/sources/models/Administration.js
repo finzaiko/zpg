@@ -107,6 +107,13 @@ export const administrationMenuList = [
     detail: "Temporary file size",
     action: "tempfilesize",
   },
+  {
+    id: 13,
+    url: "administration.view",
+    title: "Dangling Query",
+    detail: "Dangling Long Running Query",
+    action: "danglingquery",
+  },
 ];
 
 export function runReloadConf(inputData) {

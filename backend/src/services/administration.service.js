@@ -9,6 +9,8 @@ const {
   dbSize,
   runQueries,
   connOpen,
+  danglingQuery,
+  schemaSizeGraph,
 } = require("../core/sql/admin.sql");
 const { dbSchemaAll } = require("../core/sql/db.sql");
 const BaseRepository = require(`../repositories/base.repository`);
@@ -38,6 +40,10 @@ class AdministrationService {
   }
 
   async view(userId, bodyData) {
+    if(!userId){
+      return { error: true, message: "No userId" };
+    }
+
     const { source_id, action, db_name, schema_name } = bodyData;
     let sql = "";
     switch (action) {
@@ -74,12 +80,20 @@ class AdministrationService {
       case "schemasize":
         sql = schemaSize();
         break;
+      case "schemasizegraph":
+        sql = schemaSizeGraph();
+        break;
       case "tblsize":
         sql = tableSize(schema_name);
+        break;
+      case "danglingquery":
+        sql = danglingQuery();
         break;
       default:
         break;
     }
+
+    // console.log('sql= ',sql);
 
     const sourceData = await BaseRepository.runQuery(
       source_id,

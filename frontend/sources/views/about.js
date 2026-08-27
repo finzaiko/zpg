@@ -45,6 +45,16 @@ export default {
 		<section>
 		<h4>Change log:</h4>
 			<p>
+			<h4>0.0.21-dev (27-08-2026)</h4>
+				<ul>
+					<li>SQL auto completion</li>
+					<li>query tab colors</li>
+					<li>more shortcut navigation (move and other actions)</li>
+					<li>query tools text diff, json formatter</li>
+					<li>Other improvements</li>
+				</ul>
+			</p>
+			<p>
 			<h4>0.0.20-dev (30-07-2024)</h4>
 				<ul>
 					<li>database: add encrypted import export db connection</li>

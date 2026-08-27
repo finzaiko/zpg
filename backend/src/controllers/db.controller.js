@@ -10,6 +10,13 @@ class DbController {
     responseOk(reply, { data: data.rows, pos: 0, total_count: data.rowCount });
   }
 
+  async getCompletion(request, reply) {
+    const { id } = request.query;
+    const userId = request.user.uid;
+    const data = await DbService.getCompletionList(id, userId);
+    reply.send(data);
+  }
+
   async getSchemaContent(request, reply) {
     const { id } = request.query;
     const userId = request.user.uid;

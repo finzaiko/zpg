@@ -9,6 +9,8 @@ import { initSession, userProfile } from "./models/UserProfile";
 import { showExpiredMsg } from "./helpers/ui";
 // import { loadExComponentMonacoEditor } from "./components/monaco";p
 import { loadExComponentFadeInWindow } from "./components/fadeInWindow";
+import { loadExComponentEChart } from "./components/echart";
+import { loadExComponentJsonEditor } from "./components/jsoneditor";
 
 // getAppMeta() {
 //   webix.ajax(`${API_URL}/meta`).then((ra) => {
@@ -18,6 +20,8 @@ import { loadExComponentFadeInWindow } from "./components/fadeInWindow";
 
 // loadExComponentMonacoEditor();
 loadExComponentFadeInWindow();
+loadExComponentEChart();
+loadExComponentJsonEditor();
 
 // https://snippet.webix.com/mw0mlhvz
 

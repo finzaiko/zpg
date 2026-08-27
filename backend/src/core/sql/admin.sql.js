@@ -95,6 +95,23 @@ const schemaSize = () => {
   `;
 };
 
+const schemaSizeGraph = (schema) => {
+  return `-- SELECT json_agg(t) as data FROM (
+            SELECT
+                schemaname as "name",
+                SUM(pg_total_relation_size(quote_ident(schemaname)||'.'||quote_ident(tablename))) as "value",
+                jsonb_agg(jsonb_build_object(
+                    'name', tablename,
+                    'value', pg_total_relation_size(quote_ident(schemaname)||'.'||quote_ident(tablename))
+                )) as children
+            FROM pg_tables
+            WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+            GROUP BY schemaname
+            ORDER BY value DESC
+          -- )t
+  `;
+}
+
 const dbSize = () => {
   return `
   SELECT d.datname AS name,
@@ -133,6 +150,42 @@ const connOpen = () => {
 `;
 };
 
+const danglingQuery = () => {
+  return `
+      WITH tbl AS (
+        SELECT
+        pid,
+        datname AS database,
+        usename AS username,
+        application_name,
+        client_addr AS client_ip,
+        backend_type,
+        backend_start,
+        xact_start AS transaction_start,
+        query_start,
+        state_change AS last_state_change,
+        state AS transaction_state,
+        wait_event,
+        wait_event_type,
+        pg_blocking_pids(pid) AS blocked_by,
+        CASE
+            WHEN state = 'active' THEN
+                now() - query_start
+            ELSE
+                NULL
+        END AS duration,
+        query AS current_query
+    FROM pg_stat_activity
+    WHERE state IS NOT NULL
+        AND pid != pg_backend_pid()
+    )
+    SELECT * FROM tbl
+    WHERE transaction_state = 'active'
+    AND duration > interval '5 minutes'
+    ORDER BY duration DESC;
+`;
+};
+
 module.exports = {
   activeSession,
   killSessionID,
@@ -143,9 +196,11 @@ module.exports = {
   tempFileSize,
   tableSize,
   schemaSize,
+  schemaSizeGraph,
   dbSize,
   runQueries,
   connOpen,
+  danglingQuery,
 };
 
 // REFERENCES: https://dataedo.com/kb/query/postgresql

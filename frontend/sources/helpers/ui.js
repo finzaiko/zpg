@@ -3,7 +3,7 @@ import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
 import { EXPAND_ALL_COL_SIZE, FONT_SIZE_EDITOR } from "../config/setting";
 
-export const pageSize = 10000;
+export const pageSize = 1000000;
 export const defaultDateFormat = "%d/%m/%Y";
 export const mmyyDateFormat = "%M %Y";
 export const dbDateFormat = "%Y-%m-%d";

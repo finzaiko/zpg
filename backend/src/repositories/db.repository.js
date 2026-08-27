@@ -4,6 +4,10 @@ const { Pool } = require("pg");
 const {
   dbAll,
   dbSchemaAll,
+  dbCompletionSchemas,
+  dbCompletionTables,
+  dbCompletionColumns,
+  dbCompletionFunctions,
   dbAllByOid,
   dbSchemaAllByOid,
   dbAllFunc,
@@ -53,6 +57,58 @@ class DbRepository {
     if (serverCfg.length > 0) {
       const pgPool = new Pool(serverCfg[0]);
       return pgPool.query(dbSchemaAll);
+    }
+    return [];
+  }
+
+
+  async getCompletionList(profileId, userId) {
+    const serverCfg = await ProfileRepository.getById(profileId, 1, userId);
+    if (serverCfg.length > 0) {
+      const pgPool = new Pool(serverCfg[0]);
+      const [schemas, tables, columns, functions] = await Promise.all([
+        pgPool.query(dbCompletionSchemas),
+        pgPool.query(dbCompletionTables),
+        pgPool.query(dbCompletionColumns),
+        pgPool.query(dbCompletionFunctions),
+      ]);
+
+      // Get list of all schemas
+      const schemaList = schemas.rows.map((r) => r.name);
+
+      // Group tables by schema
+      const tablesBySchema = {};
+      schemaList.forEach(schema => {
+        tablesBySchema[schema] = tables.rows
+          .filter(r => r.schema === schema)
+          .map(r => r.name);
+      });
+
+      // Group columns by schema
+      const columnsBySchema = {};
+      schemaList.forEach(schema => {
+        columnsBySchema[schema] = columns.rows
+          .filter(r => r.schema === schema)
+          .map(r => r.name);
+      });
+
+      // Group functions by schema
+      const functionsBySchema = {};
+      schemaList.forEach(schema => {
+        functionsBySchema[schema] = functions.rows
+          .filter(r => r.schema === schema)
+          .map(r => r.name);
+      });
+
+      // Build array format: [{ schema, tables, columns, functions }, ...]
+      const completionData = schemaList.map(schema => ({
+        schema: schema,
+        tables: tablesBySchema[schema] || [],
+        columns: columnsBySchema[schema] || [],
+        functions: functionsBySchema[schema] || [],
+      }));
+
+      return completionData;
     }
     return [];
   }

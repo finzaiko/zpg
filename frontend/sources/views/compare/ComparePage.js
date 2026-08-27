@@ -14,7 +14,12 @@ import { url as urlTask, urlItem as urlTaskItem } from "../../models/Task";
 import { url as urlQuery } from "../../models/Query";
 
 import { defaultHeader } from "../../helpers/api";
-import { CONFIRM_DROP_REPLACE, CONFIRM_EXECUTE, LAST_DB_CONN_COMPARE_SRC, LAST_DB_CONN_COMPARE_TRG } from "../../config/setting";
+import {
+  CONFIRM_DROP_REPLACE,
+  CONFIRM_EXECUTE,
+  LAST_DB_CONN_COMPARE_SRC,
+  LAST_DB_CONN_COMPARE_TRG,
+} from "../../config/setting";
 
 const prefix = state.prefix;
 
@@ -31,31 +36,31 @@ const defenitionColumn = [
       if (value == "src") return "z-cell-src";
       if (value == "dif") return "z-cell-diff";
     },
-    sort:"text"
+    sort: "text",
   },
   {
     id: "z_schema",
     header: ["Schema", { content: "textFilter" }],
     adjust: true,
-    sort:"text"
+    sort: "text",
   },
   {
     id: "z_name",
     header: ["Name", { content: "textFilter" }],
     adjust: true,
-    sort:"text"
+    sort: "text",
   },
   {
     id: "z_type",
     header: ["Type", { content: "textFilter" }],
     adjust: true,
-    sort:"text"
+    sort: "text",
   },
   {
     id: "z_return",
     header: ["Return", { content: "textFilter" }],
     adjust: true,
-    sort:"text"
+    sort: "text",
   },
   // { id: "z_content", header: "Content Length", adjust: true },
 ];
@@ -167,7 +172,6 @@ const toolbar = {
           colorComboDBSource($$("diffsourcecombo"));
 
           webix.storage.local.put(LAST_DB_CONN_COMPARE_SRC, id);
-
         },
       },
     },
@@ -365,6 +369,20 @@ const toolbar = {
         });
       },
     },
+    {
+      view: "button",
+      type: "icon",
+      css: "zmdi_padding",
+      icon: "mdi mdi-select-compare",
+      id: "manual_compare_btn",
+      autowidth: true,
+      // hidden: true,
+      tooltip: "Manual Compare Text",
+      click: function () {
+        // alert("Not implement yet");
+        showManualCompare(this.$scope);
+      },
+    },
     {},
     {
       view: "icon",
@@ -537,8 +555,8 @@ function filterSchema(id) {
   filterCombo.clearAll();
   cmbId.setValue("");
   cmbId.getPopup().getList().unselect();
-  filterCombo.load(`${url}/schema?id=${id}`).fail(e=>{
-    webix.message({text: JSON.parse(e.response).message, type:"error"});
+  filterCombo.load(`${url}/schema?id=${id}`).fail((e) => {
+    webix.message({ text: JSON.parse(e.response).message, type: "error" });
   });
 }
 
@@ -602,7 +620,10 @@ function compare() {
         $$("diff_detail_resizer").hide();
         $$("diff_detail_panel").hide();
       }
-        $$("griddiff").sort([{by:"z_schema", dir:"asc"}, {by:"z_name", dir:"asc"}]);
+      $$("griddiff").sort([
+        { by: "z_schema", dir: "asc" },
+        { by: "z_name", dir: "asc" },
+      ]);
       setTimeout(() => $$("differrfilter").setValue("error"), 1000);
     })
     .fail(function (err) {
@@ -742,6 +763,125 @@ function showFullscreenDiff(scope, title, objSource, objTarget) {
     .show();
 }
 
+function showManualCompare(scope) {
+  scope
+    .ui({
+      view: "window",
+      position: "center",
+      // fullscreen: true,
+      width: 1100,
+      height: 700,
+      move: true,
+      resize: true,
+      head: {
+        cols: [
+          {
+            width: 200,
+            cols: [
+              {
+                template: "Manual Compare Text",
+                type: "header",
+                borderless: true,
+              },
+            ],
+          },
+          {},
+          {
+            view: "button",
+            value: "Compare",
+            id: "do_manual_compare_btn",
+            autowidth: true,
+            click: function () {
+              if (this.getValue() == "Reset") {
+                this.setValue("Compare");
+                this.resize();
+                $$("manual_compare_text_a_b").show();
+                $$("manual_compare_editor_result").hide();
+                $$("manual_compare_text_a").setValue(),
+                  $$("manual_compare_text_b").setValue();
+                  $$("space_reset_compare").hide();
+              } else {
+
+                const dataA = $$("manual_compare_text_a").getValue();
+                const dataB = $$("manual_compare_text_b").getValue();
+                if (dataA.trim() == "" || dataB.trim() == "") {
+                  webix.message({
+                    text: "Text A or Text B can not empty",
+                    type: "error",
+                  });
+                  return;
+                }
+                this.setValue("Reset");
+                this.resize();
+                $$("manual_compare_text_a_b").hide();
+                $$("manual_compare_editor_result").show();
+                $$("manual_compare_editor_result").setDiffValue(dataA, dataB);
+                $$("space_reset_compare").show();
+              }
+            },
+          },
+          {},
+          {
+            width: 80,
+            id: "space_reset_compare",
+            hidden: true,
+          },
+          {
+            width: 200,
+            cols: [
+              {},
+              {
+                view: "icon",
+                icon: "wxi-close",
+                tooltip: "Close window",
+                click: function () {
+                  this.getParentView()
+                    .getParentView()
+                    .getParentView()
+                    .destructor();
+                },
+              },
+            ],
+          },
+        ],
+      },
+      body: {
+        cols: [
+          {
+            rows: [
+              {
+                id: "manual_compare_text_a_b",
+                cols: [
+                  {
+                    view: "monaco-editor",
+                    id: "manual_compare_text_a",
+                    placeholder: "Text A",
+                  },
+                  { view: "resizer" },
+                  {
+                    view: "monaco-editor",
+                    id: "manual_compare_text_b",
+                    placeholder: "Text B",
+                  },
+                ],
+              },
+              {
+                view: "monaco-editor",
+                id: "manual_compare_editor_result",
+                language: "sql",
+                diffEditor: true,
+                hidden: true,
+                automaticLayout: true,
+              },
+            ],
+          },
+          { width: 10 },
+        ],
+      },
+    })
+    .show();
+}
+
 function execQuery(tranferTo) {
   const isConfirm = $$("diff_is_confirm").getValue();
 
@@ -807,9 +947,7 @@ export default class ComparePage extends JetView {
           id: prefix + "_pagerA",
           size: 20000,
           template: function (data, common) {
-            return (
-              `<span style=float:right;line-height:2;padding-right:8px><span style="color:#1ca1c1;font-weight:500;font-size:13px;">Rows:</span> ${data.count}</span>`
-            );
+            return `<span style=float:right;line-height:2;padding-right:8px><span style="color:#1ca1c1;font-weight:500;font-size:13px;">Rows:</span> ${data.count}</span>`;
           },
         },
       ],
@@ -928,11 +1066,14 @@ export default class ComparePage extends JetView {
                 onBeforeDrag: function () {
                   // if(!this.config.drag)return false;
                 },
-                ready:function(){
+                ready: function () {
                   // apply sorting
                   // this.sort([{by:"z_schema", dir:"asc"}, {by:"z_name", dir:"asc"}]);
-
-                }
+                },
+                onBeforeContextMenu: function (id, e, node) {
+                  // Important: prevent default context menu
+                  return false;
+                },
               },
               columns: defenitionColumn,
             },
@@ -1045,6 +1186,7 @@ export default class ComparePage extends JetView {
     if (crd) {
       $$("diff_is_drop_replace").setValue(crd);
     }
+    setContext();
   }
 }
 
@@ -1059,3 +1201,26 @@ function syncScroll(phoneFaceId) {
     face1.scrollLeft = face2.scrollLeft;
   }
 }
+
+function setContext() {
+  if ($$(prefix + "_context_menu")) {
+    $$(prefix + "_context_menu").destructor();
+    setContext();
+  } else {
+    webix.ui({
+      view: "contextmenu",
+      id: prefix + "_context_menu",
+      data: ["Manual compare to Source", "Manual compare to Target"],
+      on: {
+        onItemClick: function (id) {
+          // const ctx = this.getContext();
+          // console.log("id", id);
+          // console.log("ctx", ctx);
+        },
+      },
+    });
+    console.log("callll-2");
+    $$(prefix + "_context_menu").attachTo($$("griddiff"));
+  }
+}
+
